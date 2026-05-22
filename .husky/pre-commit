@@ -1,0 +1,3 @@
+# Run lint-staged from ai-design-system package config (staged files only)
+cd packages/ai-design-system || exit 1
+pnpm exec lint-staged

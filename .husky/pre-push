@@ -1,0 +1,18 @@
+echo "Running pre-push checks..."
+echo ""
+
+cd packages/ai-design-system || exit 1
+
+echo "Running ESLint on all files..."
+pnpm lint || exit 1
+
+echo ""
+echo "Running all design system validations..."
+node scripts/run-all-validations.js || exit 1
+
+echo ""
+echo "Verifying type definitions..."
+node scripts/generate-dts.js || exit 1
+
+echo ""
+echo "Pre-push checks passed."
