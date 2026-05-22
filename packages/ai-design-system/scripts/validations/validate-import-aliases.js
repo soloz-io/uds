@@ -184,6 +184,15 @@ class ImportAliasValidator {
 }
 
 function getRepoRoot() {
+  // Use __dirname-based resolution so this works in both standalone repos and
+  // monorepos (where git rev-parse --show-toplevel returns the monorepo root,
+  // not this package's root).
+  // __dirname = scripts/validations/, so two levels up is the package root.
+  const packageRoot = path.join(__dirname, '..', '..');
+  if (fs.existsSync(path.join(packageRoot, 'components'))) {
+    return packageRoot;
+  }
+  // Fallback: try git toplevel, then cwd
   try {
     const result = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' });
     return result.trim();
