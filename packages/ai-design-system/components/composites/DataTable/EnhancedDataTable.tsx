@@ -100,8 +100,8 @@ export function EnhancedDataTable({
   const [mutableData, setMutableData] = React.useState<DashboardRow[]>(() => initialData)
 
   // Intentional sync: update local mutable copy when parent data changes.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMutableData(initialData)
   }, [initialData])
 
