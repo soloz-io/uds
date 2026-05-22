@@ -7,7 +7,7 @@ export default defineConfig({
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['react', 'react-dom', 'next'],
+  external: ['react', 'react-dom', 'next', 'ui-schema-contracts'],
   treeshake: true,
   minify: false,
 });
