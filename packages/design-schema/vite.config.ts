@@ -45,6 +45,19 @@ const entries: Record<string, string> = {
   "adapters/drizzle": resolve(__dirname, "src/adapters/drizzle/index.ts"),
 };
 
+const externalDeps = [
+  "react",
+  "react-dom",
+  "ai-design-system",
+  "ui-schema-contracts",
+  /^ui-schema-contracts\//,
+  "recharts",
+  "zod",
+  "jotai",
+  "drizzle-orm",
+  /^drizzle-orm\//,
+];
+
 export default defineConfig({
   plugins: [
     react(),
@@ -64,16 +77,11 @@ export default defineConfig({
     },
     rollupOptions: {
       // Externalise everything that must be a peer dep — never bundled
-      external: [
-        "react",
-        "react-dom",
-        "ai-design-system",
-        "recharts",
-        "zod",
-        "jotai",
-        "drizzle-orm",
-        /^drizzle-orm\//,
-      ],
+      external: externalDeps,
+    },
+    // Vite 8+ uses Rolldown internally; keep externals in sync.
+    rolldownOptions: {
+      external: externalDeps,
     },
     // Keep individual chunks so tree-shaking works per entry
     sourcemap: true,
