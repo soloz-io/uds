@@ -38,7 +38,6 @@ import { DraggableRow } from "./DraggableRow"
 import { createTableSelectColumn } from "./TableSelectColumn"
 import type {
   DashboardRow,
-  DashboardRowAction,
   DashboardTableActionHandlers,
 } from "./table-types"
 import { useEnhancedDataTable } from "./useEnhancedDataTable"
@@ -95,8 +94,10 @@ export function EnhancedDataTable({
 }: EnhancedDataTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("")
 
+  const containerRef = React.useRef<HTMLDivElement | null>(null)
   const [version, setVersion] = React.useState(0)
   const [mutableData, setMutableData] = React.useState<DashboardRow[]>(() => initialData)
+  const [editingRowId, setEditingRowId] = React.useState<string | null>(null)
 
   // Intentional sync: update local mutable copy when parent data changes.
   React.useEffect(() => {
@@ -132,6 +133,45 @@ export function EnhancedDataTable({
     },
     [handlers, mutableData, tableSchema, updateRow]
   )
+
+  React.useEffect(() => {
+    if (!editingRowId) return
+    const rowStillExists = mutableData.some((row) => String(toRowId(row, tableSchema)) === editingRowId)
+    if (!rowStillExists) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEditingRowId(null)
+      handlers?.onEditModeChange?.(null)
+    }
+  }, [editingRowId, handlers, mutableData, tableSchema])
+
+  React.useEffect(() => {
+    if (!editingRowId) return
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target
+      if (!(target instanceof Element)) return
+
+      const clickedRowId = target.closest("tr[data-row-id]")?.getAttribute("data-row-id")
+      if (clickedRowId === editingRowId) {
+        return
+      }
+
+      const editedRowExists = containerRef.current?.querySelector(`tr[data-row-id="${editingRowId}"]`)
+      if (!editedRowExists) {
+        setEditingRowId(null)
+        handlers?.onEditModeChange?.(null)
+        return
+      }
+
+      setEditingRowId(null)
+      handlers?.onEditModeChange?.(null)
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown)
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown)
+    }
+  }, [editingRowId, handlers])
 
   const renderEditableCell = React.useCallback(
     (row: DashboardRow, column: TableColumn, rawValue: unknown) => {
@@ -248,7 +288,9 @@ export function EnhancedDataTable({
         cell: (cellContext) => {
           const { row } = cellContext
           const rawValue = row.original[column.key]
-          if ((column.editable ?? false) && (column.inputType ?? "none") !== "none") {
+          const rowId = String(toRowId(row.original, tableSchema))
+          const isRowEditing = editingRowId === rowId
+          if (isRowEditing && (column.editable ?? false) && (column.inputType ?? "none") !== "none") {
             return renderEditableCell(row.original, column, rawValue)
           }
           return (
@@ -271,18 +313,34 @@ export function EnhancedDataTable({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={() => handlers?.onRowAction?.("edit", row.original)}>Edit</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setEditingRowId(String(toRowId(row.original, tableSchema)))
+                handlers?.onRowAction?.("edit", row.original)
+              }}
+            >
+              Edit
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handlers?.onRowAction?.("copy", row.original)}>Make a copy</DropdownMenuItem>
             <DropdownMenuItem onClick={() => handlers?.onRowAction?.("favorite", row.original)}>Favorite</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handlers?.onRowAction?.("delete", row.original)}>Delete</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                if (editingRowId === String(toRowId(row.original, tableSchema))) {
+                  setEditingRowId(null)
+                }
+                handlers?.onRowAction?.("delete", row.original)
+              }}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
     })
 
     return dynamicColumns
-  }, [handlers, renderEditableCell, renderReadonlyCell, tableSchema])
+  }, [editingRowId, handlers, renderEditableCell, renderReadonlyCell, tableSchema])
 
   const filterKeys = React.useMemo(() => tableSchema.columns.map((column) => column.key), [tableSchema.columns])
 
@@ -319,11 +377,13 @@ export function EnhancedDataTable({
     [handlers]
   )
 
+  const rowSelection = table.getState().rowSelection
+
   React.useEffect(() => {
     const selectedRows = table.getFilteredSelectedRowModel().rows.map((row) => row.original)
     const selectedIds = selectedRows.map((row) => toRowId(row, tableSchema))
     handlers?.onRowSelectionChange?.(selectedIds, selectedRows)
-  }, [handlers, table, table.getState().rowSelection, tableSchema])
+  }, [handlers, rowSelection, table, tableSchema])
 
   const onDragEnd = React.useCallback(
     (event: DragEndEvent) => {
@@ -350,7 +410,7 @@ export function EnhancedDataTable({
           <Input
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Filter tasks..."
+            placeholder="Filter records..."
             className="h-8 w-[260px]"
             aria-label="Filter table rows"
           />
@@ -418,7 +478,7 @@ export function EnhancedDataTable({
                 {table.getRowModel().rows?.length ? (
                   <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
                     {table.getRowModel().rows.map((row) => (
-                      <DraggableRow key={row.id} row={row} />
+                      <DraggableRow key={row.id} row={row} rowId={toRowId(row.original, tableSchema)} />
                     ))}
                   </SortableContext>
                 ) : (

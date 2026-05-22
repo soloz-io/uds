@@ -20,10 +20,19 @@ export interface FormReportsRowAction {
 }
 
 export interface FormReportsTableHandlers {
+  onCreateClick?: () => void
+  onAddSection?: () => void
   onColumnsChange?: (visibleColumnKeys: string[]) => void
+  onRowReorder?: (rows: FormReportsEntity[]) => void
+  onEditModeChange?: (rowId: number | string | null, row?: FormReportsEntity) => void
+  onRowUpdate?: (rowId: number | string, key: string, value: string, row: FormReportsEntity) => void
+  onInlineEditSave?: (rowId: number | string, field: string, value: string, row: FormReportsEntity) => void
+  onReviewerAssign?: (rowId: number | string, reviewer: string, row: FormReportsEntity) => void
   onRowAction?: (action: string, row: FormReportsEntity) => void
   onRowSelectionChange?: (selectedRowIds: Array<number | string>, selectedRows: FormReportsEntity[]) => void
   onPaginationChange?: (pageIndex: number, pageSize: number) => void
+  onPageSizeChange?: (pageSize: number) => void
+  onPageChange?: (pageIndex: number) => void
 }
 
 export interface FormReportsTableProps {
@@ -77,7 +86,38 @@ export const FormReportsTable = React.memo<FormReportsTableProps>(
 
     const adaptedHandlers = React.useMemo<DashboardTableActionHandlers>(
       () => ({
+        onCreateClick: () => handlers?.onCreateClick?.(),
+        onAddSection: () => handlers?.onAddSection?.(),
         onColumnsChange: (visibleColumnIds) => handlers?.onColumnsChange?.(visibleColumnIds),
+        onRowReorder: (nextRows) => {
+          const nextOriginalRows = nextRows
+            .map((row) => originalById.get(String(row.id)))
+            .filter((row): row is FormReportsEntity => Boolean(row))
+          handlers?.onRowReorder?.(nextOriginalRows)
+        },
+        onEditModeChange: (rowId, row) => {
+          if (rowId === null) {
+            handlers?.onEditModeChange?.(null)
+            return
+          }
+          const originalRow = originalById.get(String(row?.id ?? rowId))
+          handlers?.onEditModeChange?.(rowId, originalRow)
+        },
+        onRowUpdate: (rowId, key, value, row) => {
+          const originalRow = originalById.get(String(row.id))
+          if (!originalRow) return
+          handlers?.onRowUpdate?.(rowId, key, value, originalRow)
+        },
+        onInlineEditSave: (rowId, key, value, row) => {
+          const originalRow = originalById.get(String(row.id))
+          if (!originalRow) return
+          handlers?.onInlineEditSave?.(rowId, key, value, originalRow)
+        },
+        onReviewerAssign: (rowId, reviewer, row) => {
+          const originalRow = originalById.get(String(row.id))
+          if (!originalRow) return
+          handlers?.onReviewerAssign?.(rowId, reviewer, originalRow)
+        },
         onRowAction: (action, row) => {
           const originalRow = originalById.get(String(row.id))
           if (!originalRow) return
@@ -94,6 +134,8 @@ export const FormReportsTable = React.memo<FormReportsTableProps>(
           }
         },
         onPaginationChange: (pageIndex, pageSize) => handlers?.onPaginationChange?.(pageIndex, pageSize),
+        onPageSizeChange: (pageSize) => handlers?.onPageSizeChange?.(pageSize),
+        onPageChange: (pageIndex) => handlers?.onPageChange?.(pageIndex),
       }),
       [handlers, originalById]
     )

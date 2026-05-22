@@ -7,16 +7,18 @@ import type { DashboardRow } from "./table-types"
 
 export interface DraggableRowProps {
   row: Row<DashboardRow>
+  rowId: number | string
 }
 
-export function DraggableRow({ row }: DraggableRowProps) {
+export function DraggableRow({ row, rowId }: DraggableRowProps) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.id,
+    id: rowId,
   })
 
   return (
     <TableRow
       ref={setNodeRef}
+      data-row-id={String(rowId)}
       data-state={row.getIsSelected() && "selected"}
       data-dragging={isDragging}
       className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"

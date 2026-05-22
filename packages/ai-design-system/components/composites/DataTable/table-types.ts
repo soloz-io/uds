@@ -15,6 +15,7 @@ export interface DashboardTableActionHandlers {
   onAddSection?: () => void
   onColumnsChange?: (visibleColumnIds: string[]) => void
   onRowReorder?: (rows: DashboardRow[]) => void
+  onEditModeChange?: (rowId: number | string | null, row?: DashboardRow) => void
   onRowUpdate?: (rowId: number | string, key: string, value: string, row: DashboardRow) => void
   onInlineEditSave?: (rowId: number | string, field: string, value: string, row: DashboardRow) => void
   onReviewerAssign?: (rowId: number | string, reviewer: string, row: DashboardRow) => void
