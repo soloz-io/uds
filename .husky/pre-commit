@@ -1,3 +1,9 @@
-# Run lint-staged from ai-design-system package config (staged files only)
-cd packages/ai-design-system || exit 1
-pnpm exec lint-staged
+echo "Running pre-commit checks..."
+
+echo "ai-design-system lint-staged"
+pnpm --dir packages/ai-design-system exec lint-staged || exit 1
+
+echo "design-schema lint-staged"
+pnpm --dir packages/design-schema exec lint-staged || exit 1
+
+echo "Pre-commit checks passed."
