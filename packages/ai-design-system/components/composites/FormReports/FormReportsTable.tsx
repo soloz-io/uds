@@ -5,6 +5,7 @@ import {
   type DashboardRowAction,
   type DashboardTableActionHandlers,
 } from "@/components/composites/DataTable"
+import type { DynamicTableSchema, TableColumn } from "ui-schema-contracts"
 
 export interface FormReportsEntity {
   id: number | string
@@ -12,9 +13,19 @@ export interface FormReportsEntity {
 }
 
 export interface FormReportsColumn {
-  key: string
-  label: string
-  align?: "left" | "center" | "right"
+  key: TableColumn["key"]
+  label: TableColumn["label"]
+  align?: TableColumn["align"]
+  renderType?: TableColumn["renderType"]
+  inputType?: TableColumn["inputType"]
+  editable?: TableColumn["editable"]
+  placeholder?: TableColumn["placeholder"]
+  options?: TableColumn["options"]
+  sortable?: TableColumn["sortable"]
+  filterable?: TableColumn["filterable"]
+  hideable?: TableColumn["hideable"]
+  format?: TableColumn["format"]
+  meta?: TableColumn["meta"]
 }
 
 export interface FormReportsRowAction {
@@ -40,21 +51,6 @@ export interface FormReportsTableProps {
   createButtonLabel?: string
 }
 
-const statusMap: Record<string, DashboardRow["status"]> = {
-  "in process": "In Process",
-  done: "Done",
-  "not started": "Not Started",
-}
-
-const dashboardToFormReportsColumnMap: Record<string, string> = {
-  header: "name",
-  type: "sectionType",
-  status: "status",
-  target: "target",
-  limit: "limit",
-  reviewer: "reviewer",
-}
-
 const dashboardToFormReportsActionMap: Record<DashboardRowAction, string> = {
   edit: "edit",
   copy: "duplicate",
@@ -62,62 +58,62 @@ const dashboardToFormReportsActionMap: Record<DashboardRowAction, string> = {
   delete: "delete",
 }
 
-function normalize(value: unknown): string {
-  if (value === null || value === undefined) {
-    return ""
-  }
-  return String(value).toLowerCase()
-}
-
-function toDashboardStatus(value: unknown): DashboardRow["status"] {
-  const normalized = normalize(value)
-  return statusMap[normalized] ?? "Not Started"
-}
-
-function toDisplayString(value: unknown, fallback = "-"): string {
-  if (value === null || value === undefined || value === "") {
-    return fallback
-  }
-  return String(value)
-}
-
 export const FormReportsTable = React.memo<FormReportsTableProps>(
   ({ items, columns, handlers, leftActions, rightActions, onCreateClick, createButtonLabel }) => {
-    const { rows, originalById } = React.useMemo(() => {
-      const byId = new Map<number, FormReportsEntity>()
+    const { rows, originalById, tableSchema } = React.useMemo(() => {
+      const byId = new Map<string, FormReportsEntity>()
+      const tableColumns: DynamicTableSchema["columns"] = columns.map((column) => ({
+        key: column.key,
+        label: column.label,
+        align: column.align ?? "left",
+        renderType: column.renderType ?? "text",
+        inputType: column.inputType ?? "none",
+        editable: column.editable ?? false,
+        placeholder: column.placeholder,
+        options: column.options,
+        sortable: column.sortable ?? true,
+        filterable: column.filterable ?? true,
+        hideable: column.hideable ?? true,
+        format: column.format,
+        meta: column.meta,
+      }))
+
       const nextRows = items.map((item, index) => {
         const rawId = item.id
-        const id = typeof rawId === "number" ? rawId : index + 1
+        const id = rawId === null || rawId === undefined ? String(index + 1) : String(rawId)
         const row: DashboardRow = {
           id,
-          header: toDisplayString(item.name),
-          type: toDisplayString(item.sectionType ?? item.type, "Custom"),
-          status: toDashboardStatus(item.status),
-          target: toDisplayString(item.target, "0"),
-          limit: toDisplayString(item.limit, "0"),
-          reviewer: toDisplayString(item.reviewer, "Assign reviewer"),
+          ...item,
         }
-        byId.set(id, item)
+        byId.set(String(id), item)
         return row
       })
 
-      return { rows: nextRows, originalById: byId }
-    }, [items])
+      return {
+        rows: nextRows,
+        originalById: byId,
+        tableSchema: {
+          schemaVersion: "2",
+          rowKey: "id",
+          columns: tableColumns,
+          enableFiltering: true,
+          enablePagination: true,
+          enableRowSelection: true,
+        } satisfies DynamicTableSchema,
+      }
+    }, [columns, items])
 
     const adaptedHandlers = React.useMemo<DashboardTableActionHandlers>(
       () => ({
-        onColumnsChange: (visibleColumnIds) => {
-          const mappedKeys = visibleColumnIds.map((id) => dashboardToFormReportsColumnMap[id] ?? id)
-          handlers?.onColumnsChange?.(mappedKeys)
-        },
+        onColumnsChange: (visibleColumnIds) => handlers?.onColumnsChange?.(visibleColumnIds),
         onRowAction: (action, row) => {
-          const originalRow = originalById.get(row.id)
+          const originalRow = originalById.get(String(row.id))
           if (!originalRow) return
           handlers?.onRowAction?.(dashboardToFormReportsActionMap[action] ?? action, originalRow)
         },
         onRowSelectionChange: (selectedIds, selectedRows) => {
           const selectedOriginalRows = selectedRows
-            .map((row) => originalById.get(row.id))
+            .map((row) => originalById.get(String(row.id)))
             .filter((row): row is FormReportsEntity => Boolean(row))
           const selectedOriginalIds = selectedOriginalRows.map((row) => row.id)
           handlers?.onRowSelectionChange?.(selectedOriginalIds, selectedOriginalRows)
@@ -133,6 +129,7 @@ export const FormReportsTable = React.memo<FormReportsTableProps>(
     return (
       <EnhancedDataTable
         data={rows}
+        tableSchema={tableSchema}
         handlers={adaptedHandlers}
         leftActions={leftActions}
         rightActions={rightActions}

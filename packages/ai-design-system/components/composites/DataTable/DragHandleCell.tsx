@@ -4,7 +4,7 @@ import { GripVertical } from "lucide-react"
 import { Button } from "@/components/primitives/Button"
 
 export interface DragHandleCellProps {
-  id: number
+  id: number | string
 }
 
 export function DragHandleCell({ id }: DragHandleCellProps) {

@@ -55,12 +55,35 @@ export const formReportsFields: FormReportsFieldDefinition[] = [
 ]
 
 export const formReportsColumns: FormReportsColumn[] = [
-  { key: "name", label: "Header" },
-  { key: "sectionType", label: "Section Type" },
-  { key: "status", label: "Status" },
-  { key: "target", label: "Target", align: "right" },
-  { key: "limit", label: "Limit", align: "right" },
-  { key: "reviewer", label: "Reviewer" },
+  { key: "name", label: "Header", renderType: "text", inputType: "text", editable: true, hideable: false },
+  { key: "sectionType", label: "Section Type", renderType: "badge", inputType: "none" },
+  {
+    key: "status",
+    label: "Status",
+    renderType: "status",
+    inputType: "select",
+    editable: true,
+    options: [
+      { label: "Not Started", value: "Not Started" },
+      { label: "In Process", value: "In Process" },
+      { label: "Done", value: "Done" },
+    ],
+  },
+  { key: "target", label: "Target", align: "right", renderType: "text", inputType: "number", editable: true },
+  { key: "limit", label: "Limit", align: "right", renderType: "text", inputType: "number", editable: true },
+  {
+    key: "reviewer",
+    label: "Reviewer",
+    renderType: "text",
+    inputType: "select",
+    editable: true,
+    options: [
+      { label: "Eddie Lake", value: "Eddie Lake" },
+      { label: "Jamik Tashpulatov", value: "Jamik Tashpulatov" },
+      { label: "Emily Whalen", value: "Emily Whalen" },
+      { label: "Assign reviewer", value: "Assign reviewer" },
+    ],
+  },
 ]
 
 export const formReportsRowActions: FormReportsRowAction[] = [

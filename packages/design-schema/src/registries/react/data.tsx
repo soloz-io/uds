@@ -7,7 +7,7 @@ import { schema } from "@json-render/react/schema";
 
 import {
   StatsCard,
-  DataTable,
+  EnhancedDataTable,
   InteractiveChart,
   type InteractiveChartProps,
 } from "ai-design-system";
@@ -95,19 +95,11 @@ export const { registry: dataRegistry } = defineRegistry(dataCatalog, {
 
     DataTable: ({ props }) => {
       const rows = Array.isArray(props.data) ? props.data : [];
-      const cols = props.columns.map((col) => ({
-        accessorKey: col.key,
-        header: col.label,
-      }));
 
       return (
-        <DataTable
+        <EnhancedDataTable
           data={rows}
-          columns={cols}
-          enableRowSelection={props.enableRowSelection ?? false}
-          enablePagination={props.enablePagination ?? true}
-          enableFiltering={props.enableFiltering ?? false}
-          searchColumn={props.searchColumn ?? undefined}
+          tableSchema={props.tableSchema}
         />
       );
     },

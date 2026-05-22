@@ -71,9 +71,9 @@ export function useEnhancedDataTable({ data: initialData, columns, onReorder }: 
       }
 
       setData((prev) => {
-        const ids = prev.map((item) => item.id)
-        const oldIndex = ids.indexOf(Number(activeId))
-        const newIndex = ids.indexOf(Number(overId))
+        const ids = prev.map((item) => String(item.id))
+        const oldIndex = ids.indexOf(String(activeId))
+        const newIndex = ids.indexOf(String(overId))
         if (oldIndex < 0 || newIndex < 0) {
           return prev
         }
@@ -85,8 +85,8 @@ export function useEnhancedDataTable({ data: initialData, columns, onReorder }: 
     [onReorder]
   )
 
-  const updateCell = React.useCallback((rowId: number, key: keyof DashboardRow, value: string) => {
-    setData((prev) => prev.map((row) => (row.id === rowId ? { ...row, [key]: value } : row)))
+  const updateCell = React.useCallback((rowId: number | string, key: string, value: string) => {
+    setData((prev) => prev.map((row) => (String(row.id) === String(rowId) ? { ...row, [key]: value } : row)))
   }, [])
 
   return {

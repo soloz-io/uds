@@ -1,5 +1,5 @@
 {
-  "name": "@soloz-io/ui-schema-contracts",
+  "name": "ui-schema-contracts",
   "version": "0.1.0",
   "private": false,
   "type": "module",

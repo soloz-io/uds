@@ -13,9 +13,11 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { MoreVertical, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Columns3, Plus } from "lucide-react"
 import { flexRender, type ColumnDef } from "@tanstack/react-table"
+import type { DynamicTableSchema, TableColumn } from "ui-schema-contracts"
 
 import { Badge } from "@/components/primitives/Badge"
 import { Button } from "@/components/primitives/Button"
+import { Checkbox } from "@/components/primitives/Checkbox"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -26,26 +28,25 @@ import {
 } from "@/components/primitives/DropdownMenu"
 import { Input } from "@/components/primitives/Input"
 import { Label } from "@/components/primitives/Label"
+import { Progress } from "@/components/primitives/Progress"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/primitives/Select"
+import { Textarea } from "@/components/primitives/Textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/primitives/Table"
 
 import { DragHandleCell } from "./DragHandleCell"
 import { DraggableRow } from "./DraggableRow"
-import { InlineEditCell } from "./InlineEditCell"
-import { ReviewerCell } from "./ReviewerCell"
-import { RowDetailDrawer } from "./RowDetailDrawer"
-import { StatusCell } from "./StatusCell"
 import { createTableSelectColumn } from "./TableSelectColumn"
 import type {
-  DashboardInlineEditableField,
   DashboardRow,
   DashboardRowAction,
   DashboardTableActionHandlers,
 } from "./table-types"
+import { defaultDashboardTableSchema } from "./table-types"
 import { useEnhancedDataTable } from "./useEnhancedDataTable"
 
 export interface EnhancedDataTableProps {
   data: DashboardRow[]
+  tableSchema?: DynamicTableSchema
   className?: string
   handlers?: DashboardTableActionHandlers
   leftActions?: React.ReactNode
@@ -54,86 +55,38 @@ export interface EnhancedDataTableProps {
   createButtonLabel?: string
 }
 
-function useDashboardColumns(
-  onSave: (rowId: number, field: "target" | "limit", value: string) => void,
-  onAssignReviewer: (rowId: number, reviewer: string) => void,
-  onUpdateRow: (rowId: number, key: keyof DashboardRow, value: string) => void,
-  onRowAction?: (action: DashboardRowAction, row: DashboardRow) => void
-): ColumnDef<DashboardRow>[] {
-  return React.useMemo(
-    () => [
-      {
-        id: "drag",
-        header: () => null,
-        cell: ({ row }) => <DragHandleCell id={row.original.id} />,
-        enableSorting: false,
-        enableHiding: false,
-      },
-      createTableSelectColumn(),
-      {
-        accessorKey: "header",
-        header: "Header",
-        cell: ({ row }) => <RowDetailDrawer item={row.original} onChange={onUpdateRow} />,
-        enableHiding: false,
-      },
-      {
-        accessorKey: "type",
-        header: "Section Type",
-        cell: ({ row }) => (
-          <div className="w-32">
-            <Badge variant="outline" className="px-1.5 text-muted-foreground">
-              {row.original.type}
-            </Badge>
-          </div>
-        ),
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => <StatusCell status={row.original.status} />,
-      },
-      {
-        accessorKey: "target",
-        header: () => <div className="w-full text-right">Target</div>,
-        cell: ({ row }) => <InlineEditCell row={row.original} field="target" onSave={onSave} />,
-      },
-      {
-        accessorKey: "limit",
-        header: () => <div className="w-full text-right">Limit</div>,
-        cell: ({ row }) => <InlineEditCell row={row.original} field="limit" onSave={onSave} />,
-      },
-      {
-        accessorKey: "reviewer",
-        header: "Reviewer",
-        cell: ({ row }) => <ReviewerCell row={row.original} onAssign={onAssignReviewer} />,
-      },
-      {
-        id: "actions",
-        cell: ({ row }) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
-                <MoreVertical className="size-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => onRowAction?.("edit", row.original)}>Edit</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onRowAction?.("copy", row.original)}>Make a copy</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onRowAction?.("favorite", row.original)}>Favorite</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onRowAction?.("delete", row.original)}>Delete</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ),
-      },
-    ],
-    [onAssignReviewer, onRowAction, onSave, onUpdateRow]
-  )
+function toRowId(row: DashboardRow, schema: DynamicTableSchema): number | string {
+  const key = schema.rowKey ?? "id"
+  const value = row[key]
+  if (typeof value === "number" || typeof value === "string") {
+    return value
+  }
+  const fallback = row.id
+  if (typeof fallback === "number" || typeof fallback === "string") {
+    return fallback
+  }
+  return String(value ?? "")
+}
+
+function alignClass(align: TableColumn["align"]): string {
+  if (align === "right") return "text-right"
+  if (align === "center") return "text-center"
+  return "text-left"
+}
+
+function toDisplayValue(value: unknown): string {
+  if (value === null || value === undefined) return ""
+  return String(value)
+}
+
+function toNumberValue(value: unknown): number {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : 0
 }
 
 export function EnhancedDataTable({
   data: initialData,
+  tableSchema = defaultDashboardTableSchema,
   className,
   handlers,
   leftActions,
@@ -146,11 +99,15 @@ export function EnhancedDataTable({
   const [version, setVersion] = React.useState(0)
   const [mutableData, setMutableData] = React.useState<DashboardRow[]>(() => initialData)
 
+  React.useEffect(() => {
+    setMutableData(initialData)
+  }, [initialData])
+
   const updateRow = React.useCallback(
-    (rowId: number, key: keyof DashboardRow, value: string) => {
+    (rowId: number | string, key: string, value: string) => {
       setMutableData((prev) => {
-        const next = prev.map((row) => (row.id === rowId ? { ...row, [key]: value } : row))
-        const updatedRow = next.find((row) => row.id === rowId)
+        const next = prev.map((row) => (String(toRowId(row, tableSchema)) === String(rowId) ? { ...row, [key]: value } : row))
+        const updatedRow = next.find((row) => String(toRowId(row, tableSchema)) === String(rowId))
         if (updatedRow) {
           handlers?.onRowUpdate?.(rowId, key, value, updatedRow)
         }
@@ -158,37 +115,175 @@ export function EnhancedDataTable({
       })
       setVersion((prev) => prev + 1)
     },
-    [handlers]
+    [handlers, tableSchema]
   )
 
   const handleInlineSave = React.useCallback(
-    (rowId: number, field: DashboardInlineEditableField, value: string) => {
-      const currentRow = mutableData.find((row) => row.id === rowId)
+    (rowId: number | string, key: string, value: string) => {
+      const currentRow = mutableData.find((row) => String(toRowId(row, tableSchema)) === String(rowId))
       if (currentRow) {
-        handlers?.onInlineEditSave?.(rowId, field, value, { ...currentRow, [field]: value })
+        handlers?.onInlineEditSave?.(rowId, key, value, { ...currentRow, [key]: value })
       }
-      updateRow(rowId, field, value)
+      if (key === "reviewer") {
+        handlers?.onReviewerAssign?.(rowId, value, { ...(currentRow ?? {}), reviewer: value } as DashboardRow)
+      }
+      updateRow(rowId, key, value)
     },
-    [handlers, mutableData, updateRow]
+    [handlers, mutableData, tableSchema, updateRow]
   )
 
-  const handleAssignReviewer = React.useCallback(
-    (rowId: number, reviewer: string) => {
-      const currentRow = mutableData.find((row) => row.id === rowId)
-      if (currentRow) {
-        handlers?.onReviewerAssign?.(rowId, reviewer, { ...currentRow, reviewer })
+  const renderEditableCell = React.useCallback(
+    (row: DashboardRow, column: TableColumn, rawValue: unknown) => {
+      const rowId = toRowId(row, tableSchema)
+      const value = toDisplayValue(rawValue)
+      const inputType = column.inputType ?? "none"
+
+      if (inputType === "select") {
+        return (
+          <Select value={value} onValueChange={(nextValue) => handleInlineSave(rowId, column.key, nextValue)}>
+            <SelectTrigger className="w-[170px]">
+              <SelectValue placeholder={column.placeholder ?? "Select"} />
+            </SelectTrigger>
+            <SelectContent align="end">
+              {(column.options ?? []).map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )
       }
-      updateRow(rowId, "reviewer", reviewer)
+
+      if (inputType === "boolean") {
+        return (
+          <div className="flex items-center justify-center">
+            <Checkbox
+              checked={String(value).toLowerCase() === "true"}
+              onCheckedChange={(checked) => handleInlineSave(rowId, column.key, checked ? "true" : "false")}
+              aria-label={`Toggle ${column.label}`}
+            />
+          </div>
+        )
+      }
+
+      if (inputType === "textarea") {
+        return (
+          <Textarea
+            value={value}
+            placeholder={column.placeholder}
+            onChange={(event) => handleInlineSave(rowId, column.key, event.target.value)}
+            rows={2}
+            className="min-w-[220px]"
+          />
+        )
+      }
+
+      const htmlInputType = inputType === "date" ? "date" : inputType === "number" ? "number" : "text"
+      return (
+        <Input
+          value={value}
+          type={htmlInputType}
+          placeholder={column.placeholder}
+          className={column.align === "right" ? "h-8 text-right" : "h-8"}
+          onChange={(event) => handleInlineSave(rowId, column.key, event.target.value)}
+        />
+      )
     },
-    [handlers, mutableData, updateRow]
+    [handleInlineSave, tableSchema]
   )
 
-  const columns = useDashboardColumns(
-    handleInlineSave,
-    handleAssignReviewer,
-    updateRow,
-    handlers?.onRowAction
-  )
+  const renderReadonlyCell = React.useCallback((column: TableColumn, rawValue: unknown) => {
+    const renderType = column.renderType ?? "text"
+    const value = toDisplayValue(rawValue)
+
+    if (renderType === "badge" || renderType === "status") {
+      return (
+        <Badge variant="outline" className="px-1.5 text-muted-foreground">
+          {value}
+        </Badge>
+      )
+    }
+
+    if (renderType === "progress") {
+      const progress = Math.max(0, Math.min(100, toNumberValue(rawValue)))
+      return (
+        <div className="flex min-w-[160px] items-center gap-2">
+          <Progress value={progress} />
+          <span className="text-xs text-muted-foreground">{progress}%</span>
+        </div>
+      )
+    }
+
+    if (renderType === "boolean") {
+      return <span>{String(value).toLowerCase() === "true" ? "Yes" : "No"}</span>
+    }
+
+    return <span>{value}</span>
+  }, [])
+
+  const columns = React.useMemo<ColumnDef<DashboardRow>[]>(() => {
+    const dynamicColumns: ColumnDef<DashboardRow>[] = [
+      {
+        id: "drag",
+        header: () => null,
+        cell: ({ row }) => <DragHandleCell id={toRowId(row.original, tableSchema)} />,
+        enableSorting: false,
+        enableHiding: false,
+      },
+    ]
+
+    if (tableSchema.enableRowSelection !== false) {
+      dynamicColumns.push(createTableSelectColumn())
+    }
+
+    dynamicColumns.push(
+      ...tableSchema.columns.map<ColumnDef<DashboardRow>>((column: TableColumn) => ({
+        id: column.key,
+        accessorKey: column.key,
+        header: () => <div className={alignClass(column.align)}>{column.label}</div>,
+        enableSorting: column.sortable ?? true,
+        enableHiding: column.hideable ?? true,
+        cell: (cellContext) => {
+          const { row } = cellContext
+          const rawValue = row.original[column.key]
+          if ((column.editable ?? false) && (column.inputType ?? "none") !== "none") {
+            return renderEditableCell(row.original, column, rawValue)
+          }
+          return (
+            <div className={alignClass(column.align)}>
+              {renderReadonlyCell(column, rawValue)}
+            </div>
+          )
+        },
+      }))
+    )
+
+    dynamicColumns.push({
+      id: "actions",
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
+              <MoreVertical className="size-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem onClick={() => handlers?.onRowAction?.("edit", row.original)}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handlers?.onRowAction?.("copy", row.original)}>Make a copy</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handlers?.onRowAction?.("favorite", row.original)}>Favorite</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handlers?.onRowAction?.("delete", row.original)}>Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    })
+
+    return dynamicColumns
+  }, [handlers, renderEditableCell, renderReadonlyCell, tableSchema])
+
+  const filterKeys = React.useMemo(() => tableSchema.columns.map((column) => column.key), [tableSchema.columns])
 
   const filteredData = React.useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -197,10 +292,9 @@ export function EnhancedDataTable({
     }
 
     return mutableData.filter((row) =>
-      [row.header, row.type, row.status, row.target, row.limit, row.reviewer]
-        .some((value) => String(value).toLowerCase().includes(query))
+      filterKeys.some((key) => String(row[key] ?? "").toLowerCase().includes(query))
     )
-  }, [mutableData, searchQuery])
+  }, [filterKeys, mutableData, searchQuery])
 
   const { table, dataIds, reorderById } = useEnhancedDataTable({
     data: filteredData,
@@ -226,9 +320,9 @@ export function EnhancedDataTable({
 
   React.useEffect(() => {
     const selectedRows = table.getFilteredSelectedRowModel().rows.map((row) => row.original)
-    const selectedIds = selectedRows.map((row) => row.id)
+    const selectedIds = selectedRows.map((row) => toRowId(row, tableSchema))
     handlers?.onRowSelectionChange?.(selectedIds, selectedRows)
-  }, [handlers, table, table.getState().rowSelection])
+  }, [handlers, table, table.getState().rowSelection, tableSchema])
 
   const onDragEnd = React.useCallback(
     (event: DragEndEvent) => {
@@ -329,7 +423,7 @@ export function EnhancedDataTable({
                 ) : (
                   <TableRow>
                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                      No results.
+                      {tableSchema.emptyMessage ?? "No results."}
                     </TableCell>
                   </TableRow>
                 )}

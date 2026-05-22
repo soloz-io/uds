@@ -10,6 +10,7 @@ import {
   type FormReportsValue,
   type FormReportsValues,
 } from "@/components/composites/FormReports"
+import type { DynamicTableSchema } from "ui-schema-contracts"
 
 import type {
   DashboardFeatureActionHandlers,
@@ -20,6 +21,7 @@ import type {
 export interface DashboardFeatureProps {
   kpis: DashboardKpi[]
   rows: DashboardRow[]
+  tableSchema?: DynamicTableSchema
   visitorsSeries: DashboardSeriesPoint[]
   actionHandlers?: DashboardFeatureActionHandlers
   createEntityName?: string
@@ -86,6 +88,7 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
   ({
     kpis,
     rows,
+    tableSchema,
     visitorsSeries,
     actionHandlers,
     createEntityName = "Section",
@@ -148,6 +151,7 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
         />
         <DataTable
           rows={rows}
+          tableSchema={tableSchema}
           handlers={actionHandlers?.table}
           onCreateClick={openCreateDrawer}
           createButtonLabel={createButtonLabel}

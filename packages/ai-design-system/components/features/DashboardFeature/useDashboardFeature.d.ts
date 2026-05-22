@@ -2,6 +2,7 @@ import type { DashboardRow } from "@/components/composites/DataTable"
 import type {
   DashboardTableActionHandlers,
 } from "@/components/composites/DataTable"
+import type { DynamicTableSchema } from "ui-schema-contracts"
 import type {
   FormReportsFieldDefinition,
   FormReportsValue,
@@ -52,6 +53,7 @@ export interface DashboardFeatureActionHandlers {
 
 export interface UseDashboardFeatureReturn {
   rows: DashboardRow[]
+  tableSchema?: DynamicTableSchema
   kpis: DashboardKpi[]
   visitorsSeries: DashboardSeriesPoint[]
   createEntityName?: string

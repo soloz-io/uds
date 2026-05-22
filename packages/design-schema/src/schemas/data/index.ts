@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { dynamicTableSchema } from "ui-schema-contracts";
 
 /**
  * Data visualisation schemas.
@@ -116,30 +117,35 @@ export const dataSchemas = {
       data: z
         .array(z.record(z.string(), z.unknown()))
         .describe("Use { $state: '/path' } to bind to live data"),
-      columns: z.array(
-        z.object({
-          key: z.string().describe("Object field name"),
-          label: z.string().describe("Column header label"),
-        })
-      ),
-      enableRowSelection: z.boolean().nullable(),
-      enablePagination: z.boolean().nullable(),
-      enableFiltering: z.boolean().nullable(),
-      searchColumn: z.string().nullable().describe("Which column to filter by (requires enableFiltering)"),
-      emptyMessage: z.string().nullable(),
+      tableSchema: dynamicTableSchema,
     }),
     description:
-      "Feature-rich data table with optional search, pagination, and row selection. data should use { $state } for live data binding.",
+      "Feature-rich schema-driven data table with dynamic per-column render and input types. data should use { $state } for live data binding.",
     example: {
       data: { $state: "/customers/data" },
-      columns: [
-        { key: "name", label: "Name" },
-        { key: "email", label: "Email" },
-        { key: "status", label: "Status" },
-      ],
-      enablePagination: true,
-      enableFiltering: true,
-      searchColumn: "name",
+      tableSchema: {
+        schemaVersion: "2",
+        rowKey: "id",
+        columns: [
+          { key: "name", label: "Name", renderType: "text", inputType: "text", editable: true },
+          { key: "email", label: "Email", renderType: "text", inputType: "text", editable: true },
+          {
+            key: "status",
+            label: "Status",
+            renderType: "status",
+            inputType: "select",
+            editable: true,
+            options: [
+              { label: "Active", value: "Active" },
+              { label: "Pending", value: "Pending" },
+              { label: "Blocked", value: "Blocked" },
+            ],
+          },
+        ],
+        enablePagination: true,
+        enableFiltering: true,
+        enableRowSelection: true,
+      },
     },
   },
 

@@ -6,20 +6,23 @@ import {
   type DashboardRow,
   type DashboardTableActionHandlers,
 } from "@/components/composites/DataTable"
+import type { DynamicTableSchema } from "ui-schema-contracts"
 import { Button } from "@/components/primitives/Button"
 
 export interface DataTableProps {
   rows: DashboardRow[]
+  tableSchema?: DynamicTableSchema
   handlers?: DashboardTableActionHandlers
   onCreateClick?: () => void
   createButtonLabel?: string
 }
 
-export const DataTable = React.memo<DataTableProps>(({ rows, handlers, onCreateClick, createButtonLabel }) => {
+export const DataTable = React.memo<DataTableProps>(({ rows, tableSchema, handlers, onCreateClick, createButtonLabel }) => {
   return (
     <section className="px-4 lg:px-6">
       <EnhancedDataTable
         data={rows}
+        tableSchema={tableSchema}
         handlers={handlers}
         onCreateClick={onCreateClick ?? handlers?.onCreateClick ?? handlers?.onAddSection}
         createButtonLabel={createButtonLabel}

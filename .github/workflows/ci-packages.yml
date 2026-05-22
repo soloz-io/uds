@@ -1,0 +1,164 @@
+name: UDS Packages CI/CD
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master, develop]
+
+jobs:
+  validate-and-build:
+    name: Validate & Build (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: ui-schema-contracts
+            build: pnpm --filter ui-schema-contracts build
+            typecheck: pnpm --filter ui-schema-contracts typecheck
+            lint: pnpm --filter ui-schema-contracts lint
+            validations: ""
+            generate_dts: ""
+            verify_dts_path: ""
+            install_playwright: "false"
+            test: ""
+          - package: design-schema
+            build: pnpm --filter design-schema build
+            typecheck: pnpm --filter design-schema typecheck
+            lint: pnpm --filter design-schema lint
+            validations: ""
+            generate_dts: ""
+            verify_dts_path: ""
+            install_playwright: "false"
+            test: ""
+          - package: ai-design-system
+            build: pnpm --filter ai-design-system build:lib
+            typecheck: pnpm --filter ai-design-system exec tsc --noEmit
+            lint: pnpm --filter ai-design-system lint
+            validations: pnpm --filter ai-design-system exec node scripts/run-all-validations.js
+            generate_dts: pnpm --filter ai-design-system exec node scripts/generate-dts.js
+            verify_dts_path: packages/ai-design-system/dist/index.d.ts
+            install_playwright: "true"
+            test: pnpm --filter ai-design-system test || echo "No tests configured yet"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.1.3
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: ${{ matrix.typecheck }}
+
+      - name: Run validations
+        if: matrix.validations != ''
+        run: ${{ matrix.validations }}
+
+      - name: Generate type definitions
+        if: matrix.generate_dts != ''
+        run: ${{ matrix.generate_dts }}
+
+      - name: Verify generated types are up to date
+        if: matrix.verify_dts_path != ''
+        shell: bash
+        run: |
+          if [ -n "$(git status --porcelain ${{ matrix.verify_dts_path }})" ]; then
+            echo "Type definitions are out of date. Regenerate and commit changes."
+            git diff ${{ matrix.verify_dts_path }}
+            exit 1
+          fi
+
+      - name: Run linter
+        run: ${{ matrix.lint }}
+
+      - name: Build package
+        run: ${{ matrix.build }}
+
+      - name: Install Playwright browsers
+        if: matrix.install_playwright == 'true'
+        run: pnpm --filter ai-design-system exec playwright install --with-deps
+
+      - name: Run tests
+        if: matrix.test != ''
+        run: ${{ matrix.test }}
+
+  publish:
+    name: Publish to npm (${{ matrix.package }})
+    needs: validate-and-build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: ui-schema-contracts
+            dir: packages/ui-schema-contracts
+            npm_name: ui-schema-contracts
+            build: pnpm --filter ui-schema-contracts build
+          - package: design-schema
+            dir: packages/design-schema
+            npm_name: design-schema
+            build: pnpm --filter design-schema build
+          - package: ai-design-system
+            dir: packages/ai-design-system
+            npm_name: ai-design-system
+            build: pnpm --filter ai-design-system build:lib
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.1.3
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build package
+        run: ${{ matrix.build }}
+
+      - name: Check if version changed
+        id: version-check
+        working-directory: ${{ matrix.dir }}
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          LATEST_VERSION=$(npm view "${{ matrix.npm_name }}" version 2>/dev/null || echo "0.0.0")
+          echo "Current version: $CURRENT_VERSION"
+          echo "Latest published: $LATEST_VERSION"
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION" ]; then
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "New version detected, will publish"
+          else
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+            echo "Version already published, skipping"
+          fi
+
+      - name: Publish to npm
+        if: steps.version-check.outputs.should_publish == 'true'
+        run: pnpm --filter ${{ matrix.npm_name }} publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
