@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+echo ""
+
+# Run full linting (not just staged files)
+echo "🔍 Running ESLint on all files..."
+pnpm lint || exit 1
+
+# Run full validation suite before pushing
+echo ""
+echo "📋 Running all design system validations..."
+node scripts/run-all-validations.js || exit 1
+
+# Regenerate type definitions to ensure they're up to date
+echo ""
+echo "🔧 Verifying type definitions..."
+node scripts/generate-dts.js
+
+echo ""
+echo "✅ Pre-push checks passed! Safe to push."

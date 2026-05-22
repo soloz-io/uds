@@ -1,0 +1,22 @@
+{
+  "spacing": {
+    "radius": {
+      "$type": "dimension",
+      "base": { "$value": "0.625rem" },
+      "sm": { "$value": "{spacing.radius.base} - 4px" },
+      "md": { "$value": "{spacing.radius.base} - 2px" },
+      "lg": { "$value": "{spacing.radius.base}" },
+      "xl": { "$value": "{spacing.radius.base} + 4px" }
+    },
+    "sidebar": {
+      "$type": "dimension",
+      "width": { "$value": "16rem" },
+      "width-mobile": { "$value": "18rem" },
+      "width-icon": { "$value": "3rem" }
+    },
+    "header": {
+      "$type": "dimension",
+      "height": { "$value": "3.5rem" }
+    }
+  }
+}

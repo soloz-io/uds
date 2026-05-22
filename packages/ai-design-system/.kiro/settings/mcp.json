@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "new_page",
+        "take_snapshot",
+        "take_screenshot",
+        "evaluate_script",
+        "navigate_page",
+        "list_console_messages",
+        "wait_for",
+        "get_console_message",
+        "list_pages"
+      ]
+    },
+    "xyflow Docs": {
+      "url": "https://gitmcp.io/xyflow/xyflow",
+      "autoApprove": [
+        "search_xyflow_documentation",
+        "fetch_xyflow_documentation",
+        "search_xyflow_code",
+        "fetch_generic_url_content"
+      ]
+    }
+  }
+}

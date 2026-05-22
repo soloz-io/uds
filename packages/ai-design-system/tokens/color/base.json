@@ -1,0 +1,14 @@
+{
+  "color": {
+    "base": {
+      "white": {
+        "$value": "oklch(1 0 0)",
+        "$type": "color"
+      },
+      "black": {
+        "$value": "oklch(0.145 0 0)",
+        "$type": "color"
+      }
+    }
+  }
+}

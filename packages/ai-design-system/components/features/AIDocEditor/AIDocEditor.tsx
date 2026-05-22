@@ -1,0 +1,258 @@
+/**
+ * AIDocEditor Feature Component
+ * 
+ * Complete document editor with inline comment annotations.
+ * Supports both single-document and multi-tab modes.
+ * 
+ * Single-document mode (backward compatible):
+ * ```tsx
+ * <AIDocEditor
+ *   content={document}
+ *   annotations={annotations}
+ *   currentUser={user}
+ *   mode="review"
+ *   onAnnotationAdd={(annotation) => saveAnnotation(annotation)}
+ * />
+ * ```
+ * 
+ * Multi-tab mode:
+ * ```tsx
+ * <AIDocEditor
+ *   documents={[
+ *     { file: { id: 'doc-1', name: 'File.md', isDirty: false, lastModified: now }, 
+ *       content: '...',
+ *       annotations: [] }
+ *   ]}
+ *   activeDocumentId="doc-1"
+ *   currentUser={user}
+ *   mode="review"
+ *   onTabSelect={(id) => switchDocument(id)}
+ *   onTabClose={(id) => closeDocument(id)}
+ * />
+ * ```
+ */
+
+import React, { useCallback, useMemo } from 'react'
+import { DocumentEditorWithComments } from '@/components/blocks/DocumentEditorWithComments'
+import { DocumentTabBar } from '@/components/composites/DocumentTabBar'
+import { cn } from '@/lib/utils'
+import type { JSONContent } from '@tiptap/core'
+import type { Annotation, User } from '@/types/ai-editor/annotations'
+import type { DocumentWithAnnotations } from '@/types/ai-editor'
+
+/**
+ * Props for AIDocEditor feature component - Single document mode (backward compatible)
+ */
+export interface AIDocEditorSingleProps {
+  /** 
+   * Document content - can be either:
+   * - JSONContent: Tiptap's JSON format (default)
+   * - string: Markdown string (when format='markdown')
+   */
+  content: JSONContent | string
+  /** 
+   * Content format - determines how content prop is interpreted
+   * - 'json': Content is Tiptap JSONContent (default)
+   * - 'markdown': Content is a markdown string
+   * 
+   * @default 'json'
+   */
+  format?: 'json' | 'markdown'
+  /** Array of annotations to display */
+  annotations: Annotation[]
+  /** ID of currently selected annotation */
+  selectedAnnotationId?: string
+  /** Multi-document array (not provided in single-doc mode) */
+  documents?: never
+  /** Active document ID (not provided in single-doc mode) */
+  activeDocumentId?: never
+  /** Tab selection callback (not provided in single-doc mode) */
+  onTabSelect?: never
+  /** Tab close callback (not provided in single-doc mode) */
+  onTabClose?: never
+}
+
+/**
+ * Props for AIDocEditor feature component - Multi-tab mode
+ */
+export interface AIDocEditorMultiTabProps {
+  /** Array of open documents with their content and annotations */
+  documents: DocumentWithAnnotations[]
+  /** ID of currently active document */
+  activeDocumentId?: string
+  /** Content prop (not provided in multi-tab mode) */
+  content?: never
+  /** Format prop (not provided in multi-tab mode) */
+  format?: never
+  /** Annotations prop (not provided in multi-tab mode) */
+  annotations?: never
+  /** Selected annotation ID (not provided in multi-tab mode) */
+  selectedAnnotationId?: never
+  /** Callback when tab is selected */
+  onTabSelect?: (documentId: string) => void
+  /** Callback when tab close button is clicked */
+  onTabClose?: (documentId: string) => void
+}
+
+/**
+ * Props for AIDocEditor feature component
+ */
+export type AIDocEditorProps = (AIDocEditorSingleProps | AIDocEditorMultiTabProps) & {
+  /** Current user information */
+  currentUser: User
+  /** Editor mode: 'review' allows commenting, 'readonly' disables interactions */
+  mode: 'review' | 'readonly'
+  /** Callback when document content is updated */
+  onContentUpdate?: (content: JSONContent) => void
+  /** Callback when annotation is clicked */
+  onAnnotationClick?: (annotation: Annotation) => void
+  /** Callback when annotation is hovered */
+  onAnnotationHover?: (annotation: Annotation | null) => void
+  /** Callback when text is selected */
+  onTextSelect?: (range: { from: number; to: number }, selectedText: string) => void
+  /** Callback when new annotation is added */
+  onAnnotationAdd?: (annotation: Annotation) => void
+  /** Callback when annotation is updated (e.g., reply added) */
+  onAnnotationUpdate?: (annotation: Annotation) => void
+  /** Callback when annotation is deleted */
+  onAnnotationDelete?: (annotationId: string) => void
+  /** Additional CSS classes */
+  className?: string
+}
+
+/**
+ * Determine if props are multi-tab mode
+ */
+function isMultiTabMode(props: AIDocEditorProps): props is AIDocEditorMultiTabProps & {
+  currentUser: User
+  mode: 'review' | 'readonly'
+} {
+  return 'documents' in props && props.documents !== undefined
+}
+
+/**
+ * AIDocEditor - Document editor with inline comment annotations
+ * 
+ * This feature component provides a complete document review experience with:
+ * - Single-document or multi-tab display modes
+ * - Read-only document display with annotation highlights
+ * - Inline comment box for viewing and adding comments
+ * - Support for comments, suggestions, and block additions
+ * - Controlled component pattern (all state managed by parent)
+ * - Backward-compatible with single-document consumers
+ * 
+ * Note: The refinement panel (right sidebar with Accept All/Reject All) is a
+ * separate component in the parent application, not part of this feature.
+ */
+export const AIDocEditor = React.memo<AIDocEditorProps>(
+  (props) => {
+    const {
+      currentUser,
+      mode,
+      onAnnotationAdd,
+      onAnnotationUpdate,
+      onAnnotationDelete: _onAnnotationDelete, // Callback for consumers; passed through on demand
+      className,
+    } = props
+
+    const isMultiTab = isMultiTabMode(props)
+
+    /**
+     * Get current document for rendering
+     */
+    const currentDocument = useMemo(() => {
+      if (isMultiTab && props.documents) {
+        return (
+          props.documents.find((doc) => doc.file.id === props.activeDocumentId) ||
+          props.documents[0]
+        )
+      }
+      return null
+    }, [isMultiTab, props])
+
+    /**
+     * Handle annotation add - emit event to parent
+     */
+    const handleAnnotationAdd = useCallback(
+      (annotation: Annotation) => {
+        onAnnotationAdd?.(annotation)
+      },
+      [onAnnotationAdd]
+    )
+
+    /**
+     * Handle annotation update - emit event to parent
+     */
+    const handleAnnotationUpdate = useCallback(
+      (annotation: Annotation) => {
+        onAnnotationUpdate?.(annotation)
+      },
+      [onAnnotationUpdate]
+    )
+
+    /**
+     * Single-document mode
+     */
+    if (!isMultiTab) {
+      return (
+        <DocumentEditorWithComments
+          content={props.content}
+          format={props.format}
+          annotations={props.annotations}
+          selectedAnnotationId={props.selectedAnnotationId}
+          currentUserId={currentUser.id}
+          currentUserName={currentUser.name}
+          readOnly={mode === 'readonly'}
+          onAnnotationAdd={handleAnnotationAdd}
+          onAnnotationUpdate={handleAnnotationUpdate}
+          className={cn('ai-doc-editor p-6', className)}
+        />
+      )
+    }
+
+    /**
+     * Multi-tab mode
+     */
+    if (!currentDocument) {
+      return (
+        <div className={cn('ai-doc-editor flex flex-col h-full', className)}>
+          <DocumentTabBar
+            tabs={props.documents?.map((doc) => doc.file) || []}
+            activeTabId={props.activeDocumentId}
+            onTabSelect={props.onTabSelect}
+            onTabClose={props.onTabClose}
+          />
+          <div className="flex-1 flex items-center justify-center p-6 text-muted-foreground">
+            No documents open
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className={cn('ai-doc-editor flex flex-col h-full', className)}>
+        <DocumentTabBar
+          tabs={props.documents?.map((doc) => doc.file) || []}
+          activeTabId={props.activeDocumentId}
+          onTabSelect={props.onTabSelect}
+          onTabClose={props.onTabClose}
+        />
+        <div className="flex-1 overflow-auto">
+          <DocumentEditorWithComments
+            content={currentDocument.content}
+            format={currentDocument.file.format}
+            annotations={currentDocument.annotations}
+            currentUserId={currentUser.id}
+            currentUserName={currentUser.name}
+            readOnly={mode === 'readonly'}
+            onAnnotationAdd={handleAnnotationAdd}
+            onAnnotationUpdate={handleAnnotationUpdate}
+            className="p-6"
+          />
+        </div>
+      </div>
+    )
+  }
+)
+
+AIDocEditor.displayName = 'AIDocEditor'

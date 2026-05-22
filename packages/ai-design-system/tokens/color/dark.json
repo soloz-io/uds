@@ -1,0 +1,40 @@
+{
+  "color": {
+    "theme": {
+      "background": { "$value": "oklch(0.145 0 0)", "$type": "color" },
+      "foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "card": { "$value": "oklch(0.205 0 0)", "$type": "color" },
+      "card-foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "popover": { "$value": "oklch(0.205 0 0)", "$type": "color" },
+      "popover-foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "secondary": { "$value": "oklch(0.269 0 0)", "$type": "color" },
+      "secondary-foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "muted": { "$value": "oklch(0.269 0 0)", "$type": "color" },
+      "muted-foreground": { "$value": "oklch(0.708 0 0)", "$type": "color" },
+      "accent": { "$value": "oklch(0.269 0 0)", "$type": "color" },
+      "accent-foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "destructive": { "$value": "oklch(0.704 0.191 22.216)", "$type": "color" },
+      "border": { "$value": "oklch(1 0 0 / 10%)", "$type": "color" },
+      "input": { "$value": "oklch(1 0 0 / 15%)", "$type": "color" }
+    },
+    "sidebar": {
+      "background": { "$value": "oklch(0.205 0 0)", "$type": "color" },
+      "foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "primary-foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "accent": { "$value": "oklch(0.269 0 0)", "$type": "color" },
+      "accent-foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "border": { "$value": "oklch(1 0 0 / 10%)", "$type": "color" }
+    },
+    "annotation": {
+      "comment": { "$value": "oklch(0.35 0.12 95)", "$type": "color" },
+      "comment-foreground": { "$value": "oklch(0.85 0.12 95)", "$type": "color" },
+      "comment-border": { "$value": "oklch(0.55 0.15 95)", "$type": "color" },
+      "addition": { "$value": "oklch(0.30 0.12 145)", "$type": "color" },
+      "addition-foreground": { "$value": "oklch(0.75 0.12 145)", "$type": "color" },
+      "addition-border": { "$value": "oklch(0.50 0.15 145)", "$type": "color" },
+      "deletion": { "$value": "oklch(0.35 0.12 25)", "$type": "color" },
+      "deletion-foreground": { "$value": "oklch(0.75 0.15 25)", "$type": "color" },
+      "deletion-border": { "$value": "oklch(0.50 0.17 25)", "$type": "color" }
+    }
+  }
+}

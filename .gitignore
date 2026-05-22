@@ -1,0 +1,10 @@
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+.turbo/
+.DS_Store
+coverage/
+**/node_modules/
+**/.next/
+**/dist/
+**/storybook-static/

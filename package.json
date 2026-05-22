@@ -1,0 +1,17 @@
+{
+  "name": "uds",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Unified Design Stack monorepo",
+  "packageManager": "pnpm@11.1.3",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean --continue"
+  },
+  "devDependencies": {
+    "turbo": "^2.7.4"
+  }
+}

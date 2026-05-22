@@ -1,0 +1,63 @@
+import type { DashboardRow } from "@/components/composites/DataTable"
+import type {
+  DashboardTableActionHandlers,
+} from "@/components/composites/DataTable"
+import type {
+  FormReportsFieldDefinition,
+  FormReportsValue,
+  FormReportsValues,
+} from "@/components/composites/FormReports"
+
+export interface DashboardKpi {
+  title: string
+  value: string | number
+  trend?: {
+    direction: "up" | "down"
+    value: string
+  }
+  footer?: {
+    message: string
+    description: string
+  }
+}
+
+export interface DashboardSeriesPoint {
+  date: string
+  desktop: number
+  mobile: number
+}
+
+export type DashboardChartTimeRange = "90d" | "30d" | "7d"
+
+/**
+ * Consumer callbacks for DashboardFeature interactions.
+ * Use this contract to wire feature UI actions to app-specific logic.
+ */
+export interface DashboardFeatureActionHandlers {
+  /** Called whenever the chart time range changes. */
+  onChartTimeRangeChange?: (range: DashboardChartTimeRange) => void
+  /** Table action callbacks for all interactive table controls. */
+  table?: DashboardTableActionHandlers
+  /** Called when the dashboard create drawer opens or closes. */
+  onCreateDrawerOpenChange?: (open: boolean) => void
+  /** Called on create drawer field change. */
+  onCreateFieldChange?: (name: string, value: FormReportsValue, values: FormReportsValues) => void
+  /** Called on create drawer field blur. */
+  onCreateFieldBlur?: (name: string, value: FormReportsValue, values: FormReportsValues) => void
+  /** Called when create drawer form is submitted. */
+  onCreateSubmit?: (values: FormReportsValues) => void | Promise<void>
+  /** Called when create drawer cancel is clicked. */
+  onCreateCancel?: () => void
+}
+
+export interface UseDashboardFeatureReturn {
+  rows: DashboardRow[]
+  kpis: DashboardKpi[]
+  visitorsSeries: DashboardSeriesPoint[]
+  createEntityName?: string
+  createFields?: FormReportsFieldDefinition[]
+  createButtonLabel?: string
+  actionHandlers?: DashboardFeatureActionHandlers
+}
+
+export function useDashboardFeature(): UseDashboardFeatureReturn

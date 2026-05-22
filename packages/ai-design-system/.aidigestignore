@@ -1,0 +1,10 @@
+.next
+.storybook
+components
+lib
+node_modules
+public
+stories
+tsconfig.tsbuildinfo
+package-lock.json
+public

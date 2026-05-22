@@ -1,0 +1,39 @@
+# Development files
+.storybook/
+stories/
+scripts/
+app/
+public/
+.git/
+.vscode/
+.cursor/
+
+# Config files
+.gitignore
+.aidigestignore
+eslint.config.mjs
+next.config.ts
+postcss.config.mjs
+vitest.config.ts
+vitest.shims.d.ts
+tsconfig.json
+build-tokens.js
+
+# Documentation
+codebase.md
+MIGRATION-LAYER-RENAME.md
+VALIDATION-REPORT.md
+
+# Build artifacts
+.next/
+node_modules/
+*.log
+.DS_Store
+
+# Keep only dist and source
+!dist/
+!components/
+!lib/
+!hooks/
+!utils/
+!tokens/

@@ -1,0 +1,174 @@
+import * as React from "react"
+
+import { DashboardChart } from "@/components/blocks/DashboardChart"
+import { DashboardMetrics } from "@/components/blocks/DashboardMetrics"
+import { DataTable } from "@/components/blocks/DataTable"
+import { type DashboardRow } from "@/components/composites/DataTable"
+import {
+  FormReportsDrawerForm,
+  type FormReportsFieldDefinition,
+  type FormReportsValue,
+  type FormReportsValues,
+} from "@/components/composites/FormReports"
+
+import type {
+  DashboardFeatureActionHandlers,
+  DashboardKpi,
+  DashboardSeriesPoint,
+} from "./useDashboardFeature.d"
+
+export interface DashboardFeatureProps {
+  kpis: DashboardKpi[]
+  rows: DashboardRow[]
+  visitorsSeries: DashboardSeriesPoint[]
+  actionHandlers?: DashboardFeatureActionHandlers
+  createEntityName?: string
+  createFields?: FormReportsFieldDefinition[]
+  createButtonLabel?: string
+  className?: string
+}
+
+const defaultCreateFields: FormReportsFieldDefinition[] = [
+  {
+    name: "slug",
+    label: "Slug",
+    type: "text",
+    required: true,
+    placeholder: "new-section",
+    description: "Unique identifier for this section.",
+  },
+  {
+    name: "project",
+    label: "Project",
+    type: "select",
+    placeholder: "Select project",
+    options: [
+      { label: "Website", value: "website" },
+      { label: "Dashboard", value: "dashboard" },
+      { label: "Mobile App", value: "mobile" },
+    ],
+  },
+  {
+    name: "description",
+    label: "Description",
+    type: "textarea",
+    placeholder: "Describe what this section includes...",
+  },
+  {
+    name: "type",
+    label: "Type",
+    type: "select",
+    defaultValue: "narrative",
+    options: [
+      { label: "Cover page", value: "cover-page" },
+      { label: "Table of contents", value: "table-of-contents" },
+      { label: "Narrative", value: "narrative" },
+      { label: "Technical content", value: "technical-content" },
+    ],
+  },
+  {
+    name: "enabled",
+    label: "Enabled",
+    type: "boolean",
+    defaultValue: true,
+    placeholder: "Enable immediately",
+  },
+]
+
+function buildInitialValues(fields: FormReportsFieldDefinition[]): FormReportsValues {
+  return fields.reduce<FormReportsValues>((acc, field) => {
+    acc[field.name] = field.defaultValue ?? (field.type === "boolean" ? false : "")
+    return acc
+  }, {})
+}
+
+export const DashboardFeature = React.memo<DashboardFeatureProps>(
+  ({
+    kpis,
+    rows,
+    visitorsSeries,
+    actionHandlers,
+    createEntityName = "Section",
+    createFields = defaultCreateFields,
+    createButtonLabel = "Create",
+    className,
+  }) => {
+    const [drawerOpen, setDrawerOpen] = React.useState(false)
+    const [values, setValues] = React.useState<FormReportsValues>(() => buildInitialValues(createFields))
+
+    React.useEffect(() => {
+      setValues(buildInitialValues(createFields))
+    }, [createFields])
+
+    const openCreateDrawer = React.useCallback(() => {
+      actionHandlers?.table?.onCreateClick?.()
+      setDrawerOpen(true)
+      actionHandlers?.onCreateDrawerOpenChange?.(true)
+    }, [actionHandlers])
+
+    const handleDrawerOpenChange = React.useCallback(
+      (open: boolean) => {
+        setDrawerOpen(open)
+        actionHandlers?.onCreateDrawerOpenChange?.(open)
+      },
+      [actionHandlers]
+    )
+
+    const handleFieldChange = React.useCallback(
+      (name: string, value: FormReportsValue, nextValues: FormReportsValues) => {
+        setValues(nextValues)
+        actionHandlers?.onCreateFieldChange?.(name, value, nextValues)
+      },
+      [actionHandlers]
+    )
+
+    const handleFieldBlur = React.useCallback(
+      (name: string, value: FormReportsValue, nextValues: FormReportsValues) => {
+        actionHandlers?.onCreateFieldBlur?.(name, value, nextValues)
+      },
+      [actionHandlers]
+    )
+
+    const handleCreateSubmit = React.useCallback(
+      async (nextValues: FormReportsValues) => {
+        await Promise.resolve(actionHandlers?.onCreateSubmit?.(nextValues))
+        setDrawerOpen(false)
+        actionHandlers?.onCreateDrawerOpenChange?.(false)
+        setValues(buildInitialValues(createFields))
+      },
+      [actionHandlers, createFields]
+    )
+
+    return (
+      <div className={`flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6 ${className ?? ""}`}>
+        <DashboardMetrics items={kpis} />
+        <DashboardChart
+          series={visitorsSeries}
+          onTimeRangeChange={actionHandlers?.onChartTimeRangeChange}
+        />
+        <DataTable
+          rows={rows}
+          handlers={actionHandlers?.table}
+          onCreateClick={openCreateDrawer}
+          createButtonLabel={createButtonLabel}
+        />
+
+        <FormReportsDrawerForm
+          open={drawerOpen}
+          onOpenChange={handleDrawerOpenChange}
+          title={`Create ${createEntityName}`}
+          description={`Enter the details for your new ${createEntityName.toLowerCase()}.`}
+          fields={createFields}
+          values={values}
+          submitLabel={createButtonLabel}
+          onFieldChange={handleFieldChange}
+          onFieldBlur={handleFieldBlur}
+          onSubmit={handleCreateSubmit}
+          onCancel={actionHandlers?.onCreateCancel}
+        />
+      </div>
+    )
+  }
+)
+
+DashboardFeature.displayName = "DashboardFeature"

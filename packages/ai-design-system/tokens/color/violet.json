@@ -1,0 +1,21 @@
+{
+  "color": {
+    "theme": {
+      "primary": { "$value": "oklch(0.606 0.25 292.717)", "$type": "color" },
+      "primary-foreground": { "$value": "oklch(0.969 0.016 293.756)", "$type": "color" },
+      "ring": { "$value": "oklch(0.38 0.189 293.745)", "$type": "color" }
+    },
+    "chart": {
+      "1": { "$value": "oklch(0.811 0.111 293.571)", "$type": "color" },
+      "2": { "$value": "oklch(0.606 0.25 292.717)", "$type": "color" },
+      "3": { "$value": "oklch(0.541 0.281 293.009)", "$type": "color" },
+      "4": { "$value": "oklch(0.491 0.27 292.581)", "$type": "color" },
+      "5": { "$value": "oklch(0.432 0.232 292.759)", "$type": "color" }
+    },
+    "sidebar": {
+      "primary": { "$value": "oklch(0.606 0.25 292.717)", "$type": "color" },
+      "primary-foreground": { "$value": "oklch(0.969 0.016 293.756)", "$type": "color" },
+      "ring": { "$value": "oklch(0.38 0.189 293.745)", "$type": "color" }
+    }
+  }
+}

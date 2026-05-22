@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# Design System Validation Pre-Commit Hook
+#
+# This hook runs all design system validations before allowing commits.
+# It delegates to the master validation script to ensure consistency.
+#
+# To bypass this hook (not recommended): git commit --no-verify
+#
+
+# Get the repository root directory
+REPO_ROOT=$(git rev-parse --show-toplevel)
+UI_LIB_DIR="$REPO_ROOT"
+VALIDATION_SCRIPT="$UI_LIB_DIR/scripts/run-all-validations.js"
+
+# Check if validation script exists
+if [ ! -f "$VALIDATION_SCRIPT" ]; then
+    echo "⚠️  Warning: Validation script not found at:"
+    echo "   $VALIDATION_SCRIPT"
+    echo ""
+    echo "Skipping validations..."
+    exit 0
+fi
+
+# Check if node is available
+if ! command -v node &> /dev/null; then
+    echo "⚠️  Warning: Node.js not found"
+    echo "Skipping validations..."
+    exit 0
+fi
+
+# Run all validations
+cd "$UI_LIB_DIR" && node scripts/run-all-validations.js
+VALIDATION_EXIT=$?
+
+# Return to original directory
+cd "$REPO_ROOT"
+
+# Check result
+if [ $VALIDATION_EXIT -ne 0 ]; then
+    echo ""
+    echo "To bypass this check (NOT RECOMMENDED):"
+    echo "   git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
+exit 0

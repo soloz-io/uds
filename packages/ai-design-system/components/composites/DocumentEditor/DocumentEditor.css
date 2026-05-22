@@ -1,0 +1,106 @@
+/**
+ * DocumentEditor Styles
+ * 
+ * Styles for annotation highlights using design system tokens
+ * Typography styles are inherited from the global .prose class in globals.css
+ */
+
+/* Apply prose typography styles to ProseMirror content */
+.document-editor-wrapper .ProseMirror {
+  /* Inherits all typography styles from .prose in globals.css */
+}
+
+/* Text Selection Highlight - Bright blue for visibility */
+.document-editor-wrapper ::selection {
+  background-color: color-mix(in oklch, var(--primary) 50%, transparent);
+  color: inherit;
+}
+
+.document-editor-wrapper ::-moz-selection {
+  background-color: color-mix(in oklch, var(--primary) 50%, transparent);
+  color: inherit;
+}
+
+/* Keep selection visible even when editor loses focus */
+.document-editor-wrapper .ProseMirror {
+  caret-color: auto;
+}
+
+/* Style for inactive selection (when editor is not focused) */
+.document-editor-wrapper .ProseMirror:not(:focus) .ProseMirror-selectednode {
+  background-color: color-mix(in oklch, var(--primary) 50%, transparent);
+}
+
+/* Annotation styles in @layer for proper cascade */
+@layer components {
+  /* Suggestion Insert */
+  .annotation-suggestion-insert {
+    background-color: var(--annotation-addition);
+    color: var(--annotation-addition-foreground);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 200ms;
+  }
+
+  .annotation-suggestion-insert[data-hover="true"],
+  .annotation-suggestion-insert[data-active="true"] {
+    background-color: color-mix(in oklch, var(--annotation-addition) 80%, black);
+  }
+
+  /* Suggestion Delete */
+  .annotation-suggestion-delete {
+    background-color: var(--annotation-deletion);
+    text-decoration: line-through;
+    color: var(--annotation-deletion-foreground);
+    cursor: pointer;
+    transition: background-color 200ms;
+  }
+
+  .annotation-suggestion-delete[data-hover="true"],
+  .annotation-suggestion-delete[data-active="true"] {
+    background-color: color-mix(in oklch, var(--annotation-deletion) 80%, black);
+  }
+
+  /* Suggestion Modify */
+  .annotation-suggestion-modify {
+    cursor: pointer;
+    transition: background-color 200ms;
+  }
+
+  .annotation-suggestion-modify[data-hover="true"],
+  .annotation-suggestion-modify[data-active="true"] {
+    background-color: color-mix(in oklch, var(--annotation-comment) 80%, black);
+  }
+
+  /* Block Addition */
+  .annotation-block-addition {
+    background-color: var(--annotation-addition);
+    border-left: 4px solid var(--annotation-addition-border);
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border-radius: var(--radius);
+    position: relative;
+    cursor: pointer;
+    transition: background-color 200ms;
+  }
+
+  .annotation-block-addition[data-active="true"] {
+    background-color: color-mix(in oklch, var(--annotation-addition) 80%, black);
+  }
+
+  .annotation-block-addition::before {
+    content: 'Added';
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: var(--annotation-addition-border);
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+}
+
+
+

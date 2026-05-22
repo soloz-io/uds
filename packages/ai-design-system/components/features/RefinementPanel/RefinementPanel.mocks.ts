@@ -1,0 +1,131 @@
+/**
+ * Mock data for RefinementPanel stories and tests
+ * 
+ * This file contains reusable mock data that can be imported by:
+ * - RefinementPanel.stories.tsx (regular stories)
+ * - RefinementPanel.behaviors.stories.tsx (behavior tests)
+ * - Any other test files that need RefinementPanel mock data
+ */
+
+import type { RefinementMessage } from './RefinementPanel'
+import type { FileChangeData } from '@/components/composites/FileQueue'
+
+/**
+ * Sample conversation history for input state
+ */
+export const inputStateMessages: RefinementMessage[] = [
+  {
+    id: '1',
+    type: 'human',
+    role: 'user',
+    content: 'Can you help me refactor this component to use TypeScript?',
+    avatarSrc:
+      'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'User',
+  },
+  {
+    id: '2',
+    type: 'ai',
+    role: 'orchestrator',
+    content:
+      "I'll help you refactor the component to TypeScript. Let me analyze the code and create a plan.",
+    avatarSrc:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'Coordinator',
+    toolCalls: [
+      {
+        id: 'tool_1',
+        name: 'read_file',
+        args: { filename: 'Component.jsx' },
+        result: 'File read successfully',
+        status: 'completed',
+      },
+    ],
+  },
+]
+
+/**
+ * Sample messages for multi-agent review state
+ */
+export const reviewStateMessages: RefinementMessage[] = [
+  {
+    id: '1',
+    type: 'human',
+    role: 'user',
+    content: 'Refine the Button component to add better accessibility support',
+    avatarSrc:
+      'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'User',
+  },
+  {
+    id: '2',
+    type: 'ai',
+    role: 'orchestrator',
+    content:
+      "I'll coordinate the refinement of the Button component with accessibility improvements. Let me delegate this to specialized agents.",
+    avatarSrc:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'Coordinator',
+    toolCalls: [
+      {
+        id: 'tool_1',
+        name: 'read_file',
+        args: { filename: 'Button.tsx', path: 'src/components/primitives/Button/' },
+        result: 'File content retrieved',
+        status: 'completed',
+      },
+      {
+        id: 'tool_2',
+        name: 'analyze_accessibility',
+        args: { component: 'Button', standards: ['WCAG 2.1 AA'] },
+        result: 'Analysis complete',
+        status: 'completed',
+      },
+    ],
+    subAgents: [
+      {
+        id: 'agent_1',
+        name: 'accessibility-specialist',
+        subAgentName: 'a11y-agent',
+        input:
+          'Review Button component for WCAG 2.1 Level AA compliance. Check keyboard navigation, ARIA attributes, focus management, and screen reader support.',
+        output:
+          'Found 3 accessibility issues: missing aria-label for icon-only buttons, insufficient focus indicators, and missing keyboard shortcuts documentation.',
+        status: 'completed',
+      },
+      {
+        id: 'agent_2',
+        name: 'code-refactor-specialist',
+        subAgentName: 'refactor-agent',
+        input:
+          'Refactor Button component to add proper ARIA attributes, enhance focus styles, and improve keyboard navigation support.',
+        output: undefined,
+        status: 'active',
+      },
+    ],
+  },
+]
+
+/**
+ * Sample file changes for review state
+ */
+export const sampleFileChanges: FileChangeData[] = [
+  {
+    id: '1',
+    filename: 'Button.tsx',
+    status: 'modified',
+    path: 'src/components/primitives/Button/Button.tsx',
+  },
+  {
+    id: '2',
+    filename: 'Button.stories.tsx',
+    status: 'modified',
+    path: 'src/components/primitives/Button/Button.stories.tsx',
+  },
+  {
+    id: '3',
+    filename: 'button-accessibility.test.tsx',
+    status: 'created',
+    path: 'src/components/primitives/Button/button-accessibility.test.tsx',
+  },
+]

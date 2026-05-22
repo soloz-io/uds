@@ -1,0 +1,103 @@
+{
+  "name": "design-schema",
+  "private": false,
+  "version": "0.1.2",
+  "description": "AI schema layer for ai-design-system — component definitions, React registries, and prompt helpers for AI-generated UI",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js",
+      "require": "./dist/*.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "prepublishOnly": "npm run build",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix"
+    ]
+  },
+  "peerDependencies": {
+    "ai-design-system": "*",
+    "react": "^18.0.0 || ^19.0.0",
+    "zod": "^3"
+  },
+  "peerDependenciesMeta": {
+    "ai-design-system": {
+      "optional": false
+    },
+    "jotai": {
+      "optional": true
+    },
+    "drizzle-orm": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@json-render/core": "^0.19.0",
+    "@json-render/react": "^0.19.0",
+    "@json-render/shadcn": "^0.19.0",
+    "@types/node": "^24.12.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12",
+    "vite-plugin-dts": "^5.0.0",
+    "zod": "^3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "ai",
+    "ui",
+    "schema",
+    "json-render",
+    "generative-ui",
+    "design-system",
+    "react",
+    "typescript"
+  ],
+  "author": "Soloz IO",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soloz-io/design-schema.git"
+  },
+  "dependencies": {
+    "@soloz-io/ui-schema-contracts": "workspace:*",
+    "@json-render/core": "^0.19.0",
+    "@json-render/react": "^0.19.0",
+    "@json-render/shadcn": "^0.19.0"
+  }
+}
