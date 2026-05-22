@@ -24,4 +24,3 @@ export type {
 	DashboardRowAction,
 	DashboardTableActionHandlers,
 } from './table-types'
-export { defaultDashboardTableSchema } from './table-types'

@@ -1,4 +1,158 @@
 import type { DashboardRow } from "@/components/composites/DataTable"
+import {
+  dynamicTableSchema,
+  formSchema,
+  type DynamicTableSchema,
+  type FormFieldDefinition,
+  type FormSchema,
+} from "ui-schema-contracts"
+
+const dashboardTableSchemaInput = {
+  schemaVersion: "1",
+  rowKey: "id",
+  columns: [
+    {
+      key: "header",
+      label: "Header",
+      renderType: "text",
+      inputType: "text",
+      editable: true,
+      align: "left",
+      sortable: true,
+      filterable: true,
+      hideable: false,
+      required: false,
+    },
+    {
+      key: "type",
+      label: "Section Type",
+      renderType: "badge",
+      inputType: "none",
+      editable: false,
+      align: "left",
+      sortable: true,
+      filterable: true,
+      hideable: true,
+      required: false,
+    },
+    {
+      key: "status",
+      label: "Status",
+      renderType: "status",
+      inputType: "select",
+      editable: true,
+      align: "left",
+      options: [
+        { label: "Not Started", value: "Not Started" },
+        { label: "In Process", value: "In Process" },
+        { label: "Done", value: "Done" },
+      ],
+      sortable: true,
+      filterable: true,
+      hideable: true,
+      required: false,
+    },
+    {
+      key: "target",
+      label: "Target",
+      renderType: "text",
+      inputType: "number",
+      editable: true,
+      align: "right",
+      sortable: true,
+      filterable: true,
+      hideable: true,
+      required: false,
+    },
+    {
+      key: "limit",
+      label: "Limit",
+      renderType: "text",
+      inputType: "number",
+      editable: true,
+      align: "right",
+      sortable: true,
+      filterable: true,
+      hideable: true,
+      required: false,
+    },
+    {
+      key: "reviewer",
+      label: "Reviewer",
+      renderType: "text",
+      inputType: "select",
+      editable: true,
+      align: "left",
+      options: [
+        { label: "Eddie Lake", value: "Eddie Lake" },
+        { label: "Jamik Tashpulatov", value: "Jamik Tashpulatov" },
+        { label: "Emily Whalen", value: "Emily Whalen" },
+        { label: "Assign reviewer", value: "Assign reviewer" },
+      ],
+      sortable: true,
+      filterable: true,
+      hideable: true,
+      required: false,
+    },
+  ],
+  enableFiltering: true,
+  enablePagination: true,
+  enableRowSelection: true,
+} satisfies DynamicTableSchema
+
+export const dashboardTableSchema: DynamicTableSchema = dynamicTableSchema.parse(dashboardTableSchemaInput)
+
+const dashboardCreateFormSchemaInput = {
+  schemaVersion: "1",
+  fields: [
+    {
+      name: "slug",
+      label: "Slug",
+      type: "text",
+      required: true,
+      placeholder: "new-section",
+      description: "Unique identifier for this section.",
+    },
+    {
+      name: "project",
+      label: "Project",
+      type: "select",
+      placeholder: "Select project",
+      options: [
+        { label: "Website", value: "website" },
+        { label: "Dashboard", value: "dashboard" },
+        { label: "Mobile App", value: "mobile" },
+      ],
+    },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+      placeholder: "Describe what this section includes...",
+    },
+    {
+      name: "type",
+      label: "Type",
+      type: "select",
+      defaultValue: "narrative",
+      options: [
+        { label: "Cover page", value: "cover-page" },
+        { label: "Table of contents", value: "table-of-contents" },
+        { label: "Narrative", value: "narrative" },
+        { label: "Technical content", value: "technical-content" },
+      ],
+    },
+    {
+      name: "enabled",
+      label: "Enabled",
+      type: "boolean",
+      defaultValue: true,
+      placeholder: "Enable immediately",
+    },
+  ],
+} satisfies FormSchema
+
+export const dashboardCreateFields: FormFieldDefinition[] = formSchema.parse(dashboardCreateFormSchemaInput).fields
 
 export const dashboardKpis = [
   {

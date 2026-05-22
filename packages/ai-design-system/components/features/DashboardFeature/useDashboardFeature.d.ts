@@ -53,11 +53,11 @@ export interface DashboardFeatureActionHandlers {
 
 export interface UseDashboardFeatureReturn {
   rows: DashboardRow[]
-  tableSchema?: DynamicTableSchema
+  tableSchema: DynamicTableSchema
   kpis: DashboardKpi[]
   visitorsSeries: DashboardSeriesPoint[]
   createEntityName?: string
-  createFields?: FormReportsFieldDefinition[]
+  createFields: FormReportsFieldDefinition[]
   createButtonLabel?: string
   actionHandlers?: DashboardFeatureActionHandlers
 }

@@ -3,8 +3,10 @@ import { Toaster } from "sonner"
 
 import { DashboardFeature } from "./DashboardFeature"
 import {
+  dashboardCreateFields,
   dashboardKpis,
   dashboardRows,
+  dashboardTableSchema,
   visitorsSeries,
 } from "./DashboardFeature.mocks"
 import { useDashboardFeatureMock } from "./useDashboardFeature.mock"
@@ -34,7 +36,9 @@ export const Default: Story = {
   args: {
     kpis: dashboardKpis,
     rows: dashboardRows,
+    tableSchema: dashboardTableSchema,
     visitorsSeries,
+    createFields: dashboardCreateFields,
   },
 }
 
@@ -42,7 +46,9 @@ export const WithStateManagement: Story = {
   args: {
     kpis: dashboardKpis,
     rows: dashboardRows,
+    tableSchema: dashboardTableSchema,
     visitorsSeries,
+    createFields: dashboardCreateFields,
   },
   render: () => {
     const state = useDashboardFeatureMock()

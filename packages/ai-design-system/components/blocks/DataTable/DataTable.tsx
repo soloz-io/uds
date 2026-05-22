@@ -11,7 +11,7 @@ import { Button } from "@/components/primitives/Button"
 
 export interface DataTableProps {
   rows: DashboardRow[]
-  tableSchema?: DynamicTableSchema
+  tableSchema: DynamicTableSchema
   handlers?: DashboardTableActionHandlers
   onCreateClick?: () => void
   createButtonLabel?: string

@@ -15,28 +15,22 @@ import { Label } from "@/components/primitives/Label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/primitives/Select"
 import { Checkbox } from "@/components/primitives/Checkbox"
 import { Textarea } from "@/components/primitives/Textarea"
+import type {
+  FormFieldDefinition,
+  FormFieldOption,
+  FormFieldType,
+  FormFieldValue,
+} from "ui-schema-contracts"
 
-export type FormReportsFieldType = "text" | "number" | "textarea" | "select" | "date" | "boolean"
+export type FormReportsFieldType = FormFieldType
 
-export type FormReportsValue = string | number | boolean | null
+export type FormReportsValue = FormFieldValue
 
 export type FormReportsValues = Record<string, FormReportsValue>
 
-export interface FormReportsFieldOption {
-  label: string
-  value: string
-}
+export type FormReportsFieldOption = FormFieldOption
 
-export interface FormReportsFieldDefinition {
-  name: string
-  label: string
-  type: FormReportsFieldType
-  description?: string
-  placeholder?: string
-  required?: boolean
-  defaultValue?: FormReportsValue
-  options?: FormReportsFieldOption[]
-}
+export type FormReportsFieldDefinition = FormFieldDefinition
 
 export interface FormReportsDrawerFormProps {
   open: boolean

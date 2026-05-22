@@ -41,12 +41,11 @@ import type {
   DashboardRowAction,
   DashboardTableActionHandlers,
 } from "./table-types"
-import { defaultDashboardTableSchema } from "./table-types"
 import { useEnhancedDataTable } from "./useEnhancedDataTable"
 
 export interface EnhancedDataTableProps {
   data: DashboardRow[]
-  tableSchema?: DynamicTableSchema
+  tableSchema: DynamicTableSchema
   className?: string
   handlers?: DashboardTableActionHandlers
   leftActions?: React.ReactNode
@@ -86,7 +85,7 @@ function toNumberValue(value: unknown): number {
 
 export function EnhancedDataTable({
   data: initialData,
-  tableSchema = defaultDashboardTableSchema,
+  tableSchema,
   className,
   handlers,
   leftActions,

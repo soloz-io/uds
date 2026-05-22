@@ -21,61 +21,14 @@ import type {
 export interface DashboardFeatureProps {
   kpis: DashboardKpi[]
   rows: DashboardRow[]
-  tableSchema?: DynamicTableSchema
+  tableSchema: DynamicTableSchema
   visitorsSeries: DashboardSeriesPoint[]
   actionHandlers?: DashboardFeatureActionHandlers
   createEntityName?: string
-  createFields?: FormReportsFieldDefinition[]
+  createFields: FormReportsFieldDefinition[]
   createButtonLabel?: string
   className?: string
 }
-
-const defaultCreateFields: FormReportsFieldDefinition[] = [
-  {
-    name: "slug",
-    label: "Slug",
-    type: "text",
-    required: true,
-    placeholder: "new-section",
-    description: "Unique identifier for this section.",
-  },
-  {
-    name: "project",
-    label: "Project",
-    type: "select",
-    placeholder: "Select project",
-    options: [
-      { label: "Website", value: "website" },
-      { label: "Dashboard", value: "dashboard" },
-      { label: "Mobile App", value: "mobile" },
-    ],
-  },
-  {
-    name: "description",
-    label: "Description",
-    type: "textarea",
-    placeholder: "Describe what this section includes...",
-  },
-  {
-    name: "type",
-    label: "Type",
-    type: "select",
-    defaultValue: "narrative",
-    options: [
-      { label: "Cover page", value: "cover-page" },
-      { label: "Table of contents", value: "table-of-contents" },
-      { label: "Narrative", value: "narrative" },
-      { label: "Technical content", value: "technical-content" },
-    ],
-  },
-  {
-    name: "enabled",
-    label: "Enabled",
-    type: "boolean",
-    defaultValue: true,
-    placeholder: "Enable immediately",
-  },
-]
 
 function buildInitialValues(fields: FormReportsFieldDefinition[]): FormReportsValues {
   return fields.reduce<FormReportsValues>((acc, field) => {
@@ -92,7 +45,7 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
     visitorsSeries,
     actionHandlers,
     createEntityName = "Section",
-    createFields = defaultCreateFields,
+    createFields,
     createButtonLabel = "Create",
     className,
   }) => {

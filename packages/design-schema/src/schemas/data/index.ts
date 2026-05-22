@@ -124,7 +124,7 @@ export const dataSchemas = {
     example: {
       data: { $state: "/customers/data" },
       tableSchema: {
-        schemaVersion: "2",
+        schemaVersion: "1",
         rowKey: "id",
         columns: [
           { key: "name", label: "Name", renderType: "text", inputType: "text", editable: true },

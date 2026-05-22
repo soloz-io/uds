@@ -52,7 +52,7 @@ export const tableColumnSchema = z.object({
 })
 
 export const dynamicTableSchema = z.object({
-  schemaVersion: z.literal("2"),
+  schemaVersion: z.literal("1"),
   rowKey: z.string().default("id"),
   columns: z.array(tableColumnSchema),
   emptyMessage: z.string().optional(),
@@ -67,9 +67,46 @@ export const dynamicTablePayloadSchema = z.object({
   table: dynamicTableSchema,
 })
 
+export const formFieldTypeSchema = z.enum([
+  "text",
+  "number",
+  "textarea",
+  "select",
+  "date",
+  "boolean",
+])
+
+export const formFieldValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
+
+export const formFieldOptionSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+})
+
+export const formFieldDefinitionSchema = z.object({
+  name: z.string(),
+  label: z.string(),
+  type: formFieldTypeSchema,
+  description: z.string().optional(),
+  placeholder: z.string().optional(),
+  required: z.boolean().optional(),
+  defaultValue: formFieldValueSchema.optional(),
+  options: z.array(formFieldOptionSchema).optional(),
+})
+
+export const formSchema = z.object({
+  schemaVersion: z.literal("1"),
+  fields: z.array(formFieldDefinitionSchema),
+})
+
 export type TableColumnOption = z.infer<typeof tableColumnOptionSchema>
 export type TableRenderType = z.infer<typeof tableRenderTypeSchema>
 export type TableInputType = z.infer<typeof tableInputTypeSchema>
 export type TableColumn = z.infer<typeof tableColumnSchema>
 export type DynamicTableSchema = z.infer<typeof dynamicTableSchema>
 export type DynamicTablePayload = z.infer<typeof dynamicTablePayloadSchema>
+export type FormFieldType = z.infer<typeof formFieldTypeSchema>
+export type FormFieldValue = z.infer<typeof formFieldValueSchema>
+export type FormFieldOption = z.infer<typeof formFieldOptionSchema>
+export type FormFieldDefinition = z.infer<typeof formFieldDefinitionSchema>
+export type FormSchema = z.infer<typeof formSchema>
