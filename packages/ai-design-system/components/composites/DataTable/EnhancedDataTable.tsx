@@ -151,6 +151,11 @@ export function EnhancedDataTable({
       const target = event.target
       if (!(target instanceof Element)) return
 
+      const activeOverlay = target.closest('[data-slot="select-content"], [data-slot="select-item"]')
+      if (activeOverlay) {
+        return
+      }
+
       const clickedRowId = target.closest("tr[data-row-id]")?.getAttribute("data-row-id")
       if (clickedRowId === editingRowId) {
         return
@@ -172,6 +177,25 @@ export function EnhancedDataTable({
       document.removeEventListener("pointerdown", handlePointerDown)
     }
   }, [editingRowId, handlers])
+
+  const emitRowAction = React.useCallback(
+    (action: DashboardRowAction, row: DashboardRow) => {
+      if (action === "edit") {
+        handlers?.onEditRow?.(row)
+      }
+      if (action === "copy") {
+        handlers?.onCopyRow?.(row)
+      }
+      if (action === "favorite") {
+        handlers?.onFavoriteRow?.(row)
+      }
+      if (action === "delete") {
+        handlers?.onDeleteRow?.(row)
+      }
+      handlers?.onRowAction?.(action, row)
+    },
+    [handlers]
+  )
 
   const renderEditableCell = React.useCallback(
     (row: DashboardRow, column: TableColumn, rawValue: unknown) => {
@@ -316,20 +340,20 @@ export function EnhancedDataTable({
             <DropdownMenuItem
               onClick={() => {
                 setEditingRowId(String(toRowId(row.original, tableSchema)))
-                handlers?.onRowAction?.("edit", row.original)
+                emitRowAction("edit", row.original)
               }}
             >
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handlers?.onRowAction?.("copy", row.original)}>Make a copy</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handlers?.onRowAction?.("favorite", row.original)}>Favorite</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => emitRowAction("copy", row.original)}>Make a copy</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => emitRowAction("favorite", row.original)}>Favorite</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 if (editingRowId === String(toRowId(row.original, tableSchema))) {
                   setEditingRowId(null)
                 }
-                handlers?.onRowAction?.("delete", row.original)
+                emitRowAction("delete", row.original)
               }}
             >
               Delete
@@ -340,7 +364,7 @@ export function EnhancedDataTable({
     })
 
     return dynamicColumns
-  }, [editingRowId, handlers, renderEditableCell, renderReadonlyCell, tableSchema])
+  }, [editingRowId, emitRowAction, handlers, renderEditableCell, renderReadonlyCell, tableSchema])
 
   const filterKeys = React.useMemo(() => tableSchema.columns.map((column) => column.key), [tableSchema.columns])
 
