@@ -18,7 +18,7 @@ Domain-specific navigation for browsing grouped specification files. Uses FileQu
 import type { UseSpecNavigatorReturn } from 'ui-lib/components/features/SpecNavigator';
 
 export function useSpecNavigator(): UseSpecNavigatorReturn {
-  const [groups, setGroups] = useState<FileGroup[]>([]);
+  const [groups, setGroups] = useState<SpecNavigatorGroup[]>([]);
   const [selectedFileId, setSelectedFileId] = useState<string>();
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +30,8 @@ export function useSpecNavigator(): UseSpecNavigatorReturn {
 
   const handleFileSelect = useCallback((fileId: string) => {
     setSelectedFileId(fileId);
+    // The feature opens a preview dialog automatically when the selected file
+    // includes preview content.
   }, []);
 
   return { groups, selectedFileId, loading, handleFileSelect };
@@ -81,7 +83,7 @@ export const Default = () => {
 
 ```typescript
 interface UseSpecNavigatorReturn {
-  groups: FileGroup[];
+  groups: SpecNavigatorGroup[];
   selectedFileId?: string;
   loading: boolean;
   handleFileSelect: (fileId: string) => void;
@@ -94,10 +96,28 @@ interface UseSpecNavigatorReturn {
 
 ```typescript
 interface SpecNavigatorProps {
-  groups: FileGroup[];
+  groups: SpecNavigatorGroup[];
   selectedFileId?: string;
   onFileSelect?: (fileId: string) => void;
   className?: string;
+}
+
+interface SpecNavigatorFile {
+  id: string;
+  name: string;
+  path?: string;
+  previewContent?: string;
+  previewTitle?: string;
+  previewDescription?: string;
+}
+
+interface SpecNavigatorGroup {
+  id: string;
+  title: string;
+  icon?: string;
+  iconColor?: string;
+  defaultOpen?: boolean;
+  files: SpecNavigatorFile[];
 }
 ```
 

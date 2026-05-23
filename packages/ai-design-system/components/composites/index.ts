@@ -33,6 +33,10 @@ export type { PromptInputBlockProps } from './PromptInput'
 export { FileQueue, FileStatusBadge } from './FileQueue'
 export type { FileQueueProps, FileChangeData, FileStatusBadgeProps, FileStatus } from './FileQueue'
 
+// FilePreviewDialog Composite
+export { FilePreviewDialog } from './FilePreviewDialog'
+export type { FilePreviewDialogProps } from './FilePreviewDialog'
+
 // Confirmation Block
 export { Confirmation } from './Confirmation'
 export type { ConfirmationProps } from './Confirmation'

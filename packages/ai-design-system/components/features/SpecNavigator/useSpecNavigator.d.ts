@@ -61,7 +61,7 @@
  * ```
  */
 
-import type { FileGroup } from "@/components/composites/FileQueue";
+import type { SpecNavigatorGroup } from "./SpecNavigator";
 
 /**
  * Return type for the useSpecNavigator hook
@@ -77,7 +77,7 @@ export interface UseSpecNavigatorReturn {
    * Agents, Toolbox, Triggers) with associated files. Groups should be ordered as they should
    * appear in the UI.
    */
-  groups: FileGroup[];
+  groups: SpecNavigatorGroup[];
 
   /**
    * ID of the currently selected file

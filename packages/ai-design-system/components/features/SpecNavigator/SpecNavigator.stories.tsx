@@ -28,6 +28,43 @@ const meta: Meta<typeof SpecNavigator> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+function SpecNavigatorStateManagementStory() {
+  const { groups, selectedFileId, loading, handleFileSelect } =
+    useSpecNavigatorMock({
+      initialGroups: sampleSpecGroups,
+      initialSelectedId: "req1",
+    });
+
+  return (
+    <div className="h-screen w-full p-4">
+      <div className="mb-4 rounded-lg border border-border bg-muted/50 p-4">
+        <h3 className="mb-2 font-semibold text-sm">State Management Demo</h3>
+        <div className="space-y-1 text-muted-foreground text-xs">
+          <p>
+            <strong>Selected File:</strong> {selectedFileId || "None selected"}
+          </p>
+          <p>
+            <strong>Loading:</strong> {loading ? "Yes" : "No"}
+          </p>
+          <p>
+            <strong>Total Groups:</strong> {groups.length}
+          </p>
+          <p className="mt-2 text-foreground/70">
+            Click any file to update selection state and open a dialog preview.
+            The mock hook manages state transitions just like a real
+            application hook would.
+          </p>
+        </div>
+      </div>
+      <SpecNavigator
+        groups={groups}
+        selectedFileId={selectedFileId}
+        onFileSelect={handleFileSelect}
+      />
+    </div>
+  );
+}
+
 /**
  * Default story demonstrating spec file navigation with multiple categories.
  * Shows Instructions, Agents, Toolbox, and Triggers groups with sample specification files.
@@ -83,40 +120,5 @@ export const WithSelection: Story = {
  * Try clicking different files to see the selection state update in real-time.
  */
 export const WithStateManagement: Story = {
-  render: () => {
-    const { groups, selectedFileId, loading, handleFileSelect } =
-      useSpecNavigatorMock({
-        initialGroups: sampleSpecGroups,
-        initialSelectedId: "req1",
-      });
-
-    return (
-      <div className="h-screen w-full p-4">
-        <div className="mb-4 rounded-lg border border-border bg-muted/50 p-4">
-          <h3 className="mb-2 font-semibold text-sm">State Management Demo</h3>
-          <div className="space-y-1 text-muted-foreground text-xs">
-            <p>
-              <strong>Selected File:</strong>{" "}
-              {selectedFileId || "None selected"}
-            </p>
-            <p>
-              <strong>Loading:</strong> {loading ? "Yes" : "No"}
-            </p>
-            <p>
-              <strong>Total Groups:</strong> {groups.length}
-            </p>
-            <p className="mt-2 text-foreground/70">
-              Click any file to see the selection state update. The mock hook
-              manages state transitions just like a real application hook would.
-            </p>
-          </div>
-        </div>
-        <SpecNavigator
-          groups={groups}
-          selectedFileId={selectedFileId}
-          onFileSelect={handleFileSelect}
-        />
-      </div>
-    );
-  },
+  render: () => <SpecNavigatorStateManagementStory />,
 };

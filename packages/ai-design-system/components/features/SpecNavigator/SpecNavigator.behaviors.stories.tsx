@@ -55,6 +55,33 @@ export const ClickFileTriggersCallback: Story = {
 }
 
 /**
+ * Test: Click file opens preview dialog
+ * Verifies that selecting a file opens the preview surface with the file content.
+ */
+export const ClickFileOpensPreviewDialog: Story = {
+  args: {
+    groups: sampleSpecGroups,
+    onFileSelect: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await waitFor(() => {
+      expect(canvas.getByText('requirements.md')).toBeInTheDocument()
+    })
+
+    await userEvent.click(canvas.getByText('requirements.md'))
+
+    await waitFor(() => {
+      expect(within(document.body).getByRole('dialog')).toBeInTheDocument()
+    })
+
+    expect(within(document.body).getByText(/Zero-Ops Platform/i)).toBeInTheDocument()
+    expect(within(document.body).getByText(/GitOps-native platform/i)).toBeInTheDocument()
+  },
+}
+
+/**
  * Test: Selected file highlighted
  * Verifies that file with selectedFileId has selected styling
  */
@@ -76,17 +103,8 @@ export const SelectedFileHighlighted: Story = {
     const selectedFile = canvas.getByRole('button', { name: /requirements\.md/i })
     expect(selectedFile).toBeInTheDocument()
     
-    // Verify it has selected styling (check for aria-current or data-state)
-    // The FileQueue component uses data-state="selected" for selected files
-    if (selectedFile) {
-      const hasSelectedState = 
-        selectedFile.getAttribute('data-state') === 'selected' ||
-        selectedFile.getAttribute('aria-current') === 'true' ||
-        selectedFile.className.includes('selected')
-      
-      // At minimum, verify the file is rendered and clickable
-      expect(selectedFile).toBeVisible()
-    }
+    // At minimum, verify the file is rendered and clickable.
+    expect(selectedFile).toBeVisible()
   },
 }
 

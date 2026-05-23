@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import type { FileGroup } from "@/components/composites/FileQueue";
+import type { SpecNavigatorGroup } from "./SpecNavigator";
 
 /**
  * Mock hook for SpecNavigator state management
@@ -14,7 +14,7 @@ import type { FileGroup } from "@/components/composites/FileQueue";
  */
 export interface UseSpecNavigatorReturn {
   /** File groups to display in the navigator */
-  groups: FileGroup[];
+  groups: SpecNavigatorGroup[];
   /** ID of the currently selected file */
   selectedFileId?: string;
   /** Loading state indicator */
@@ -25,7 +25,7 @@ export interface UseSpecNavigatorReturn {
 
 export interface UseSpecNavigatorOptions {
   /** Initial file groups to display */
-  initialGroups?: FileGroup[];
+  initialGroups?: SpecNavigatorGroup[];
   /** Initial selected file ID */
   initialSelectedId?: string;
 }
@@ -69,7 +69,7 @@ export function useSpecNavigatorMock(
 ): UseSpecNavigatorReturn {
   const { initialGroups = [], initialSelectedId } = options;
 
-  const [groups] = useState<FileGroup[]>(initialGroups);
+  const [groups] = useState<SpecNavigatorGroup[]>(initialGroups);
   const [selectedFileId, setSelectedFileId] = useState<string | undefined>(
     initialSelectedId
   );
