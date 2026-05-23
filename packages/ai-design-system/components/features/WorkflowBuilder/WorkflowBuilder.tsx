@@ -6,6 +6,7 @@ import { WorkflowCanvas } from "@/components/blocks/WorkflowCanvas";
 import type { WorkflowNode, WorkflowEdge } from "@/components/blocks/WorkflowCanvas";
 import type { ToolbarAction, WorkflowVersion } from "@/components/composites/WorkflowToolbar";
 import type { Connection, NodeChange, EdgeChange } from "@xyflow/react";
+import { cn } from "@/lib/utils";
 
 export interface WorkflowBuilderProps {
   // Toolbar — left
@@ -79,9 +80,12 @@ export function WorkflowBuilder({
     : defaultActionGroups;
 
   return (
-    <div className="relative h-full w-full" data-testid="workflow-builder">
+    <div
+      className={cn("relative h-screen w-full", className)}
+      data-testid="workflow-builder"
+    >
       <WorkflowCanvas
-        className={className}
+        className="h-full w-full"
         edges={edges}
         interactive={interactive}
         nodes={nodes}
