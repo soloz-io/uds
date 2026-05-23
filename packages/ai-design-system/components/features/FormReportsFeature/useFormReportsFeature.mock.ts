@@ -37,6 +37,11 @@ export function useFormReportsFeatureMock(): UseFormReportsFeatureReturn {
           return [nextItem, ...prev]
         })
       },
+      table: {
+        onDeleteRow: (row) => {
+          setItems((prev) => prev.filter((item) => String(item.id) !== String(row.id)))
+        },
+      },
     },
   }
 }

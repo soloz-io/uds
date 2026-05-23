@@ -38,6 +38,7 @@ import { DraggableRow } from "./DraggableRow"
 import { createTableSelectColumn } from "./TableSelectColumn"
 import type {
   DashboardRow,
+  DashboardRowAction,
   DashboardTableActionHandlers,
 } from "./table-types"
 import { useEnhancedDataTable } from "./useEnhancedDataTable"
@@ -364,7 +365,7 @@ export function EnhancedDataTable({
     })
 
     return dynamicColumns
-  }, [editingRowId, emitRowAction, handlers, renderEditableCell, renderReadonlyCell, tableSchema])
+  }, [editingRowId, emitRowAction, renderEditableCell, renderReadonlyCell, tableSchema])
 
   const filterKeys = React.useMemo(() => tableSchema.columns.map((column) => column.key), [tableSchema.columns])
 

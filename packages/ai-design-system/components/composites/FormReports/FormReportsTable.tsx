@@ -25,6 +25,10 @@ export interface FormReportsTableHandlers {
   onColumnsChange?: (visibleColumnKeys: string[]) => void
   onRowReorder?: (rows: FormReportsEntity[]) => void
   onEditModeChange?: (rowId: number | string | null, row?: FormReportsEntity) => void
+  onEditRow?: (row: FormReportsEntity) => void
+  onCopyRow?: (row: FormReportsEntity) => void
+  onFavoriteRow?: (row: FormReportsEntity) => void
+  onDeleteRow?: (row: FormReportsEntity) => void
   onRowUpdate?: (rowId: number | string, key: string, value: string, row: FormReportsEntity) => void
   onInlineEditSave?: (rowId: number | string, field: string, value: string, row: FormReportsEntity) => void
   onReviewerAssign?: (rowId: number | string, reviewer: string, row: FormReportsEntity) => void
@@ -102,6 +106,26 @@ export const FormReportsTable = React.memo<FormReportsTableProps>(
           }
           const originalRow = originalById.get(String(row?.id ?? rowId))
           handlers?.onEditModeChange?.(rowId, originalRow)
+        },
+        onEditRow: (row) => {
+          const originalRow = originalById.get(String(row.id))
+          if (!originalRow) return
+          handlers?.onEditRow?.(originalRow)
+        },
+        onCopyRow: (row) => {
+          const originalRow = originalById.get(String(row.id))
+          if (!originalRow) return
+          handlers?.onCopyRow?.(originalRow)
+        },
+        onFavoriteRow: (row) => {
+          const originalRow = originalById.get(String(row.id))
+          if (!originalRow) return
+          handlers?.onFavoriteRow?.(originalRow)
+        },
+        onDeleteRow: (row) => {
+          const originalRow = originalById.get(String(row.id))
+          if (!originalRow) return
+          handlers?.onDeleteRow?.(originalRow)
         },
         onRowUpdate: (rowId, key, value, row) => {
           const originalRow = originalById.get(String(row.id))
