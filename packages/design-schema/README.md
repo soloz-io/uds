@@ -123,7 +123,7 @@ Schemas (`./schemas/*`) are backend-safe — they import no React. Safe to use i
 ### 1. Backend — build the LLM system prompt
 
 ```typescript
-// waypoint-builder-backend/src/routes/generate-ui.ts
+// backend/src/routes/generate-ui.ts
 import { dashboardPreset, buildUserPrompt } from 'design-schema/presets/dashboard';
 import { streamText } from 'ai';
 import { openai } from '@ai-sdk/openai';
@@ -144,7 +144,7 @@ app.post('/api/generate-ui', async (c) => {
 ### 2. Frontend — render the AI-generated spec
 
 ```typescript
-// waypoint-builder-frontend/src/components/AIUICanvas.tsx
+// frontend/src/components/AIUICanvas.tsx
 import { dashboardPreset } from 'design-schema/presets/dashboard';
 import { Renderer } from '@json-render/react';
 
@@ -161,7 +161,7 @@ export function AIUICanvas({ spec }) {
 ### 3. Persist the generated spec (optional interface)
 
 ```typescript
-// waypoint-builder-frontend/src/lib/schema-store.ts
+// frontend/src/lib/schema-store.ts
 import type { SchemaStore, SchemaRecord } from 'design-schema/store';
 import { api } from './api-client';
 
@@ -176,7 +176,7 @@ export class WaypointSchemaStore implements SchemaStore {
 ### 4. Optional — Jotai adapter (for waypoint-style apps)
 
 ```typescript
-// waypoint-builder-frontend/src/lib/schema-atoms.ts
+// frontend/src/lib/schema-atoms.ts
 import { createSchemaAtoms } from 'design-schema/adapters/jotai';
 import { WaypointSchemaStore } from './schema-store';
 
@@ -303,7 +303,7 @@ User types prompt in RefinementPanel
             ↓
     POST /api/generate-ui  { prompt, currentSpec? }
             ↓
-    waypoint-builder-backend
+    backend
       dashboardPreset.getSystemPrompt()    ← design-schema
       buildUserPrompt({ prompt })          ← design-schema
       streamText(model, system, prompt)    ← consumer's AI SDK call
