@@ -589,8 +589,8 @@ export const UserOnly: Story = {
 
 ### Required Files
 
-- `hooks/useFeatureName.ts` - Hook contract (`UseFeatureNameReturn` interface + stub)
-- `hooks/useFeatureName.mock.ts` - Mock implementation
+- `useFeatureName.d.ts` - Hook contract (`UseFeatureNameReturn` interface + stub)
+- `useFeatureName.mock.ts` - Mock implementation
 - `FeatureName.behaviors.stories.tsx` - Behavior tests with `play` functions
 
 ### CRITICAL: Feature Component Props Pattern
@@ -653,13 +653,13 @@ const meta: Meta<typeof MyFeature> = { ... } // ❌ Causes different sidebar ico
 
 **Why?** Using `satisfies` with `StoryObj<typeof meta>` gives full type inference and consistent Storybook sidebar rendering.
 
-### CRITICAL: Import from `@storybook/react`
+### CRITICAL: Keep Storybook Type Imports Consistent
 
-**Always import `Meta` and `StoryObj` from `@storybook/react`, not `@storybook/react`.**
+**Use one source for `Meta` and `StoryObj` per file. Existing features in this repository use both sources.**
 
 ```tsx
-import type { Meta, StoryObj } from '@storybook/react' // ✅
-import type { Meta, StoryObj } from '@storybook/react'       // ❌
+import type { Meta, StoryObj } from '@storybook/react'      // ✅
+import type { Meta, StoryObj } from '@storybook/nextjs-vite' // ✅
 ```
 
 ### CRITICAL: Behaviors File Required
@@ -722,7 +722,7 @@ export const WithStateManagement: Story = {
 ```tsx
 import type { Meta, StoryObj } from '@storybook/react'
 import { WorkflowBuilder } from './WorkflowBuilder'
-import { useWorkflowBuilderMock } from './hooks/useWorkflowBuilder.mock'
+import { useWorkflowBuilderMock } from './useWorkflowBuilder.mock'
 
 const meta = {
   title: 'Features/WorkflowBuilder',
@@ -782,9 +782,9 @@ export const Empty: Story = {
 - [ ] `FeatureName.behaviors.stories.tsx` exists with `play` functions
 - [ ] Behaviors stories use `args` + `fn()` (not mock hooks)
 - [ ] Meta uses `satisfies Meta<typeof Component>` syntax
-- [ ] Imports from `@storybook/react`
-- [ ] Hook contract file exists (`hooks/useFeatureName.ts`)
-- [ ] Mock hook file exists (`hooks/useFeatureName.mock.ts`)
+- [ ] Story type imports are consistent in each story file
+- [ ] Hook contract file exists (`useFeatureName.d.ts`)
+- [ ] Mock hook file exists (`useFeatureName.mock.ts`)
 - [ ] Layout: `'fullscreen'`
 
 ---

@@ -34,13 +34,13 @@ A component is considered **delivered and complete** when:
 **Validation:**
 ```bash
 # Run layer import validation
-node scripts/validate-layer-imports.js
+node scripts/validations/validate-layer-imports.js
 
 # Run design token validation
-node scripts/validate-design-tokens.js
+node scripts/validations/validate-design-tokens.js
 
 # Run import alias validation
-node scripts/validate-import-aliases.js
+node scripts/validations/validate-import-aliases.js
 ```
 
 **Exit Criteria:**
@@ -62,7 +62,7 @@ node scripts/validate-import-aliases.js
 **Validation:**
 ```bash
 # Run Storybook coverage validation
-node scripts/validate-storybook-coverage.js
+node scripts/validations/validate-storybook-coverage.js
 ```
 
 **Exit Criteria:**
@@ -316,16 +316,16 @@ git status
 **Validation Checklist:**
 ```bash
 # Layer architecture
-✓ node scripts/validate-layer-imports.js
+✓ node scripts/validations/validate-layer-imports.js
 
 # Design tokens
-✓ node scripts/validate-design-tokens.js
+✓ node scripts/validations/validate-design-tokens.js
 
 # Import aliases
-✓ node scripts/validate-import-aliases.js
+✓ node scripts/validations/validate-import-aliases.js
 
 # Storybook coverage
-✓ node scripts/validate-storybook-coverage.js
+✓ node scripts/validations/validate-storybook-coverage.js
 
 # Build
 ✓ pnpm build:lib
@@ -558,7 +558,7 @@ pnpm storybook --port 6007
 # components/primitives/Button/Button.tsx
 
 # Validate
-node scripts/validate-layer-imports.js
+node scripts/validations/validate-layer-imports.js
 ✓ All layer import rules are satisfied!
 ```
 
@@ -568,7 +568,7 @@ node scripts/validate-layer-imports.js
 # components/primitives/Button/Button.stories.tsx
 
 # Validate coverage
-node scripts/validate-storybook-coverage.js
+node scripts/validations/validate-storybook-coverage.js
 ✓ All components have Storybook coverage
 ```
 

@@ -4,7 +4,7 @@ Complete guide to all validation scripts in the AI Design System.
 
 ## Overview
 
-The design system has **7 validation scripts** that enforce governance rules automatically. They run:
+The design system has **9 validation scripts** that enforce governance rules automatically. They run:
 - On every commit (via pre-commit hook)
 - Before every build (via prebuild script)
 - Manually when needed
@@ -15,7 +15,7 @@ The design system has **7 validation scripts** that enforce governance rules aut
 
 **Location**: `scripts/run-all-validations.js`
 
-**Purpose**: Runs all 7 validations in sequence and reports results
+**Purpose**: Runs all 9 validations in sequence and reports results
 
 **Usage**:
 ```bash
@@ -36,7 +36,7 @@ pnpm run prebuild
    Checking that all primitives and blocks have stories...
 ✓ All primitives and blocks have stories!
 
-... (continues for all 7 validations)
+... (continues for all 9 validations)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -67,14 +67,14 @@ pnpm run prebuild
 - Primitives only import from ui/
 - AI-elements only import from ui/
 - Composites only import from primitives/ or ai-elements/
-- Blocks only import from composites/ or primitives/
+- Blocks import from composites/ or primitives/ or ai-elements/
 - Features only import from blocks/ or composites/
 - No upward imports (lower layers importing higher layers)
 - No circular dependencies
 
 **Usage**:
 ```bash
-node scripts/validate-layer-imports.js
+node scripts/validations/validate-layer-imports.js
 ```
 
 **Success Output**:
@@ -104,7 +104,7 @@ Layer Architecture Rules:
   ✓ composites/
     Allowed: components/primitives, components/ai-elements
   ✓ blocks/
-    Allowed: components/composites, components/primitives
+    Allowed: components/composites, components/primitives, components/ai-elements
   ✓ features/
     Allowed: components/blocks, components/composites
 ```
@@ -118,7 +118,7 @@ Layer Architecture Rules:
 
 **Common violations**:
 - Composites importing from `components/ui/`
-- Blocks importing from `ai-elements/`
+- Blocks importing from `features/`
 - Features importing from `primitives/`
 - Using relative paths instead of `@/` alias
 
@@ -135,7 +135,7 @@ Layer Architecture Rules:
 
 **Usage**:
 ```bash
-node scripts/validate-storybook-coverage.js
+node scripts/validations/validate-storybook-coverage.js
 ```
 
 **Success Output**:
@@ -193,7 +193,7 @@ Storybook Coverage Rules:
 
 **Usage**:
 ```bash
-node scripts/validate-design-tokens.js
+node scripts/validations/validate-design-tokens.js
 ```
 
 **Success Output**:
@@ -255,7 +255,7 @@ Design Token Rules:
 
 **Usage**:
 ```bash
-node scripts/validate-story-composition.js
+node scripts/validations/validate-story-composition.js
 ```
 
 **Success Output**:
@@ -298,12 +298,12 @@ Story Composition Rules:
 **What it checks**:
 - Every feature has a `.stories.tsx` file
 - Story file exports a `WithStateManagement` story
-- Feature has a mock hook file: `hooks/useFeatureName.mock.ts`
-- Feature has a hook contract: `hooks/useFeatureName.d.ts`
+- Feature has a mock hook file: `useFeatureName.mock.ts`
+- Feature has a hook contract: `useFeatureName.d.ts`
 
 **Usage**:
 ```bash
-node scripts/validate-feature-stories.js
+node scripts/validations/validate-feature-stories.js
 ```
 
 **Success Output**:
@@ -322,16 +322,16 @@ components/features/AIDocEditor/
 
 components/features/RefinementPanel/
   ✗ Missing mock hook
-    Expected: hooks/useRefinementPanel.mock.ts
+    Expected: useRefinementPanel.mock.ts
   ✗ Missing hook contract
-    Expected: hooks/useRefinementPanel.d.ts
+    Expected: useRefinementPanel.d.ts
 
 Feature Story Rules:
 
   ✓ All features must have .stories.tsx
   ✓ Stories must export WithStateManagement
-  ✓ Features must have hooks/useFeatureName.mock.ts
-  ✓ Features must have hooks/useFeatureName.d.ts
+  ✓ Features must have useFeatureName.mock.ts
+  ✓ Features must have useFeatureName.d.ts
 ```
 
 **How it works**:
@@ -358,7 +358,7 @@ Feature Story Rules:
 
 **Usage**:
 ```bash
-node scripts/validate-behavior-stories.js
+node scripts/validations/validate-behavior-stories.js
 ```
 
 **Success Output**:
@@ -383,7 +383,39 @@ Behavior Story Rules:
 
 ---
 
-### 7. validate-import-aliases.js
+### 7. validate-feature-hook-pattern.js
+
+**Purpose**: Enforces the feature hook/mock contract pattern
+
+**What it checks**:
+- No `hooks/` subfolder in feature directories
+- `useFeatureName.d.ts`, `useFeatureName.mock.ts`, and `FeatureName.mocks.ts` naming
+- `WithStateManagement` uses `render` and imports the mock hook
+- Behavior stories use `args` + `fn()` and do not import the mock hook
+
+**Usage**:
+```bash
+node scripts/validations/validate-feature-hook-pattern.js
+```
+
+---
+
+### 8. validate-architectural-patterns.js
+
+**Purpose**: Enforces architectural anti-pattern guardrails
+
+**What it checks**:
+- Forbidden workarounds and unsafe composition shortcuts
+- Pattern violations that break layer governance
+
+**Usage**:
+```bash
+node scripts/validations/validate-architectural-patterns.js
+```
+
+---
+
+### 9. validate-import-aliases.js
 
 **Purpose**: Enforces `@/` import alias usage, prevents relative paths
 
@@ -395,7 +427,7 @@ Behavior Story Rules:
 
 **Usage**:
 ```bash
-node scripts/validate-import-aliases.js
+node scripts/validations/validate-import-aliases.js
 ```
 
 **Success Output**:
@@ -461,9 +493,9 @@ Import Alias Rules:
 node scripts/run-all-validations.js
 
 # Run specific validation
-node scripts/validate-layer-imports.js
-node scripts/validate-storybook-coverage.js
-node scripts/validate-design-tokens.js
+node scripts/validations/validate-layer-imports.js
+node scripts/validations/validate-storybook-coverage.js
+node scripts/validations/validate-design-tokens.js
 ```
 
 ### Automatic Execution
@@ -567,7 +599,7 @@ bash scripts/setup-hooks.sh
 ### "Validation fails but I don't see violations"
 ```bash
 # Run with verbose output
-node scripts/validate-layer-imports.js 2>&1 | tee validation.log
+node scripts/validations/validate-layer-imports.js 2>&1 | tee validation.log
 
 # Check for hidden characters
 cat -A components/path/to/file.tsx

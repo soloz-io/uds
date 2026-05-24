@@ -288,7 +288,7 @@ The design system enforces a **strict 6-layer hierarchy**:
 │  6. features/                           │  ← Can import: blocks, composites
 │     (AIDocEditor, PageLayout)           │
 ├─────────────────────────────────────────┤
-│  5. blocks/                             │  ← Can import: composites, primitives
+│  5. blocks/                             │  ← Can import: composites, primitives, ai-elements
 │     (AIConversation, AppSidebar)        │
 ├─────────────────────────────────────────┤
 │  4. composites/                         │  ← Can import: primitives, ai-elements
@@ -324,8 +324,8 @@ The design system enforces a **strict 6-layer hierarchy**:
 - Examples: TableToolbar, PromptInput, WorkflowToolbar, StatsCard
 
 **blocks/**
-- ✅ CAN import from: `components/composites/`, `components/primitives/`
-- ❌ CANNOT import from: `components/ui/`, ai-elements, features
+- ✅ CAN import from: `components/composites/`, `components/primitives/`, `components/ai-elements/`
+- ❌ CANNOT import from: `components/ui/`, features
 - Purpose: **Complete UI sections** (self-contained page sections)
 - Examples: AIConversation, AppSidebar, WorkflowCanvasBlock
 
@@ -336,30 +336,30 @@ The design system enforces a **strict 6-layer hierarchy**:
 
 ## Validation Scripts
 
-The design system has **7 automated validation scripts** that enforce governance:
+The design system has **9 automated validation scripts** that enforce governance:
 
 ### 1. Layer Import Validation
-**Script**: `scripts/validate-layer-imports.js`
+**Script**: `scripts/validations/validate-layer-imports.js`
 **Enforces**: Strict layer hierarchy rules
 **Checks**: 
 - No upward imports (lower layers importing higher layers)
 - No forbidden cross-layer imports
 - Proper import paths
 
-**Run**: `node scripts/validate-layer-imports.js`
+**Run**: `node scripts/validations/validate-layer-imports.js`
 
 ### 2. Storybook Coverage Validation
-**Script**: `scripts/validate-storybook-coverage.js`
+**Script**: `scripts/validations/validate-storybook-coverage.js`
 **Enforces**: All primitives and blocks have `.stories.tsx` files
 **Checks**:
 - Story file exists for each component
 - Proper naming conventions
 - Required story exports
 
-**Run**: `node scripts/validate-storybook-coverage.js`
+**Run**: `node scripts/validations/validate-storybook-coverage.js`
 
 ### 3. Design Token Validation
-**Script**: `scripts/validate-design-tokens.js`
+**Script**: `scripts/validations/validate-design-tokens.js`
 **Enforces**: No hardcoded CSS values
 **Forbidden**:
 - Direct colors: `#hex`, `rgb()`, `rgba()`, `hsl()`
@@ -369,40 +369,57 @@ The design system has **7 automated validation scripts** that enforce governance
 - CSS variables: `var(--token-color-primary)`
 - Tailwind classes: `bg-primary`, `p-4`
 
-**Run**: `node scripts/validate-design-tokens.js`
+**Run**: `node scripts/validations/validate-design-tokens.js`
 
 ### 4. Story Composition Validation
-**Script**: `scripts/validate-story-composition.js`
+**Script**: `scripts/validations/validate-story-composition.js`
 **Enforces**: Stories only render their own component
 **Checks**: No nested component imports in stories
 
-**Run**: `node scripts/validate-story-composition.js`
+**Run**: `node scripts/validations/validate-story-composition.js`
 
 ### 5. Feature Story Validation
-**Script**: `scripts/validate-feature-stories.js`
+**Script**: `scripts/validations/validate-feature-stories.js`
 **Enforces**: Features have proper state management stories
 **Checks**:
 - `WithStateManagement` story export exists
 - Mock hook file (`.mock.ts`) exists
-- Hook contract (`hooks/useFeatureName.d.ts`) exists
+- Hook contract (`useFeatureName.d.ts`) exists
 
-**Run**: `node scripts/validate-feature-stories.js`
+**Run**: `node scripts/validations/validate-feature-stories.js`
 
 ### 6. Behavior Stories Validation
-**Script**: `scripts/validate-behavior-stories.js`
+**Script**: `scripts/validations/validate-behavior-stories.js`
 **Enforces**: Features have behavior testing stories
 **Checks**: Behavior test coverage for features
 
-**Run**: `node scripts/validate-behavior-stories.js`
+**Run**: `node scripts/validations/validate-behavior-stories.js`
 
-### 7. Import Alias Validation
-**Script**: `scripts/validate-import-aliases.js`
+### 7. Feature Hook Pattern Validation
+**Script**: `scripts/validations/validate-feature-hook-pattern.js`
+**Enforces**: Flat feature hook/mocks contract pattern
+**Checks**:
+- No `hooks/` subfolder in feature directories
+- `useFeatureName.d.ts`, `useFeatureName.mock.ts`, and `FeatureName.mocks.ts` conventions
+- `WithStateManagement` uses `render` + mock hook
+- Behavior stories use `args` + `fn()` and do not import mock hook
+
+**Run**: `node scripts/validations/validate-feature-hook-pattern.js`
+
+### 8. Architectural Patterns Validation
+**Script**: `scripts/validations/validate-architectural-patterns.js`
+**Enforces**: No architectural workarounds/anti-patterns
+
+**Run**: `node scripts/validations/validate-architectural-patterns.js`
+
+### 9. Import Alias Validation
+**Script**: `scripts/validations/validate-import-aliases.js`
 **Enforces**: All imports use `@/` alias
 **Forbidden**: `../../components/`, `../components/`
 **Required**: `@/components/`, `@/lib/`, `@/types/`
 **Allowed**: `./Component` (same directory), `./subdir/Component` (subdirectory)
 
-**Run**: `node scripts/validate-import-aliases.js`
+**Run**: `node scripts/validations/validate-import-aliases.js`
 
 ### Run All Validations
 ```bash
@@ -584,10 +601,10 @@ export const Default: Story = {
 node scripts/run-all-validations.js
 
 # Or run specific validation
-node scripts/validate-layer-imports.js
-node scripts/validate-storybook-coverage.js
-node scripts/validate-design-tokens.js
-node scripts/validate-import-aliases.js
+node scripts/validations/validate-layer-imports.js
+node scripts/validations/validate-storybook-coverage.js
+node scripts/validations/validate-design-tokens.js
+node scripts/validations/validate-import-aliases.js
 ```
 
 ## Import Rules
@@ -703,8 +720,8 @@ const variants = cva("base-class", {
 1. Create component in `components/features/NewFeature/`
 2. Import from `@/components/blocks/` or `@/components/composites/`
 3. **Accept individual props** — never a `hook` object (see CRITICAL Design Patterns)
-4. Create hook contract: `hooks/useNewFeature.ts` with `UseNewFeatureReturn` interface
-5. Create mock hook: `hooks/useNewFeature.mock.ts`
+4. Create hook contract: `useNewFeature.d.ts` with `UseNewFeatureReturn` interface
+5. Create mock hook: `useNewFeature.mock.ts`
 6. Create `.stories.tsx` with `Default` (args) + `WithStateManagement` (render + mock hook)
 7. Create `.behaviors.stories.tsx` with `play` functions using `args` + `fn()`
 8. Run validations
@@ -712,7 +729,7 @@ const variants = cva("base-class", {
 
 ### Workflow 4: Fixing Layer Import Violations
 
-1. Run `node scripts/validate-layer-imports.js`
+1. Run `node scripts/validations/validate-layer-imports.js`
 2. Identify the violation (file, line, import)
 3. Check the layer rules for your component's layer
 4. Replace forbidden import with allowed layer import
@@ -721,7 +738,7 @@ const variants = cva("base-class", {
 
 ### Workflow 5: Fixing Token Violations
 
-1. Run `node scripts/validate-design-tokens.js`
+1. Run `node scripts/validations/validate-design-tokens.js`
 2. Identify hardcoded values (colors, spacing)
 3. Replace with Tailwind classes or CSS variables
 4. Re-run validation
@@ -743,10 +760,12 @@ Located at: `scripts/hooks/pre-commit`
 
 Runs:
 - Layer import validation
+- Architectural patterns validation
 - Storybook coverage validation
 - Design token validation
 - Story composition validation
 - Feature story validation
+- Feature hook pattern validation
 - Behavior stories validation
 - Import alias validation
 
@@ -818,7 +837,7 @@ For detailed information on specific topics, see:
 | primitives/ | ui/ |
 | ai-elements/ | ui/ |
 | composites/ | primitives/, ai-elements/ |
-| blocks/ | composites/, primitives/ |
+| blocks/ | composites/, primitives/, ai-elements/ |
 | features/ | blocks/, composites/ |
 
 ### Validation Commands
@@ -828,13 +847,15 @@ For detailed information on specific topics, see:
 node scripts/run-all-validations.js
 
 # Individual validations
-node scripts/validate-layer-imports.js
-node scripts/validate-storybook-coverage.js
-node scripts/validate-design-tokens.js
-node scripts/validate-story-composition.js
-node scripts/validate-feature-stories.js
-node scripts/validate-behavior-stories.js
-node scripts/validate-import-aliases.js
+node scripts/validations/validate-layer-imports.js
+node scripts/validations/validate-architectural-patterns.js
+node scripts/validations/validate-storybook-coverage.js
+node scripts/validations/validate-design-tokens.js
+node scripts/validations/validate-story-composition.js
+node scripts/validations/validate-feature-stories.js
+node scripts/validations/validate-feature-hook-pattern.js
+node scripts/validations/validate-behavior-stories.js
+node scripts/validations/validate-import-aliases.js
 ```
 
 ### Common Fixes

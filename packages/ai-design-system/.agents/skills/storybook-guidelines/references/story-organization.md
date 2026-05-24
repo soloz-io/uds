@@ -29,9 +29,8 @@ components/
     └── WorkflowCanvas/
         ├── WorkflowCanvas.tsx
         ├── WorkflowCanvas.stories.tsx  ← Story file
-        ├── hooks/
-        │   ├── useWorkflowCanvas.d.ts
-        │   └── useWorkflowCanvas.mock.ts
+  ├── useWorkflowCanvas.d.ts
+  ├── useWorkflowCanvas.mock.ts
         └── index.ts
 ```
 

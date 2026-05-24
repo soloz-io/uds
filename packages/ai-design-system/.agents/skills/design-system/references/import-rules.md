@@ -169,13 +169,13 @@ import { AIConversation } from "@/components/blocks/AIConversation";
 ### blocks/
 
 ```tsx
-// ✅ CORRECT - blocks importing from composites and primitives
+// ✅ CORRECT - blocks importing from composites, primitives, and ai-elements
 import { DataTable } from "@/components/composites/DataTable";
 import { Button } from "@/components/primitives/Button";
+import { Message } from "@/components/ai-elements/message";
 import { cn } from "@/lib/utils";
 
-// ❌ INCORRECT - blocks importing from ai-elements or features
-import { Message } from "@/components/ai-elements/message";
+// ❌ INCORRECT - blocks importing from features
 import { AIDocEditor } from "@/components/features/AIDocEditor";
 ```
 
@@ -197,7 +197,7 @@ import { Message } from "@/components/ai-elements/message";
 The `validate-import-aliases.js` script enforces these rules:
 
 ```bash
-node scripts/validate-import-aliases.js
+node scripts/validations/validate-import-aliases.js
 ```
 
 **What it checks**:
@@ -299,7 +299,7 @@ import { Button } from "@/components/primitives/Button";
 
 3. **Validate**:
 ```bash
-node scripts/validate-import-aliases.js
+node scripts/validations/validate-import-aliases.js
 ```
 
 ### Automated Migration

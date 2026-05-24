@@ -14,7 +14,7 @@ These validations run automatically during the build process and will block buil
 
 ## 1. Story Composition Validation
 
-**Script:** `scripts/validate-story-composition.js`
+**Script:** `scripts/validations/validate-story-composition.js`
 
 **Purpose:** Ensures stories only render the component they're documenting, not manually compose child components from other layers.
 
@@ -153,7 +153,7 @@ export const Default: Story = {
 
 ```bash
 # Run manually
-node scripts/validate-story-composition.js
+node scripts/validations/validate-story-composition.js
 
 # Runs automatically during build
 pnpm build
@@ -168,7 +168,7 @@ pnpm build
 
 ## 2. Storybook Coverage Validation
 
-**Script:** `scripts/validate-storybook-coverage.js`
+**Script:** `scripts/validations/validate-storybook-coverage.js`
 
 **Purpose:** Enforces that all components in primitives and blocks have corresponding `.stories.tsx` files.
 
@@ -225,7 +225,7 @@ components/blocks/AIConversation/
 
 ```bash
 # Run manually
-node scripts/validate-storybook-coverage.js
+node scripts/validations/validate-storybook-coverage.js
 
 # Runs automatically during build
 pnpm build
@@ -242,7 +242,7 @@ SKIP_STORYBOOK_VALIDATION=1 pnpm build
 
 ## 3. Feature Story Validation
 
-**Script:** `scripts/validate-feature-stories.js`
+**Script:** `scripts/validations/validate-feature-stories.js`
 
 **Purpose:** Enforces that all feature components have complete story infrastructure including state management patterns.
 
@@ -526,7 +526,7 @@ components/features/AIDocEditor/
 
 ```bash
 # Run manually
-node scripts/validate-feature-stories.js
+node scripts/validations/validate-feature-stories.js
 
 # Runs automatically during build
 pnpm build
@@ -666,9 +666,9 @@ export const WithStateManagement: Story = { ... }
 Before committing:
 ```bash
 # Run all validations
-node scripts/validate-storybook-coverage.js
-node scripts/validate-story-composition.js
-node scripts/validate-feature-stories.js
+node scripts/validations/validate-storybook-coverage.js
+node scripts/validations/validate-story-composition.js
+node scripts/validations/validate-feature-stories.js
 
 # Or run build (includes all validations)
 pnpm build

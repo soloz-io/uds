@@ -84,8 +84,8 @@ import { AIConversation } from "@/components/blocks/AIConversation";
 
 ### Layer 5: blocks/
 **Purpose**: Complex UI sections
-**Can Import**: `components/composites/`, `components/primitives/`
-**Cannot Import**: `components/ui/`, ai-elements, features
+**Can Import**: `components/composites/`, `components/primitives/`, `components/ai-elements/`
+**Cannot Import**: `components/ui/`, features
 **Examples**: `AIConversation/`, `AppSidebar/`, `FileChangeQueue/`
 
 Blocks are substantial UI sections that:
@@ -95,21 +95,14 @@ Blocks are substantial UI sections that:
 - Provide feature-like functionality
 
 ```tsx
-// ✅ CORRECT - blocks importing from composites and primitives
+// ✅ CORRECT - blocks importing from composites/primitives/ai-elements
 import { DataTable } from "@/components/composites/DataTable";
 import { Button } from "@/components/primitives/Button";
-
-// ❌ INCORRECT - blocks importing from ai-elements
 import { Message } from "@/components/ai-elements/message";
 
 // ❌ INCORRECT - blocks importing from features
 import { AIDocEditor } from "@/components/features/AIDocEditor";
 ```
-
-**Why can't blocks import ai-elements?**
-- Blocks should use composites that wrap ai-elements
-- This enforces proper composition layers
-- Prevents blocks from becoming too low-level
 
 ### Layer 6: features/
 **Purpose**: Complete feature implementations
@@ -148,7 +141,7 @@ import { Message } from "@/components/ai-elements/message";
 | primitives/ | ui/ |
 | ai-elements/ | ui/ |
 | composites/ | primitives/, ai-elements/ |
-| blocks/ | composites/, primitives/ |
+| blocks/ | composites/, primitives/, ai-elements/ |
 | features/ | blocks/, composites/ |
 
 ## Common Violations and Fixes
@@ -166,19 +159,18 @@ import { Button } from "@/components/primitives/Button";
 
 **Why?** Composites should use primitives, which wrap ui/ components with project-specific enhancements.
 
-### Violation 2: Block importing from ai-elements
+### Violation 2: Block importing from features
 
 ```tsx
 // ❌ INCORRECT
-// components/blocks/AIConversation/AIConversation.tsx
-import { Message } from "@/components/ai-elements/message";
+// components/blocks/WorkflowCanvas/WorkflowCanvas.tsx
+import { AIDocEditor } from "@/components/features/AIDocEditor";
 
 // ✅ CORRECT
-// Create a composite that wraps Message, then import that
-import { MessageDisplay } from "@/components/composites/MessageDisplay";
+import { Message } from "@/components/ai-elements/message";
 ```
 
-**Why?** Blocks should work at the composite level, not the element level.
+**Why?** Blocks cannot import from higher layers like features.
 
 ### Violation 3: Feature importing from primitives
 
@@ -263,10 +255,10 @@ import { Icon } from "lucide-react";
 
 ## Validation
 
-The layer architecture is enforced by `scripts/validate-layer-imports.js`:
+The layer architecture is enforced by `scripts/validations/validate-layer-imports.js`:
 
 ```bash
-node scripts/validate-layer-imports.js
+node scripts/validations/validate-layer-imports.js
 ```
 
 This script:
@@ -288,7 +280,7 @@ This script:
 
 If you have existing components that violate the architecture:
 
-1. **Identify the violation** - Run `node scripts/validate-layer-imports.js`
+1. **Identify the violation** - Run `node scripts/validations/validate-layer-imports.js`
 2. **Determine correct layer** - Use the decision tree
 3. **Move component** - Relocate to correct layer directory
 4. **Fix imports** - Update to use allowed layers

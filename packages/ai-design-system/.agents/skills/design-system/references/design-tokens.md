@@ -301,7 +301,7 @@ The design system includes multiple theme variants:
 The `validate-design-tokens.js` script enforces token usage:
 
 ```bash
-node scripts/validate-design-tokens.js
+node scripts/validations/validate-design-tokens.js
 ```
 
 **What it catches**:
@@ -389,7 +389,7 @@ export function Section({ children }: { children: React.ReactNode }) {
 1. **Edit token source** in `tokens/` directory
 2. **Build tokens**: `pnpm tokens:build`
 3. **Use in components**: Reference via Tailwind or CSS variables
-4. **Validate**: Run `node scripts/validate-design-tokens.js`
+4. **Validate**: Run `node scripts/validations/validate-design-tokens.js`
 
 ### Custom Token Values
 

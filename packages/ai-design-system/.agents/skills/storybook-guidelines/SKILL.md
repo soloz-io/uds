@@ -34,12 +34,14 @@ Use this skill when:
 
 ## CRITICAL RULES (Read First)
 
-### 1. Always import from `@storybook/react`
+### 1. Story Type Imports Must Be Consistent
 
 ```tsx
 import type { Meta, StoryObj } from '@storybook/react'      // ✅
-import type { Meta, StoryObj } from '@storybook/nextjs-vite' // ❌ causes indexing errors
+import type { Meta, StoryObj } from '@storybook/nextjs-vite' // ✅ also used in existing features
 ```
+
+Use one source consistently within a single file.
 
 ### 2. Always use `satisfies Meta<typeof Component>`
 
@@ -424,8 +426,8 @@ argTypes: {
 2. ✅ `WithStateManagement` - Using mock hooks
 
 **REQUIRED files:**
-- `hooks/useFeatureName.d.ts` - Hook contract
-- `hooks/useFeatureName.mock.ts` - Mock implementation
+- `useFeatureName.d.ts` - Hook contract
+- `useFeatureName.mock.ts` - Mock implementation
 
 ## Story Patterns
 
@@ -844,7 +846,7 @@ export const Default: Story = {
 
 **Validation:**
 ```bash
-node scripts/validate-storybook-coverage.js
+node scripts/validations/validate-storybook-coverage.js
 ```
 
 ## Common Patterns
