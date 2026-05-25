@@ -1,11 +1,10 @@
 import type { DashboardRow } from "@/components/composites/DataTable"
 import {
-  dynamicTableSchema,
   formSchema,
-  type DynamicTableSchema,
   type FormFieldDefinition,
   type FormSchema,
-} from "ui-schema-contracts"
+} from "design-schema"
+import { dynamicTableSchema, type DynamicTableSchema } from "ui-schema-contracts"
 
 const dashboardTableSchemaInput = {
   schemaVersion: "1",

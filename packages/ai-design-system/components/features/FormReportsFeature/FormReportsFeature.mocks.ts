@@ -5,11 +5,10 @@ import type {
   FormReportsRowAction,
 } from "@/components/composites/FormReports"
 import {
-  dynamicTableSchema,
   formSchema,
-  type DynamicTableSchema,
   type FormSchema,
-} from "ui-schema-contracts"
+} from "design-schema"
+import { dynamicTableSchema, type DynamicTableSchema } from "ui-schema-contracts"
 
 export const formReportsEntityName = "Feature Flag"
 

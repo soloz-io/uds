@@ -19,8 +19,24 @@ export { fullPreset, fullCatalog } from "./presets/full/index.js";
 // Schema domains (backend-safe)
 export { coreSchemas } from "./schemas/core/index.js";
 export { dataSchemas } from "./schemas/data/index.js";
+export {
+	formFieldDefinitionSchema,
+	formFieldOptionSchema,
+	formFieldTypeSchema,
+	formFieldValueSchema,
+	formSchema,
+	formSchemas,
+} from "./schemas/form/index.js";
 export { workflowSchemas } from "./schemas/workflow/index.js";
 export { aiSchemas } from "./schemas/ai/index.js";
+
+export type {
+	FormFieldDefinition,
+	FormFieldOption,
+	FormFieldType,
+	FormFieldValue,
+	FormSchema,
+} from "./schemas/form/index.js";
 
 // Prompt helpers
 export { buildSystemPrompt } from "./prompts/index.js";

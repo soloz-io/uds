@@ -1,6 +1,6 @@
 {
   "name": "ai-design-system",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "private": false,
   "type": "module",
   "description": "AI-powered design system with React components, built with Tailwind CSS and Radix UI - test",
@@ -59,6 +59,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "design-schema": "workspace:*",
     "ui-schema-contracts": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^9.0.0",

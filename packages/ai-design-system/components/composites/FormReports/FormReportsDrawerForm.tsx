@@ -20,7 +20,7 @@ import type {
   FormFieldOption,
   FormFieldType,
   FormFieldValue,
-} from "ui-schema-contracts"
+} from "design-schema"
 
 export type FormReportsFieldType = FormFieldType
 
