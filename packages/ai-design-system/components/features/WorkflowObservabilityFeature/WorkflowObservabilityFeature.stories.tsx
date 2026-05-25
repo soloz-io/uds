@@ -32,9 +32,11 @@ const baseArgs: Story["args"] = {
   selectedSpanId: null,
   searchQuery: "",
   runActions: [
-    { id: "wake-up", label: "Wake Up Sleep", resourceTypes: ["sleep"], tone: "amber" },
-    { id: "resolve-hook", label: "Resolve Hook", resourceTypes: ["hook"], tone: "neutral" },
-    { id: "cancel-run", label: "Cancel Run", resourceTypes: ["run"], tone: "danger" },
+    { id: "replay-run", label: "Replay Run", resourceTypes: ["run"], tone: "neutral", surface: "details" },
+    { id: "reenqueue-run", label: "Re-enqueue", resourceTypes: ["run"], tone: "neutral", surface: "menu" },
+    { id: "cancel-active-sleeps", label: "Cancel Active Sleeps", resourceTypes: ["run"], tone: "amber", surface: "menu" },
+    { id: "wake-up-sleep", label: "Wake Up Sleep", resourceTypes: ["sleep"], tone: "amber", surface: "details" },
+    { id: "cancel-run", label: "Cancel", resourceTypes: ["run"], tone: "danger", surface: "details" },
   ],
 }
 

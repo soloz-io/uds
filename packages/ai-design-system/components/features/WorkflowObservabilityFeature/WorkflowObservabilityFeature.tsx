@@ -39,6 +39,7 @@ function buildObservabilitySections({
     id: "trace",
     content: (
       <WorkflowRunObservabilityTracePanel
+        actions={runActions}
         events={events}
         onSearchQueryChange={onSearchQueryChange}
         onSelectSpan={onSelectSpan}

@@ -87,11 +87,11 @@ export const workflowSpanRecordsMock: WorkflowSpanRecord[] = [
     id: "sleep_wait_01KP45XGJK16SW3BS6GGC5A04H",
     label: "sleep",
     duration: "21.85s",
-    state: "completed",
+    state: "live",
     lane: "Sleep",
     startPercent: 74,
     lengthPercent: 18,
-    subtitle: "Sleep wait completed",
+    subtitle: "Sleep waiting for resume",
     resource: "sleep",
     resumeAt: "4/13/2026, 12:46:10 PM",
     suspensionReason: "sleep",
@@ -103,7 +103,7 @@ export const workflowSpanRecordsMock: WorkflowSpanRecord[] = [
       beforeState: "hook_waiting",
     },
     outputPayload: {
-      wakeResult: "completed",
+      wakeResult: "pending",
     },
   },
 ]

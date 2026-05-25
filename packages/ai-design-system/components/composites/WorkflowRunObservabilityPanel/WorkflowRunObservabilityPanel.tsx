@@ -2,6 +2,12 @@ import * as React from "react"
 
 import { Badge } from "@/components/primitives/Badge"
 import { Button } from "@/components/primitives/Button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/primitives/DropdownMenu"
 import { Input } from "@/components/primitives/Input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/primitives/Tabs"
 
@@ -65,6 +71,7 @@ export interface WorkflowRunAction {
   disabled?: boolean
   resourceTypes?: WorkflowSpanResource[]
   tone?: "neutral" | "amber" | "danger"
+  surface?: "menu" | "details" | "both"
 }
 
 export interface WorkflowRunObservabilityPanelProps {
@@ -89,6 +96,7 @@ export interface WorkflowRunObservabilityTracePanelProps {
   onSearchQueryChange?: (value: string) => void
   selectedSpanId?: string | null
   onSelectSpan?: (spanId: string | null) => void
+  actions?: WorkflowRunAction[]
   className?: string
 }
 
@@ -139,10 +147,19 @@ function formatPayload(value: unknown): string {
 }
 
 export const WorkflowRunObservabilityTracePanel = React.memo<WorkflowRunObservabilityTracePanelProps>(
-  ({ run, spans, events, streams, searchQuery = "", onSearchQueryChange, selectedSpanId, onSelectSpan, className }) => {
+  ({ run, spans, events, streams, searchQuery = "", onSearchQueryChange, selectedSpanId, onSelectSpan, actions, className }) => {
     const maxTimelinePercent = Math.max(
       ...spans.map((span) => (span.startPercent ?? 0) + (span.lengthPercent ?? 20)),
       100
+    )
+    const runMenuActions = React.useMemo(
+      () =>
+        (actions ?? []).filter((action) => {
+          const isRunScoped = !action.resourceTypes?.length || action.resourceTypes.includes("run")
+          if (!isRunScoped) return false
+          return action.surface === "menu" || action.surface === "both" || !action.surface
+        }),
+      [actions]
     )
 
     return (
@@ -154,12 +171,33 @@ export const WorkflowRunObservabilityTracePanel = React.memo<WorkflowRunObservab
               <div className="font-mono text-[#9ea0a8] text-xs">{run.runId}</div>
             </div>
             <div className="flex items-center gap-2">
-              <Button className="h-8 rounded-md border border-[#2a2a2f] bg-[#111216] px-3 text-xs text-[#f4f4f5] hover:bg-[#16181d]" size="sm" variant="ghost">
-                View Logs
-              </Button>
-              <Button className="h-8 w-8 rounded-md border border-[#2a2a2f] bg-[#111216] p-0 text-[#b8bac2] hover:bg-[#16181d]" size="sm" variant="ghost">
-                ...
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    aria-label="More actions"
+                    className="h-8 w-8 rounded-md border border-[#2a2a2f] bg-[#111216] p-0 text-[#b8bac2] hover:bg-[#16181d]"
+                    size="sm"
+                    variant="ghost"
+                  >
+                    ...
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[180px]">
+                  {runMenuActions.length ? (
+                    runMenuActions.map((action) => (
+                      <DropdownMenuItem
+                        disabled={action.disabled}
+                        key={action.id}
+                        onClick={action.onClick}
+                      >
+                        {action.label}
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <DropdownMenuItem disabled>No actions available</DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
               <span aria-hidden className={`ml-2 inline-block size-2 rounded-full ${statusClassName(run.status).replace("text", "bg")}`} />
               <span className={`font-medium text-sm capitalize ${statusClassName(run.status)}`}>{run.status}</span>
             </div>
@@ -342,8 +380,9 @@ export const WorkflowRunObservabilityDetailsPanel = React.memo<WorkflowRunObserv
       if (!selectedSpan?.resource) return []
 
       return (actions ?? []).filter((action) => {
-        if (!action.resourceTypes?.length) return true
-        return action.resourceTypes.includes(selectedSpan.resource!)
+        const isResourceMatch = !action.resourceTypes?.length || action.resourceTypes.includes(selectedSpan.resource!)
+        if (!isResourceMatch) return false
+        return action.surface === "details" || action.surface === "both" || !action.surface
       })
     }, [actions, selectedSpan?.resource])
 
@@ -481,6 +520,7 @@ export const WorkflowRunObservabilityPanel = React.memo<WorkflowRunObservability
       <div className={`flex flex-1 flex-col gap-3 rounded-xl border border-[#2a2a2f] bg-[#050506] p-4 text-[#e6e7eb] ${className ?? ""}`}>
         <div className={`grid min-h-[560px] grid-cols-1 gap-3 ${selectedSpanId ? "lg:grid-cols-[1fr_356px]" : ""}`}>
           <WorkflowRunObservabilityTracePanel
+            actions={actions}
             events={events}
             onSearchQueryChange={onSearchQueryChange}
             onSelectSpan={onSelectSpan}

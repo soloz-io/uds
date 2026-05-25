@@ -16,10 +16,16 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
   const [events, setEvents] = React.useState(workflowEventRecordsMock)
   const [streams, setStreams] = React.useState(workflowStreamRecordsMock)
 
-  const selectedSpan = React.useMemo(
-    () => spans.find((span) => span.id === selectedSpanId) ?? null,
-    [spans, selectedSpanId]
+  const isRunActive = selectedRun.status === "pending" || selectedRun.status === "running"
+  const hasPendingSleeps = React.useMemo(
+    () => spans.some((span) => span.resource === "sleep" && span.state === "live"),
+    [spans]
   )
+  const isSelectedSleepLive = React.useMemo(() => {
+    if (!selectedSpanId) return false
+    const selectedSpan = spans.find((span) => span.id === selectedSpanId)
+    return selectedSpan?.resource === "sleep" && selectedSpan.state === "live"
+  }, [selectedSpanId, spans])
 
   const appendEventAndStream = React.useCallback(
     (eventTitle: string, description: string, streamPayload: Record<string, unknown>) => {
@@ -50,12 +56,48 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
     []
   )
 
-  const wakeUpSleep = React.useCallback(() => {
-    if (!selectedSpan || selectedSpan.resource !== "sleep") return
+  const replayRun = React.useCallback(() => {
+    const now = new Date()
+    const newRunId = `wrun_${now.getTime()}`
+
+    setSelectedRun((prev) => ({
+      ...prev,
+      runId: newRunId,
+      status: "running",
+      createdAt: now.toLocaleTimeString(),
+      startedAt: now.toLocaleTimeString(),
+      completedAt: "-",
+      suspensionReason: "webhook",
+    }))
+
+    setSelectedSpanId("span_generateBirthdayCard")
+
+    appendEventAndStream("run_replayed", "A new run was started from replay action.", {
+      event_type: "run_replayed",
+      run_id: newRunId,
+      status: "running",
+    })
+  }, [appendEventAndStream])
+
+  const reenqueueRun = React.useCallback(() => {
+    setSelectedRun((prev) => ({
+      ...prev,
+      status: "running",
+    }))
+
+    appendEventAndStream("run_reenqueued", "Workflow orchestration was re-enqueued.", {
+      event_type: "run_reenqueued",
+      run_id: selectedRun.runId,
+      status: "running",
+    })
+  }, [appendEventAndStream, selectedRun.runId])
+
+  const cancelActiveSleeps = React.useCallback(() => {
+    if (!hasPendingSleeps) return
 
     setSpans((prev) =>
       prev.map((span) =>
-        span.id === selectedSpan.id
+        span.resource === "sleep" && span.state === "live"
           ? {
               ...span,
               state: "completed",
@@ -74,30 +116,35 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
       status: "running",
     }))
 
-    appendEventAndStream("run_woken_up", "Sleep trace resumed from action button.", {
+    appendEventAndStream("run_woken_up", "Active sleeps were cancelled and run resumed.", {
       event_type: "run_woken_up",
-      span_id: selectedSpan.id,
+      run_id: selectedRun.runId,
       status: "running",
     })
-  }, [appendEventAndStream, selectedSpan])
+  }, [appendEventAndStream, hasPendingSleeps, selectedRun.runId])
 
-  const resolveHook = React.useCallback(() => {
-    if (!selectedSpan || selectedSpan.resource !== "hook") return
+  const wakeUpSleep = React.useCallback(() => {
+    if (!selectedSpanId) return
 
+    let didWake = false
     setSpans((prev) =>
-      prev.map((span) =>
-        span.id === selectedSpan.id
-          ? {
-              ...span,
-              state: "completed",
-              subtitle: "Hook resolved with payload",
-              outputPayload: {
-                resolution: "approved",
-              },
-            }
-          : span
-      )
+      prev.map((span) => {
+        if (span.id === selectedSpanId && span.resource === "sleep" && span.state === "live") {
+          didWake = true
+          return {
+            ...span,
+            state: "completed",
+            subtitle: "Sleep resumed by operator",
+            outputPayload: {
+              wakeResult: "manual_resume",
+            },
+          }
+        }
+        return span
+      })
     )
+
+    if (!didWake) return
 
     setSelectedRun((prev) => ({
       ...prev,
@@ -105,16 +152,15 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
       status: "running",
     }))
 
-    appendEventAndStream("hook_resolved", "Hook token resolved through action panel.", {
-      event_type: "hook_resolved",
-      span_id: selectedSpan.id,
-      result: "approved",
+    appendEventAndStream("sleep_woken_up", "Selected sleep span resumed by operator.", {
+      event_type: "sleep_woken_up",
+      run_id: selectedRun.runId,
+      span_id: selectedSpanId,
+      status: "running",
     })
-  }, [appendEventAndStream, selectedSpan])
+  }, [appendEventAndStream, selectedRun.runId, selectedSpanId])
 
   const cancelRun = React.useCallback(() => {
-    if (!selectedSpan || selectedSpan.resource !== "run") return
-
     const now = new Date().toLocaleString()
 
     setSelectedRun((prev) => ({
@@ -129,7 +175,7 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
       run_id: selectedRun.runId,
       status: "cancelled",
     })
-  }, [appendEventAndStream, selectedRun.runId, selectedSpan])
+  }, [appendEventAndStream, selectedRun.runId])
 
   return {
     selectedRun,
@@ -139,9 +185,50 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
     searchQuery,
     selectedSpanId,
     runActions: [
-      { id: "wake-up", label: "Wake Up Sleep", onClick: wakeUpSleep, resourceTypes: ["sleep"], tone: "amber" },
-      { id: "resolve-hook", label: "Resolve Hook", onClick: resolveHook, resourceTypes: ["hook"], tone: "neutral" },
-      { id: "cancel-run", label: "Cancel Run", onClick: cancelRun, resourceTypes: ["run"], tone: "danger" },
+      {
+        id: "replay-run",
+        label: "Replay Run",
+        onClick: replayRun,
+        disabled: isRunActive,
+        resourceTypes: ["run"],
+        tone: "neutral",
+        surface: "details",
+      },
+      {
+        id: "reenqueue-run",
+        label: "Re-enqueue",
+        onClick: reenqueueRun,
+        resourceTypes: ["run"],
+        tone: "neutral",
+        surface: "menu",
+      },
+      {
+        id: "cancel-active-sleeps",
+        label: "Cancel Active Sleeps",
+        onClick: cancelActiveSleeps,
+        disabled: !hasPendingSleeps,
+        resourceTypes: ["run"],
+        tone: "amber",
+        surface: "menu",
+      },
+      {
+        id: "wake-up-sleep",
+        label: "Wake Up Sleep",
+        onClick: wakeUpSleep,
+        disabled: !isSelectedSleepLive,
+        resourceTypes: ["sleep"],
+        tone: "amber",
+        surface: "details",
+      },
+      {
+        id: "cancel-run",
+        label: "Cancel",
+        onClick: cancelRun,
+        disabled: !isRunActive,
+        resourceTypes: ["run"],
+        tone: "danger",
+        surface: "details",
+      },
     ],
     actionHandlers: {
       onSearchQueryChange: setSearchQuery,

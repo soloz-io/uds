@@ -12,7 +12,11 @@ import {
 
 const onSearchQueryChange = fn()
 const onSelectSpan = fn()
-const onWakeUp = fn()
+const onReplayRun = fn()
+const onReenqueue = fn()
+const onCancelActiveSleeps = fn()
+const onWakeUpSleep = fn()
+const onCancel = fn()
 
 const meta = {
   title: "Features/WorkflowObservabilityFeature/Behaviors",
@@ -39,9 +43,11 @@ const args: Story["args"] = {
   onSearchQueryChange,
   onSelectSpan,
   runActions: [
-    { id: "wake-up", label: "Wake Up Sleep", onClick: onWakeUp, resourceTypes: ["sleep"], tone: "amber" },
-    { id: "resolve-hook", label: "Resolve Hook", resourceTypes: ["hook"], tone: "neutral" },
-    { id: "cancel-run", label: "Cancel Run", resourceTypes: ["run"], tone: "danger" },
+    { id: "replay-run", label: "Replay Run", onClick: onReplayRun, resourceTypes: ["run"], tone: "neutral", surface: "details" },
+    { id: "reenqueue-run", label: "Re-enqueue", onClick: onReenqueue, resourceTypes: ["run"], tone: "neutral", surface: "menu" },
+    { id: "cancel-active-sleeps", label: "Cancel Active Sleeps", onClick: onCancelActiveSleeps, resourceTypes: ["run"], tone: "amber", surface: "menu" },
+    { id: "wake-up-sleep", label: "Wake Up Sleep", onClick: onWakeUpSleep, resourceTypes: ["sleep"], tone: "amber", surface: "details" },
+    { id: "cancel-run", label: "Cancel", onClick: onCancel, resourceTypes: ["run"], tone: "danger", surface: "details" },
   ],
 }
 
@@ -92,32 +98,36 @@ export const SwitchToEventsTab: Story = {
 }
 
 export const TriggerRunAction: Story = {
+  args,
   render: () => <InteractiveStoryHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    await userEvent.click(canvas.getByRole("button", { name: /sleep/i }))
-    await userEvent.click(canvas.getByRole("button", { name: /Wake Up Sleep/i }))
-    await expect(onWakeUp).toHaveBeenCalled()
+    await userEvent.click(canvas.getByRole("button", { name: /generateBirthdayCard/i }))
+    await userEvent.click(canvas.getByRole("button", { name: /Replay Run/i }))
+    await expect(onReplayRun).toHaveBeenCalled()
   },
 }
 
 export const ResourceActions: Story = {
+  args,
   render: () => <InteractiveStoryHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
     await userEvent.click(canvas.getByRole("button", { name: /hook_01KP45XGJK16SW3BS6GGC5A04B/i }))
-    await expect(await canvas.findByRole("button", { name: /Resolve Hook/i })).toBeInTheDocument()
-    await expect(canvas.queryByRole("button", { name: /Wake Up Sleep/i })).not.toBeInTheDocument()
+    await expect(await canvas.findByText(/No actions available\./i)).toBeInTheDocument()
 
     await userEvent.click(canvas.getByRole("button", { name: /generateBirthdayCard/i }))
-    await expect(await canvas.findByRole("button", { name: /Cancel Run/i })).toBeInTheDocument()
-    await expect(canvas.queryByRole("button", { name: /Resolve Hook/i })).not.toBeInTheDocument()
+    await expect(await canvas.findByRole("button", { name: /Replay Run/i })).toBeInTheDocument()
+    await expect(await canvas.findByRole("button", { name: /^Cancel$/i })).toBeInTheDocument()
+    await expect(canvas.queryByRole("button", { name: /Re-enqueue/i })).not.toBeInTheDocument()
+    await expect(canvas.queryByRole("button", { name: /Cancel Active Sleeps/i })).not.toBeInTheDocument()
   },
 }
 
 export const RunDetailsPayloadBlocks: Story = {
+  args,
   render: () => <InteractiveStoryHarness />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -126,5 +136,42 @@ export const RunDetailsPayloadBlocks: Story = {
     await expect(await canvas.findByText(/Arguments/i)).toBeInTheDocument()
     await expect(await canvas.findByText(/Input/i)).toBeInTheDocument()
     await expect(await canvas.findByText(/Output/i)).toBeInTheDocument()
+  },
+}
+
+export const DynamicDetailsChips: Story = {
+  args,
+  render: () => <InteractiveStoryHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.click(canvas.getByRole("button", { name: /generateBirthdayCard/i }))
+    const runDetails = await canvas.findByTestId("trace-details-panel")
+    await expect(within(runDetails).getByText(/^run$/i)).toBeInTheDocument()
+    await expect(within(runDetails).getByText(/^live$/i)).toBeInTheDocument()
+
+    await userEvent.click(canvas.getByRole("button", { name: /^sleep$/i }))
+    const sleepDetails = await canvas.findByTestId("trace-details-panel")
+    await expect(within(sleepDetails).getByText(/^sleep$/i)).toBeInTheDocument()
+    await expect(within(sleepDetails).getByText(/^completed$/i)).toBeInTheDocument()
+  },
+}
+
+export const SleepBehavior: Story = {
+  args,
+  render: () => <InteractiveStoryHarness />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    await userEvent.click(canvas.getByRole("button", { name: /^sleep$/i }))
+
+    const sleepDetails = await canvas.findByTestId("trace-details-panel")
+    await expect(within(sleepDetails).getByText(/^sleep$/i)).toBeInTheDocument()
+    await expect(within(sleepDetails).getByText(/^completed$/i)).toBeInTheDocument()
+    await expect(await within(sleepDetails).findByRole("button", { name: /Wake Up Sleep/i })).toBeInTheDocument()
+    await expect(within(sleepDetails).queryByText(/No actions available\./i)).not.toBeInTheDocument()
+
+    await userEvent.click(canvas.getByRole("button", { name: /more actions/i }))
+    await expect(await canvas.findByRole("menuitem", { name: /Cancel Active Sleeps/i })).toBeInTheDocument()
   },
 }
