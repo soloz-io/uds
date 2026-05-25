@@ -1,7 +1,8 @@
 import * as React from "react"
 import { AppSidebar, type AppSidebarProps } from "@/components/blocks/AppSidebar"
 import { LayoutProvider } from "@/components/blocks/LayoutProvider"
-import { SectionLayout, type SectionLayoutProps, type SectionLayoutSection } from "@/components/blocks/SectionLayout"
+import { SectionLayout } from "@/components/blocks/SectionLayout/SectionLayout"
+import type { SectionLayoutProps, SectionLayoutSection } from "@/components/blocks/SectionLayout/interfaces"
 import { AppHeader, type AppHeaderProps } from "@/components/composites/AppHeader"
 import { PageContainer } from "@/components/composites/PageContainer"
 

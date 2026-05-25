@@ -175,11 +175,12 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
         <React.Fragment key={section.id}>
           <div
             className={cn(
-              "h-full overflow-hidden bg-card border border-border rounded-md",
+              "min-h-0 overflow-hidden bg-card border border-border rounded-md",
               section.className
             )}
             style={{
               flex: `${size} 1 0%`,
+              minHeight: 0,
               minWidth: 0,
             }}
           >

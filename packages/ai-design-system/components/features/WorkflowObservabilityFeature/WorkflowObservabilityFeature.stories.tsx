@@ -24,19 +24,26 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+const baseArgs: Story["args"] = {
+  selectedRun: selectedWorkflowRunMock,
+  spans: workflowSpanRecordsMock,
+  events: workflowEventRecordsMock,
+  streams: workflowStreamRecordsMock,
+  selectedSpanId: null,
+  searchQuery: "",
+  runActions: [
+    { id: "wake-up", label: "Wake Up Sleep", resourceTypes: ["sleep"], tone: "amber" },
+    { id: "resolve-hook", label: "Resolve Hook", resourceTypes: ["hook"], tone: "neutral" },
+    { id: "cancel-run", label: "Cancel Run", resourceTypes: ["run"], tone: "danger" },
+  ],
+}
+
 export const Default: Story = {
-  args: {
-    selectedRun: selectedWorkflowRunMock,
-    spans: workflowSpanRecordsMock,
-    events: workflowEventRecordsMock,
-    streams: workflowStreamRecordsMock,
-    selectedSpanId: workflowSpanRecordsMock[0]?.id,
-    searchQuery: "",
-    runActions: [{ id: "wake-up", label: "Wake Up Sleep" }],
-  },
+  args: baseArgs,
 }
 
 export const WithStateManagement: Story = {
+  args: baseArgs,
   render: () => {
     const state = useWorkflowObservabilityFeatureMock()
 

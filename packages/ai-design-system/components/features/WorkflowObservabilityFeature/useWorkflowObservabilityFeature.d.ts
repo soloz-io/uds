@@ -8,7 +8,7 @@ import type {
 
 export interface WorkflowObservabilityFeatureActionHandlers {
   onSearchQueryChange?: (value: string) => void
-  onSelectSpan?: (spanId: string) => void
+  onSelectSpan?: (spanId: string | null) => void
 }
 
 export interface UseWorkflowObservabilityFeatureReturn {

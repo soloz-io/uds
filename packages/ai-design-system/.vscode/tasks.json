@@ -1,0 +1,25 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "storybook-6007",
+			"type": "shell",
+			"command": "pnpm",
+			"args": [
+				"storybook",
+				"--",
+				"--port",
+				"6007"
+			],
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "storybook6007",
+			"type": "shell",
+			"command": "pnpm storybook -- --port 6007",
+			"isBackground": true,
+			"group": "build"
+		}
+	]
+}
