@@ -21,6 +21,8 @@ export interface FormReportsFeatureProps {
   rowActions?: FormReportsRowAction[]
   actionHandlers?: FormReportsFeatureActionHandlers
   createButtonLabel?: string
+  showCreateButton?: boolean
+  enableCreateDrawer?: boolean
   className?: string
 }
 
@@ -40,6 +42,8 @@ export const FormReportsFeature = React.memo<FormReportsFeatureProps>(
     rowActions,
     actionHandlers,
     createButtonLabel = "Create",
+    showCreateButton = true,
+    enableCreateDrawer = true,
     className,
   }) => {
     const [drawerOpen, setDrawerOpen] = React.useState(false)
@@ -52,10 +56,13 @@ export const FormReportsFeature = React.memo<FormReportsFeatureProps>(
     const openDrawer = React.useCallback(
       (source: "create") => {
         actionHandlers?.onCreateClick?.(source)
+        if (!enableCreateDrawer) {
+          return
+        }
         setDrawerOpen(true)
         actionHandlers?.onDrawerOpenChange?.(true)
       },
-      [actionHandlers]
+      [actionHandlers, enableCreateDrawer]
     )
 
     const handleOpenChange = React.useCallback(
@@ -94,7 +101,7 @@ export const FormReportsFeature = React.memo<FormReportsFeatureProps>(
     return (
       <div className={`flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6 ${className ?? ""}`}>
         <FormReportsSection
-          onCreateClick={() => openDrawer("create")}
+          onCreateClick={showCreateButton ? () => openDrawer("create") : undefined}
           createButtonLabel={createButtonLabel}
           items={items}
           columns={columns}
@@ -102,19 +109,21 @@ export const FormReportsFeature = React.memo<FormReportsFeatureProps>(
           tableHandlers={actionHandlers?.table}
         />
 
-        <FormReportsDrawerForm
-          open={drawerOpen}
-          onOpenChange={handleOpenChange}
-          title={`Create ${entityName}`}
-          description={`Enter the details for your new ${entityName.toLowerCase()}.`}
-          fields={fields}
-          values={values}
-          submitLabel={createButtonLabel}
-          onFieldChange={handleFieldChange}
-          onFieldBlur={handleFieldBlur}
-          onSubmit={handleSubmit}
-          onCancel={actionHandlers?.onCancel}
-        />
+        {enableCreateDrawer ? (
+          <FormReportsDrawerForm
+            open={drawerOpen}
+            onOpenChange={handleOpenChange}
+            title={`Create ${entityName}`}
+            description={`Enter the details for your new ${entityName.toLowerCase()}.`}
+            fields={fields}
+            values={values}
+            submitLabel={createButtonLabel}
+            onFieldChange={handleFieldChange}
+            onFieldBlur={handleFieldBlur}
+            onSubmit={handleSubmit}
+            onCancel={actionHandlers?.onCancel}
+          />
+        ) : null}
       </div>
     )
   }

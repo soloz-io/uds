@@ -24,7 +24,7 @@ const colors = {
   bold: '\x1b[1m',
 };
 
-const FEATURES_DIR = path.join(__dirname, '../components/features');
+const FEATURES_DIR = path.join(__dirname, '../../components/features');
 
 /**
  * Get all feature component directories
@@ -122,7 +122,7 @@ function validate() {
     console.log(`  Create ${colors.bold}{FeatureName}.behaviors.stories.tsx${colors.reset} in the feature directory`);
     console.log(`  File should contain interaction tests with play functions\n`);
 
-    console.log(`${colors.yellow}Example: packages/ui-lib/components/features/AIDocEditor/AIDocEditor.behaviors.stories.tsx${colors.reset}\n`);
+    console.log(`${colors.yellow}Example: packages/ai-design-system/components/features/AIDocEditor/AIDocEditor.behaviors.stories.tsx${colors.reset}\n`);
 
     return false;
   }

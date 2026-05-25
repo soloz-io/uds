@@ -27,6 +27,8 @@
  *    - Has play: functions
  *    - Uses fn() for callbacks
  *    - Does NOT import from the .mock.ts file
+ * 7. Feature component implementation:
+ *    - The main FeatureName.tsx file must NOT import from other features
  */
 
 import fs from 'fs';
@@ -69,6 +71,11 @@ function hasComponentFile(featureDir) {
   );
 }
 
+function getFeatureComponentFile(featureDir, featureName) {
+  const componentFilePath = path.join(featureDir, `${featureName}.tsx`);
+  return fs.existsSync(componentFilePath) ? componentFilePath : null;
+}
+
 /** Derive the mock hook filename from featureName */
 function mockHookFile(featureName) {
   return `use${featureName}.mock.ts`;
@@ -93,6 +100,47 @@ function importsFile(content, filename) {
     || content.includes(`"./${base}"`)
     || content.includes(`'./${filename}'`)
     || content.includes(`"./${filename}"`);
+}
+
+function extractImports(content) {
+  const imports = [];
+  const patterns = [
+    /import\s+(?:type\s+)?[\s\S]*?from\s+["']([^"']+)["']/g,
+    /import\s+["']([^"']+)["']/g,
+    /export\s+(?:type\s+)?(?:\*|\{[\s\S]*?\})\s+from\s+["']([^"']+)["']/g,
+  ];
+
+  patterns.forEach(pattern => {
+    let match;
+    const regex = new RegExp(pattern.source, pattern.flags);
+    while ((match = regex.exec(content)) !== null) {
+      const lineNumber = content.slice(0, match.index).split('\n').length;
+      imports.push({ importPath: match[1], lineNumber });
+    }
+  });
+
+  return imports;
+}
+
+function normalizeFeatureImport(importPath, currentFile) {
+  if (importPath.startsWith('.')) {
+    const resolved = path.resolve(path.dirname(currentFile), importPath);
+    const relativeToFeatures = path.relative(FEATURES_DIR, resolved);
+    if (!relativeToFeatures.startsWith('..') && !path.isAbsolute(relativeToFeatures)) {
+      return relativeToFeatures.replace(/\\/g, '/');
+    }
+    return null;
+  }
+
+  if (importPath.startsWith('@/components/features/')) {
+    return importPath.replace('@/components/features/', '');
+  }
+
+  if (importPath === '@/components/features' || importPath.endsWith('/components/features')) {
+    return '__FEATURES_BARREL__';
+  }
+
+  return null;
 }
 
 /**
@@ -254,6 +302,39 @@ function checkBehaviorStories(featureDir, featureName) {
   return issues;
 }
 
+function checkFeatureImports(featureDir, featureName) {
+  const issues = [];
+  const filePath = getFeatureComponentFile(featureDir, featureName);
+
+  if (!filePath) {
+    return issues;
+  }
+
+  const content = readFile(filePath);
+  if (!content) {
+    return issues;
+  }
+
+  for (const { importPath, lineNumber } of extractImports(content)) {
+    const normalizedImport = normalizeFeatureImport(importPath, filePath);
+    if (!normalizedImport) {
+      continue;
+    }
+
+    if (normalizedImport === '__FEATURES_BARREL__') {
+      issues.push(`${path.basename(filePath)}:${lineNumber}: Imports from @/components/features — feature components must not import from the features barrel`);
+      continue;
+    }
+
+    const targetFeature = normalizedImport.split('/')[0];
+    if (targetFeature && targetFeature !== featureName) {
+      issues.push(`${path.basename(filePath)}:${lineNumber}: Imports from feature "${targetFeature}" via "${importPath}" — feature components must only compose blocks and composites`);
+    }
+  }
+
+  return issues;
+}
+
 function validate() {
   console.log(`${colors.blue}${colors.bold}Validating feature hook and mock patterns...${colors.reset}\n`);
 
@@ -281,6 +362,7 @@ function validate() {
       checkMocksFile(featureDir, featureName),
       checkStoriesFile(featureDir, featureName),
       checkBehaviorStories(featureDir, featureName),
+      checkFeatureImports(featureDir, featureName),
     ]) {
       if (issues) allIssues.push(...issues);
     }

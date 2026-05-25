@@ -32,3 +32,7 @@ export type { DashboardFeatureProps } from "./DashboardFeature";
 // FormReportsFeature Feature
 export { FormReportsFeature } from "./FormReportsFeature";
 export type { FormReportsFeatureProps } from "./FormReportsFeature";
+
+// WorkflowObservabilityFeature Feature
+export { WorkflowObservabilityFeature } from "./WorkflowObservabilityFeature";
+export type { WorkflowObservabilityFeatureProps } from "./WorkflowObservabilityFeature";

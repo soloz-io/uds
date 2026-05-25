@@ -84,15 +84,14 @@ class LayerValidator {
       /export\s+(?:\*|{[^}]*})\s+from\s+["']([^"']+)["']/g,
     ];
 
-    const lines = fileContent.split('\n');
-    lines.forEach((line, index) => {
-      patterns.forEach(pattern => {
-        let match;
-        const regex = new RegExp(pattern.source, pattern.flags);
-        while ((match = regex.exec(line)) !== null) {
-          imports.push([match[1], index + 1]);
-        }
-      });
+    patterns.forEach(pattern => {
+      let match;
+      const regex = new RegExp(pattern.source, pattern.flags);
+      while ((match = regex.exec(fileContent)) !== null) {
+        const beforeMatch = fileContent.slice(0, match.index);
+        const lineNum = beforeMatch.split('\n').length;
+        imports.push([match[1], lineNum]);
+      }
     });
 
     return imports;

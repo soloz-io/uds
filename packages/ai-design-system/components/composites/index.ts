@@ -129,3 +129,15 @@ export type { TransitionNodeData } from './TransitionNode'
 // WorkflowToolbar Composite
 export { WorkflowToolbar, WorkflowToolbarActions } from './WorkflowToolbar'
 export type { WorkflowToolbarProps, WorkflowToolbarActionsProps, WorkflowVersion, ToolbarAction } from './WorkflowToolbar'
+
+// WorkflowRunObservabilityPanel Composite
+export { WorkflowRunObservabilityPanel } from './WorkflowRunObservabilityPanel'
+export type {
+	WorkflowEventRecord,
+	WorkflowRunAction,
+	WorkflowRunObservabilityPanelProps,
+	WorkflowRunStatus,
+	WorkflowRunSummary,
+	WorkflowSpanRecord,
+	WorkflowStreamRecord,
+} from './WorkflowRunObservabilityPanel'
