@@ -62,3 +62,34 @@ export function WorkflowRunInboxFeature() {
 
 **Rule**:
 Composites and blocks must use general names that any feature can consume. Only features may use feature-aligned names.
+
+---
+
+### 2. Exporting Non-Feature Components from Root
+
+**Anti-Pattern**: Exporting composite/block/primitives component values from package root.
+
+**Incorrect**:
+```ts
+// ❌ Root value exports leaking lower layers
+export { AppHeader } from './composites/AppHeader'
+export { SectionLayout } from './blocks/SectionLayout'
+```
+
+**Correct**:
+```ts
+// ✅ Root value exports are feature-only
+export * from './features'
+
+// ✅ Lower layers can remain type-only at root
+export type * from './composites'
+export type * from './blocks'
+```
+
+**Why**:
+- Prevents consumers from bypassing feature governance.
+- Keeps app-level composition centered in feature APIs (for example, `PageLayout` for header usage).
+- Reduces coupling to internal layers and enables safer DS evolution.
+
+**Rule**:
+Package root must expose runtime component values from `features` only. Consumers must not depend on root-level `AppHeader`/`SectionLayout` values.

@@ -44,8 +44,9 @@ import { PageContainer } from "@/components/composites/PageContainer"
 export interface PageLayoutProps {
   /**
    * Sidebar configuration
+   * Optional for apps that need header + content layout without a sidebar.
    */
-  sidebar: AppSidebarProps
+  sidebar?: AppSidebarProps
   /**
    * Header configuration
    */
@@ -127,6 +128,19 @@ export const PageLayout = React.memo<PageLayoutProps>(
       <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     )
 
+    const pageContainer = (
+      <PageContainer className={`overflow-hidden ${className ?? ""}`}>
+        <AppHeader {...header} />
+        <div className={`min-h-0 flex-1 overflow-x-hidden ${layoutSections ? "overflow-hidden" : "overflow-y-auto"}`}>
+          {contentArea}
+        </div>
+      </PageContainer>
+    )
+
+    if (!sidebar) {
+      return pageContainer
+    }
+
     return (
       <LayoutProvider
         defaultOpen={defaultSidebarOpen}
@@ -134,12 +148,7 @@ export const PageLayout = React.memo<PageLayoutProps>(
         sidebarWidthIcon={sidebarWidthIcon}
       >
         <AppSidebar {...sidebar} />
-        <PageContainer className={`overflow-hidden ${className ?? ""}`}>
-          <AppHeader {...header} />
-          <div className={`min-h-0 flex-1 overflow-x-hidden ${layoutSections ? "overflow-hidden" : "overflow-y-auto"}`}>
-            {contentArea}
-          </div>
-        </PageContainer>
+        {pageContainer}
       </LayoutProvider>
     )
   }
