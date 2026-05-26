@@ -203,45 +203,55 @@ import * as React from 'react';
   }
 
   dtsContent += `// ============================================================================
-// FEATURES
+// FEATURE COMPONENT EXPORTS
 // ============================================================================
 
 `;
 
-  // Find all feature component files
-  const featureFiles = await glob('components/features/*/*.tsx', { 
+  const componentFiles = await glob('components/features/*/*.tsx', {
     cwd: path.join(__dirname, '..'),
-    absolute: true 
+    absolute: true,
   });
 
-  for (const filePath of featureFiles) {
-    // Skip stories, mocks, and test files
-    if (filePath.includes('.stories.') || filePath.includes('.mock.') || filePath.includes('.test.')) {
-      continue;
+  const publicComponentFiles = componentFiles
+    .filter((filePath) =>
+      !filePath.includes('.stories.') &&
+      !filePath.includes('.mock.') &&
+      !filePath.includes('.test.')
+    )
+    .sort((left, right) => left.localeCompare(right));
+
+  const emittedComponents = new Set();
+
+  for (const filePath of publicComponentFiles) {
+    const relativePath = path.relative(path.join(__dirname, '..'), filePath).replace(/\\/g, '/');
+    const content = fs.readFileSync(filePath, 'utf8');
+    const components = extractComponents(filePath);
+
+    const declarations = [];
+    for (const componentName of components) {
+      if (emittedComponents.has(componentName)) {
+        continue;
+      }
+
+      const propsInterfaceName = `${componentName}Props`;
+      const hasPropsInterface =
+        dtsContent.includes(`interface ${propsInterfaceName}`) ||
+        content.includes(`interface ${propsInterfaceName}`) ||
+        content.includes(`export interface ${propsInterfaceName}`);
+
+      declarations.push(
+        hasPropsInterface
+          ? `export const ${componentName}: React.FC<${propsInterfaceName}>;`
+          : `export const ${componentName}: React.FC<any>;`
+      );
+      emittedComponents.add(componentName);
     }
 
-    const content = fs.readFileSync(filePath, 'utf8');
-    
-    // Extract all exported interfaces and types
-    const types = extractTypes(filePath);
-    if (types.length > 0) {
-      dtsContent += `// From ${path.basename(filePath)}\n`;
-      dtsContent += types.join('\n\n') + '\n\n';
+    if (declarations.length > 0) {
+      dtsContent += `// From ${relativePath}\n`;
+      dtsContent += declarations.join('\n') + '\n\n';
     }
-    
-    // Extract component exports
-    const components = extractComponents(filePath);
-    for (const componentName of components) {
-      // Check if there's a corresponding Props interface
-      const propsInterfaceName = `${componentName}Props`;
-      if (content.includes(`interface ${propsInterfaceName}`) || content.includes(`export interface ${propsInterfaceName}`)) {
-        dtsContent += `export const ${componentName}: React.FC<${propsInterfaceName}>;\n`;
-      } else {
-        dtsContent += `export const ${componentName}: React.FC<any>;\n`;
-      }
-    }
-    
-    dtsContent += '\n';
   }
 
   dtsContent += `
@@ -256,7 +266,7 @@ export function cn(...inputs: any[]): string;
   fs.writeFileSync(dtsPath, dtsContent, 'utf8');
 
   console.log('✅ Generated index.d.ts successfully');
-  console.log(`   Processed ${featureFiles.length} feature files`);
+  console.log(`   Processed ${publicComponentFiles.length} feature component files`);
 }
 
 generateDts().catch(err => {
