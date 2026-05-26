@@ -5,4 +5,8 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
+  - design-schema
   - design-schema@0.1.3
+  - design-schema@0.1.4
+  - ui-schema-contracts
+  - ui-schema-contracts@0.1.1
