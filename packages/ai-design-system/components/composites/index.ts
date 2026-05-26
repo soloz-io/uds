@@ -141,3 +141,7 @@ export type {
 	WorkflowSpanRecord,
 	WorkflowStreamRecord,
 } from './WorkflowRunObservabilityPanel'
+
+// InboxList Composite
+export { InboxList } from './InboxList'
+export type { InboxListItem, InboxListProps } from './InboxList'

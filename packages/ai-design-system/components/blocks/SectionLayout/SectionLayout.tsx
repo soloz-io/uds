@@ -18,6 +18,7 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
     orientation = "horizontal",
     storageKey,
     onSectionResize,
+    resizable = true,
     dragHandleColor = "border",
     className,
     ...props 
@@ -25,6 +26,7 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
     // Transform sections to include headers
     const transformedSections = sections.map(section => ({
       ...section,
+      resizable,
       content: (
         <div className="h-full min-h-0 flex flex-col overflow-hidden">
           {section.header && (

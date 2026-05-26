@@ -4,6 +4,7 @@ import type { AppHeaderProps } from "@/components/composites/AppHeader/interface
 export interface SectionLayoutSection {
   id: string;
   content: React.ReactNode;
+  fixedSize?: string;
   defaultSize?: number;
   minSize?: number;
   maxSize?: number;
@@ -17,5 +18,6 @@ export interface SectionLayoutProps extends React.ComponentPropsWithoutRef<"div"
   orientation?: "horizontal" | "vertical";
   storageKey?: string;
   onSectionResize?: (sectionId: string, newSize: number) => void;
+  resizable?: boolean;
   dragHandleColor?: "primary" | "secondary" | "accent" | "border" | "muted";
 }

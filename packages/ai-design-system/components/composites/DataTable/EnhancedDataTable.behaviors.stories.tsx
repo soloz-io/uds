@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { expect, userEvent, within } from "@storybook/test"
 import { Toaster } from "sonner"
+import { DYNAMIC_TABLE_SCHEMA_VERSION, dynamicTableSchema } from "ui-schema-contracts"
 
 import { EnhancedDataTable } from "./EnhancedDataTable"
 import type { DashboardRow } from "./table-types"
@@ -10,6 +11,22 @@ const rows: DashboardRow[] = [
   { id: 2, header: "Table of contents", type: "Table of contents", status: "Done", target: "29", limit: "24", reviewer: "Assign reviewer" },
   { id: 3, header: "Executive summary", type: "Narrative", status: "Done", target: "10", limit: "13", reviewer: "Assign reviewer" },
 ]
+
+const tableSchema = dynamicTableSchema.parse({
+  schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
+  rowKey: "id",
+  enableFiltering: true,
+  enablePagination: true,
+  enableRowSelection: true,
+  columns: [
+    { key: "header", label: "Header", sortable: true, hideable: false },
+    { key: "type", label: "Type", sortable: true },
+    { key: "status", label: "Status", renderType: "badge", sortable: true },
+    { key: "target", label: "Target", align: "right", sortable: true },
+    { key: "limit", label: "Limit", align: "right", sortable: true },
+    { key: "reviewer", label: "Reviewer", sortable: true },
+  ],
+})
 
 const meta = {
   title: "Composites/EnhancedDataTable/Behaviors",
@@ -30,7 +47,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const SelectAllWorks: Story = {
-  args: { data: rows },
+  args: { data: rows, tableSchema },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const selectAll = canvas.getByLabelText("Select all")
@@ -40,7 +57,7 @@ export const SelectAllWorks: Story = {
 }
 
 export const DrawerOpensFromHeader: Story = {
-  args: { data: rows },
+  args: { data: rows, tableSchema },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const trigger = canvas.getByRole("button", { name: "Cover page" })
@@ -50,7 +67,7 @@ export const DrawerOpensFromHeader: Story = {
 }
 
 export const SwitchesViewTab: Story = {
-  args: { data: rows },
+  args: { data: rows, tableSchema },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const tab = canvas.getByRole("tab", { name: /Past Performance/i })

@@ -32,3 +32,6 @@ export type { DataTableProps } from './DataTable'
 
 export { FormReportsSection } from './FormReportsSection'
 export type { FormReportsSectionProps } from './FormReportsSection'
+
+export { InboxPanel } from './InboxPanel'
+export type { InboxPanelProps } from './InboxPanel'

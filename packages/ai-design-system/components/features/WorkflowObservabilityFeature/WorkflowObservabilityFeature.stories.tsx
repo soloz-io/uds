@@ -1,9 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
+import { useState } from "react"
 
 import { WorkflowObservabilityFeature } from "./WorkflowObservabilityFeature"
 import {
   selectedWorkflowRunMock,
   workflowEventRecordsMock,
+  workflowInboxItemsMock,
   workflowSpanRecordsMock,
   workflowStreamRecordsMock,
 } from "./WorkflowObservabilityFeature.mocks"
@@ -13,6 +15,11 @@ const meta = {
   title: "Features/WorkflowObservabilityFeature",
   component: WorkflowObservabilityFeature,
   tags: ["autodocs"],
+  render: (args) => (
+    <div className="h-dvh min-h-0 p-2">
+      <WorkflowObservabilityFeature {...args} className="h-full" />
+    </div>
+  ),
   globals: {
     theme: "dark-neutral",
   },
@@ -38,6 +45,12 @@ const baseArgs: Story["args"] = {
     { id: "wake-up-sleep", label: "Wake Up Sleep", resourceTypes: ["sleep"], tone: "amber", surface: "details" },
     { id: "cancel-run", label: "Cancel", resourceTypes: ["run"], tone: "danger", surface: "details" },
   ],
+  inbox: {
+    items: workflowInboxItemsMock,
+    selectedItemId: selectedWorkflowRunMock.runId,
+    searchQuery: "",
+  },
+  className: "h-full",
 }
 
 export const Default: Story = {
@@ -48,19 +61,31 @@ export const WithStateManagement: Story = {
   args: baseArgs,
   render: () => {
     const state = useWorkflowObservabilityFeatureMock()
+    const [searchQuery, setSearchQuery] = useState("")
+    const [selectedItemId, setSelectedItemId] = useState<string | null>(state.selectedRun.runId)
 
     return (
-      <WorkflowObservabilityFeature
-        selectedRun={state.selectedRun}
-        spans={state.spans}
-        events={state.events}
-        streams={state.streams}
-        selectedSpanId={state.selectedSpanId}
-        searchQuery={state.searchQuery}
-        runActions={state.runActions}
-        onSearchQueryChange={state.actionHandlers?.onSearchQueryChange}
-        onSelectSpan={state.actionHandlers?.onSelectSpan}
-      />
+      <div className="h-dvh min-h-0 p-2">
+        <WorkflowObservabilityFeature
+          selectedRun={state.selectedRun}
+          spans={state.spans}
+          events={state.events}
+          streams={state.streams}
+          selectedSpanId={state.selectedSpanId}
+          searchQuery={state.searchQuery}
+          runActions={state.runActions}
+          onSearchQueryChange={state.actionHandlers?.onSearchQueryChange}
+          onSelectSpan={state.actionHandlers?.onSelectSpan}
+          inbox={{
+            items: workflowInboxItemsMock,
+            selectedItemId,
+            onSelectItem: setSelectedItemId,
+            searchQuery,
+            onSearchQueryChange: setSearchQuery,
+          }}
+          className="h-full"
+        />
+      </div>
     )
   },
 }

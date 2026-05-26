@@ -4,6 +4,26 @@ import type {
   WorkflowSpanRecord,
   WorkflowStreamRecord,
 } from "@/components/composites/WorkflowRunObservabilityPanel"
+import type { InboxListItem } from "@/components/composites/InboxList"
+
+export const workflowInboxItemsMock: InboxListItem[] = [
+  {
+    id: "wrun_01KP45XGBHRMT7HQJXXHKBEQS4",
+    title: "wrun_01KP45XGBHRMT7HQJXXHKBEQS4",
+    subtitle: "running • 1m 43s • retries 0",
+    badge: "running",
+    timestamp: "1m ago",
+    preview: "hook_waiting",
+  },
+  {
+    id: "wrun_01KP45XGBHRMT7HQJXXHKBEQS5",
+    title: "wrun_01KP45XGBHRMT7HQJXXHKBEQS5",
+    subtitle: "completed • 43s • retries 1",
+    badge: "completed",
+    timestamp: "7m ago",
+    preview: "run_completed",
+  },
+]
 
 export const selectedWorkflowRunMock: WorkflowRunSummary = {
   runId: "wrun_01KP45XGBHRMT7HQJXXHKBEQS4",

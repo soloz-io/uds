@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 import { Toaster } from "sonner"
+import { DYNAMIC_TABLE_SCHEMA_VERSION, dynamicTableSchema } from "ui-schema-contracts"
 
 import { EnhancedDataTable } from "./EnhancedDataTable"
 import type { DashboardRow } from "./table-types"
@@ -18,6 +19,22 @@ const data: DashboardRow[] = [
   { id: 11, header: "Adaptive Communication Protocols", type: "Narrative", status: "Done", target: "9", limit: "31", reviewer: "Assign reviewer" },
   { id: 12, header: "Advantages Over Current Technologies", type: "Narrative", status: "Not Started", target: "12", limit: "0", reviewer: "Assign reviewer" },
 ]
+
+const tableSchema = dynamicTableSchema.parse({
+  schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
+  rowKey: "id",
+  enableFiltering: true,
+  enablePagination: true,
+  enableRowSelection: true,
+  columns: [
+    { key: "header", label: "Header", sortable: true, hideable: false },
+    { key: "type", label: "Type", sortable: true },
+    { key: "status", label: "Status", renderType: "badge", sortable: true },
+    { key: "target", label: "Target", align: "right", sortable: true },
+    { key: "limit", label: "Limit", align: "right", sortable: true },
+    { key: "reviewer", label: "Reviewer", sortable: true },
+  ],
+})
 
 const meta = {
   title: "Composites/EnhancedDataTable",
@@ -38,5 +55,6 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     data,
+    tableSchema,
   },
 }

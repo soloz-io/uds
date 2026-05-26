@@ -6,12 +6,14 @@ import { WorkflowObservabilityFeature } from "./WorkflowObservabilityFeature"
 import {
   selectedWorkflowRunMock,
   workflowEventRecordsMock,
+  workflowInboxItemsMock,
   workflowSpanRecordsMock,
   workflowStreamRecordsMock,
 } from "./WorkflowObservabilityFeature.mocks"
 
 const onSearchQueryChange = fn()
 const onSelectSpan = fn()
+const onSelectInboxItem = fn()
 const onReplayRun = fn()
 const onReenqueue = fn()
 const onCancelActiveSleeps = fn()
@@ -22,6 +24,11 @@ const meta = {
   title: "Features/WorkflowObservabilityFeature/Behaviors",
   component: WorkflowObservabilityFeature,
   tags: ["test"],
+  render: (args) => (
+    <div className="h-dvh min-h-0 p-2">
+      <WorkflowObservabilityFeature {...args} className="h-full" />
+    </div>
+  ),
   globals: {
     theme: "dark-neutral",
   },
@@ -49,17 +56,28 @@ const args: Story["args"] = {
     { id: "wake-up-sleep", label: "Wake Up Sleep", onClick: onWakeUpSleep, resourceTypes: ["sleep"], tone: "amber", surface: "details" },
     { id: "cancel-run", label: "Cancel", onClick: onCancel, resourceTypes: ["run"], tone: "danger", surface: "details" },
   ],
+  inbox: {
+    items: workflowInboxItemsMock,
+    selectedItemId: selectedWorkflowRunMock.runId,
+    onSelectItem: onSelectInboxItem,
+    searchQuery: "",
+    onSearchQueryChange: fn(),
+  },
+  className: "h-full",
 }
 
 function InteractiveStoryHarness() {
   const [selectedSpanId, setSelectedSpanId] = React.useState<string | null>(null)
 
   return (
-    <WorkflowObservabilityFeature
-      {...args}
-      onSelectSpan={setSelectedSpanId}
-      selectedSpanId={selectedSpanId}
-    />
+    <div className="h-dvh min-h-0 p-2">
+      <WorkflowObservabilityFeature
+        {...args}
+        className="h-full"
+        onSelectSpan={setSelectedSpanId}
+        selectedSpanId={selectedSpanId}
+      />
+    </div>
   )
 }
 
@@ -173,5 +191,16 @@ export const SleepBehavior: Story = {
 
     await userEvent.click(canvas.getByRole("button", { name: /more actions/i }))
     await expect(await canvas.findByRole("menuitem", { name: /Cancel Active Sleeps/i })).toBeInTheDocument()
+  },
+}
+
+export const SelectRunFromInbox: Story = {
+  args,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    const targetRun = workflowInboxItemsMock[1]
+    await userEvent.click(canvas.getByRole("button", { name: new RegExp(targetRun.id, "i") }))
+    await expect(onSelectInboxItem).toHaveBeenCalledWith(targetRun.id)
   },
 }

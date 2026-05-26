@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 export interface AdjustableLayoutSection {
   id: string
   content: React.ReactNode
+  fixedSize?: string // CSS size value, e.g. "16rem"
   defaultSize?: number // percentage (0-100)
   minSize?: number // minimum percentage
   maxSize?: number // maximum percentage
@@ -168,8 +169,20 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
     }, [draggingIndex, handleMouseMove, handleMouseUp])
 
     const renderPanel = (section: AdjustableLayoutSection, size: number, index: number) => {
+      const nextSection = sections[index + 1]
       // Drag handles should be between panels, so only show for panels that aren't the last one
-      const isResizable = section.resizable !== false && sections.length > 1 && index < sections.length - 1
+      const isResizable =
+        section.resizable !== false &&
+        sections.length > 1 &&
+        index < sections.length - 1 &&
+        !section.fixedSize &&
+        !nextSection?.fixedSize
+
+      const fixedStyle = section.fixedSize
+        ? orientation === "horizontal"
+          ? { flex: `0 0 ${section.fixedSize}`, width: section.fixedSize, minWidth: section.fixedSize }
+          : { flex: `0 0 ${section.fixedSize}`, height: section.fixedSize, minHeight: section.fixedSize }
+        : null
       
       return (
         <React.Fragment key={section.id}>
@@ -179,7 +192,7 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
               section.className
             )}
             style={{
-              flex: `${size} 1 0%`,
+              ...(fixedStyle ?? { flex: `${size} 1 0%` }),
               minHeight: 0,
               minWidth: 0,
             }}
