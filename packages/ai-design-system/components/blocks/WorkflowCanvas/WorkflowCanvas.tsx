@@ -24,6 +24,7 @@ import type { WorkflowCanvasProps, WorkflowEdge } from "./interfaces";
 import "@xyflow/react/dist/style.css";
 
 const edgeTypes = {
+  straight: Edge.Strict,
   animated: Edge.Animated,
   temporary: Edge.Temporary,
 };

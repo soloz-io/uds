@@ -68,7 +68,7 @@ export const StateNode = memo(({ data, selected, id }: StateNodeProps) => {
   return (
     <Node
       className={cn(
-        "relative flex h-auto w-auto min-w-[120px] max-w-[180px] flex-col items-center justify-center border border-border bg-card shadow-none transition-all duration-150 ease-out",
+        "relative flex flex-col items-center justify-center border border-border bg-card shadow-none transition-all duration-150 ease-out",
         selected && "border-primary border-2",
         isTerminal && "border-2 border-primary",
         isDisabled && "opacity-50"
@@ -87,11 +87,14 @@ export const StateNode = memo(({ data, selected, id }: StateNodeProps) => {
       {/* Status indicator badge in top right */}
       <StatusBadge status={status} />
 
-      <div className="flex items-center gap-1.5 px-3 py-2">
-        <Zap className="size-3 shrink-0 text-primary" strokeWidth={1.5} />        <div className="flex flex-col">
-          <NodeTitle className="text-xs font-medium leading-tight">{displayTitle}</NodeTitle>
+      <div className="flex h-full w-full items-center justify-center gap-1.5 px-3 py-2">
+        <Zap className="size-3 shrink-0 text-primary" strokeWidth={1.5} />
+        <div className="min-w-0 flex-1 text-center">
+          <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
+            {displayTitle}
+          </NodeTitle>
           {displayDescription && (
-            <NodeDescription className="text-[10px] leading-tight mt-0.5">
+            <NodeDescription className="mt-0.5 line-clamp-2 text-center text-[10px] leading-tight" title={displayDescription}>
               {displayDescription}
             </NodeDescription>
           )}

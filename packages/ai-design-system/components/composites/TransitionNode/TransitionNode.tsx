@@ -53,7 +53,7 @@ export const TransitionNode = memo(
     return (
       <Node
         className={cn(
-          "flex h-auto w-auto min-w-[120px] max-w-[180px] flex-col items-center justify-center border border-border bg-muted/40 shadow-none transition-all duration-150 ease-out",
+          "flex flex-col items-center justify-center border border-border bg-secondary text-secondary-foreground shadow-none transition-all duration-150 ease-out",
           selected && "border-primary border-2"
         )}
         data-testid={`transition-node-${id}`}
@@ -78,12 +78,14 @@ export const TransitionNode = memo(
           </div>
         )}
 
-        <div className="flex items-center gap-1.5 px-3 py-2">
+        <div className="flex h-full w-full items-center justify-center gap-1.5 px-3 py-2">
           <GitBranch className="size-3 shrink-0 text-muted-foreground" strokeWidth={1.5} />
-          <div className="flex flex-col">
-            <NodeTitle className="text-xs font-medium leading-tight">{displayTitle}</NodeTitle>
+          <div className="min-w-0 flex-1 text-center">
+            <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
+              {displayTitle}
+            </NodeTitle>
             {displayDescription && (
-              <NodeDescription className="text-[10px] leading-tight mt-0.5">
+              <NodeDescription className="mt-0.5 line-clamp-2 text-center text-[10px] leading-tight" title={displayDescription}>
                 {displayDescription}
               </NodeDescription>
             )}
