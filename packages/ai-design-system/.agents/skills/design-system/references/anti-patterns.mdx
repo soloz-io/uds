@@ -93,3 +93,43 @@ export type * from './blocks'
 
 **Rule**:
 Package root must expose runtime component values from `features` only. Consumers must not depend on root-level `AppHeader`/`SectionLayout` values.
+
+---
+
+### 3. Defining Action Handlers Inside Stories
+
+**Anti-Pattern**: Creating local `handle*` functions or inline `on...={() => ...}` callbacks in feature stories.
+
+**Incorrect**:
+```tsx
+export const WithStateManagement: Story = {
+	render: () => {
+		const hook = useMyFeatureMock()
+
+		const handleTabChange = (value: string) => {
+			hook.onTabChange(value)
+		}
+
+		return <MyFeature onTabChange={handleTabChange} onSave={() => console.log('saved')} />
+	},
+}
+```
+
+**Correct**:
+```tsx
+export const WithStateManagement: Story = {
+	render: () => {
+		const hook = useMyFeatureMock()
+
+		return <MyFeature onTabChange={hook.onTabChange} onSave={hook.onSave} isLoading={hook.isLoading} />
+	},
+}
+```
+
+**Why**:
+- Stories must reflect the real hook contract used by consumers.
+- Story-local handlers hide missing hook state and create test-only behavior.
+- Validation can only guarantee consistency when handlers come from hooks, not ad hoc story code.
+
+**Rule**:
+All action handlers used by `WithStateManagement` stories must come from mock hooks. Stories must not define local `handle*` functions or inline callback props.

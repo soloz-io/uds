@@ -391,6 +391,7 @@ Behavior Story Rules:
 - No `hooks/` subfolder in feature directories
 - `useFeatureName.d.ts`, `useFeatureName.mock.ts`, and `FeatureName.mocks.ts` naming
 - `WithStateManagement` uses `render` and imports the mock hook
+- `WithStateManagement` does not define local handlers or inline callback props
 - Behavior stories use `args` + `fn()` and do not import the mock hook
 
 **Usage**:

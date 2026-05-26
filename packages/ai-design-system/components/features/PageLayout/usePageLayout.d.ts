@@ -12,6 +12,10 @@ export interface UsePageLayoutReturn {
   isSidebarOpen: boolean
   /** Currently active tab value */
   activeTab: string
+  /** Whether a page-level loading state is active */
+  isLoading: boolean
+  /** Optional message for the page-level loading state */
+  loadingMessage?: string
   /** Toggle sidebar open/closed */
   toggleSidebar: () => void
   /** Set sidebar open state */

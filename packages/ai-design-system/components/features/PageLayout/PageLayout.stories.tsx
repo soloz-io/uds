@@ -1,11 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { useState } from 'react'
 import { PageLayout } from './PageLayout'
-import { usePageLayoutMock } from './usePageLayout.mock'
-import { mockSidebarConfig, mockHeaderConfig, mockHeaderConfigWithTabs } from './PageLayout.mocks'
-import { WorkflowBuilder } from '@/components/features/WorkflowBuilder'
-import { RefinementPanel } from '@/components/features/RefinementPanel'
-import { mockVersions, mockNodes, mockEdges } from '@/components/features/WorkflowBuilder/WorkflowBuilder.mocks'
+import { usePageLayoutMock, usePageLayoutStoryActionsMock } from './usePageLayout.mock'
+import {
+  mockHeaderConfig,
+  mockHeaderConfigWithTabs,
+  mockPageLayoutFileChanges,
+  mockPageLayoutRefinementMessages,
+  mockSidebarConfig,
+} from './PageLayout.mocks'
+import { WorkflowBuilder } from '../WorkflowBuilder/WorkflowBuilder'
+import { RefinementPanel } from '../RefinementPanel/RefinementPanel'
+import { mockEdges, mockNodes, mockVersions } from '../WorkflowBuilder/WorkflowBuilder.mocks'
 
 const meta = {
   title: 'Features/PageLayout',
@@ -33,8 +38,8 @@ export const Default: Story = {
       {
         id: 'file-explorer',
         content: (
-          <div className="h-full bg-muted rounded-lg border p-4">
-            <h3 className="font-medium mb-2">File Explorer</h3>
+          <div className="h-full rounded-lg border bg-muted p-4">
+            <h3 className="mb-2 font-medium">File Explorer</h3>
             <p className="text-sm text-muted-foreground">Project files and folders</p>
           </div>
         ),
@@ -47,8 +52,8 @@ export const Default: Story = {
       {
         id: 'editor',
         content: (
-          <div className="h-full bg-muted rounded-lg border p-4">
-            <h3 className="font-medium mb-2">Editor</h3>
+          <div className="h-full rounded-lg border bg-muted p-4">
+            <h3 className="mb-2 font-medium">Editor</h3>
             <p className="text-sm text-muted-foreground">Main editing area</p>
           </div>
         ),
@@ -66,8 +71,8 @@ export const Default: Story = {
       {
         id: 'properties',
         content: (
-          <div className="h-full bg-muted rounded-lg border p-4">
-            <h3 className="font-medium mb-2">Properties</h3>
+          <div className="h-full rounded-lg border bg-muted p-4">
+            <h3 className="mb-2 font-medium">Properties</h3>
             <p className="text-sm text-muted-foreground">File and project properties</p>
           </div>
         ),
@@ -91,40 +96,18 @@ export const Default: Story = {
 export const WithStateManagement: Story = {
   render: () => {
     const layoutState = usePageLayoutMock()
-    
-    // Mock data for RefinementPanel
-    const mockMessages = [
-      {
-        id: '1',
-        type: 'human' as const,
-        role: 'user' as const,
-        content: 'Please optimize this workflow for better performance',
-      },
-      {
-        id: '2',
-        type: 'ai' as const,
-        role: 'orchestrator' as const,
-        content: 'I\'ll analyze the workflow and suggest optimizations for better performance.',
-      },
-    ]
-    
-    const mockFileChanges = [
-      {
-        id: '1',
-        filename: 'workflow.json',
-        status: 'modified' as const,
-        path: 'workflow.json',
-        changes: '+ Added parallel processing\n+ Optimized node connections',
-      },
-    ]
-    
+    const actions = usePageLayoutStoryActionsMock()
+
     return (
       <PageLayout
         sidebar={mockSidebarConfig}
         header={{
           ...mockHeaderConfigWithTabs,
+          defaultTab: layoutState.activeTab,
           onTabChange: layoutState.onTabChange,
         }}
+        isLoading={layoutState.isLoading}
+        loadingMessage={layoutState.loadingMessage}
         defaultSidebarOpen={layoutState.isSidebarOpen}
         layoutSections={[
           {
@@ -136,11 +119,10 @@ export const WithStateManagement: Story = {
                 versions={mockVersions}
                 nodes={mockNodes}
                 edges={mockEdges}
-                onVersionSelect={(id) => console.log('Selected version:', id)}
-                onSave={() => console.log('Workflow saved')}
-                onCancel={() => console.log('Cancelled')}
-                onUndo={() => console.log('Undo')}
-                onRedo={() => console.log('Redo')}
+                onVersionSelect={actions.onVersionSelect}
+                onSave={actions.onSave}
+                onUndo={actions.onUndo}
+                onRedo={actions.onRedo}
                 hasUnsavedChanges={true}
                 canUndo={true}
                 canRedo={false}
@@ -154,13 +136,11 @@ export const WithStateManagement: Story = {
             id: 'refinement-panel',
             content: (
               <RefinementPanel
-                messages={mockMessages}
-                fileChanges={mockFileChanges}
-                onSubmit={(message, event) => {
-                  console.log('Refinement request:', message)
-                }}
-                onApprove={() => console.log('Changes approved')}
-                onReject={() => console.log('Changes rejected')}
+                messages={mockPageLayoutRefinementMessages}
+                fileChanges={mockPageLayoutFileChanges}
+                onSubmit={actions.onSubmit}
+                onApprove={actions.onApprove}
+                onReject={actions.onReject}
                 placeholder="Ask for workflow optimizations or describe changes..."
               />
             ),

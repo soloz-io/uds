@@ -110,7 +110,7 @@ export const MultiAgentReviewState: Story = {
 export const WithStateManagement: Story = {
   render: () => {
     // Use mocked hook for state management
-    const { messages, fileChanges, handleSubmit, handleApprove, handleReject } =
+    const { messages, fileChanges, onSubmit, handleApprove, handleReject } =
       useRefinementPanelMock({
         initialMessages: inputStateMessages,
         reviewMessages: reviewStateMessages,
@@ -123,7 +123,7 @@ export const WithStateManagement: Story = {
         messages={messages}
         fileChanges={fileChanges}
         placeholder="Ask a question or describe a task..."
-        onSubmit={(message) => handleSubmit(message.text)}
+        onSubmit={onSubmit}
         onApprove={handleApprove}
         onReject={handleReject}
       />

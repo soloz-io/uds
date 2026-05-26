@@ -192,6 +192,11 @@ export const WithStateManagement: Story = {
 };
 ```
 
+Rules for `WithStateManagement`:
+- Do not define local `handle*` functions inside the story.
+- Do not pass inline callback props like `onSave={() => ...}` or `onTabChange={(value) => ...}`.
+- If the story needs an action handler or loading transition, add it to the mock hook first.
+
 ### `Default` and other static stories — use `args` + mocks data
 
 ```tsx

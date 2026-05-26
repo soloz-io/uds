@@ -266,6 +266,14 @@ function checkStoriesFile(featureDir, featureName) {
     if (!content.includes(expectedMockFn)) {
       issues.push(`${storiesFile}: WithStateManagement must call "${expectedMockFn}()" — mock hook function must be named use${featureName}Mock`);
     }
+
+    if (/\bconst\s+handle[A-Z]\w*\s*=\s*(?:async\s*)?(?:\([^)]*\)|\w+)\s*=>/.test(storyBlock) || /\bfunction\s+handle[A-Z]\w*\s*\(/.test(storyBlock)) {
+      issues.push(`${storiesFile}: WithStateManagement defines local handler functions — move handlers into ${mockHookFile(featureName)}`);
+    }
+
+    if (/\bon[A-Z]\w*\s*=\s*\{\s*(?:async\s*)?(?:\([^)]*\)|\w+)\s*=>/.test(storyBlock) || /\bon[A-Z]\w*\s*=\s*\{\s*function\b/.test(storyBlock)) {
+      issues.push(`${storiesFile}: WithStateManagement uses inline callback props — pass handlers from ${mockHookFile(featureName)} instead`);
+    }
   }
 
   // Must import from .mocks.ts (generic — by filename)

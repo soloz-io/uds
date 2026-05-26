@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
 import type { RefinementMessage } from "./RefinementPanel";
 import type { FileChangeData } from "@/components/composites/FileQueue";
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+import type { FormEvent } from "react";
 
 /**
  * Mock hook for RefinementPanel state management
@@ -18,6 +20,7 @@ export interface UseRefinementPanelReturn {
   fileChanges: FileChangeData[];
   loading: boolean;
   handleSubmit: (prompt: string) => Promise<void>;
+  onSubmit: (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => Promise<void>;
   handleApprove: () => Promise<void>;
   handleReject: () => Promise<void>;
 }
@@ -61,6 +64,10 @@ export function useRefinementPanelMock(
     setFileChanges(reviewFileChanges);
     setLoading(false);
   }, [reviewMessages, reviewFileChanges, apiDelay]);
+
+  const onSubmit = useCallback(async (message: PromptInputMessage, _event: FormEvent<HTMLFormElement>) => {
+    await handleSubmit(message.text);
+  }, [handleSubmit]);
 
   // Simulate approval: clear file changes and add success message
   const handleApprove = useCallback(async () => {
@@ -115,6 +122,7 @@ export function useRefinementPanelMock(
     fileChanges,
     loading,
     handleSubmit,
+    onSubmit,
     handleApprove,
     handleReject,
   };

@@ -202,6 +202,46 @@ import * as React from 'react';
     }
   }
 
+  const featureComponentTypeFiles = await glob('components/features/*/*.tsx', {
+    cwd: path.join(__dirname, '..'),
+    absolute: true,
+  });
+
+  const sortedFeatureComponentTypeFiles = featureComponentTypeFiles
+    .filter((filePath) =>
+      !filePath.includes('.stories.') &&
+      !filePath.includes('.mock.') &&
+      !filePath.includes('.test.')
+    )
+    .sort((left, right) => left.localeCompare(right));
+
+  const emittedTypeNames = new Set();
+
+  for (const filePath of sortedFeatureComponentTypeFiles) {
+    const types = extractTypes(filePath).filter((typeDeclaration) => {
+      const nameMatch = typeDeclaration.match(/export\s+(?:interface|type)\s+(\w+)/);
+
+      if (!nameMatch) {
+        return false;
+      }
+
+      const typeName = nameMatch[1];
+      if (emittedTypeNames.has(typeName) || dtsContent.includes(`interface ${typeName}`) || dtsContent.includes(`type ${typeName}`)) {
+        return false;
+      }
+
+      emittedTypeNames.add(typeName);
+      return true;
+    });
+
+    if (types.length === 0) {
+      continue;
+    }
+
+    dtsContent += `// From ${path.relative(path.join(__dirname, '..'), filePath).replace(/\\/g, '/')}\n`;
+    dtsContent += types.join('\n\n') + '\n\n';
+  }
+
   dtsContent += `// ============================================================================
 // FEATURE COMPONENT EXPORTS
 // ============================================================================
