@@ -136,7 +136,7 @@ export const PageLayout = React.memo<PageLayoutProps>(
         <AppSidebar {...sidebar} />
         <PageContainer className={`overflow-hidden ${className ?? ""}`}>
           <AppHeader {...header} />
-          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+          <div className={`min-h-0 flex-1 overflow-x-hidden ${layoutSections ? "overflow-hidden" : "overflow-y-auto"}`}>
             {contentArea}
           </div>
         </PageContainer>

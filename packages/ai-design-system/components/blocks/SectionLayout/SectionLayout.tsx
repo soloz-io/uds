@@ -26,11 +26,11 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
     const transformedSections = sections.map(section => ({
       ...section,
       content: (
-        <div className="h-full min-h-0 flex flex-col">
+        <div className="h-full min-h-0 flex flex-col overflow-hidden">
           {section.header && (
             <AppHeader {...section.header} />
           )}
-          <div className="min-h-0 flex-1">
+          <div className="min-h-0 flex-1 overflow-auto">
             {section.content}
           </div>
         </div>

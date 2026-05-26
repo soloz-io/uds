@@ -65,7 +65,7 @@ function buildObservabilitySections({
   return [
     {
       ...traceSection,
-      defaultSize: 70,
+      defaultSize: 66.67,
       minSize: 55,
     },
     {
@@ -80,7 +80,7 @@ function buildObservabilitySections({
           spans={spans}
         />
       ),
-      defaultSize: 30,
+      defaultSize: 33.33,
       minSize: 25,
     },
   ]
