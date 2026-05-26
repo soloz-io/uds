@@ -4,17 +4,45 @@ import type { UseWorkflowObservabilityFeatureReturn } from "./useWorkflowObserva
 import {
   selectedWorkflowRunMock,
   workflowEventRecordsMock,
+  workflowInboxItemsMock,
   workflowSpanRecordsMock,
   workflowStreamRecordsMock,
 } from "./WorkflowObservabilityFeature.mocks"
 
+const runByInboxId: Record<string, typeof selectedWorkflowRunMock> = {
+  [selectedWorkflowRunMock.runId]: selectedWorkflowRunMock,
+  wrun_01KP45XGBHRMT7HQJXXHKBEQS5: {
+    ...selectedWorkflowRunMock,
+    runId: "wrun_01KP45XGBHRMT7HQJXXHKBEQS5",
+    status: "completed",
+    createdAt: "7m ago",
+    completedAt: "today 12:45 PM",
+    duration: "43s",
+    suspensionReason: "-",
+  },
+}
+
 export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityFeatureReturn {
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedSpanId, setSelectedSpanId] = React.useState<string | null>(null)
+  const [inboxSearchQuery, setInboxSearchQuery] = React.useState("")
+  const [selectedInboxItemId, setSelectedInboxItemId] = React.useState<string | null>(selectedWorkflowRunMock.runId)
   const [selectedRun, setSelectedRun] = React.useState(selectedWorkflowRunMock)
   const [spans, setSpans] = React.useState(workflowSpanRecordsMock)
   const [events, setEvents] = React.useState(workflowEventRecordsMock)
   const [streams, setStreams] = React.useState(workflowStreamRecordsMock)
+
+  const inboxItems = React.useMemo(() => {
+    const normalizedQuery = inboxSearchQuery.trim().toLowerCase()
+    if (!normalizedQuery) {
+      return workflowInboxItemsMock
+    }
+
+    return workflowInboxItemsMock.filter((item) => {
+      const searchText = [item.title, item.subtitle, item.preview].filter(Boolean).join(" ").toLowerCase()
+      return searchText.includes(normalizedQuery)
+    })
+  }, [inboxSearchQuery])
 
   const isRunActive = selectedRun.status === "pending" || selectedRun.status === "running"
   const hasPendingSleeps = React.useMemo(
@@ -70,6 +98,7 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
       suspensionReason: "webhook",
     }))
 
+    setSelectedInboxItemId(newRunId)
     setSelectedSpanId("span_generateBirthdayCard")
 
     appendEventAndStream("run_replayed", "A new run was started from replay action.", {
@@ -177,6 +206,16 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
     })
   }, [appendEventAndStream, selectedRun.runId])
 
+  const selectInboxItem = React.useCallback((itemId: string) => {
+    setSelectedInboxItemId(itemId)
+    setSelectedSpanId(null)
+
+    const nextRun = runByInboxId[itemId]
+    if (nextRun) {
+      setSelectedRun(nextRun)
+    }
+  }, [])
+
   return {
     selectedRun,
     spans,
@@ -184,6 +223,13 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
     streams,
     searchQuery,
     selectedSpanId,
+    inbox: {
+      items: inboxItems,
+      selectedItemId: selectedInboxItemId,
+      searchQuery: inboxSearchQuery,
+      isLoading: false,
+      emptyMessage: "No runs found.",
+    },
     runActions: [
       {
         id: "replay-run",
@@ -233,6 +279,8 @@ export function useWorkflowObservabilityFeatureMock(): UseWorkflowObservabilityF
     actionHandlers: {
       onSearchQueryChange: setSearchQuery,
       onSelectSpan: setSelectedSpanId,
+      onInboxSearchQueryChange: setInboxSearchQuery,
+      onSelectInboxItem: selectInboxItem,
     },
   }
 }

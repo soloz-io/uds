@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite"
-import { useState } from "react"
 
 import { WorkflowObservabilityFeature } from "./WorkflowObservabilityFeature"
 import {
@@ -61,8 +60,6 @@ export const WithStateManagement: Story = {
   args: baseArgs,
   render: () => {
     const state = useWorkflowObservabilityFeatureMock()
-    const [searchQuery, setSearchQuery] = useState("")
-    const [selectedItemId, setSelectedItemId] = useState<string | null>(state.selectedRun.runId)
 
     return (
       <div className="h-dvh min-h-0 p-2">
@@ -76,13 +73,11 @@ export const WithStateManagement: Story = {
           runActions={state.runActions}
           onSearchQueryChange={state.actionHandlers?.onSearchQueryChange}
           onSelectSpan={state.actionHandlers?.onSelectSpan}
-          inbox={{
-            items: workflowInboxItemsMock,
-            selectedItemId,
-            onSelectItem: setSelectedItemId,
-            searchQuery,
-            onSearchQueryChange: setSearchQuery,
-          }}
+          inbox={state.inbox ? {
+            ...state.inbox,
+            onSelectItem: state.actionHandlers?.onSelectInboxItem,
+            onSearchQueryChange: state.actionHandlers?.onInboxSearchQueryChange,
+          } : undefined}
           className="h-full"
         />
       </div>
