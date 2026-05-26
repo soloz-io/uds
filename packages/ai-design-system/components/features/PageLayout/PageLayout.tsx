@@ -1,9 +1,8 @@
 import * as React from "react"
-import { Shimmer } from "@/components/ai-elements/shimmer"
 import { AppSidebar, type AppSidebarProps } from "@/components/blocks/AppSidebar"
 import { LayoutProvider } from "@/components/blocks/LayoutProvider"
 import { SectionLayout } from "@/components/blocks/SectionLayout/SectionLayout"
-import type { SectionLayoutProps, SectionLayoutSection } from "@/components/blocks/SectionLayout/interfaces"
+import type { SectionLayoutSection } from "@/components/blocks/SectionLayout/interfaces"
 import { AppHeader, type AppHeaderProps } from "@/components/composites/AppHeader"
 import { PageContainer } from "@/components/composites/PageContainer"
 
@@ -11,7 +10,9 @@ function PageLayoutLoadingState({ message }: { message: string }) {
   return (
     <div className="flex h-full min-h-0 flex-1 items-center justify-center px-6 py-10">
       <div className="w-full max-w-3xl space-y-5">
-        <Shimmer className="text-sm text-muted-foreground">{message}</Shimmer>
+        <div className="inline-flex w-fit animate-pulse rounded-md bg-muted px-3 py-1 text-sm text-muted-foreground">
+          {message}
+        </div>
         <div className="space-y-3">
           <div className="h-10 w-1/3 animate-pulse rounded-md bg-muted/70" />
           <div className="h-24 w-full animate-pulse rounded-xl bg-muted/60" />
