@@ -484,7 +484,7 @@ export const WorkflowRunObservabilityDetailsPanel = React.memo<WorkflowRunObserv
         <div className="space-y-2 border-t border-[#23242a] pt-3">
           <div className="font-medium text-sm">Events ({events.length})</div>
           <div className="max-h-32 divide-y divide-[#23242a] overflow-auto rounded border border-[#2a2a2f] bg-[#090a0f] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            {events.slice(0, 3).map((event) => (
+            {events.map((event) => (
               <div className="px-2 py-1 text-xs" key={event.id}>
                 <div>{event.title}</div>
                 {event.timestamp ? (

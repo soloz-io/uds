@@ -52,8 +52,73 @@ const baseArgs: Story["args"] = {
   className: "h-full",
 }
 
+const hookFocusedRunActions = [
+  { id: 'wake-up-hook', label: 'Resume Hook', resourceTypes: ['hook'], tone: 'neutral' as const, surface: 'details' as const },
+  { id: 'cancel-hook', label: 'Cancel Hook', resourceTypes: ['hook'], tone: 'danger' as const, surface: 'menu' as const },
+]
+
+const sleepFocusedRunActions = [
+  { id: 'wake-up-sleep', label: 'Wake Up Sleep', resourceTypes: ['sleep'], tone: 'amber' as const, surface: 'details' as const },
+  { id: 'cancel-active-sleeps', label: 'Cancel Active Sleeps', resourceTypes: ['sleep'], tone: 'danger' as const, surface: 'menu' as const },
+]
+
 export const Default: Story = {
   args: baseArgs,
+}
+
+export const NoSelection: Story = {
+  args: {
+    ...baseArgs,
+    selectedRun: null,
+    selectedSpanId: null,
+  },
+}
+
+export const SelectedTraceRunDetails: Story = {
+  args: {
+    ...baseArgs,
+    selectedSpanId: 'span_generateBirthdayCard',
+  },
+}
+
+export const HookSuspensionState: Story = {
+  args: {
+    ...baseArgs,
+    selectedSpanId: 'hook_01KP45XGJK16SW3BS6GGC5A04B',
+    runActions: hookFocusedRunActions,
+  },
+}
+
+export const SleepSuspensionState: Story = {
+  args: {
+    ...baseArgs,
+    selectedSpanId: 'sleep_wait_01KP45XGJK16SW3BS6GGC5A04H',
+    runActions: sleepFocusedRunActions,
+  },
+}
+
+export const LiveUpdateSnapshot: Story = {
+  args: {
+    ...baseArgs,
+    events: [
+      ...workflowEventRecordsMock,
+      {
+        id: 'evt_4',
+        title: 'run_resumed',
+        timestamp: '4/13/2026, 12:46:12 PM',
+        description: 'Workflow resumed after manual approval.',
+      },
+    ],
+    streams: [
+      ...workflowStreamRecordsMock,
+      {
+        id: 'stream_3',
+        channel: 'event',
+        payload: JSON.stringify({ event_type: 'run_resumed', actor: 'manager' }),
+        timestamp: '12:46:12 PM',
+      },
+    ],
+  },
 }
 
 export const WithStateManagement: Story = {

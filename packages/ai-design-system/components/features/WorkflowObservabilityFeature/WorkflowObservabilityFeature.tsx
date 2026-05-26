@@ -175,6 +175,9 @@ export const WorkflowObservabilityFeature = React.memo<WorkflowObservabilityFeat
         return null
       }
 
+      const inboxDefaultSize = inbox.defaultSize ?? 25
+      const inboxMinSize = inbox.minSize ?? 25
+
       return [
         {
           id: "inbox",
@@ -190,13 +193,15 @@ export const WorkflowObservabilityFeature = React.memo<WorkflowObservabilityFeat
               className="h-full"
             />
           ),
-          fixedSize: "16rem",
+          defaultSize: inboxDefaultSize,
+          minSize: inboxMinSize,
+          maxSize: 45,
         },
         {
           id: "observability",
           content: observabilityContent,
-          defaultSize: 70,
-          minSize: 40,
+          defaultSize: 100 - inboxDefaultSize,
+          minSize: 50,
         },
       ]
     }, [inbox, observabilityContent])
