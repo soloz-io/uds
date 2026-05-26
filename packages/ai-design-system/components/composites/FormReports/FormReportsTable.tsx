@@ -1,6 +1,7 @@
 import * as React from "react"
 import {
   EnhancedDataTable,
+  type DashboardPaginationState,
   type DashboardRow,
   type DashboardRowAction,
   type DashboardTableActionHandlers,
@@ -43,6 +44,7 @@ export interface FormReportsTableProps {
   items: FormReportsEntity[]
   columns: FormReportsColumn[]
   rowActions?: FormReportsRowAction[]
+  pagination?: DashboardPaginationState
   handlers?: FormReportsTableHandlers
   leftActions?: React.ReactNode
   rightActions?: React.ReactNode
@@ -57,8 +59,10 @@ const dashboardToFormReportsActionMap: Record<DashboardRowAction, string> = {
   delete: "delete",
 }
 
+export type { DashboardPaginationState }
+
 export const FormReportsTable = React.memo<FormReportsTableProps>(
-  ({ items, columns, handlers, leftActions, rightActions, onCreateClick, createButtonLabel }) => {
+  ({ items, columns, pagination, handlers, leftActions, rightActions, onCreateClick, createButtonLabel }) => {
     const { rows, originalById, tableSchema } = React.useMemo(() => {
       const byId = new Map<string, FormReportsEntity>()
       const tableColumns: DynamicTableSchema["columns"] = columns
@@ -168,6 +172,7 @@ export const FormReportsTable = React.memo<FormReportsTableProps>(
       <EnhancedDataTable
         data={rows}
         tableSchema={tableSchema}
+        pagination={pagination}
         handlers={adaptedHandlers}
         leftActions={leftActions}
         rightActions={rightActions}

@@ -5,6 +5,7 @@ import {
   type FormReportsEntity,
   type FormReportsRowAction,
   type FormReportsTableHandlers,
+  type DashboardPaginationState,
 } from "@/components/composites/FormReports"
 
 export interface FormReportsSectionProps {
@@ -13,6 +14,7 @@ export interface FormReportsSectionProps {
   items: FormReportsEntity[]
   columns: FormReportsColumn[]
   rowActions?: FormReportsRowAction[]
+  pagination?: DashboardPaginationState
   tableHandlers?: FormReportsTableHandlers
   tableLeftActions?: React.ReactNode
 }
@@ -24,6 +26,7 @@ export const FormReportsSection = React.memo<FormReportsSectionProps>(
     items,
     columns,
     rowActions,
+    pagination,
     tableHandlers,
     tableLeftActions,
   }) => {
@@ -33,6 +36,7 @@ export const FormReportsSection = React.memo<FormReportsSectionProps>(
           items={items}
           columns={columns}
           rowActions={rowActions}
+          pagination={pagination}
           handlers={tableHandlers}
           leftActions={tableLeftActions}
           onCreateClick={onCreateClick}

@@ -16,26 +16,43 @@ import { arrayMove, type UniqueIdentifier } from "@dnd-kit/sortable"
 
 import type { DashboardRow } from "./table-types"
 
+export interface ServerPaginationOptions {
+  pageIndex: number
+  pageSize: number
+  totalItems: number
+}
+
 export interface UseEnhancedDataTableOptions {
   data: DashboardRow[]
   columns: ColumnDef<DashboardRow>[]
   onReorder?: (rows: DashboardRow[]) => void
+  serverPagination?: ServerPaginationOptions
 }
 
-export function useEnhancedDataTable({ data: initialData, columns, onReorder }: UseEnhancedDataTableOptions) {
+export function useEnhancedDataTable({ data: initialData, columns, onReorder, serverPagination }: UseEnhancedDataTableOptions) {
   const [data, setData] = React.useState<DashboardRow[]>(() => initialData)
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
+    pageIndex: serverPagination?.pageIndex ?? 0,
+    pageSize: serverPagination?.pageSize ?? 10,
   })
 
   React.useEffect(() => {
     setData(initialData)
   }, [initialData])
+
+  React.useEffect(() => {
+    if (!serverPagination) {
+      return
+    }
+    setPagination({
+      pageIndex: serverPagination.pageIndex,
+      pageSize: serverPagination.pageSize,
+    })
+  }, [serverPagination])
 
   const dataIds = React.useMemo<UniqueIdentifier[]>(() => data.map((item) => item.id), [data])
 
@@ -56,9 +73,13 @@ export function useEnhancedDataTable({ data: initialData, columns, onReorder }: 
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
+    manualPagination: Boolean(serverPagination),
+    pageCount: serverPagination
+      ? Math.max(1, Math.ceil(serverPagination.totalItems / Math.max(1, serverPagination.pageSize)))
+      : undefined,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: serverPagination ? undefined : getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),

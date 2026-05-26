@@ -20,6 +20,7 @@ export type { UseEnhancedDataTableOptions } from './useEnhancedDataTable'
 export { dashboardRowSchema } from './table-types'
 export type {
 	DashboardInlineEditableField,
+	DashboardPaginationState,
 	DashboardRow,
 	DashboardRowAction,
 	DashboardTableActionHandlers,

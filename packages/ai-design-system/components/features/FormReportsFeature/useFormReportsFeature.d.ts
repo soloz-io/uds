@@ -1,4 +1,5 @@
 import type {
+  DashboardPaginationState,
   FormReportsColumn,
   FormReportsEntity,
   FormReportsFieldDefinition,
@@ -24,6 +25,7 @@ export interface UseFormReportsFeatureReturn {
   columns: FormReportsColumn[]
   rowActions?: FormReportsRowAction[]
   items: FormReportsEntity[]
+  pagination?: DashboardPaginationState
   actionHandlers?: FormReportsFeatureActionHandlers
   createButtonLabel?: string
 }

@@ -10,6 +10,12 @@ export type DashboardInlineEditableField = "target" | "limit"
 
 export type DashboardRowAction = "edit" | "copy" | "favorite" | "delete"
 
+export interface DashboardPaginationState {
+  pageIndex: number
+  pageSize: number
+  totalItems: number
+}
+
 export interface DashboardTableActionHandlers {
   onCreateClick?: () => void
   onAddSection?: () => void

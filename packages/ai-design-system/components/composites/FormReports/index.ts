@@ -16,6 +16,7 @@ export {
 } from "./FormReportsTable"
 
 export type {
+  DashboardPaginationState,
   FormReportsColumn,
   FormReportsEntity,
   FormReportsRowAction,

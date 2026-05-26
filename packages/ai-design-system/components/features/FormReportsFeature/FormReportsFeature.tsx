@@ -2,6 +2,7 @@ import * as React from "react"
 
 import {
   FormReportsDrawerForm,
+  type DashboardPaginationState,
   type FormReportsColumn,
   type FormReportsEntity,
   type FormReportsFieldDefinition,
@@ -18,6 +19,7 @@ export interface FormReportsFeatureProps {
   fields: FormReportsFieldDefinition[]
   columns: FormReportsColumn[]
   items: FormReportsEntity[]
+  pagination?: DashboardPaginationState
   rowActions?: FormReportsRowAction[]
   actionHandlers?: FormReportsFeatureActionHandlers
   createButtonLabel?: string
@@ -39,6 +41,7 @@ export const FormReportsFeature = React.memo<FormReportsFeatureProps>(
     fields,
     columns,
     items,
+    pagination,
     rowActions,
     actionHandlers,
     createButtonLabel = "Create",
@@ -105,6 +108,7 @@ export const FormReportsFeature = React.memo<FormReportsFeatureProps>(
           createButtonLabel={createButtonLabel}
           items={items}
           columns={columns}
+          pagination={pagination}
           rowActions={rowActions}
           tableHandlers={actionHandlers?.table}
         />

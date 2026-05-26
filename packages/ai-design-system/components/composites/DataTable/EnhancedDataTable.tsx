@@ -37,6 +37,7 @@ import { DragHandleCell } from "./DragHandleCell"
 import { DraggableRow } from "./DraggableRow"
 import { createTableSelectColumn } from "./TableSelectColumn"
 import type {
+  DashboardPaginationState,
   DashboardRow,
   DashboardRowAction,
   DashboardTableActionHandlers,
@@ -46,6 +47,7 @@ import { useEnhancedDataTable } from "./useEnhancedDataTable"
 export interface EnhancedDataTableProps {
   data: DashboardRow[]
   tableSchema: DynamicTableSchema
+  pagination?: DashboardPaginationState
   className?: string
   handlers?: DashboardTableActionHandlers
   leftActions?: React.ReactNode
@@ -86,6 +88,7 @@ function toNumberValue(value: unknown): number {
 export function EnhancedDataTable({
   data: initialData,
   tableSchema,
+  pagination,
   className,
   handlers,
   leftActions,
@@ -384,7 +387,29 @@ export function EnhancedDataTable({
     data: filteredData,
     columns,
     onReorder: (rows) => handlers?.onRowReorder?.(rows),
+    serverPagination: pagination,
   })
+
+  const totalPages = React.useMemo(() => {
+    if (!pagination) {
+      return table.getPageCount()
+    }
+    const safePageSize = Math.max(1, pagination.pageSize)
+    return Math.max(1, Math.ceil(Math.max(0, pagination.totalItems) / safePageSize))
+  }, [pagination, table])
+
+  const currentPageIndex = pagination ? pagination.pageIndex : table.getState().pagination.pageIndex
+  const currentPageSize = pagination ? pagination.pageSize : table.getState().pagination.pageSize
+  const canPreviousPage = currentPageIndex > 0
+  const canNextPage = currentPageIndex < totalPages - 1
+
+  React.useEffect(() => {
+    if (!pagination) {
+      return
+    }
+    table.setPageIndex(pagination.pageIndex)
+    table.setPageSize(pagination.pageSize)
+  }, [pagination, table])
 
   React.useEffect(() => {
     if (version > 0) {
@@ -528,16 +553,16 @@ export function EnhancedDataTable({
                 Rows per page
               </Label>
               <Select
-                value={`${table.getState().pagination.pageSize}`}
+                value={`${currentPageSize}`}
                 onValueChange={(value) => {
                   const pageSize = Number(value)
                   table.setPageSize(pageSize)
                   handlers?.onPageSizeChange?.(pageSize)
-                  emitPaginationChange(table.getState().pagination.pageIndex, pageSize)
+                  emitPaginationChange(0, pageSize)
                 }}
               >
                 <SelectTrigger className="w-20" id="rows-per-page">
-                  <SelectValue placeholder={table.getState().pagination.pageSize} />
+                  <SelectValue placeholder={currentPageSize} />
                 </SelectTrigger>
                 <SelectContent side="top">
                   {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -549,7 +574,7 @@ export function EnhancedDataTable({
               </Select>
             </div>
             <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+              Page {currentPageIndex + 1} of {totalPages}
             </div>
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <Button
@@ -558,9 +583,9 @@ export function EnhancedDataTable({
                 onClick={() => {
                   table.setPageIndex(0)
                   handlers?.onPageChange?.(0)
-                  emitPaginationChange(0, table.getState().pagination.pageSize)
+                  emitPaginationChange(0, currentPageSize)
                 }}
-                disabled={!table.getCanPreviousPage()}
+                disabled={!canPreviousPage}
               >
                 <span className="sr-only">Go to first page</span>
                 <ChevronsLeft className="size-4" />
@@ -569,12 +594,12 @@ export function EnhancedDataTable({
                 variant="outline"
                 className="size-8 p-0"
                 onClick={() => {
-                  table.previousPage()
-                  const nextIndex = Math.max(0, table.getState().pagination.pageIndex - 1)
+                  const nextIndex = Math.max(0, currentPageIndex - 1)
+                  table.setPageIndex(nextIndex)
                   handlers?.onPageChange?.(nextIndex)
-                  emitPaginationChange(nextIndex, table.getState().pagination.pageSize)
+                  emitPaginationChange(nextIndex, currentPageSize)
                 }}
-                disabled={!table.getCanPreviousPage()}
+                disabled={!canPreviousPage}
               >
                 <span className="sr-only">Go to previous page</span>
                 <ChevronLeft className="size-4" />
@@ -583,12 +608,12 @@ export function EnhancedDataTable({
                 variant="outline"
                 className="size-8 p-0"
                 onClick={() => {
-                  table.nextPage()
-                  const nextIndex = Math.min(table.getPageCount() - 1, table.getState().pagination.pageIndex + 1)
+                  const nextIndex = Math.min(totalPages - 1, currentPageIndex + 1)
+                  table.setPageIndex(nextIndex)
                   handlers?.onPageChange?.(nextIndex)
-                  emitPaginationChange(nextIndex, table.getState().pagination.pageSize)
+                  emitPaginationChange(nextIndex, currentPageSize)
                 }}
-                disabled={!table.getCanNextPage()}
+                disabled={!canNextPage}
               >
                 <span className="sr-only">Go to next page</span>
                 <ChevronRight className="size-4" />
@@ -597,12 +622,12 @@ export function EnhancedDataTable({
                 variant="outline"
                 className="hidden size-8 p-0 lg:flex"
                 onClick={() => {
-                  const lastPage = Math.max(0, table.getPageCount() - 1)
+                  const lastPage = Math.max(0, totalPages - 1)
                   table.setPageIndex(lastPage)
                   handlers?.onPageChange?.(lastPage)
-                  emitPaginationChange(lastPage, table.getState().pagination.pageSize)
+                  emitPaginationChange(lastPage, currentPageSize)
                 }}
-                disabled={!table.getCanNextPage()}
+                disabled={!canNextPage}
               >
                 <span className="sr-only">Go to last page</span>
                 <ChevronsRight className="size-4" />
