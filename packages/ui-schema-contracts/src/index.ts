@@ -1,5 +1,8 @@
 import { z } from "zod"
 
+export const DYNAMIC_TABLE_SCHEMA_VERSION = "2" as const
+export const FORM_SCHEMA_VERSION = "1" as const
+
 export const tableColumnOptionSchema = z.object({
   label: z.string(),
   value: z.string(),
@@ -52,7 +55,7 @@ export const tableColumnSchema = z.object({
 })
 
 export const dynamicTableSchema = z.object({
-  schemaVersion: z.literal("1"),
+  schemaVersion: z.literal(DYNAMIC_TABLE_SCHEMA_VERSION),
   rowKey: z.string().default("id"),
   columns: z.array(tableColumnSchema),
   emptyMessage: z.string().optional(),
@@ -95,7 +98,7 @@ export const formFieldDefinitionSchema = z.object({
 })
 
 export const formSchema = z.object({
-  schemaVersion: z.literal("1"),
+  schemaVersion: z.literal(FORM_SCHEMA_VERSION),
   fields: z.array(formFieldDefinitionSchema),
 })
 

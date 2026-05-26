@@ -22,9 +22,17 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "design-schema": [
+        "../design-schema/src/index.ts"
+      ],
+      "design-schema/schemas/form": [
+        "../design-schema/src/schemas/form/index.ts"
       ]
     },
     "incremental": false

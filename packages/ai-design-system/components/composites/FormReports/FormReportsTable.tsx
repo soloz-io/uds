@@ -5,7 +5,7 @@ import {
   type DashboardRowAction,
   type DashboardTableActionHandlers,
 } from "@/components/composites/DataTable"
-import { dynamicTableSchema, type DynamicTableSchema, type TableColumn } from "ui-schema-contracts"
+import { DYNAMIC_TABLE_SCHEMA_VERSION, dynamicTableSchema, type DynamicTableSchema, type TableColumn } from "ui-schema-contracts"
 
 export interface FormReportsEntity {
   id: number | string
@@ -78,7 +78,7 @@ export const FormReportsTable = React.memo<FormReportsTableProps>(
         rows: nextRows,
         originalById: byId,
         tableSchema: dynamicTableSchema.parse({
-          schemaVersion: "1",
+          schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
           rowKey: "id",
           columns: tableColumns,
           enableFiltering: true,

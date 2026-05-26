@@ -3,11 +3,16 @@ import {
   formSchema,
   type FormFieldDefinition,
   type FormSchema,
-} from "design-schema"
-import { dynamicTableSchema, type DynamicTableSchema } from "ui-schema-contracts"
+} from "design-schema/schemas/form"
+import {
+  DYNAMIC_TABLE_SCHEMA_VERSION,
+  FORM_SCHEMA_VERSION,
+  dynamicTableSchema,
+  type DynamicTableSchema,
+} from "ui-schema-contracts"
 
 const dashboardTableSchemaInput = {
-  schemaVersion: "1",
+  schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
   rowKey: "id",
   columns: [
     {
@@ -102,7 +107,7 @@ const dashboardTableSchemaInput = {
 export const dashboardTableSchema: DynamicTableSchema = dynamicTableSchema.parse(dashboardTableSchemaInput)
 
 const dashboardCreateFormSchemaInput = {
-  schemaVersion: "1",
+  schemaVersion: FORM_SCHEMA_VERSION,
   fields: [
     {
       name: "slug",

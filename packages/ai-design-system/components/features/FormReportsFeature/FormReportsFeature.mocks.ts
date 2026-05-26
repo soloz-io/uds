@@ -7,13 +7,18 @@ import type {
 import {
   formSchema,
   type FormSchema,
-} from "design-schema"
-import { dynamicTableSchema, type DynamicTableSchema } from "ui-schema-contracts"
+} from "design-schema/schemas/form"
+import {
+  DYNAMIC_TABLE_SCHEMA_VERSION,
+  FORM_SCHEMA_VERSION,
+  dynamicTableSchema,
+  type DynamicTableSchema,
+} from "ui-schema-contracts"
 
 export const formReportsEntityName = "Feature Flag"
 
 const formReportsFormSchemaInput = {
-  schemaVersion: "1",
+  schemaVersion: FORM_SCHEMA_VERSION,
   fields: [
     {
       name: "slug",
@@ -65,7 +70,7 @@ const formReportsFormSchemaInput = {
 export const formReportsFields: FormReportsFieldDefinition[] = formSchema.parse(formReportsFormSchemaInput).fields
 
 const formReportsTableSchemaInput = {
-  schemaVersion: "1",
+  schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
   rowKey: "id",
   columns: [
     {

@@ -16,6 +16,7 @@ const entries: Record<string, string> = {
   // Schema domains (backend-safe, no React)
   "schemas/core": resolve(__dirname, "src/schemas/core/index.ts"),
   "schemas/data": resolve(__dirname, "src/schemas/data/index.ts"),
+  "schemas/form": resolve(__dirname, "src/schemas/form/index.ts"),
   "schemas/workflow": resolve(__dirname, "src/schemas/workflow/index.ts"),
   "schemas/ai": resolve(__dirname, "src/schemas/ai/index.ts"),
 
