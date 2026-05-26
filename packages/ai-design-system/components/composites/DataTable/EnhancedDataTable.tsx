@@ -454,7 +454,7 @@ export function EnhancedDataTable({
   }, [handlers, table])
 
   return (
-    <div className={`flex w-full flex-col justify-start gap-6 ${className ?? ""}`}>
+    <div className={`flex min-h-0 w-full flex-1 flex-col justify-start gap-6 overflow-hidden ${className ?? ""}`}>
       <div className="flex items-center justify-between gap-2 px-4 lg:px-6">
         <div className="flex items-center gap-2 [&>button]:h-8">
           <Input
@@ -503,8 +503,8 @@ export function EnhancedDataTable({
         </div>
       </div>
 
-      <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-        <div className="overflow-hidden rounded-lg border">
+      <div className="relative flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-4 lg:px-6">
+        <div className="overflow-x-auto overflow-y-hidden rounded-lg border [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <DndContext
             collisionDetection={closestCenter}
             modifiers={[restrictToVerticalAxis]}

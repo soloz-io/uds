@@ -30,7 +30,7 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
           {section.header && (
             <AppHeader {...section.header} />
           )}
-          <div className="min-h-0 flex-1 overflow-auto">
+          <div className="min-h-0 flex-1 overflow-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {section.content}
           </div>
         </div>

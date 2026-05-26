@@ -1,6 +1,32 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { SectionLayout } from './SectionLayout'
 
+function ScrollablePanelContent({
+  description,
+  items,
+  title,
+}: {
+  description: string
+  items: string[]
+  title: string
+}) {
+  return (
+    <div className="flex min-h-0 flex-col gap-3 rounded-lg border bg-muted p-4">
+      <div>
+        <h3 className="mb-1 font-medium">{title}</h3>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      <div className="grid gap-2">
+        {items.map((item, index) => (
+          <div key={`${title}-${index}`} className="rounded-md border bg-background px-3 py-2 text-sm">
+            {item}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /**
  * SectionLayout Block Stories
  *
@@ -269,6 +295,86 @@ export const AccentDragHandles: Story = {
           sections={sections}
           dragHandleColor="accent"
           storageKey="section-layout-accent"
+        />
+      </div>
+    )
+  },
+}
+
+/**
+ * Independent Panel Scrolling
+ *
+ * Demonstrates that each panel owns its own vertical scroll region.
+ */
+export const IndependentPanelScrolling: Story = {
+  render: () => {
+    const leftItems = Array.from({ length: 24 }, (_, index) => `Run record ${index + 1}`)
+    const centerItems = Array.from({ length: 18 }, (_, index) => `Trace span ${index + 1}`)
+    const rightItems = Array.from({ length: 20 }, (_, index) => `Details block ${index + 1}`)
+
+    const sections = [
+      {
+        id: 'left-scroll-panel',
+        content: (
+          <ScrollablePanelContent
+            title="Left Panel"
+            description="Scroll this panel independently. The center and right panels should keep their own scroll positions."
+            items={leftItems}
+          />
+        ),
+        defaultSize: 25,
+        minSize: 20,
+        header: {
+          tabs: [{ value: 'runs', label: 'runs' }],
+          defaultTab: 'runs',
+          showSidebarToggle: false,
+          showTitle: false,
+        },
+      },
+      {
+        id: 'center-scroll-panel',
+        content: (
+          <ScrollablePanelContent
+            title="Center Panel"
+            description="This panel should keep a separate scrollbar from the left list and the right details column."
+            items={centerItems}
+          />
+        ),
+        defaultSize: 50,
+        minSize: 35,
+        header: {
+          tabs: [{ value: 'trace', label: 'trace' }],
+          defaultTab: 'trace',
+          showSidebarToggle: false,
+          showTitle: false,
+        },
+      },
+      {
+        id: 'right-scroll-panel',
+        content: (
+          <ScrollablePanelContent
+            title="Right Panel"
+            description="Use this to confirm the details panel can overflow and scroll without affecting the other panels."
+            items={rightItems}
+          />
+        ),
+        defaultSize: 25,
+        minSize: 20,
+        header: {
+          tabs: [{ value: 'details', label: 'details' }],
+          defaultTab: 'details',
+          showSidebarToggle: false,
+          showTitle: false,
+        },
+      },
+    ]
+
+    return (
+      <div className="h-screen p-4">
+        <SectionLayout
+          sections={sections}
+          storageKey="section-layout-independent-scroll"
+          dragHandleColor="primary"
         />
       </div>
     )

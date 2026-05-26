@@ -282,7 +282,7 @@ export const WorkflowRunObservabilityTracePanel = React.memo<WorkflowRunObservab
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-auto p-2">
+              <div className="min-h-0 flex-1 overflow-auto p-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 {spans.length === 0 ? (
                   <div className="text-[#8a8c96] text-sm">No spans yet.</div>
                 ) : (
@@ -325,7 +325,7 @@ export const WorkflowRunObservabilityTracePanel = React.memo<WorkflowRunObservab
           </TabsContent>
 
           <TabsContent className="min-h-0 flex-1 overflow-hidden" value="events">
-            <div className="h-full min-h-0 space-y-2 overflow-auto rounded-lg border border-[#2a2a2f] bg-[#07080b] p-3">
+            <div className="h-full min-h-0 space-y-2 overflow-auto rounded-lg border border-[#2a2a2f] bg-[#07080b] p-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {events.length === 0 ? (
                 <div className="text-[#8a8c96] text-sm">No events yet.</div>
               ) : (
@@ -345,7 +345,7 @@ export const WorkflowRunObservabilityTracePanel = React.memo<WorkflowRunObservab
           </TabsContent>
 
           <TabsContent className="min-h-0 flex-1 overflow-hidden" value="streams">
-            <div className="h-full min-h-0 space-y-2 overflow-auto rounded-lg border border-[#2a2a2f] bg-[#07080b] p-3">
+            <div className="h-full min-h-0 space-y-2 overflow-auto rounded-lg border border-[#2a2a2f] bg-[#07080b] p-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               {streams.length === 0 ? (
                 <div className="text-[#8a8c96] text-sm">No streams yet.</div>
               ) : (
@@ -355,7 +355,7 @@ export const WorkflowRunObservabilityTracePanel = React.memo<WorkflowRunObservab
                       <div className="font-medium">{stream.channel}</div>
                       <div className="text-[#8a8c96]">{stream.timestamp ?? ""}</div>
                     </div>
-                    <pre className="mt-1 overflow-auto font-mono text-xs text-[#cfd1d9]">{stream.payload}</pre>
+                    <pre className="mt-1 overflow-auto font-mono text-xs text-[#cfd1d9] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">{stream.payload}</pre>
                   </div>
                 ))
               )}
@@ -413,7 +413,7 @@ export const WorkflowRunObservabilityDetailsPanel = React.memo<WorkflowRunObserv
           </div>
         </div>
 
-        <div className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+        <div className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
         <div className="space-y-3 text-xs">
           <div>
@@ -467,23 +467,23 @@ export const WorkflowRunObservabilityDetailsPanel = React.memo<WorkflowRunObserv
 
           <div className="space-y-2 pt-2">
             <div className="text-[#8a8c96] text-xs uppercase tracking-wide">Arguments</div>
-            <pre className="max-h-24 overflow-auto rounded border border-[#2a2a2f] bg-[#090a0f] p-2 font-mono text-[11px] text-[#cfd1d9]">{formatPayload(selectedSpan.argumentsPayload ?? run.argumentsPayload)}</pre>
+            <pre className="max-h-24 overflow-auto rounded border border-[#2a2a2f] bg-[#090a0f] p-2 font-mono text-[11px] text-[#cfd1d9] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">{formatPayload(selectedSpan.argumentsPayload ?? run.argumentsPayload)}</pre>
           </div>
 
           <div className="space-y-2">
             <div className="text-[#8a8c96] text-xs uppercase tracking-wide">Input</div>
-            <pre className="max-h-24 overflow-auto rounded border border-[#2a2a2f] bg-[#090a0f] p-2 font-mono text-[11px] text-[#cfd1d9]">{formatPayload(selectedSpan.inputPayload ?? run.inputPayload)}</pre>
+            <pre className="max-h-24 overflow-auto rounded border border-[#2a2a2f] bg-[#090a0f] p-2 font-mono text-[11px] text-[#cfd1d9] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">{formatPayload(selectedSpan.inputPayload ?? run.inputPayload)}</pre>
           </div>
 
           <div className="space-y-2">
             <div className="text-[#8a8c96] text-xs uppercase tracking-wide">Output</div>
-            <pre className="max-h-24 overflow-auto rounded border border-[#2a2a2f] bg-[#090a0f] p-2 font-mono text-[11px] text-[#cfd1d9]">{formatPayload(selectedSpan.outputPayload ?? run.outputPayload)}</pre>
+            <pre className="max-h-24 overflow-auto rounded border border-[#2a2a2f] bg-[#090a0f] p-2 font-mono text-[11px] text-[#cfd1d9] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">{formatPayload(selectedSpan.outputPayload ?? run.outputPayload)}</pre>
           </div>
         </div>
 
         <div className="space-y-2 border-t border-[#23242a] pt-3">
           <div className="font-medium text-sm">Events ({events.length})</div>
-          <div className="max-h-32 divide-y divide-[#23242a] overflow-auto rounded border border-[#2a2a2f] bg-[#090a0f]">
+          <div className="max-h-32 divide-y divide-[#23242a] overflow-auto rounded border border-[#2a2a2f] bg-[#090a0f] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {events.slice(0, 3).map((event) => (
               <div className="px-2 py-1 text-xs" key={event.id}>
                 <div>{event.title}</div>
