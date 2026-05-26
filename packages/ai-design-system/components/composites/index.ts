@@ -118,6 +118,10 @@ export * from './AdjustableLayout'
 export * from './PageContainer'
 export type { PageContainerProps } from './PageContainer'
 
+// LoadingShimmer Composite
+export { LoadingShimmer } from './LoadingShimmer'
+export type { LoadingShimmerProps } from './LoadingShimmer'
+
 // StateNode Composite
 export { StateNode } from './StateNode'
 export type { StateNodeData } from './StateNode'

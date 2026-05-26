@@ -4,26 +4,11 @@ import { LayoutProvider } from "@/components/blocks/LayoutProvider"
 import { SectionLayout } from "@/components/blocks/SectionLayout/SectionLayout"
 import type { SectionLayoutSection } from "@/components/blocks/SectionLayout/interfaces"
 import { AppHeader, type AppHeaderProps } from "@/components/composites/AppHeader"
+import { LoadingShimmer } from "@/components/composites/LoadingShimmer"
 import { PageContainer } from "@/components/composites/PageContainer"
 
 function PageLayoutLoadingState({ message }: { message: string }) {
-  return (
-    <div className="flex h-full min-h-0 flex-1 items-center justify-center px-6 py-10">
-      <div className="w-full max-w-3xl space-y-5">
-        <div className="inline-flex w-fit animate-pulse rounded-md bg-muted px-3 py-1 text-sm text-muted-foreground">
-          {message}
-        </div>
-        <div className="space-y-3">
-          <div className="h-10 w-1/3 animate-pulse rounded-md bg-muted/70" />
-          <div className="h-24 w-full animate-pulse rounded-xl bg-muted/60" />
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="h-36 animate-pulse rounded-xl bg-muted/55" />
-            <div className="h-36 animate-pulse rounded-xl bg-muted/55" />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+  return <LoadingShimmer message={message} />
 }
 
 /**
@@ -181,17 +166,13 @@ export const PageLayout = React.memo<PageLayoutProps>(
       </PageContainer>
     )
 
-    if (!sidebar) {
-      return pageContainer
-    }
-
     return (
       <LayoutProvider
         defaultOpen={defaultSidebarOpen}
         sidebarWidth={sidebarWidth}
         sidebarWidthIcon={sidebarWidthIcon}
       >
-        <AppSidebar {...sidebar} />
+        {sidebar ? <AppSidebar {...sidebar} /> : null}
         {pageContainer}
       </LayoutProvider>
     )
