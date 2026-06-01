@@ -89,6 +89,9 @@ importers:
       '@radix-ui/react-use-controllable-state':
         specifier: ^1.2.2
         version: 1.2.2(@types/react@19.2.15)(react@19.2.0)
+      '@rolldown/binding-win32-x64-msvc':
+        specifier: 1.0.0-rc.18
+        version: 1.0.0-rc.18
       '@tabler/icons-react':
         specifier: ^3.39.0
         version: 3.44.0(react@19.2.0)
@@ -2333,6 +2336,12 @@ packages:
     resolution: {integrity: sha512-SqKonF56vA/L2yHwHYcEp2P34URpOZ7d1fS635cTkpDnUtEGdUbhI6NzsPdqeSWvAAeGDrxjWjNmibDIdFf9/A==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
+    os: [win32]
+
+  '@rolldown/binding-win32-x64-msvc@1.0.0-rc.18':
+    resolution: {integrity: sha512-7H+3yqGgmnlDTRRhw/xpYY9J1kf4GC681nVc4GqKhExZTDrVVrV2tsOR9kso0fvgBdcTCcQShx4SLLoHgaLwhg==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    cpu: [x64]
     os: [win32]
 
   '@rolldown/binding-win32-x64-msvc@1.0.2':
@@ -9449,6 +9458,8 @@ snapshots:
 
   '@rolldown/binding-win32-arm64-msvc@1.0.2':
     optional: true
+
+  '@rolldown/binding-win32-x64-msvc@1.0.0-rc.18': {}
 
   '@rolldown/binding-win32-x64-msvc@1.0.2':
     optional: true
