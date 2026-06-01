@@ -294,8 +294,59 @@ import * as React from 'react';
     }
   }
 
-  dtsContent += `
+  // Find all composite component files
+  const compositeFiles = await glob('components/composites/*/*.tsx', {
+    cwd: path.join(__dirname, '..'),
+    absolute: true,
+  });
+
+  for (const filePath of compositeFiles) {
+    if (filePath.includes('.stories.') || filePath.includes('.mock.') || filePath.includes('.test.')) {
+      continue;
+    }
+
+    const content = fs.readFileSync(filePath, 'utf8');
+
+    const types = extractTypes(filePath);
+    if (types.length > 0) {
+      dtsContent += `// From ${path.relative(path.join(__dirname, '..'), filePath).replace(/\\/g, '/')}\n`;
+      dtsContent += types.join('\n\n') + '\n\n';
+    }
+
+    const components = extractComponents(filePath);
+    for (const componentName of components) {
+      const propsInterfaceName = `${componentName}Props`;
+      if (content.includes(`interface ${propsInterfaceName}`) || content.includes(`export interface ${propsInterfaceName}`)) {
+        dtsContent += `export const ${componentName}: React.FC<${propsInterfaceName}>;\n`;
+      } else {
+        dtsContent += `export const ${componentName}: React.FC<any>;\n`;
+      }
+    }
+
+    dtsContent += '\n';
+  }
+
+  dtsContent += `// ============================================================================
+// EXTERNAL RE-EXPORTS
 // ============================================================================
+
+`;
+
+  // Extract external re-exports from components/index.ts
+  const indexPath = path.join(componentsDir, 'index.ts');
+  if (fs.existsSync(indexPath)) {
+    const indexContent = fs.readFileSync(indexPath, 'utf8');
+    const indexLines = indexContent.split('\n');
+    for (const line of indexLines) {
+      const exportMatch = line.match(/^export\s+(?:type\s+)?\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/);
+      if (exportMatch) {
+        dtsContent += line + '\n';
+      }
+    }
+  }
+  dtsContent += '\n';
+
+  dtsContent += `// ============================================================================
 // UTILITIES
 // ============================================================================
 

@@ -149,3 +149,7 @@ export type {
 // InboxList Composite
 export { InboxList } from './InboxList'
 export type { InboxListItem, InboxListProps } from './InboxList'
+
+// ModeSwitcher Composite
+export { ModeSwitcher } from './ModeSwitcher'
+export type { Mode, ModeSwitcherProps } from './ModeSwitcher'

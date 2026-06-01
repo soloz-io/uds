@@ -224,6 +224,19 @@ export const defaultIcons: Record<string, IconDefinition> = {
     viewBox: '0 0 24 24',
     path: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z',
   },
+
+  // Database icon
+  'database': {
+    name: 'database',
+    viewBox: '0 0 24 24',
+    path: 'M12 2C8.13 2 5 4.69 5 8c0 3.31 3.13 6 7 6s7-2.69 7-6c0-3.31-3.13-6-7-6zM5 12v4c0 3.31 3.13 6 7 6s7-2.69 7-6v-4M5 8v4',
+  },
+  // Server icon
+  'server': {
+    name: 'server',
+    viewBox: '0 0 24 24',
+    path: 'M20 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2M4 18v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12h16M4 12v2a2 2 0 002 2h12a2 2 0 002-2v-2M8 6h.01M16 6h.01M8 18h.01M16 18h.01',
+  },
 };
 
 /**
