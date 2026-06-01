@@ -1,6 +1,6 @@
 {
   "name": "ai-design-system",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "private": false,
   "type": "module",
   "description": "AI-powered design system with React components, built with Tailwind CSS and Radix UI - test",
@@ -92,7 +92,7 @@
     "@tiptap/markdown": "^3.10.7",
     "@tiptap/react": "^3.10.7",
     "@tiptap/starter-kit": "^3.10.7",
-    "@xyflow/react": "^12.9.2",
+    "@xyflow/react": "12.10.0",
     "@tabler/icons-react": "^3.39.0",
     "ai": "^5.0.87",
     "class-variance-authority": "^0.7.1",

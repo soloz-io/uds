@@ -114,8 +114,8 @@ importers:
         specifier: ^3.10.7
         version: 3.23.6
       '@xyflow/react':
-        specifier: ^12.9.2
-        version: 12.10.2(@types/react@19.2.15)(immer@11.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: 12.10.0
+        version: 12.10.0(@types/react@19.2.15)(immer@11.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       ai:
         specifier: ^5.0.87
         version: 5.0.192(zod@3.25.76)
@@ -133,7 +133,7 @@ importers:
         version: 4.2.1
       design-schema:
         specifier: ^0.1.4
-        version: 0.1.4(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(ai-design-system@0.1.16(@floating-ui/dom@1.7.6)(@tiptap/pm@3.23.6)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(micromark-util-types@2.0.2)(micromark@4.0.2)(next@16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@17.0.2)(react@19.2.0)(redux@5.0.1)(zod@3.25.76))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(tailwindcss@4.3.0)(zod@3.25.76)
+        version: 0.1.4(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(ai-design-system@0.1.16(@floating-ui/dom@1.7.6)(@tiptap/pm@3.23.6)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(micromark-util-types@2.0.2)(micromark@4.0.2)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@17.0.2)(react@19.2.0)(redux@5.0.1)(zod@3.25.76))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(tailwindcss@4.3.0)(zod@3.25.76)
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.2.0)
@@ -203,7 +203,7 @@ importers:
         version: 10.4.0(@vitest/browser-playwright@4.1.7)(@vitest/browser@4.1.7)(@vitest/runner@4.1.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vitest@4.1.7)
       '@storybook/nextjs-vite':
         specifier: ^10.0.4
-        version: 10.4.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(esbuild@0.27.7)(next@16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(rollup@4.60.4)(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
+        version: 10.4.0(@babel/core@7.29.0)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(esbuild@0.27.7)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(rollup@4.60.4)(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
       '@storybook/test':
         specifier: ^8.6.14
         version: 8.6.15(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
@@ -257,7 +257,7 @@ importers:
         version: 17.0.5
       next:
         specifier: 16.0.1
-        version: 16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       playwright:
         specifier: ^1.56.1
         version: 1.60.0
@@ -296,7 +296,7 @@ importers:
         version: 0.19.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(tailwindcss@4.3.0)(zod@3.25.76)
       ai-design-system:
         specifier: '*'
-        version: 0.1.16(@tiptap/pm@3.23.6)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-is@17.0.2)(react@19.2.6)(zod@3.25.76)
+        version: 0.1.16(@tiptap/pm@3.23.6)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-is@17.0.2)(react@19.2.6)(zod@3.25.76)
       ui-schema-contracts:
         specifier: ^0.1.1
         version: 0.1.1
@@ -3489,11 +3489,20 @@ packages:
   '@webcontainer/env@1.1.1':
     resolution: {integrity: sha512-6aN99yL695Hi9SuIk1oC88l9o0gmxL1nGWWQ/kNy81HigJ0FoaoTXpytCj6ItzgyCEwA9kF1wixsTuv5cjsgng==}
 
+  '@xyflow/react@12.10.0':
+    resolution: {integrity: sha512-eOtz3whDMWrB4KWVatIBrKuxECHqip6PfA8fTpaS2RUGVpiEAe+nqDKsLqkViVWxDGreq0lWX71Xth/SPAzXiw==}
+    peerDependencies:
+      react: '>=17'
+      react-dom: '>=17'
+
   '@xyflow/react@12.10.2':
     resolution: {integrity: sha512-CgIi6HwlcHXwlkTpr0fxLv/0sRVNZ8IdwKLzzeCscaYBwpvfcH1QFOCeaTCuEn1FQEs/B8CjnTSjhs8udgmBgQ==}
     peerDependencies:
       react: '>=17'
       react-dom: '>=17'
+
+  '@xyflow/system@0.0.74':
+    resolution: {integrity: sha512-7v7B/PkiVrkdZzSbL+inGAo6tkR/WQHHG0/jhSvLQToCsfa8YubOGmBYd1s08tpKpihdHDZFwzQZeR69QSBb4Q==}
 
   '@xyflow/system@0.0.76':
     resolution: {integrity: sha512-hvwvnRS1B3REwVDlWexsq7YQaPZeG3/mKo1jv38UmnpWmxihp14bW6VtEOuHEwJX2FvzFw8k77LyKSk/wiZVNA==}
@@ -9669,18 +9678,18 @@ snapshots:
       '@vitest/utils': 2.1.9
       storybook: 10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
 
-  '@storybook/nextjs-vite@10.4.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(esbuild@0.27.7)(next@16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(rollup@4.60.4)(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))':
+  '@storybook/nextjs-vite@10.4.0(@babel/core@7.29.0)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(esbuild@0.27.7)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(rollup@4.60.4)(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))':
     dependencies:
       '@storybook/builder-vite': 10.4.0(esbuild@0.27.7)(rollup@4.60.4)(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
       '@storybook/react': 10.4.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)
       '@storybook/react-vite': 10.4.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(esbuild@0.27.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(rollup@4.60.4)(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
-      next: 16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       storybook: 10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      styled-jsx: 5.1.6(react@19.2.0)
+      styled-jsx: 5.1.6(@babel/core@7.29.0)(react@19.2.0)
       vite: 8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0)
-      vite-plugin-storybook-nextjs: 3.3.0(next@16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
+      vite-plugin-storybook-nextjs: 3.3.0(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0))
     optionalDependencies:
       '@types/react': 19.2.15
       '@types/react-dom': 19.2.3(@types/react@19.2.15)
@@ -10749,6 +10758,17 @@ snapshots:
 
   '@webcontainer/env@1.1.1': {}
 
+  '@xyflow/react@12.10.0(@types/react@19.2.15)(immer@11.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      '@xyflow/system': 0.0.74
+      classcat: 5.0.5
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
+      zustand: 4.5.7(@types/react@19.2.15)(immer@11.1.8)(react@19.2.0)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+
   '@xyflow/react@12.10.2(@types/react@19.2.15)(immer@11.1.8)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@xyflow/system': 0.0.76
@@ -10760,16 +10780,28 @@ snapshots:
       - '@types/react'
       - immer
 
-  '@xyflow/react@12.10.2(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@xyflow/react@12.10.2(@types/react@19.2.15)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@xyflow/system': 0.0.76
       classcat: 5.0.5
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
-      zustand: 4.5.7(@types/react@19.2.15)(react@19.2.6)
+      zustand: 4.5.7(@types/react@19.2.15)(immer@11.1.8)(react@19.2.6)
     transitivePeerDependencies:
       - '@types/react'
       - immer
+
+  '@xyflow/system@0.0.74':
+    dependencies:
+      '@types/d3-drag': 3.0.7
+      '@types/d3-interpolate': 3.0.4
+      '@types/d3-selection': 3.0.11
+      '@types/d3-transition': 3.0.9
+      '@types/d3-zoom': 3.0.8
+      d3-drag: 3.0.0
+      d3-interpolate: 3.0.1
+      d3-selection: 3.0.0
+      d3-zoom: 3.0.0
 
   '@xyflow/system@0.0.76':
     dependencies:
@@ -10791,7 +10823,7 @@ snapshots:
 
   acorn@8.16.0: {}
 
-  ai-design-system@0.1.16(@floating-ui/dom@1.7.6)(@tiptap/pm@3.23.6)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(micromark-util-types@2.0.2)(micromark@4.0.2)(next@16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@17.0.2)(react@19.2.0)(redux@5.0.1)(zod@3.25.76):
+  ai-design-system@0.1.16(@floating-ui/dom@1.7.6)(@tiptap/pm@3.23.6)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(micromark-util-types@2.0.2)(micromark@4.0.2)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@17.0.2)(react@19.2.0)(redux@5.0.1)(zod@3.25.76):
     dependencies:
       '@radix-ui/react-accordion': 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-alert-dialog': 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -10840,7 +10872,7 @@ snapshots:
       use-stick-to-bottom: 1.1.4(react@19.2.0)
       vaul: 1.1.2(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     optionalDependencies:
-      next: 16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@floating-ui/dom'
@@ -10856,7 +10888,7 @@ snapshots:
       - supports-color
       - zod
 
-  ai-design-system@0.1.16(@tiptap/pm@3.23.6)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-is@17.0.2)(react@19.2.6)(zod@3.25.76):
+  ai-design-system@0.1.16(@tiptap/pm@3.23.6)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-is@17.0.2)(react@19.2.6)(zod@3.25.76):
     dependencies:
       '@radix-ui/react-accordion': 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@radix-ui/react-alert-dialog': 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -10884,7 +10916,7 @@ snapshots:
       '@tiptap/markdown': 3.23.6(@tiptap/core@3.23.6(@tiptap/pm@3.23.6))(@tiptap/pm@3.23.6)
       '@tiptap/react': 3.23.6(@tiptap/core@3.23.6(@tiptap/pm@3.23.6))(@tiptap/pm@3.23.6)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@tiptap/starter-kit': 3.23.6
-      '@xyflow/react': 12.10.2(@types/react@19.2.15)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@xyflow/react': 12.10.2(@types/react@19.2.15)(immer@11.1.8)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       ai: 5.0.192(zod@3.25.76)
       class-variance-authority: 0.7.1
       clsx: 2.1.1
@@ -11527,12 +11559,12 @@ snapshots:
 
   dequal@2.0.3: {}
 
-  design-schema@0.1.4(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(ai-design-system@0.1.16(@floating-ui/dom@1.7.6)(@tiptap/pm@3.23.6)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(micromark-util-types@2.0.2)(micromark@4.0.2)(next@16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@17.0.2)(react@19.2.0)(redux@5.0.1)(zod@3.25.76))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(tailwindcss@4.3.0)(zod@3.25.76):
+  design-schema@0.1.4(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(ai-design-system@0.1.16(@floating-ui/dom@1.7.6)(@tiptap/pm@3.23.6)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(micromark-util-types@2.0.2)(micromark@4.0.2)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@17.0.2)(react@19.2.0)(redux@5.0.1)(zod@3.25.76))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(tailwindcss@4.3.0)(zod@3.25.76):
     dependencies:
       '@json-render/core': 0.19.0(zod@3.25.76)
       '@json-render/react': 0.19.0(react@19.2.0)(zod@3.25.76)
       '@json-render/shadcn': 0.19.0(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(tailwindcss@4.3.0)(zod@3.25.76)
-      ai-design-system: 0.1.16(@floating-ui/dom@1.7.6)(@tiptap/pm@3.23.6)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(micromark-util-types@2.0.2)(micromark@4.0.2)(next@16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@17.0.2)(react@19.2.0)(redux@5.0.1)(zod@3.25.76)
+      ai-design-system: 0.1.16(@floating-ui/dom@1.7.6)(@tiptap/pm@3.23.6)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(immer@11.1.8)(micromark-util-types@2.0.2)(micromark@4.0.2)(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react-is@17.0.2)(react@19.2.0)(redux@5.0.1)(zod@3.25.76)
       react: 19.2.0
       ui-schema-contracts: 0.1.0
       zod: 3.25.76
@@ -13354,6 +13386,30 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
+  next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+    dependencies:
+      '@next/env': 16.0.1
+      '@swc/helpers': 0.5.15
+      caniuse-lite: 1.0.30001793
+      postcss: 8.4.31
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
+      styled-jsx: 5.1.6(@babel/core@7.29.0)(react@19.2.0)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 16.0.1
+      '@next/swc-darwin-x64': 16.0.1
+      '@next/swc-linux-arm64-gnu': 16.0.1
+      '@next/swc-linux-arm64-musl': 16.0.1
+      '@next/swc-linux-x64-gnu': 16.0.1
+      '@next/swc-linux-x64-musl': 16.0.1
+      '@next/swc-win32-arm64-msvc': 16.0.1
+      '@next/swc-win32-x64-msvc': 16.0.1
+      '@opentelemetry/api': 1.9.0
+      sharp: 0.34.5
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
   next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6):
     dependencies:
       '@next/env': 16.0.1
@@ -13378,30 +13434,6 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
     optional: true
-
-  next@16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
-    dependencies:
-      '@next/env': 16.0.1
-      '@swc/helpers': 0.5.15
-      caniuse-lite: 1.0.30001793
-      postcss: 8.4.31
-      react: 19.2.0
-      react-dom: 19.2.0(react@19.2.0)
-      styled-jsx: 5.1.6(react@19.2.0)
-    optionalDependencies:
-      '@next/swc-darwin-arm64': 16.0.1
-      '@next/swc-darwin-x64': 16.0.1
-      '@next/swc-linux-arm64-gnu': 16.0.1
-      '@next/swc-linux-arm64-musl': 16.0.1
-      '@next/swc-linux-x64-gnu': 16.0.1
-      '@next/swc-linux-x64-musl': 16.0.1
-      '@next/swc-win32-arm64-msvc': 16.0.1
-      '@next/swc-win32-x64-msvc': 16.0.1
-      '@opentelemetry/api': 1.9.0
-      sharp: 0.34.5
-    transitivePeerDependencies:
-      - '@babel/core'
-      - babel-plugin-macros
 
   node-exports-info@1.6.0:
     dependencies:
@@ -14669,6 +14701,13 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.7
 
+  styled-jsx@5.1.6(@babel/core@7.29.0)(react@19.2.0):
+    dependencies:
+      client-only: 0.0.1
+      react: 19.2.0
+    optionalDependencies:
+      '@babel/core': 7.29.0
+
   styled-jsx@5.1.6(@babel/core@7.29.0)(react@19.2.6):
     dependencies:
       client-only: 0.0.1
@@ -14676,11 +14715,6 @@ snapshots:
     optionalDependencies:
       '@babel/core': 7.29.0
     optional: true
-
-  styled-jsx@5.1.6(react@19.2.0):
-    dependencies:
-      client-only: 0.0.1
-      react: 19.2.0
 
   stylis@4.4.0: {}
 
@@ -15158,13 +15192,13 @@ snapshots:
       - typescript
       - webpack
 
-  vite-plugin-storybook-nextjs@3.3.0(next@16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0)):
+  vite-plugin-storybook-nextjs@3.3.0(next@16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(storybook@10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(typescript@5.9.3)(vite@8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0)):
     dependencies:
       '@next/env': 16.0.0
       image-size: 2.0.2
       magic-string: 0.30.21
       module-alias: 2.3.4
-      next: 16.0.1(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 16.0.1(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       storybook: 10.4.0(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@testing-library/dom@10.4.0)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       ts-dedent: 2.2.0
       vite: 8.0.14(@types/node@20.19.41)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.0)
@@ -15340,11 +15374,12 @@ snapshots:
       immer: 11.1.8
       react: 19.2.0
 
-  zustand@4.5.7(@types/react@19.2.15)(react@19.2.6):
+  zustand@4.5.7(@types/react@19.2.15)(immer@11.1.8)(react@19.2.6):
     dependencies:
       use-sync-external-store: 1.6.0(react@19.2.6)
     optionalDependencies:
       '@types/react': 19.2.15
+      immer: 11.1.8
       react: 19.2.6
 
   zwitch@2.0.4: {}
