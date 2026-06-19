@@ -13,6 +13,7 @@ interface ChecklistItem {
   id: string;
   label: string;
   checked: boolean;
+  isTask: boolean;
 }
 
 function parseChecklistItems(content?: string) {
@@ -50,6 +51,7 @@ function parseChecklistItems(content?: string) {
           id: `checklist-${index}`,
           label: taskMatch[2],
           checked: taskMatch[1].toLowerCase() === "x",
+          isTask: true,
         });
         return items;
       }
@@ -61,6 +63,7 @@ function parseChecklistItems(content?: string) {
         id: `checklist-${index}`,
         label: numberStripped,
         checked: false,
+        isTask: false,
       });
 
       return items;
@@ -121,16 +124,18 @@ export const FilePreviewDialog = React.memo<FilePreviewDialogProps>(
                     key={item.id}
                     className="flex items-start gap-3 rounded-md px-1 py-1 text-sm leading-6"
                   >
-                    <Checkbox
-                      checked={checkedItems[item.id] ?? false}
-                      onCheckedChange={(checked) => {
-                        setCheckedItems((prev) => ({
-                          ...prev,
-                          [item.id]: checked === true,
-                        }));
-                      }}
-                      className="mt-1"
-                    />
+                    {item.isTask && (
+                      <Checkbox
+                        checked={checkedItems[item.id] ?? false}
+                        onCheckedChange={(checked) => {
+                          setCheckedItems((prev) => ({
+                            ...prev,
+                            [item.id]: checked === true,
+                          }));
+                        }}
+                        className="mt-1"
+                      />
+                    )}
                     <span>{item.label}</span>
                   </label>
                 ))}
