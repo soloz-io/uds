@@ -130,6 +130,10 @@ export type { StateNodeData } from './StateNode'
 export { TransitionNode } from './TransitionNode'
 export type { TransitionNodeData } from './TransitionNode'
 
+// TriggerNode Composite
+export { TriggerNode } from './TriggerNode'
+export type { TriggerNodeData } from './TriggerNode'
+
 // WorkflowToolbar Composite
 export { WorkflowToolbar, WorkflowToolbarActions } from './WorkflowToolbar'
 export type { WorkflowToolbarProps, WorkflowToolbarActionsProps, WorkflowVersion, ToolbarAction } from './WorkflowToolbar'

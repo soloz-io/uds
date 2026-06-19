@@ -18,8 +18,9 @@ import { Connection as ConnectionLine } from "@/components/ai-elements/connectio
 import { Controls } from "@/components/ai-elements/controls";
 import { Edge } from "@/components/ai-elements/edge";
 import { Panel } from "@/components/ai-elements/panel";
-import { StateNode } from "@/components/composites/StateNode";
-import { TransitionNode } from "@/components/composites/TransitionNode";
+import { StateNode, type StateNodeData } from "@/components/composites/StateNode";
+import { TransitionNode, type TransitionNodeData } from "@/components/composites/TransitionNode";
+import { TriggerNode, type TriggerNodeData } from "@/components/composites/TriggerNode";
 import type { WorkflowCanvasProps, WorkflowEdge } from "./interfaces";
 import "@xyflow/react/dist/style.css";
 
@@ -32,6 +33,7 @@ const edgeTypes = {
 const nodeTypes = {
   state: StateNode,
   transition: TransitionNode,
+  trigger: TriggerNode,
 };
 
 function WorkflowCanvasInner({
