@@ -102,7 +102,11 @@ export const FileQueue = React.memo<FileQueueProps>(
                           aria-selected={isClickable ? isSelected : undefined}
                         >
                           <div className="flex items-start gap-2">
-                            <Icon name="file" size="sm" className="mt-0.5" />
+                            <Icon 
+                              name={file.icon || "file"} 
+                              size="sm" 
+                              className={cn("mt-0.5", file.iconColor)} 
+                            />
                             <QueueItemContent>
                               {file.name}
                               {file.path && (

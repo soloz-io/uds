@@ -97,7 +97,7 @@ function WorkflowCanvasInner({
         connectionMode={ConnectionMode.Strict}
         edges={edges}
         edgeTypes={edgeTypes}
-        elementsSelectable={interactive}
+        elementsSelectable={true}
         isValidConnection={isValidConnection}
         nodes={nodes}
         nodeTypes={nodeTypes}
@@ -106,8 +106,8 @@ function WorkflowCanvasInner({
         onConnect={interactive ? onConnect : undefined}
         onConnectEnd={interactive ? onConnectEnd : undefined}
         onConnectStart={interactive ? onConnectStart : undefined}
-        onEdgesChange={interactive ? onEdgesChange : undefined}
-        onNodesChange={interactive ? onNodesChange : undefined}
+        onEdgesChange={onEdgesChange}
+        onNodesChange={onNodesChange}
         onPaneClick={onPaneClick}
         onNodeClick={onNodeClick}
         onEdgeClick={onEdgeClick}
