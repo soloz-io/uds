@@ -2,25 +2,19 @@
 
 import {
   ConnectionMode,
-  MiniMap,
   ReactFlowProvider,
-  type Node,
-  type NodeChange,
-  type EdgeChange,
   type Connection,
-  type OnConnectStartParams,
   useReactFlow,
 } from "@xyflow/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
 import { Canvas } from "@/components/ai-elements/canvas";
 import { Connection as ConnectionLine } from "@/components/ai-elements/connection";
 import { Controls } from "@/components/ai-elements/controls";
 import { Edge } from "@/components/ai-elements/edge";
 import { Panel } from "@/components/ai-elements/panel";
-import { StateNode, type StateNodeData } from "@/components/composites/StateNode";
-import { TransitionNode, type TransitionNodeData } from "@/components/composites/TransitionNode";
-import { TriggerNode, type TriggerNodeData } from "@/components/composites/TriggerNode";
+import { StateNode } from "@/components/composites/StateNode";
+import { TransitionNode } from "@/components/composites/TransitionNode";
+import { TriggerNode } from "@/components/composites/TriggerNode";
 import type { WorkflowCanvasProps, WorkflowEdge } from "./interfaces";
 import "@xyflow/react/dist/style.css";
 
@@ -47,7 +41,6 @@ function WorkflowCanvasInner({
   onPaneClick,
   onNodeClick,
   onEdgeClick,
-  showMinimap = false,
   interactive = false,
   topLeft,
   topRight,
@@ -141,9 +134,6 @@ function WorkflowCanvasInner({
         >
           <Controls />
         </Panel>
-        {showMinimap && (
-          <MiniMap bgColor="var(--sidebar)" nodeStrokeColor="var(--border)" />
-        )}
       </Canvas>
     </div>
   );

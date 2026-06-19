@@ -15,7 +15,7 @@ export * from './LayoutProvider'
 export * from './SectionLayout'
 export type { LayoutProviderProps } from './LayoutProvider'
 
-export { WorkflowCanvas } from './WorkflowCanvas'
+export { WorkflowCanvas, getLayoutedElements } from './WorkflowCanvas'
 export type { WorkflowCanvasProps, WorkflowNode, WorkflowEdge, WorkflowNodeData } from './WorkflowCanvas'
 
 export { DashboardHeader } from './DashboardHeader'

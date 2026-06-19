@@ -1,6 +1,6 @@
 {
   "name": "ai-design-system",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "private": false,
   "type": "module",
   "description": "AI-powered design system with React components, built with Tailwind CSS and Radix UI - test",
@@ -99,6 +99,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "elkjs": "^0.11.1",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.552.0",
     "motion": "^12.23.24",

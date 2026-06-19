@@ -9,6 +9,7 @@ export type * from './features';
 
 // Composites (value exports not covered by export type *)
 export { ModeSwitcher } from './composites';
+export { getLayoutedElements } from './blocks';
 
 // External library re-exports
 export { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';
