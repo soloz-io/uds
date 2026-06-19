@@ -66,13 +66,12 @@ export const StateNode = memo(({ data, selected, id }: StateNodeProps) => {
   const isTerminal = data.isTerminal === true;
 
   return (
-    <Node
-      className={cn(
-        "relative flex flex-col items-center justify-center border border-border bg-card shadow-none transition-all duration-150 ease-out",
-        selected && "border-primary border-2",
-        isTerminal && "border-2 border-primary",
-        isDisabled && "opacity-50"
-      )}
+      <Node
+        className={cn(
+          "relative flex flex-col items-center justify-center border border-border bg-card shadow-none transition-all duration-150 ease-out",
+          selected ? "border-primary border-2" : "border border-border",
+          isDisabled && "opacity-50"
+        )}
       data-testid={`state-node-${id}`}
       handles={{ target: true, source: true }}
       status={status}
