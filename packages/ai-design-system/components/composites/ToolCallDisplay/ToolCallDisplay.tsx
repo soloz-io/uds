@@ -60,10 +60,6 @@ export const ToolCallDisplay = React.memo<ToolCallDisplayProps>(
       }
     }, [toolCall])
 
-    const toggleExpanded = React.useCallback(() => {
-      setIsExpanded((prev) => !prev)
-    }, [])
-
     const hasContent = React.useMemo(() => {
       return result !== null || Object.keys(args).length > 0
     }, [result, args])
@@ -83,7 +79,7 @@ export const ToolCallDisplay = React.memo<ToolCallDisplayProps>(
     }, [status])
 
     return (
-      <Tool defaultOpen={isExpanded}>
+      <Tool open={isExpanded} onOpenChange={setIsExpanded}>
         <ToolHeader
           title={name}
           type={`tool-${name}` as const}
