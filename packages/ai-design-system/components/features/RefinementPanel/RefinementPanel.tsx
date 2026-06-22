@@ -253,7 +253,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
 
     return (
       <div className={`relative flex h-full flex-col ${className || ""}`}>
-        <div className="flex-1 pb-4">
+        <div className="flex-1 flex flex-col pb-4 min-h-0">
           <AIConversation
             messages={messages}
             showAvatars={true}
