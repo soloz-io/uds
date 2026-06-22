@@ -160,12 +160,15 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
 
     // Extract pending ask_user tool call from messages
     const pendingAskUser = React.useMemo(() => {
+      console.log("[RefinementPanel] Messages length:", messages.length);
       // Look from the end
       for (let i = messages.length - 1; i >= 0; i--) {
         const msg = messages[i];
-        if (msg.toolCalls) {
+        if (msg.toolCalls && msg.toolCalls.length > 0) {
+          console.log(`[RefinementPanel] Message ${i} (${msg.id}) has ${msg.toolCalls.length} tool calls`, msg.toolCalls.map(tc => `${tc.name} [${tc.status}]`));
           const askUserTc = msg.toolCalls.find(tc => tc.name === "ask_user" && tc.status === "pending");
           if (askUserTc) {
+            console.log("[RefinementPanel] Found pending ask_user:", askUserTc);
             return askUserTc;
           }
         }
@@ -253,11 +256,11 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
 
     return (
       <div className={`relative flex h-full flex-col ${className || ""}`}>
-        <div className="flex-1 flex flex-col pb-4 min-h-0">
+        <div className="flex-1 min-h-0 pb-4">
           <AIConversation
             messages={messages}
             showAvatars={true}
-            className="relative"
+            className="h-full relative"
           />
         </div>
         <div className="sticky bottom-0 z-10 bg-background border-t">
