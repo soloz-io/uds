@@ -11,6 +11,7 @@ import { UserMessage } from "@/components/composites/UserMessage"
 import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
 import { OrchestratorMessage } from "@/components/composites/OrchestratorMessage"
 import { ToolCallDisplay } from "@/components/composites/ToolCallDisplay"
+import { ApprovalCard } from "@/components/composites/ApprovalCard"
 
 /**
  * AIConversation Section
@@ -31,6 +32,7 @@ interface AIMessage {
   avatarName?: string;
   toolCalls?: ToolCall[];
   subAgents?: SubAgent[];
+  isLoading?: boolean;
 }
 
 export interface AIConversationProps
@@ -114,9 +116,10 @@ export const AIConversation = React.memo<AIConversationProps>(
             const subAgents = message.subAgents || []
 
             // Filter tool calls that aren't "task" type (those become sub-agents)
+            // Also hide pending "ask_user" tools so they can be rendered in the prompt input area
             const directToolCalls =
               message.toolCalls?.filter(
-                (tc) => tc.name !== "task"
+                (tc) => tc.name !== "task" && !(tc.name === "ask_user" && tc.status === "pending")
               ) || []
 
             return (
@@ -127,13 +130,28 @@ export const AIConversation = React.memo<AIConversationProps>(
                   content: message.content,
                   avatarSrc: message.avatarSrc,
                   avatarName: message.avatarName,
+                  isLoading: message.isLoading,
                 }}
                 showAvatar={showAvatars}
               >
                 {/* Render direct tool calls */}
-                {directToolCalls.map((tc) => (
-                  <ToolCallDisplay key={tc.id} toolCall={tc} />
-                ))}
+                {directToolCalls.map((tc) => {
+                  if (tc.name === "ask_user") {
+                    return (
+                      <div key={tc.id} className="w-full flex-shrink-0 bg-background rounded-lg border mt-2">
+                        <ApprovalCard
+                          actionRequest={{ name: tc.name, args: tc.args }}
+                          onApprove={() => {}}
+                          onReject={() => {}}
+                          onEdit={() => {}}
+                          state="approval-responded"
+                          approval={{ approved: true }}
+                        />
+                      </div>
+                    )
+                  }
+                  return <ToolCallDisplay key={tc.id} toolCall={tc} />
+                })}
 
                 {/* Render specialist sub-agents */}
                 {subAgents.map((subAgent) => (

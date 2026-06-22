@@ -35,6 +35,7 @@ export interface RefinementMessage {
   avatarName?: string;
   toolCalls?: ToolCall[];
   subAgents?: SubAgent[];
+  isLoading?: boolean;
 }
 
 /**
@@ -157,12 +158,47 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       onApprovalReject?.(reason);
     }, [onApprovalReject]);
 
+    // Extract pending ask_user tool call from messages
+    const pendingAskUser = React.useMemo(() => {
+      // Look from the end
+      for (let i = messages.length - 1; i >= 0; i--) {
+        const msg = messages[i];
+        if (msg.toolCalls) {
+          const askUserTc = msg.toolCalls.find(tc => tc.name === "ask_user" && tc.status === "pending");
+          if (askUserTc) {
+            return askUserTc;
+          }
+        }
+      }
+      return null;
+    }, [messages]);
+
+    const activeApprovalRequest = React.useMemo(() => {
+      if (approvalRequest) return approvalRequest;
+      if (pendingAskUser) {
+        return {
+          name: pendingAskUser.name,
+          args: pendingAskUser.args,
+        };
+      }
+      return undefined;
+    }, [approvalRequest, pendingAskUser]);
+
     // Handle edit for HITL approval request
     const handleApprovalEdit = React.useCallback((editedArgs: Record<string, unknown>) => {
       setApprovalCardState("approval-responded");
       setApprovalCardApproval({ approved: true });
       onApprovalEdit?.(editedArgs);
-    }, [onApprovalEdit]);
+      
+      // If there's a pendingAskUser and answers are provided, submit them!
+      if (pendingAskUser && editedArgs.answers) {
+        const answers = Array.isArray(editedArgs.answers) ? editedArgs.answers : [editedArgs.answers];
+        const text = answers.join(', ');
+        // Submit the text response
+        const dummyEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
+        onSubmit({ text, files: [] }, dummyEvent);
+      }
+    }, [onApprovalEdit, pendingAskUser, onSubmit]);
 
     // Reset file change state when fileChanges are cleared
     React.useEffect(() => {
@@ -172,24 +208,22 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       }
     }, [fileChanges.length]);
 
-    // Reset approval card state when approvalRequest is cleared
+    // Reset approval card state when activeApprovalRequest is cleared
     React.useEffect(() => {
-      if (!approvalRequest) {
+      if (!activeApprovalRequest) {
         setApprovalCardState("approval-requested");
         setApprovalCardApproval({});
       }
-    }, [approvalRequest]);
-
-
+    }, [activeApprovalRequest]);
 
     // Construct dialog content that replaces the prompt input when active
     let dialog: React.ReactNode = null;
 
-    if (approvalRequest) {
+    if (activeApprovalRequest) {
       dialog = (
         <div className="w-full flex-shrink-0 bg-background p-4">
           <ApprovalCard
-            actionRequest={approvalRequest}
+            actionRequest={activeApprovalRequest}
             reviewConfig={reviewConfig}
             onApprove={handleApprovalApprove}
             onReject={handleApprovalReject}
