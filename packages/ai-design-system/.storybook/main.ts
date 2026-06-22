@@ -21,32 +21,34 @@ const config: StorybookConfig = {
     "../public"
   ],
   async viteFinal(config) {
-    config.build = config.build || {};
-    
-    // Support standard Rollup configuration
-    config.build.rollupOptions = config.build.rollupOptions || {};
-    config.build.rollupOptions.external = [
-      ...(Array.isArray(config.build.rollupOptions.external)
-        ? config.build.rollupOptions.external
-        : config.build.rollupOptions.external
-        ? [config.build.rollupOptions.external]
-        : []),
-      "web-worker",
-    ];
-
-    // Support Rolldown configuration specifically if active
-    const buildConfig = config.build as Record<string, unknown> & {
+    const build = (config.build || {}) as Record<string, unknown> & {
+      rollupOptions?: {
+        external?: string | string[];
+      };
       rolldownOptions?: {
         external?: string | string[];
       };
     };
-    if (buildConfig) {
-      buildConfig.rolldownOptions = buildConfig.rolldownOptions || {};
-      buildConfig.rolldownOptions.external = [
-        ...(Array.isArray(buildConfig.rolldownOptions.external)
-          ? buildConfig.rolldownOptions.external
-          : buildConfig.rolldownOptions.external
-          ? [buildConfig.rolldownOptions.external]
+    
+    if (build) {
+      // Support standard Rollup configuration
+      build.rollupOptions = build.rollupOptions || {};
+      build.rollupOptions.external = [
+        ...(Array.isArray(build.rollupOptions.external)
+          ? build.rollupOptions.external
+          : build.rollupOptions.external
+          ? [build.rollupOptions.external]
+          : []),
+        "web-worker",
+      ];
+
+      // Support Rolldown configuration specifically if active
+      build.rolldownOptions = build.rolldownOptions || {};
+      build.rolldownOptions.external = [
+        ...(Array.isArray(build.rolldownOptions.external)
+          ? build.rolldownOptions.external
+          : build.rolldownOptions.external
+          ? [build.rolldownOptions.external]
           : []),
         "web-worker",
       ];
