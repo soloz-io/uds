@@ -1,6 +1,6 @@
 {
   "name": "ai-design-system",
-  "version": "0.1.41",
+  "version": "0.1.42",
   "private": false,
   "type": "module",
   "description": "AI-powered design system with React components, built with Tailwind CSS and Radix UI - test",
@@ -47,6 +47,8 @@
     "dev": "pnpm tokens:build && next dev",
     "build": "pnpm tokens:build && pnpm prebuild && next build",
     "build:lib": "pnpm tokens:build && tsup && node scripts/build-css.js && node scripts/generate-dts.js",
+    "typecheck": "tsc --noEmit --project tsconfig.typecheck.json",
+    "typecheck:all": "tsc --noEmit",
     "prebuild": "node scripts/run-all-validations.js",
     "prepublishOnly": "pnpm build:lib",
     "start": "next start",

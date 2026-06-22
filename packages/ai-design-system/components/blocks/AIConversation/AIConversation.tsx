@@ -6,12 +6,11 @@ import {
   ConversationScrollButton,
   type ConversationProps,
 } from "@/components/ai-elements/conversation"
-import { type AIMessage } from "@/components/composites/AgentMessage"
+import type { ToolCall, SubAgent } from "@/components/composites"
 import { UserMessage } from "@/components/composites/UserMessage"
 import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
 import { OrchestratorMessage } from "@/components/composites/OrchestratorMessage"
 import { ToolCallDisplay } from "@/components/composites/ToolCallDisplay"
-import type { SubAgent } from "@/components/composites/AgentIndicator"
 
 /**
  * AIConversation Section
@@ -22,6 +21,17 @@ import type { SubAgent } from "@/components/composites/AgentIndicator"
  *
  * Based on reference implementation from deep-agents-ui ChatInterface.
  */
+
+interface AIMessage {
+  id: string;
+  type: 'human' | 'ai';
+  role: string;
+  content: string;
+  avatarSrc?: string;
+  avatarName?: string;
+  toolCalls?: ToolCall[];
+  subAgents?: SubAgent[];
+}
 
 export interface AIConversationProps
   extends Omit<ConversationProps, "children"> {

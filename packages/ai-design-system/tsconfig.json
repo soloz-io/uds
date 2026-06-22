@@ -23,7 +23,6 @@
       }
     ],
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": [
         "./*"
@@ -54,6 +53,7 @@
     "**/*.test.tsx",
     "**/*.spec.ts",
     "**/*.spec.tsx",
-    ".storybook"
+    ".storybook",
+    "../design-schema"
   ]
 }
