@@ -2,11 +2,10 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { Check, Pencil, X, Shield, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, Pencil, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/primitives/Input";
 import { Textarea } from "@/components/primitives/Textarea";
 import { Label } from "@/components/primitives/Label";
-import { Badge } from "@/components/primitives/Badge";
 import { cn } from "@/lib/utils";
 import {
   Confirmation as AIConfirmation,
