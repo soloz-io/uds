@@ -119,11 +119,11 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
 
     return (
       <div className={`relative flex h-full flex-col ${className || ""}`}>
-        {/* Conversation Area - Override to prevent double scroll (StickToBottom handles scroll internally) */}
+        {/* Conversation Area - Handles scroll internally to keep input/file changes pinned at the bottom */}
         <AIConversation
           messages={messages}
           showAvatars={true}
-          className="relative min-h-0 flex-1 overflow-visible"
+          className="relative min-h-0 flex-1 overflow-y-auto"
         />
 
         {/* File Changes Queue (fixed at bottom, constrained height) */}
