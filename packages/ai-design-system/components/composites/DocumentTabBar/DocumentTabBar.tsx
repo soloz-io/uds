@@ -9,7 +9,13 @@ import React from 'react'
 import { Tabs, TabsList, TabsTrigger, Button, ScrollArea } from '@/components/primitives'
 import { X, Circle } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { DocumentFile } from '@/types/ai-editor'
+export interface DocumentFile {
+  id: string
+  name: string
+  isDirty?: boolean
+  format?: string
+  lastModified?: number
+}
 
 /**
  * Props for DocumentTabBar composite
@@ -70,7 +76,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
         )}
         data-slot="document-tab-bar"
       >
-        <ScrollArea orientation="horizontal" className="flex-1">
+        <ScrollArea className="flex-1">
           <Tabs
             value={activeTabId || tabs[0]?.id}
             onValueChange={onTabSelect}

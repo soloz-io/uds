@@ -3,7 +3,7 @@ export * from './features';
 
 // Root public type API: allow contracts from all layers.
 export type * from './primitives';
-export type * from './composites';
+export type { AppHeaderProps, TabItem } from './composites/AppHeader/interfaces';
 export type * from './blocks';
 export type * from './features';
 

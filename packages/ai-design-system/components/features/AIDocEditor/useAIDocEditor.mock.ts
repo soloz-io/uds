@@ -6,9 +6,23 @@
  */
 
 import { useState, useCallback } from 'react'
+import type { JSONContent } from '@tiptap/core'
 import type { Annotation } from '@/types/ai-editor/annotations'
-import type { DocumentFile, DocumentWithAnnotations } from '@/types/ai-editor'
 import type { UseAIDocEditorReturn, UseAIMultiTabDocEditorReturn } from './useAIDocEditor'
+
+interface DocumentFile {
+  id: string
+  name: string
+  isDirty: boolean
+  format?: 'json' | 'markdown'
+  lastModified: number
+}
+
+interface DocumentWithAnnotations {
+  file: DocumentFile
+  content: JSONContent | string
+  annotations: Annotation[]
+}
 
 type MultiDocMockConfig = {
   multiDoc: true
@@ -76,9 +90,9 @@ function useMultiTabDocEditorMockState(
   )
   const [loading, setLoading] = useState(false)
 
-  const addDocument = useCallback((file: DocumentFile, content: any) => {
+  const addDocument = useCallback((file: DocumentFile, content: unknown) => {
     console.log('[Multi-Tab Mock] Adding document:', file.name)
-    setDocuments(prev => [...prev, { file, content, annotations: [] }])
+    setDocuments(prev => [...prev, { file, content: content as JSONContent | string, annotations: [] }])
     setActiveDocumentId(file.id)
   }, [])
 
@@ -227,6 +241,6 @@ export function useAIDocEditorMock(
  * @param initialDocuments - Initial documents to display
  * @returns Mock implementation of UseAIMultiTabDocEditorReturn
  */
-export function useAIMultiTabDocEditorMock(initialDocuments: any[] = []): UseAIMultiTabDocEditorReturn {
+export function useAIMultiTabDocEditorMock(initialDocuments: unknown[] = []): UseAIMultiTabDocEditorReturn {
   return useMultiTabDocEditorMockState(initialDocuments as DocumentWithAnnotations[])
 }

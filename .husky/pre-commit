@@ -1,9 +1,15 @@
 echo "Running pre-commit checks..."
 
-echo "ai-design-system lint-staged"
+echo "--- ai-design-system typecheck ---"
+pnpm --dir packages/ai-design-system typecheck || exit 1
+
+echo "--- ai-design-system build:lib ---"
+pnpm --dir packages/ai-design-system build:lib || exit 1
+
+echo "--- ai-design-system lint-staged ---"
 pnpm --dir packages/ai-design-system exec lint-staged || exit 1
 
-echo "design-schema lint-staged"
+echo "--- design-schema lint-staged ---"
 pnpm --dir packages/design-schema exec lint-staged || exit 1
 
-echo "Pre-commit checks passed."
+echo "--- Pre-commit checks passed. ---"

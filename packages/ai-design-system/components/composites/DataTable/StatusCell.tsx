@@ -13,7 +13,7 @@ export function StatusCell({ status }: StatusCellProps) {
       {status === "Done" ? <CheckCircle2 className="size-3 text-green-500" /> : null}
       {status === "In Process" ? <LoaderCircle className="size-3 animate-spin" /> : null}
       {status === "Not Started" ? <CircleSlash className="size-3" /> : null}
-      {status}
+      {status as React.ReactNode}
     </Badge>
   )
 }

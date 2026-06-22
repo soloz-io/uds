@@ -16,7 +16,7 @@ export function ReviewerCell({ row, onAssign }: ReviewerCellProps) {
   const isAssigned = row.reviewer !== "Assign reviewer"
 
   if (isAssigned) {
-    return <span>{row.reviewer}</span>
+    return <span>{row.reviewer as React.ReactNode}</span>
   }
 
   const id = `${row.id}-reviewer`
@@ -26,7 +26,7 @@ export function ReviewerCell({ row, onAssign }: ReviewerCellProps) {
       <Label htmlFor={id} className="sr-only">
         Reviewer
       </Label>
-      <Select onValueChange={(value) => onAssign(row.id, value)}>
+      <Select onValueChange={(value) => onAssign(row.id as number, value)}>
         <SelectTrigger id={id} className="w-[170px]">
           <SelectValue placeholder="Assign reviewer" />
         </SelectTrigger>

@@ -87,12 +87,9 @@ export type PopoverAnchorProps = React.ComponentProps<typeof PopoverAnchor>
  * - Anchor-based positioning
  * - Dark mode support
  */
-export const Popover = React.forwardRef<
-  React.ElementRef<typeof ShadcnPopover>,
-  PopoverProps
->((props, ref) => {
+export const Popover = (props: PopoverProps) => {
   return <ShadcnPopover {...props} />
-})
+}
 
 Popover.displayName = "Popover"
 

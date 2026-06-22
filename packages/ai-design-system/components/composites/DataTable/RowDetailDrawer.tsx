@@ -67,12 +67,12 @@ export function RowDetailDrawer({ item, onChange }: RowDetailDrawerProps) {
     <Drawer open={open} onOpenChange={setOpen} direction={isMobile ? "bottom" : "right"}>
       <DrawerTrigger asChild>
         <Button variant="link" className="w-fit px-0 text-left text-foreground">
-          {item.header}
+          {item.header as React.ReactNode}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader className="gap-1">
-          <DrawerTitle>{item.header}</DrawerTitle>
+          <DrawerTitle>{item.header as React.ReactNode}</DrawerTitle>
           <DrawerDescription>Showing total visitors for the last 6 months</DrawerDescription>
         </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
@@ -103,12 +103,12 @@ export function RowDetailDrawer({ item, onChange }: RowDetailDrawerProps) {
           <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
             <div className="flex flex-col gap-3">
               <Label htmlFor="drawer-header">Header</Label>
-              <Input id="drawer-header" defaultValue={item.header} onBlur={(e) => onChange(item.id, "header", e.target.value)} />
+              <Input id="drawer-header" defaultValue={String(item.header)} onBlur={(e) => onChange(item.id as number, "header", e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
                 <Label htmlFor="drawer-type">Type</Label>
-                <Select defaultValue={item.type} onValueChange={(value) => onChange(item.id, "type", value)}>
+                <Select defaultValue={String(item.type)} onValueChange={(value) => onChange(item.id as number, "type", value)}>
                   <SelectTrigger id="drawer-type" className="w-full">
                     <SelectValue placeholder="Select a type" />
                   </SelectTrigger>
@@ -123,7 +123,7 @@ export function RowDetailDrawer({ item, onChange }: RowDetailDrawerProps) {
               </div>
               <div className="flex flex-col gap-3">
                 <Label htmlFor="drawer-status">Status</Label>
-                <Select defaultValue={item.status} onValueChange={(value) => onChange(item.id, "status", value)}>
+                <Select defaultValue={String(item.status)} onValueChange={(value) => onChange(item.id as number, "status", value)}>
                   <SelectTrigger id="drawer-status" className="w-full">
                     <SelectValue placeholder="Select a status" />
                   </SelectTrigger>
@@ -138,16 +138,16 @@ export function RowDetailDrawer({ item, onChange }: RowDetailDrawerProps) {
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-3">
                 <Label htmlFor="drawer-target">Target</Label>
-                <Input id="drawer-target" defaultValue={item.target} onBlur={(e) => onChange(item.id, "target", e.target.value)} />
+                <Input id="drawer-target" defaultValue={String(item.target)} onBlur={(e) => onChange(item.id as number, "target", e.target.value)} />
               </div>
               <div className="flex flex-col gap-3">
                 <Label htmlFor="drawer-limit">Limit</Label>
-                <Input id="drawer-limit" defaultValue={item.limit} onBlur={(e) => onChange(item.id, "limit", e.target.value)} />
+                <Input id="drawer-limit" defaultValue={String(item.limit)} onBlur={(e) => onChange(item.id as number, "limit", e.target.value)} />
               </div>
             </div>
             <div className="flex flex-col gap-3">
               <Label htmlFor="drawer-reviewer">Reviewer</Label>
-              <Select defaultValue={item.reviewer} onValueChange={(value) => onChange(item.id, "reviewer", value)}>
+              <Select defaultValue={String(item.reviewer)} onValueChange={(value) => onChange(item.id as number, "reviewer", value)}>
                 <SelectTrigger id="drawer-reviewer" className="w-full">
                   <SelectValue placeholder="Select a reviewer" />
                 </SelectTrigger>

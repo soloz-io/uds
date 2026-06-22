@@ -46,10 +46,10 @@
   "scripts": {
     "dev": "pnpm tokens:build && next dev",
     "build": "pnpm tokens:build && pnpm prebuild && next build",
-    "build:lib": "pnpm tokens:build && tsup && node scripts/build-css.js && node scripts/generate-dts.js",
+    "build:lib": "pnpm tokens:build && pnpm typecheck && tsup && node scripts/build-css.js && node scripts/generate-dts.js",
     "typecheck": "tsc --noEmit --project tsconfig.typecheck.json",
     "typecheck:all": "tsc --noEmit",
-    "prebuild": "node scripts/run-all-validations.js",
+    "prebuild": "pnpm typecheck && node scripts/run-all-validations.js",
     "prepublishOnly": "pnpm build:lib",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs",

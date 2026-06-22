@@ -38,7 +38,12 @@ import { DocumentTabBar } from '@/components/composites/DocumentTabBar'
 import { cn } from '@/lib/utils'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation, User } from '@/types/ai-editor/annotations'
-import type { DocumentWithAnnotations } from '@/types/ai-editor'
+
+interface DocumentWithAnnotations {
+  file: { id: string; name: string; isDirty?: boolean; format?: 'json' | 'markdown' | string; lastModified?: number }
+  content: JSONContent | string
+  annotations: Annotation[]
+}
 
 /**
  * Props for AIDocEditor feature component - Single document mode (backward compatible)
@@ -240,7 +245,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
         <div className="flex-1 overflow-auto">
           <DocumentEditorWithComments
             content={currentDocument.content}
-            format={currentDocument.file.format}
+            format={currentDocument.file.format as 'json' | 'markdown' | undefined}
             annotations={currentDocument.annotations}
             currentUserId={currentUser.id}
             currentUserName={currentUser.name}

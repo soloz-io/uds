@@ -1,11 +1,23 @@
 import * as React from "react";
-import {
-  FilePreviewDialog,
-  FileQueue,
-  type FileGroup,
-  type FileItem,
-} from "@/components/composites";
+import { FilePreviewDialog, FileQueue } from "@/components/composites";
 import { cn } from "@/lib/utils";
+
+interface FileItem {
+  id: string;
+  name: string;
+  path?: string;
+  icon?: string;
+  iconColor?: string;
+}
+
+interface FileGroup {
+  id: string;
+  title: string;
+  icon?: string;
+  iconColor?: string;
+  files: FileItem[];
+  defaultOpen?: boolean;
+}
 
 /**
  * SpecNavigator Feature
@@ -14,17 +26,28 @@ import { cn } from "@/lib/utils";
  * Uses FileQueue block for rendering grouped file lists.
  */
 
-export interface SpecNavigatorFile extends FileItem {
-  /** Optional markdown content rendered in the preview dialog */
-  previewContent?: string;
+export interface SpecNavigatorFile {
   /** Optional dialog title override */
   previewTitle?: string;
   /** Optional dialog subtitle or path description */
   previewDescription?: string;
+  /** Optional markdown content rendered in the preview dialog */
+  previewContent?: string;
+  /** Unique identifier */
+  id: string;
+  /** File name (shown as label) */
+  name: string;
+  /** File path prefix (shown as secondary info) */
+  path?: string;
 }
 
-export interface SpecNavigatorGroup extends Omit<FileGroup, "files"> {
+export interface SpecNavigatorGroup {
+  id: string;
+  title: string;
+  icon?: string;
+  iconColor?: string;
   files: SpecNavigatorFile[];
+  defaultOpen?: boolean;
 }
 
 /**

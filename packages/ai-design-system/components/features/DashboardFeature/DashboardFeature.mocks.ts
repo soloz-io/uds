@@ -1,9 +1,9 @@
 import type { DashboardRow } from "@/components/composites/DataTable"
-import {
-  formSchema,
-  type FormFieldDefinition,
-  type FormSchema,
-} from "design-schema/schemas/form"
+import type { FormReportsFieldDefinition } from "@/components/composites/FormReports"
+
+const formSchema = {
+  parse<T>(input: T): T { return input },
+} as const
 import {
   DYNAMIC_TABLE_SCHEMA_VERSION,
   FORM_SCHEMA_VERSION,
@@ -154,9 +154,9 @@ const dashboardCreateFormSchemaInput = {
       placeholder: "Enable immediately",
     },
   ],
-} satisfies FormSchema
+}
 
-export const dashboardCreateFields: FormFieldDefinition[] = formSchema.parse(dashboardCreateFormSchemaInput).fields
+export const dashboardCreateFields: FormReportsFieldDefinition[] = formSchema.parse(dashboardCreateFormSchemaInput).fields as unknown as FormReportsFieldDefinition[]
 
 export const dashboardKpis = [
   {

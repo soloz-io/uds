@@ -147,7 +147,6 @@ export const AIConversation = React.memo<AIConversationProps>(
                       status: subAgent.status,
                       toolCalls: [],
                     }}
-                    showAvatar={showAvatars}
                     isNested={true}
                   />
                 ))}
@@ -166,7 +165,6 @@ export const AIConversation = React.memo<AIConversationProps>(
                 toolCalls: message.toolCalls?.filter((tc) => tc.name !== "task"),
                 status: "completed",
               }}
-              showAvatar={showAvatars}
               isNested={false}
             />
           )

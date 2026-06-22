@@ -9,7 +9,20 @@
 
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation, User } from '@/types/ai-editor'
-import type { DocumentWithAnnotations, DocumentFile } from '@/types/ai-editor'
+
+interface DocumentFile {
+  id: string
+  name: string
+  isDirty?: boolean
+  format?: string
+  lastModified?: number
+}
+
+interface DocumentWithAnnotations {
+  file: DocumentFile
+  content: JSONContent | string
+  annotations: Annotation[]
+}
 
 /**
  * Sample document content for stories and tests

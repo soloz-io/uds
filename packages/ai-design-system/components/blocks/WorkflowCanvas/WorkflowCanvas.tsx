@@ -109,7 +109,8 @@ function WorkflowCanvasInner({
         onEdgesChange={onEdgesChange}
         onNodesChange={onNodesChange}
         onPaneClick={onPaneClick}
-        onNodeClick={onNodeClick}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onNodeClick={onNodeClick as any}
         onEdgeClick={onEdgeClick}
       >
         {topLeft && (

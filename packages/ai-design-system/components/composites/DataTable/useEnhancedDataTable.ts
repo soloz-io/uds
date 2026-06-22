@@ -12,7 +12,7 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table"
-import { arrayMove, type UniqueIdentifier } from "@dnd-kit/sortable"
+import { arrayMove } from "@dnd-kit/sortable"
 
 import type { DashboardRow } from "./table-types"
 
@@ -54,7 +54,7 @@ export function useEnhancedDataTable({ data: initialData, columns, onReorder, se
     })
   }, [serverPagination])
 
-  const dataIds = React.useMemo<UniqueIdentifier[]>(() => data.map((item) => item.id), [data])
+  const dataIds = React.useMemo<string[]>(() => data.map((item) => String(item.id)), [data])
 
   const table = useReactTable({
     data,
@@ -86,7 +86,7 @@ export function useEnhancedDataTable({ data: initialData, columns, onReorder, se
   })
 
   const reorderById = React.useCallback(
-    (activeId: UniqueIdentifier, overId: UniqueIdentifier) => {
+    (activeId: string, overId: string) => {
       if (activeId === overId) {
         return
       }

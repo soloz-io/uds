@@ -15,12 +15,19 @@ import { Label } from "@/components/primitives/Label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/primitives/Select"
 import { Checkbox } from "@/components/primitives/Checkbox"
 import { Textarea } from "@/components/primitives/Textarea"
-import type {
-  FormFieldDefinition,
-  FormFieldOption,
-  FormFieldType,
-  FormFieldValue,
-} from "design-schema"
+type FormFieldType = "text" | "number" | "date" | "textarea" | "select" | "boolean"
+type FormFieldValue = string | number | boolean | null
+interface FormFieldOption { value: string; label: string }
+interface FormFieldDefinition {
+  name: string
+  label: string
+  type: FormFieldType
+  required?: boolean
+  placeholder?: string
+  description?: string
+  defaultValue?: FormFieldValue
+  options?: FormFieldOption[]
+}
 
 export type FormReportsFieldType = FormFieldType
 
@@ -142,7 +149,7 @@ export const FormReportsDrawerForm = React.memo<FormReportsDrawerFormProps>(
                         <SelectValue placeholder={field.placeholder ?? `Select ${field.label}`} />
                       </SelectTrigger>
                       <SelectContent>
-                        {(field.options ?? []).map((option) => (
+                        {(field.options ?? []).map((option: FormFieldOption) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>

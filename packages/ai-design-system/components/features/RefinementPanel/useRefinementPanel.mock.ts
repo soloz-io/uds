@@ -66,7 +66,7 @@ export function useRefinementPanelMock(
   }, [reviewMessages, reviewFileChanges, apiDelay]);
 
   const onSubmit = useCallback(async (message: PromptInputMessage, _event: FormEvent<HTMLFormElement>) => {
-    await handleSubmit(message.text);
+    await handleSubmit(message.text || '');
   }, [handleSubmit]);
 
   // Simulate approval: clear file changes and add success message

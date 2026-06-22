@@ -5,7 +5,7 @@
  * - AppHeader.stories.tsx
  */
 
-import type { TabItem } from './AppHeader'
+import type { TabItem } from './interfaces'
 
 export const mockTabs: TabItem[] = [
   { value: 'agent', label: 'Agent' },

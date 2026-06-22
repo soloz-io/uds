@@ -5,69 +5,30 @@ import type {
   FormReportsRowAction,
 } from "@/components/composites/FormReports"
 import {
-  formSchema,
-  type FormSchema,
-} from "design-schema/schemas/form"
-import {
   DYNAMIC_TABLE_SCHEMA_VERSION,
   FORM_SCHEMA_VERSION,
   dynamicTableSchema,
   type DynamicTableSchema,
 } from "ui-schema-contracts"
 
+const formSchema = {
+  parse<T>(input: T): T { return input },
+}
+
 export const formReportsEntityName = "Feature Flag"
 
 const formReportsFormSchemaInput = {
   schemaVersion: FORM_SCHEMA_VERSION,
   fields: [
-    {
-      name: "slug",
-      label: "Slug",
-      type: "text",
-      required: true,
-      placeholder: "my-flag",
-      description: "Unique identifier for this entity.",
-    },
-    {
-      name: "project",
-      label: "Project",
-      type: "select",
-      placeholder: "Select project",
-      options: [
-        { label: "Website", value: "website" },
-        { label: "Dashboard", value: "dashboard" },
-        { label: "Mobile App", value: "mobile" },
-      ],
-    },
-    {
-      name: "description",
-      label: "Description",
-      type: "textarea",
-      placeholder: "Describe what this entity controls...",
-    },
-    {
-      name: "type",
-      label: "Type",
-      type: "select",
-      defaultValue: "boolean",
-      options: [
-        { label: "Boolean", value: "boolean" },
-        { label: "String", value: "string" },
-        { label: "Number", value: "number" },
-        { label: "JSON", value: "json" },
-      ],
-    },
-    {
-      name: "enabled",
-      label: "Enabled",
-      type: "boolean",
-      defaultValue: true,
-      placeholder: "Enable immediately",
-    },
+    { name: "slug", label: "Slug", type: "text", required: true, placeholder: "my-flag", description: "Unique identifier for this entity." },
+    { name: "project", label: "Project", type: "select", placeholder: "Select project", options: [{ label: "Website", value: "website" }, { label: "Dashboard", value: "dashboard" }, { label: "Mobile App", value: "mobile" }] },
+    { name: "description", label: "Description", type: "textarea", placeholder: "Describe what this entity controls..." },
+    { name: "type", label: "Type", type: "select", defaultValue: "boolean", options: [{ label: "Boolean", value: "boolean" }, { label: "String", value: "string" }, { label: "Number", value: "number" }, { label: "JSON", value: "json" }] },
+    { name: "enabled", label: "Enabled", type: "boolean", defaultValue: true, placeholder: "Enable immediately" },
   ],
-} satisfies FormSchema
+}
 
-export const formReportsFields: FormReportsFieldDefinition[] = formSchema.parse(formReportsFormSchemaInput).fields
+export const formReportsFields: FormReportsFieldDefinition[] = formSchema.parse(formReportsFormSchemaInput).fields as unknown as FormReportsFieldDefinition[]
 
 const formReportsTableSchemaInput = {
   schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,

@@ -439,7 +439,7 @@ export function EnhancedDataTable({
     (event: DragEndEvent) => {
       const { active, over } = event
       if (active && over && active.id !== over.id) {
-        reorderById(active.id, over.id)
+        reorderById(String(active.id), String(over.id))
       }
     },
     [reorderById]

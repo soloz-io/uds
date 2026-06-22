@@ -67,7 +67,7 @@ Drawer.displayName = "Drawer"
  */
 export const DrawerPortal = ShadcnDrawerPortal
 
-DrawerPortal.displayName = "DrawerPortal"
+;(DrawerPortal as React.ComponentType & { displayName?: string }).displayName = "DrawerPortal"
 
 /**
  * DrawerOverlay component props
@@ -139,11 +139,9 @@ export type DrawerHeaderProps = React.HTMLAttributes<HTMLDivElement>
  *
  * Header section of the drawer for title and description.
  */
-export const DrawerHeader = React.memo(
-  React.forwardRef<HTMLDivElement, DrawerHeaderProps>((props, ref) => {
-    return <ShadcnDrawerHeader ref={ref} {...props} />
-  })
-)
+export const DrawerHeader = React.memo<DrawerHeaderProps>((props) => {
+  return <ShadcnDrawerHeader {...props} />
+})
 
 DrawerHeader.displayName = "DrawerHeader"
 
@@ -157,11 +155,9 @@ export type DrawerFooterProps = React.HTMLAttributes<HTMLDivElement>
  *
  * Footer section of the drawer for actions.
  */
-export const DrawerFooter = React.memo(
-  React.forwardRef<HTMLDivElement, DrawerFooterProps>((props, ref) => {
-    return <ShadcnDrawerFooter ref={ref} {...props} />
-  })
-)
+export const DrawerFooter = React.memo<DrawerFooterProps>((props) => {
+  return <ShadcnDrawerFooter {...props} />
+})
 
 DrawerFooter.displayName = "DrawerFooter"
 

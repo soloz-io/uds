@@ -8,6 +8,7 @@ import {
   flexRender,
   type ColumnDef,
 } from "@tanstack/react-table"
+import type { Table as TanStackTable } from "@tanstack/react-table"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/primitives/Table"
 import { TablePagination } from "@/components/composites/TablePagination"
 import { TableToolbar } from "@/components/composites/TableToolbar"
@@ -45,7 +46,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={`space-y-4 ${className || ""}`}>
-      {enableFiltering && <TableToolbar table={table} searchColumn={searchColumn} />}
+      {enableFiltering && <TableToolbar table={table as unknown as TanStackTable<unknown>} searchColumn={searchColumn} />}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -87,7 +88,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {enablePagination && <TablePagination table={table} />}
+      {enablePagination && <TablePagination table={table as unknown as TanStackTable<unknown>} />}
     </div>
   )
 }

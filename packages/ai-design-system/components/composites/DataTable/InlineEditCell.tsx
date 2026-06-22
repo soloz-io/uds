@@ -14,16 +14,18 @@ export interface InlineEditCellProps {
 export function InlineEditCell({ row, field, onSave }: InlineEditCellProps) {
   const inputId = `${row.id}-${field}`
   const defaultValue = row[field]
+  const rowId = row.id as number
+  const rowHeader = row.header as string
 
   const onSubmit = React.useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       const formData = new FormData(event.currentTarget)
       const value = String(formData.get(field) ?? "").trim()
-      onSave(row.id, field, value)
-      toast.success(`Saved ${field} for ${row.header}`)
+      onSave(rowId, field, value)
+      toast.success(`Saved ${field} for ${rowHeader}`)
     },
-    [field, onSave, row.header, row.id]
+    [field, onSave, rowId, rowHeader]
   )
 
   return (
@@ -34,10 +36,10 @@ export function InlineEditCell({ row, field, onSave }: InlineEditCellProps) {
       <Input
         id={inputId}
         name={field}
-        defaultValue={defaultValue}
+        defaultValue={String(defaultValue)}
         className="h-8 w-16 border-transparent bg-transparent text-right shadow-none hover:bg-input/30 focus-visible:border focus-visible:bg-background"
         onBlur={(event) => {
-          onSave(row.id, field, event.target.value)
+          onSave(row.id as number, field, event.target.value)
         }}
       />
     </form>
