@@ -9,6 +9,7 @@ import {
 } from "@/components/ai-elements/plan"
 import { ToolCallDisplay, type ToolCall } from "@/components/composites/ToolCallDisplay"
 import { cn } from "@/lib/utils"
+import { Streamdown } from "streamdown"
 
 /**
  * SpecialistMessage Block
@@ -85,9 +86,12 @@ export const SpecialistMessage = React.memo<SpecialistMessageProps>(
         <PlanContent>
           {/* Message content */}
           {hasContent && (
-            <div className="prose prose-sm dark:prose-invert max-w-none">
+            <Streamdown
+              className="size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+              mode="static"
+            >
               {message.content}
-            </div>
+            </Streamdown>
           )}
 
           {/* Tool calls */}

@@ -16,7 +16,7 @@ export const Message = ({ className, from, ...props }: MessageProps) => (
   <div
     className={cn(
       "group flex w-full items-start gap-2 py-2",
-      from === "user" ? "is-user flex-row-reverse" : "is-assistant bg-muted/50 -mx-4 px-4",
+      from === "user" ? "is-user flex-row-reverse" : "is-assistant",
       className
     )}
     {...props}
@@ -24,7 +24,7 @@ export const Message = ({ className, from, ...props }: MessageProps) => (
 );
 
 const messageContentVariants = cva(
-  "is-user:dark flex flex-col gap-2 overflow-hidden rounded-lg text-sm group-[.is-user]:ml-auto",
+  "is-user:dark flex flex-col gap-2 overflow-hidden rounded-lg text-sm group-[.is-user]:ml-auto min-w-0",
   {
     variants: {
       variant: {
@@ -77,4 +77,12 @@ export const MessageAvatar = ({
     <AvatarImage alt="" className="mt-0 mb-0" src={src} />
     <AvatarFallback>{name?.slice(0, 2) || "ME"}</AvatarFallback>
   </Avatar>
+);
+
+export const MessageTypingIndicator = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn("flex items-center space-x-1 py-1.5 px-1 h-[24px]", className)} {...props}>
+    <div className="w-1.5 h-1.5 bg-current rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+    <div className="w-1.5 h-1.5 bg-current rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+    <div className="w-1.5 h-1.5 bg-current rounded-full animate-bounce"></div>
+  </div>
 );

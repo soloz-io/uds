@@ -105,6 +105,62 @@ export const reviewStateMessages: RefinementMessage[] = [
       },
     ],
   },
+  {
+    id: '3',
+    type: 'human',
+    role: 'user',
+    content: 'Can we also make sure the colors meet the contrast requirements for dark mode?',
+    avatarSrc:
+      'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'User',
+  },
+  {
+    id: '4',
+    type: 'ai',
+    role: 'orchestrator',
+    content: 'Absolutely. I will have the accessibility specialist double-check the color contrast ratios in both light and dark mode.',
+    avatarSrc:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'Coordinator',
+    subAgents: [
+      {
+        id: 'agent_3',
+        name: 'accessibility-specialist',
+        subAgentName: 'a11y-agent',
+        input: 'Verify color contrast ratios for the new Button styles in both light and dark mode themes according to WCAG 2.1 AA.',
+        output: 'Contrast ratios checked: Primary button passes at 4.5:1 on light mode, but fails on dark mode (3.2:1). Adjusting the primary-dark token to #66b2ff to meet the 4.5:1 requirement.',
+        status: 'completed',
+      }
+    ]
+  },
+  {
+    id: '5',
+    type: 'human',
+    role: 'user',
+    content: 'Perfect! How about the hover state? Does it also pass?',
+    avatarSrc:
+      'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'User',
+  },
+  {
+    id: '6',
+    type: 'ai',
+    role: 'orchestrator',
+    content: 'Good catch. Let me check the hover and active states for both themes.',
+    avatarSrc:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'Coordinator',
+    subAgents: [
+      {
+        id: 'agent_4',
+        name: 'accessibility-specialist',
+        subAgentName: 'a11y-agent',
+        input: 'Verify color contrast for hover and active states.',
+        output: 'Hover states pass contrast checks. The active state requires a slight tweak for the outline variant. Applied fixes.',
+        status: 'completed',
+      }
+    ]
+  },
 ]
 
 /**
@@ -114,7 +170,7 @@ export const reviewStateMessages: RefinementMessage[] = [
  * Sample single-question approval request (HITL interactive question)
  */
 export const approvalQuestionRequest: ActionRequest = {
-  name: "ask_question",
+  name: "ask_user",
   description: "The agent needs your input to determine the workflow order",
   args: {
     question: "Where in the workflow timeline should the SEO review step run?",
@@ -130,7 +186,7 @@ export const approvalQuestionRequest: ActionRequest = {
  * Sample multi-question approval request (HITL poll with multiple questions)
  */
 export const approvalMultiQuestionRequest: ActionRequest = {
-  name: "ask_question",
+  name: "ask_user",
   description: "The agent needs your preferences to proceed",
   args: {
     questions: [

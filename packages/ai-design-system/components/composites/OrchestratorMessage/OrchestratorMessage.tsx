@@ -3,6 +3,7 @@ import {
   Message,
   MessageContent,
   MessageAvatar,
+  MessageTypingIndicator,
 } from "@/components/ai-elements/message"
 
 /**
@@ -17,6 +18,7 @@ export interface OrchestratorMessageData {
   content: string
   avatarSrc?: string
   avatarName?: string
+  isLoading?: boolean
 }
 
 export interface OrchestratorMessageProps {
@@ -53,9 +55,13 @@ export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
           />
         )}
 
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           {/* Orchestrator's message content */}
-          {hasContent && (
+          {message.isLoading ? (
+            <MessageContent variant="contained" className="w-fit pr-6">
+              <MessageTypingIndicator />
+            </MessageContent>
+          ) : hasContent && (
             <MessageContent variant="contained">
               {message.content}
             </MessageContent>

@@ -38,6 +38,7 @@ import { DocumentTabBar } from '@/components/composites/DocumentTabBar'
 import { cn } from '@/lib/utils'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation, User } from '@/types/ai-editor/annotations'
+import { Streamdown } from 'streamdown'
 
 interface DocumentWithAnnotations {
   file: { id: string; name: string; isDirty?: boolean; format?: 'json' | 'markdown' | string; lastModified?: number }
@@ -145,6 +146,7 @@ function isMultiTabMode(props: AIDocEditorProps): props is AIDocEditorMultiTabPr
  * - Support for comments, suggestions, and block additions
  * - Controlled component pattern (all state managed by parent)
  * - Backward-compatible with single-document consumers
+ * - Markdown content rendered via Streamdown for proper formatting
  * 
  * Note: The refinement panel (right sidebar with Accept All/Reject All) is a
  * separate component in the parent application, not part of this feature.
@@ -156,7 +158,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
       mode,
       onAnnotationAdd,
       onAnnotationUpdate,
-      onAnnotationDelete: _onAnnotationDelete, // Callback for consumers; passed through on demand
+      onAnnotationDelete: _onAnnotationDelete,
       className,
     } = props
 
@@ -199,6 +201,16 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
      * Single-document mode
      */
     if (!isMultiTab) {
+      const isMarkdown = props.format === 'markdown'
+      if (isMarkdown) {
+        return (
+          <div className={cn('ai-doc-editor p-6', className)}>
+            <Streamdown mode="streaming">
+              {props.content as string}
+            </Streamdown>
+          </div>
+        )
+      }
       return (
         <DocumentEditorWithComments
           content={props.content}
@@ -234,6 +246,8 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
       )
     }
 
+    const isMarkdown = currentDocument.file.format === 'markdown'
+
     return (
       <div className={cn('ai-doc-editor flex flex-col h-full', className)}>
         <DocumentTabBar
@@ -243,17 +257,29 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
           onTabClose={props.onTabClose}
         />
         <div className="flex-1 overflow-auto">
-          <DocumentEditorWithComments
-            content={currentDocument.content}
-            format={currentDocument.file.format as 'json' | 'markdown' | undefined}
-            annotations={currentDocument.annotations}
-            currentUserId={currentUser.id}
-            currentUserName={currentUser.name}
-            readOnly={mode === 'readonly'}
-            onAnnotationAdd={handleAnnotationAdd}
-            onAnnotationUpdate={handleAnnotationUpdate}
-            className="p-6"
-          />
+          {isMarkdown ? (
+            <div className="p-6">
+              <Streamdown
+                mode="streaming"
+                isAnimating
+                className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+              >
+                {currentDocument.content as string}
+              </Streamdown>
+            </div>
+          ) : (
+            <DocumentEditorWithComments
+              content={currentDocument.content}
+              format={currentDocument.file.format as 'json' | 'markdown' | undefined}
+              annotations={currentDocument.annotations}
+              currentUserId={currentUser.id}
+              currentUserName={currentUser.name}
+              readOnly={mode === 'readonly'}
+              onAnnotationAdd={handleAnnotationAdd}
+              onAnnotationUpdate={handleAnnotationUpdate}
+              className="p-6"
+            />
+          )}
         </div>
       </div>
     )

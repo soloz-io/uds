@@ -252,18 +252,21 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
     }
 
     return (
-      <div className={`relative flex h-full flex-col overflow-hidden ${className || ""}`}>
-        <AIConversation
-          messages={messages}
-          showAvatars={true}
-          className="relative min-h-0 flex-1 overflow-y-auto"
-        />
-        <PromptInput
-          dialog={dialog}
-          placeholder={placeholder}
-          onSubmit={onSubmit}
-          className="border-t"
-        />
+      <div className={`relative flex h-full flex-col ${className || ""}`}>
+        <div className="flex-1 pb-4">
+          <AIConversation
+            messages={messages}
+            showAvatars={true}
+            className="relative"
+          />
+        </div>
+        <div className="sticky bottom-0 z-10 bg-background border-t">
+          <PromptInput
+            dialog={dialog}
+            placeholder={placeholder}
+            onSubmit={onSubmit}
+          />
+        </div>
       </div>
     );
   }
