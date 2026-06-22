@@ -61,7 +61,7 @@ export const ControlledState: Story = {
           placeholder="Type something (controlled mode)"
           onSubmit={(message) => {
             setSubmittedMessages((prev) => [...prev, message.text || ""]);
-            setValue(""); // Clear after submit
+            setValue("");
           }}
         />
 
@@ -164,7 +164,6 @@ export const CustomSubmitHandler: Story = {
           disabled={isSubmitting}
           onSubmit={async (message) => {
             setIsSubmitting(true);
-            // Simulate async processing
             await new Promise((resolve) => setTimeout(resolve, 2000));
             setLastSubmitted(message.text || "");
             setIsSubmitting(false);
@@ -194,6 +193,82 @@ export const NoAttachmentUI: Story = {
       description: {
         story:
           "The PromptInput block hides all attachment-related UI through compositional hiding. No attachment buttons, dropdowns, or drag-drop functionality is exposed.",
+      },
+    },
+  },
+};
+
+/**
+ * Dialog replacement — static content
+ * Shows PromptInput rendering a dialog instead of the input when `dialog` is set.
+ * The dialog content replaces the input entirely; no input is shown.
+ */
+export const WithDialog: Story = {
+  args: {
+    placeholder: "This should not appear — dialog is active",
+    onSubmit: (message) => {
+      console.log("Submitted:", message);
+    },
+    dialog: (
+      <div className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+        <p className="font-medium text-foreground">Dialog Content</p>
+        <p className="mt-1">This replaces the prompt input when the <code>dialog</code> prop is set.</p>
+      </div>
+    ),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "When the `dialog` prop is set, PromptInput renders that ReactNode instead of the input form. This is used by features like RefinementPanel to show file reviews or HITL approval cards in place of the input.",
+      },
+    },
+  },
+};
+
+/**
+ * Dialog replacement — interactive toggle
+ * Demonstrates switching between input mode and dialog mode.
+ */
+export const ToggleDialog: Story = {
+  render: () => {
+    const [showDialog, setShowDialog] = useState(false);
+
+    return (
+      <div className="space-y-4">
+        <div className="rounded-md border border-border bg-muted p-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={showDialog}
+              onChange={(e) => setShowDialog(e.target.checked)}
+            />
+            <span className="text-sm">Show dialog (replaces input)</span>
+          </label>
+        </div>
+
+        <PromptInput
+          placeholder="Type a message..."
+          onSubmit={(message) => {
+            console.log("Submitted:", message);
+          }}
+          dialog={
+            showDialog ? (
+              <div className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">Dialog Active</p>
+                <p className="mt-1">Uncheck the toggle above to return to input mode.</p>
+              </div>
+            ) : undefined
+          }
+        />
+      </div>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Interactive demonstration of the dialog replacement. Toggle the checkbox to switch between showing the prompt input and showing dialog content. This is the same pattern RefinementPanel uses for file review and HITL approval states.",
       },
     },
   },

@@ -25,7 +25,7 @@ export interface ReviewConfig {
   allowedDecisions?: string[];
 }
 
-type ToolUIState =
+export type ToolUIState =
   | "input-streaming"
   | "input-available"
   | "approval-requested"
@@ -34,7 +34,7 @@ type ToolUIState =
   | "output-available"
   | "output-error";
 
-type ToolApproval = {
+export type ToolApproval = {
   approved?: boolean;
 };
 
@@ -183,46 +183,42 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
         <AIConfirmation
           state={state}
           approval={approval}
-          className={cn(
-            "flex flex-col rounded-xl border border-border bg-card text-card-foreground shadow-sm p-5 gap-0 max-w-lg w-full",
-            className
-          )}
+          className={cn("w-full", className)}
         >
-          {/* Header */}
-          <div className="flex items-start justify-between gap-4 mb-4 select-none">
-            <div className="flex items-start gap-3">
-              <QuestionIcon className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-              <ConfirmationTitle className="text-base font-semibold tracking-tight text-foreground leading-snug">
-                {currentQuestion.question}
-              </ConfirmationTitle>
-            </div>
-            {questions.length > 1 && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setCurrentQuestionIndex((prev) => Math.max(0, prev - 1))}
-                  disabled={currentQuestionIndex === 0}
-                  className="hover:text-foreground disabled:opacity-30 p-0.5 transition-colors"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <span className="font-medium">{currentQuestionIndex + 1} of {questions.length}</span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setCurrentQuestionIndex((prev) => Math.min(questions.length - 1, prev + 1))
-                  }
-                  disabled={currentQuestionIndex === questions.length - 1}
-                  className="hover:text-foreground disabled:opacity-30 p-0.5 transition-colors"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
+          <ConfirmationTitle>
+            <div className="flex items-start justify-between gap-4 select-none">
+              <div className="flex items-start gap-3">
+                <QuestionIcon className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <span>{currentQuestion.question}</span>
               </div>
-            )}
-          </div>
+              {questions.length > 1 && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0 font-normal">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentQuestionIndex((prev) => Math.max(0, prev - 1))}
+                    disabled={currentQuestionIndex === 0}
+                    className="hover:text-foreground disabled:opacity-30 p-0.5 transition-colors"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <span className="font-medium">{currentQuestionIndex + 1} of {questions.length}</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentQuestionIndex((prev) => Math.min(questions.length - 1, prev + 1))
+                    }
+                    disabled={currentQuestionIndex === questions.length - 1}
+                    className="hover:text-foreground disabled:opacity-30 p-0.5 transition-colors"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </ConfirmationTitle>
 
           {/* Options */}
-          <div className="space-y-2.5">
+          <div className="space-y-2.5 mb-2">
             {allOptions.map((option, index) => {
               const isOther = index === allOptions.length - 1;
               const isSelected = isMultiSelect
@@ -301,36 +297,34 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
             })}
           </div>
 
-          {/* Footer Actions */}
-          <ConfirmationActions className="flex items-center justify-between w-full mt-6 pt-4 border-t border-border">
-            <button
+          <ConfirmationActions>
+            <ConfirmationAction
+              variant="outline"
               type="button"
               onClick={() => {
                 if (onReject) {
                   onReject("Skipped question");
                 }
               }}
-              className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors py-2 px-1"
             >
               Skip
-            </button>
+            </ConfirmationAction>
 
             <ConfirmationAction
               type="button"
               onClick={handleContinue}
               disabled={isProcessing}
               variant="default"
-              className="flex items-center gap-1.5 h-9"
             >
               {currentQuestionIndex === questions.length - 1 ? (
                 <>
+                  <Check className="h-4 w-4 mr-2" />
                   Continue
-                  <span className="text-xs font-semibold opacity-75">↵</span>
                 </>
               ) : (
                 <>
                   Next
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-4 w-4 ml-2" />
                 </>
               )}
             </ConfirmationAction>
@@ -344,208 +338,194 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
       <AIConfirmation
         state={state}
         approval={approval}
-        className={cn(
-          "flex flex-col rounded-xl border border-border bg-card text-card-foreground overflow-hidden shadow-sm p-0 gap-0",
-          className
-        )}
+        className={cn(className)}
       >
-        <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/40">
-          <Shield className="h-4 w-4 text-primary" />
-          <ConfirmationTitle className="text-sm font-medium">Review Required</ConfirmationTitle>
-          <Badge
-            variant="secondary"
-            className="ml-auto text-[11px] font-semibold px-2 py-0.5"
-          >
-            Awaiting Approval
-          </Badge>
-        </div>
+        <ConfirmationTitle>Review Required</ConfirmationTitle>
 
-        <div className="p-4 space-y-4">
-          {isEditing ? (
+        {isEditing ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <Pencil className="h-4 w-4" />
+              <span>
+                Edit —{" "}
+                <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
+                  {actionRequest.name}
+                </code>
+              </span>
+            </div>
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Pencil className="h-4 w-4" />
-                <span>
-                  Edit —{" "}
-                  <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
-                    {actionRequest.name}
-                  </code>
-                </span>
-              </div>
-              <div className="space-y-4">
-                {Object.entries(editedArgs).map(([key, value]) => {
+              {Object.entries(editedArgs).map(([key, value]) => {
+                const strValue = formatValue(value);
+                const isLong = strValue.length > 80 || strValue.includes("\n");
+                return (
+                  <div key={key} className="space-y-1.5">
+                    <Label
+                      htmlFor={`edit-${key}`}
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      {key}
+                    </Label>
+                    {isLong ? (
+                      <Textarea
+                        id={`edit-${key}`}
+                        value={strValue}
+                        onChange={(e) =>
+                          setEditedArgs((prev) => ({ ...prev, [key]: e.target.value }))
+                        }
+                        rows={4}
+                        className="w-full font-mono text-sm resize-y"
+                      />
+                    ) : (
+                      <Input
+                        id={`edit-${key}`}
+                        type="text"
+                        value={strValue}
+                        onChange={(e) =>
+                          setEditedArgs((prev) => ({ ...prev, [key]: e.target.value }))
+                        }
+                        className="w-full text-sm"
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <ConfirmationActions>
+              <ConfirmationAction
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setEditedArgs(actionRequest.args);
+                  setIsEditing(false);
+                }}
+              >
+                Cancel
+              </ConfirmationAction>
+              <ConfirmationAction
+                type="button"
+                variant="default"
+                onClick={() => {
+                  onEdit(editedArgs);
+                  setIsEditing(false);
+                }}
+                disabled={isProcessing}
+              >
+                <Check className="h-4 w-4 mr-2" />
+                Save & Approve
+              </ConfirmationAction>
+            </ConfirmationActions>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="rounded-lg bg-muted/30 border border-border p-3 mt-4">
+              <code className="text-sm font-mono font-semibold">{actionRequest.name}</code>
+              {actionRequest.description && (
+                <p className="text-xs text-muted-foreground mt-1">{actionRequest.description}</p>
+              )}
+
+              <div className="mt-3 space-y-3">
+                {Object.entries(actionRequest.args).map(([key, value]) => {
                   const strValue = formatValue(value);
-                  const isLong = strValue.length > 80 || strValue.includes("\n");
+                  const isMultiline = strValue.includes("\n");
                   return (
-                    <div key={key} className="space-y-1.5">
-                      <Label
-                        htmlFor={`edit-${key}`}
-                        className="text-xs font-medium text-muted-foreground"
-                      >
+                    <div key={key} className="space-y-1">
+                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                         {key}
-                      </Label>
-                      {isLong ? (
-                        <Textarea
-                          id={`edit-${key}`}
-                          value={strValue}
-                          onChange={(e) =>
-                            setEditedArgs((prev) => ({ ...prev, [key]: e.target.value }))
-                          }
-                          rows={4}
-                          className="w-full font-mono text-sm resize-y"
-                        />
+                      </div>
+                      {isMultiline ? (
+                        <pre className="text-xs text-card-foreground whitespace-pre-wrap break-all font-mono bg-muted/50 rounded-md px-2.5 py-1.5 border border-border">
+                          {strValue}
+                        </pre>
                       ) : (
-                        <Input
-                          id={`edit-${key}`}
-                          type="text"
-                          value={strValue}
-                          onChange={(e) =>
-                            setEditedArgs((prev) => ({ ...prev, [key]: e.target.value }))
-                          }
-                          className="w-full text-sm"
-                        />
+                        <div className="text-sm text-card-foreground break-all">{strValue}</div>
                       )}
                     </div>
                   );
                 })}
               </div>
-              <ConfirmationActions className="flex items-center gap-2 self-start mt-0">
-                <ConfirmationAction
-                  type="button"
-                  onClick={() => {
-                    onEdit(editedArgs);
-                    setIsEditing(false);
-                  }}
-                  disabled={isProcessing}
-                >
-                  <Check className="h-4 w-4 mr-2" />
-                  Save & Approve
-                </ConfirmationAction>
-                <ConfirmationAction
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setEditedArgs(actionRequest.args);
-                    setIsEditing(false);
-                  }}
-                >
-                  Cancel
-                </ConfirmationAction>
-              </ConfirmationActions>
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="rounded-lg bg-muted/30 border border-border p-3">
-                <code className="text-sm font-mono font-semibold">{actionRequest.name}</code>
-                {actionRequest.description && (
-                  <p className="text-xs text-muted-foreground mt-1">{actionRequest.description}</p>
-                )}
 
-                <div className="mt-3 space-y-3">
-                  {Object.entries(actionRequest.args).map(([key, value]) => {
-                    const strValue = formatValue(value);
-                    const isMultiline = strValue.includes("\n");
-                    return (
-                      <div key={key} className="space-y-1">
-                        <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                          {key}
-                        </div>
-                        {isMultiline ? (
-                          <pre className="text-xs text-card-foreground whitespace-pre-wrap break-all font-mono bg-muted/50 rounded-md px-2.5 py-1.5 border border-border">
-                            {strValue}
-                          </pre>
-                        ) : (
-                          <div className="text-sm text-card-foreground break-all">{strValue}</div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+            {showRejectInput && (
+              <div className="space-y-1.5 mt-2">
+                <Label
+                  htmlFor="reject-reason"
+                  className="text-xs font-medium text-muted-foreground"
+                >
+                  Reason for rejection{" "}
+                  <span className="text-muted-foreground/70 font-normal">(optional)</span>
+                </Label>
+                <Input
+                  id="reject-reason"
+                  type="text"
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="Enter reason..."
+                  className="w-full text-sm"
+                />
               </div>
+            )}
 
-              {showRejectInput && (
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="reject-reason"
-                    className="text-xs font-medium text-muted-foreground"
+            <ConfirmationActions>
+              {showRejectInput ? (
+                <>
+                  <ConfirmationAction
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowRejectInput(false)}
                   >
-                    Reason for rejection{" "}
-                    <span className="text-muted-foreground/70 font-normal">(optional)</span>
-                  </Label>
-                  <Input
-                    id="reject-reason"
-                    type="text"
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder="Enter reason..."
-                    className="w-full text-sm"
-                  />
-                </div>
-              )}
-
-              <ConfirmationActions className="flex flex-wrap items-center gap-2 self-start mt-0">
-                {showRejectInput ? (
-                  <>
-                    <ConfirmationAction
-                      type="button"
-                      variant="destructive"
-                      onClick={() => {
-                        onReject(rejectReason || "User rejected");
-                        setShowRejectInput(false);
-                      }}
-                      disabled={isProcessing}
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Confirm Rejection
-                    </ConfirmationAction>
+                    Cancel
+                  </ConfirmationAction>
+                  <ConfirmationAction
+                    type="button"
+                    variant="destructive"
+                    onClick={() => {
+                      onReject(rejectReason || "User rejected");
+                      setShowRejectInput(false);
+                    }}
+                    disabled={isProcessing}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Confirm Rejection
+                  </ConfirmationAction>
+                </>
+              ) : (
+                <>
+                  {canReject && (
                     <ConfirmationAction
                       type="button"
                       variant="outline"
-                      onClick={() => setShowRejectInput(false)}
-                    >
-                      Cancel
-                    </ConfirmationAction>
-                  </>
-                ) : (
-                  <>
-                    <ConfirmationAction
-                      type="button"
-                      variant="default"
-                      onClick={onApprove}
+                      onClick={() => setShowRejectInput(true)}
                       disabled={isProcessing}
                     >
-                      <Check className="h-4 w-4 mr-2" />
-                      Approve
+                      <X className="h-4 w-4 mr-2" />
+                      Reject
                     </ConfirmationAction>
-                    {canEdit && (
-                      <ConfirmationAction
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsEditing(true)}
-                        disabled={isProcessing}
-                      >
-                        <Pencil className="h-4 w-4 mr-2" />
-                        Edit
-                      </ConfirmationAction>
-                    )}
-                    {canReject && (
-                      <ConfirmationAction
-                        type="button"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/15"
-                        onClick={() => setShowRejectInput(true)}
-                        disabled={isProcessing}
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Reject
-                      </ConfirmationAction>
-                    )}
-                  </>
-                )}
-              </ConfirmationActions>
-            </div>
-          )}
-        </div>
+                  )}
+                  {canEdit && (
+                    <ConfirmationAction
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsEditing(true)}
+                      disabled={isProcessing}
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </ConfirmationAction>
+                  )}
+                  <ConfirmationAction
+                    type="button"
+                    variant="default"
+                    onClick={onApprove}
+                    disabled={isProcessing}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Approve
+                  </ConfirmationAction>
+                </>
+              )}
+            </ConfirmationActions>
+          </div>
+        )}
       </AIConfirmation>
     );
   }

@@ -9,6 +9,7 @@
 
 import type { RefinementMessage } from './RefinementPanel'
 import type { FileChangeData } from '@/components/composites/FileQueue'
+import type { ActionRequest } from '@/components/composites/ApprovalCard'
 
 /**
  * Sample conversation history for input state
@@ -109,6 +110,44 @@ export const reviewStateMessages: RefinementMessage[] = [
 /**
  * Sample file changes for review state
  */
+/**
+ * Sample single-question approval request (HITL interactive question)
+ */
+export const approvalQuestionRequest: ActionRequest = {
+  name: "ask_question",
+  description: "The agent needs your input to determine the workflow order",
+  args: {
+    question: "Where in the workflow timeline should the SEO review step run?",
+    options: [
+      "(Recommended) Before the main human content approval, so the editor can see the SEO recommendations and scores when reviewing the script.",
+      "After the main human content approval, so that the general content is finalized first before being tuned for SEO."
+    ],
+    is_multi_select: false,
+  },
+};
+
+/**
+ * Sample multi-question approval request (HITL poll with multiple questions)
+ */
+export const approvalMultiQuestionRequest: ActionRequest = {
+  name: "ask_question",
+  description: "The agent needs your preferences to proceed",
+  args: {
+    questions: [
+      {
+        question: "Choose preferred publication channel:",
+        options: ["YouTube", "Vimeo", "TikTok", "Instagram Reels"],
+        is_multi_select: false,
+      },
+      {
+        question: "Which departments need to sign off on budget?",
+        options: ["Marketing", "Finance", "Legal", "Operations"],
+        is_multi_select: true,
+      },
+    ],
+  },
+};
+
 export const sampleFileChanges: FileChangeData[] = [
   {
     id: '1',

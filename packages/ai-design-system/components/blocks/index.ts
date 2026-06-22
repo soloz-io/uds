@@ -10,6 +10,9 @@ export type { DocumentEditorWithCommentsProps } from './DocumentEditorWithCommen
 export { FileChangeQueue } from './FileChangeQueue'
 export type { FileChangeQueueProps } from './FileChangeQueue'
 
+export { PromptInput } from './PromptInput'
+export type { PromptInputBlockProps } from './PromptInput'
+
 // Blocks
 export * from './LayoutProvider'
 export * from './SectionLayout'

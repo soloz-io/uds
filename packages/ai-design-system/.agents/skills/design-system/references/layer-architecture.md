@@ -119,7 +119,7 @@ Features are complete, self-contained implementations that:
 ```tsx
 // ✅ CORRECT - features importing from blocks and composites
 import { AIConversation } from "@/components/blocks/AIConversation";
-import { PromptInput } from "@/components/composites/PromptInput";
+import { PromptInput } from "@/components/blocks/PromptInput";
 
 // ❌ INCORRECT - features importing from primitives
 import { Button } from "@/components/primitives/Button";

@@ -17,6 +17,9 @@
 export { RefinementPanel } from "./RefinementPanel";
 export type { RefinementPanelProps, RefinementMessage } from "./RefinementPanel";
 
+// HITL types (re-exported from ApprovalCard for consumer convenience)
+export type { ActionRequest, ReviewConfig } from "@/components/composites/ApprovalCard";
+
 // Hook contract definition (implement in your application)
 export type { UseRefinementPanelReturn } from "./useRefinementPanel.d";
 

@@ -10,6 +10,7 @@
 
 import type { RefinementMessage } from "./RefinementPanel";
 import type { FileChangeData } from "@/components/composites/FileQueue";
+import type { ActionRequest, ReviewConfig } from "@/components/composites/ApprovalCard";
 
 /**
  * Return type for the refinement panel hook
@@ -35,6 +36,24 @@ export interface UseRefinementPanelReturn {
   
   /** Handle rejection of all file changes */
   handleReject: () => Promise<void> | void;
+
+  /** HITL approval request (when agent pauses for human input via interrupt) */
+  approvalRequest?: ActionRequest;
+
+  /** Review configuration for HITL approval */
+  reviewConfig?: ReviewConfig;
+
+  /** Handle approval of HITL approval request */
+  handleApprovalApprove?: () => Promise<void> | void;
+
+  /** Handle rejection of HITL approval request */
+  handleApprovalReject?: (reason: string) => Promise<void> | void;
+
+  /** Handle edit of HITL approval request */
+  handleApprovalEdit?: (editedArgs: Record<string, unknown>) => Promise<void> | void;
+
+  /** Processing state for HITL approval */
+  isApprovalProcessing?: boolean;
 }
 
 /**

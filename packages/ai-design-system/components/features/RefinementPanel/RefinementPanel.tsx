@@ -3,11 +3,13 @@
 import * as React from "react";
 import { AIConversation } from "@/components/blocks/AIConversation";
 import { FileChangeQueue } from "@/components/blocks/FileChangeQueue";
-import { PromptInput } from "@/components/composites/PromptInput";
+import { PromptInput } from "@/components/blocks/PromptInput";
+import { ApprovalCard } from "@/components/composites/ApprovalCard";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 import type { SubAgent } from "@/components/composites/AgentIndicator";
 import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval } from "@/components/composites/ApprovalCard";
 import type { FormEvent } from "react";
 
 /**
@@ -63,6 +65,30 @@ export interface RefinementPanelProps {
    */
   onReject?: () => void;
   /**
+   * HITL approval request (when agent pauses for human input via interrupt)
+   */
+  approvalRequest?: ActionRequest;
+  /**
+   * Review configuration for HITL approval (allowed decisions)
+   */
+  reviewConfig?: ReviewConfig;
+  /**
+   * Approve handler for HITL approval request
+   */
+  onApprovalApprove?: () => void;
+  /**
+   * Reject handler for HITL approval request
+   */
+  onApprovalReject?: (reason: string) => void;
+  /**
+   * Edit handler for HITL approval request
+   */
+  onApprovalEdit?: (editedArgs: Record<string, unknown>) => void;
+  /**
+   * Processing state for HITL approval
+   */
+  isApprovalProcessing?: boolean;
+  /**
    * Placeholder text for input
    */
   placeholder?: string;
@@ -82,6 +108,12 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
     onSubmit,
     onApprove,
     onReject,
+    approvalRequest,
+    reviewConfig,
+    onApprovalApprove,
+    onApprovalReject,
+    onApprovalEdit,
+    isApprovalProcessing = false,
     placeholder = "Ask a question or describe a task...",
     className,
   }) => {
@@ -93,19 +125,44 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       { approved?: boolean }
     >({});
 
-    // Handle approve action
+    // HITL approval card state
+    const [approvalCardState, setApprovalCardState] = React.useState<ToolUIState>("approval-requested");
+    const [approvalCardApproval, setApprovalCardApproval] = React.useState<ToolApproval>({});
+
+    // Handle approve action for file changes
     const handleApprove = React.useCallback(() => {
       setFileChangeState("approval-responded");
       setApproval({ approved: true });
       onApprove?.();
     }, [onApprove]);
 
-    // Handle reject action
+    // Handle reject action for file changes
     const handleReject = React.useCallback(() => {
       setFileChangeState("approval-responded");
       setApproval({ approved: false });
       onReject?.();
     }, [onReject]);
+
+    // Handle approve for HITL approval request
+    const handleApprovalApprove = React.useCallback(() => {
+      setApprovalCardState("approval-responded");
+      setApprovalCardApproval({ approved: true });
+      onApprovalApprove?.();
+    }, [onApprovalApprove]);
+
+    // Handle reject for HITL approval request
+    const handleApprovalReject = React.useCallback((reason: string) => {
+      setApprovalCardState("approval-responded");
+      setApprovalCardApproval({ approved: false });
+      onApprovalReject?.(reason);
+    }, [onApprovalReject]);
+
+    // Handle edit for HITL approval request
+    const handleApprovalEdit = React.useCallback((editedArgs: Record<string, unknown>) => {
+      setApprovalCardState("approval-responded");
+      setApprovalCardApproval({ approved: true });
+      onApprovalEdit?.(editedArgs);
+    }, [onApprovalEdit]);
 
     // Reset file change state when fileChanges are cleared
     React.useEffect(() => {
@@ -115,43 +172,64 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       }
     }, [fileChanges.length]);
 
+    // Reset approval card state when approvalRequest is cleared
+    React.useEffect(() => {
+      if (!approvalRequest) {
+        setApprovalCardState("approval-requested");
+        setApprovalCardApproval({});
+      }
+    }, [approvalRequest]);
 
+
+
+    // Construct dialog content that replaces the prompt input when active
+    let dialog: React.ReactNode = null;
+
+    if (approvalRequest) {
+      dialog = (
+        <div className="w-full flex-shrink-0 bg-background p-4">
+          <ApprovalCard
+            actionRequest={approvalRequest}
+            reviewConfig={reviewConfig}
+            onApprove={handleApprovalApprove}
+            onReject={handleApprovalReject}
+            onEdit={handleApprovalEdit}
+            isProcessing={isApprovalProcessing}
+            state={approvalCardState}
+            approval={approvalCardApproval}
+          />
+        </div>
+      );
+    } else if (fileChanges.length > 0) {
+      dialog = (
+        <div className="w-full flex-shrink-0 border-t">
+          <div className="max-h-[40vh] overflow-y-auto bg-background">
+            <FileChangeQueue
+              changes={fileChanges}
+              title="Review and approve these file changes"
+              state={fileChangeState}
+              approval={approval}
+              onApprove={handleApprove}
+              onReject={handleReject}
+            />
+          </div>
+        </div>
+      );
+    }
 
     return (
-      <div className={`relative flex h-full flex-col ${className || ""}`}>
-        {/* Conversation Area - Handles scroll internally to keep input/file changes pinned at the bottom */}
+      <div className={`relative flex h-dvh flex-col ${className || ""}`}>
         <AIConversation
           messages={messages}
           showAvatars={true}
           className="relative min-h-0 flex-1 overflow-y-auto"
         />
-
-        {/* File Changes Queue (fixed at bottom, constrained height) */}
-        {fileChanges.length > 0 && (
-          <div className="w-full flex-shrink-0 border-t">
-            <div className="max-h-[40vh] overflow-y-auto bg-background">
-              <FileChangeQueue
-                changes={fileChanges}
-                title="Review and approve these file changes"
-                state={fileChangeState}
-                approval={approval}
-                onApprove={handleApprove}
-                onReject={handleReject}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Input Area (visible only when no file changes to review) */}
-        {fileChanges.length === 0 && (
-          <div className="w-full flex-shrink-0">
-            <PromptInput
-              placeholder={placeholder}
-              onSubmit={onSubmit}
-              className="border-t"
-            />
-          </div>
-        )}
+        <PromptInput
+          dialog={dialog}
+          placeholder={placeholder}
+          onSubmit={onSubmit}
+          className="border-t"
+        />
       </div>
     );
   }

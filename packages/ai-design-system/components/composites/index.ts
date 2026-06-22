@@ -25,9 +25,6 @@ export type { SpecialistMessageProps, SpecialistMessageData } from './Specialist
 export { OrchestratorMessage } from './OrchestratorMessage'
 export type { OrchestratorMessageProps, OrchestratorMessageData } from './OrchestratorMessage'
 
-// PromptInput Block
-export { PromptInput } from './PromptInput'
-export type { PromptInputBlockProps } from './PromptInput'
 
 // FileQueue Block
 export { FileQueue, FileStatusBadge } from './FileQueue'

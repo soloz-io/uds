@@ -1,4 +1,8 @@
-import type { StorybookConfig } from "@storybook/nextjs-vite";
+import type { StorybookConfig } from "@storybook/react-vite";
+import { fileURLToPath } from "url";
+import path from "path";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const config: StorybookConfig = {
   "stories": [
@@ -14,13 +18,19 @@ const config: StorybookConfig = {
     "@storybook/addon-vitest"
   ],
   "framework": {
-    "name": "@storybook/nextjs-vite",
+    "name": "@storybook/react-vite",
     "options": {}
   },
   "staticDirs": [
     "../public"
   ],
   async viteFinal(config) {
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@": path.resolve(__dirname, "../"),
+    };
+
     const build = (config.build || {}) as Record<string, unknown> & {
       rollupOptions?: {
         external?: string | string[];
@@ -29,9 +39,8 @@ const config: StorybookConfig = {
         external?: string | string[];
       };
     };
-    
+
     if (build) {
-      // Support standard Rollup configuration
       build.rollupOptions = build.rollupOptions || {};
       build.rollupOptions.external = [
         ...(Array.isArray(build.rollupOptions.external)
@@ -42,7 +51,6 @@ const config: StorybookConfig = {
         "web-worker",
       ];
 
-      // Support Rolldown configuration specifically if active
       build.rolldownOptions = build.rolldownOptions || {};
       build.rolldownOptions.external = [
         ...(Array.isArray(build.rolldownOptions.external)

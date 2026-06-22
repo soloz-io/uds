@@ -1,4 +1,4 @@
-import type { Preview } from '@storybook/nextjs-vite'
+import type { Preview } from '@storybook/react-vite'
 import { themes } from 'storybook/theming'
 import { useEffect } from 'react'
 import type { ReactElement } from 'react'
