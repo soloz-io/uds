@@ -8,7 +8,8 @@ export type * from './blocks';
 export type * from './features';
 
 // Composites (value exports not covered by export type *)
-export { ModeSwitcher } from './composites';
+export { ModeSwitcher, ApprovalCard } from './composites';
+export type { ApprovalCardProps, ActionRequest, ReviewConfig } from './composites';
 export { getLayoutedElements } from './blocks';
 
 // External library re-exports

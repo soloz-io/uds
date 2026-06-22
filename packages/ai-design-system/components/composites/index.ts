@@ -41,6 +41,10 @@ export type { FilePreviewDialogProps } from './FilePreviewDialog'
 export { Confirmation } from './Confirmation'
 export type { ConfirmationProps } from './Confirmation'
 
+// ApprovalCard Composite
+export { ApprovalCard } from './ApprovalCard'
+export type { ApprovalCardProps, ActionRequest, ReviewConfig } from './ApprovalCard'
+
 // CommentBox Block
 export { CommentBox } from './CommentBox'
 export type { CommentBoxProps } from '@/types/ai-editor'

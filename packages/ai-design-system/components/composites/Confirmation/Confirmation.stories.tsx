@@ -3,7 +3,7 @@ import { Confirmation } from "./Confirmation";
 import * as React from "react";
 
 const meta: Meta<typeof Confirmation> = {
-  title: "Blocks/Confirmation",
+  title: "Composites/Confirmation",
   component: Confirmation,
   parameters: {
     layout: "padded",
