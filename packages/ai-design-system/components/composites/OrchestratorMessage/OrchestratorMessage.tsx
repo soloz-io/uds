@@ -5,6 +5,7 @@ import {
   MessageAvatar,
   MessageTypingIndicator,
 } from "@/components/ai-elements/message"
+import { Response } from "@/components/ai-elements/response"
 
 /**
  * OrchestratorMessage Block
@@ -63,7 +64,7 @@ export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
             </MessageContent>
           ) : hasContent && (
             <MessageContent variant="contained">
-              {message.content}
+              <Response mode={message.isLoading ? "streaming" : "static"} isAnimating={!!message.isLoading}>{message.content}</Response>
             </MessageContent>
           )}
 

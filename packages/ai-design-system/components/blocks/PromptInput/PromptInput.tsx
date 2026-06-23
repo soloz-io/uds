@@ -29,6 +29,7 @@ export interface PromptInputBlockProps
     event: FormEvent<HTMLFormElement>
   ) => void | Promise<void>;
   dialog?: ReactNode;
+  loading?: boolean;
 }
 
 export const PromptInput = React.memo<PromptInputBlockProps>(
@@ -39,6 +40,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     onChange,
     onSubmit,
     dialog,
+    loading = false,
     ...props
   }) => {
     const handleSubmit = React.useCallback(
@@ -80,7 +82,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
           <PromptInputTools>
             {}
           </PromptInputTools>
-          <PromptInputSubmit disabled={disabled} />
+          <PromptInputSubmit disabled={disabled} status={loading ? "submitted" : undefined} />
         </PromptInputFooter>
       </AIPromptInput>
     );

@@ -90,6 +90,10 @@ export interface RefinementPanelProps {
    */
   isApprovalProcessing?: boolean;
   /**
+   * Loading state — shows spinner on send button while streaming
+   */
+  loading?: boolean;
+  /**
    * Placeholder text for input
    */
   placeholder?: string;
@@ -115,6 +119,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
     onApprovalReject,
     onApprovalEdit,
     isApprovalProcessing = false,
+    loading = false,
     placeholder = "Ask a question or describe a task...",
     className,
   }) => {
@@ -272,6 +277,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
             dialog={dialog}
             placeholder={placeholder}
             onSubmit={onSubmit}
+            loading={loading}
           />
         </div>
       </div>
