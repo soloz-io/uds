@@ -117,13 +117,15 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     const isQuestionAction =
       actionRequest.name === "ask_question" ||
       (actionRequest.args &&
-        (typeof actionRequest.args.question === "string" ||
-          Array.isArray(actionRequest.args.questions)));
+        ((typeof actionRequest.args.question === "string") ||
+          (Array.isArray(actionRequest.args.questions) && actionRequest.args.questions.length > 0)));
 
     // Parse questions
     let questions: Question[] = [];
     if (actionRequest.args && Array.isArray(actionRequest.args.questions)) {
       questions = actionRequest.args.questions as Question[];
+    } else if (actionRequest.args && actionRequest.args.questions && typeof actionRequest.args.questions === "object") {
+      questions = Object.values(actionRequest.args.questions) as Question[];
     } else if (actionRequest.args && typeof actionRequest.args.question === "string") {
       questions = [
         {
@@ -144,6 +146,14 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     // Render interactive question view
     if (isQuestionAction && currentQuestion) {
       const handleContinue = () => {
+        const qIdx = currentQuestionIndex;
+        const selIdx = selectedOptionIndices[qIdx];
+        const hasOtherSelected = selIdx === options.length;
+        const hasRegularSelection = selIdx !== null && selIdx !== undefined && !hasOtherSelected;
+        const hasMultiSelectItems = isMultiSelect && Array.isArray(selectedAnswers[qIdx]) && (selectedAnswers[qIdx] as string[]).length > 0;
+        if (!hasRegularSelection && !hasMultiSelectItems && !hasOtherSelected) return;
+        if (hasOtherSelected && !otherTexts[qIdx]?.trim()) return;
+
         if (currentQuestionIndex === questions.length - 1) {
           const finalAnswers = questions.map((q, idx) => {
             if (selectedOptionIndices[idx] === q.options?.length) {
@@ -423,24 +433,26 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
               )}
 
               <div className="mt-3 space-y-3">
-                {Object.entries(actionRequest.args).map(([key, value]) => {
-                  const strValue = formatValue(value);
-                  const isMultiline = strValue.includes("\n");
-                  return (
-                    <div key={key} className="space-y-1">
-                      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                        {key}
+                {Object.entries(actionRequest.args)
+                  .filter(([_, value]) => typeof value === "string" || typeof value === "number" || typeof value === "boolean")
+                  .map(([key, value]) => {
+                    const strValue = formatValue(value);
+                    const isMultiline = strValue.includes("\n");
+                    return (
+                      <div key={key} className="space-y-1">
+                        <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                          {key}
+                        </div>
+                        {isMultiline ? (
+                          <pre className="text-xs text-card-foreground whitespace-pre-wrap break-all font-mono bg-muted/50 rounded-md px-2.5 py-1.5 border border-border">
+                            {strValue}
+                          </pre>
+                        ) : (
+                          <div className="text-sm text-card-foreground break-all">{strValue}</div>
+                        )}
                       </div>
-                      {isMultiline ? (
-                        <pre className="text-xs text-card-foreground whitespace-pre-wrap break-all font-mono bg-muted/50 rounded-md px-2.5 py-1.5 border border-border">
-                          {strValue}
-                        </pre>
-                      ) : (
-                        <div className="text-sm text-card-foreground break-all">{strValue}</div>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </div>
 

@@ -28,11 +28,11 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
       ...section,
       resizable,
       content: (
-        <div className="h-full min-h-0 flex flex-col overflow-auto">
+        <div className="h-full min-h-0 flex flex-col overflow-hidden">
           {section.header && (
             <AppHeader {...section.header} />
           )}
-          <div className="min-h-0 flex-1 overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-hidden flex flex-col">
             {section.content}
           </div>
         </div>

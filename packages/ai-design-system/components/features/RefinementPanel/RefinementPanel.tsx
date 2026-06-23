@@ -151,13 +151,6 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       onApprovalApprove?.();
     }, [onApprovalApprove]);
 
-    // Handle reject for HITL approval request
-    const handleApprovalReject = React.useCallback((reason: string) => {
-      setApprovalCardState("approval-responded");
-      setApprovalCardApproval({ approved: false });
-      onApprovalReject?.(reason);
-    }, [onApprovalReject]);
-
     // Extract pending ask_user tool call from messages
     const pendingAskUser = React.useMemo(() => {
       console.log("[RefinementPanel] Messages length:", messages.length);
@@ -176,9 +169,22 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       return null;
     }, [messages]);
 
+    // Handle reject for HITL approval request
+    const handleApprovalReject = React.useCallback((reason: string) => {
+      setApprovalCardState("approval-responded");
+      setApprovalCardApproval({ approved: false });
+      onApprovalReject?.(reason);
+
+      if (pendingAskUser) {
+        const dummyEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
+        onSubmit({ text: "Skipped", files: [] }, dummyEvent);
+      }
+    }, [onApprovalReject, pendingAskUser, onSubmit]);
+
     const activeApprovalRequest = React.useMemo(() => {
       if (approvalRequest) return approvalRequest;
       if (pendingAskUser) {
+        console.log("[RefinementPanel] ask_user args:", JSON.stringify(pendingAskUser.args));
         return {
           name: pendingAskUser.name,
           args: pendingAskUser.args,
@@ -256,13 +262,11 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
 
     return (
       <div className={`relative flex h-full flex-col ${className || ""}`}>
-        <div className="flex-1 min-h-0 pb-4">
-          <AIConversation
-            messages={messages}
-            showAvatars={true}
-            className="h-full relative"
-          />
-        </div>
+        <AIConversation
+          messages={messages}
+          showAvatars={true}
+          className="flex-1 min-h-0"
+        />
         <div className="sticky bottom-0 z-10 bg-background border-t">
           <PromptInput
             dialog={dialog}

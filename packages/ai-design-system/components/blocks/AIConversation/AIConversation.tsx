@@ -92,9 +92,14 @@ export const AIConversation = React.memo<AIConversationProps>(
       [emptyState?.description]
     )
 
+    const toMessageString = (content: unknown): string =>
+      typeof content === 'string' ? content : ''
+
     const renderedMessages = React.useMemo(
       () =>
         messages.map((message) => {
+          const contentStr = toMessageString(message.content)
+
           // Render based on role field
           if (message.role === "user") {
             return (
@@ -102,7 +107,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                 key={message.id}
                 message={{
                   id: message.id,
-                  content: message.content,
+                  content: contentStr,
                   avatarSrc: message.avatarSrc,
                   avatarName: message.avatarName,
                 }}
@@ -122,7 +127,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                 (tc) => tc.name !== "task" && tc.name !== "ask_user"
               ) || []
 
-            const hasContent = message.content && message.content.trim() !== ""
+            const hasContent = contentStr.trim() !== ""
             if (!hasContent && directToolCalls.length === 0 && subAgents.length === 0 && !message.isLoading) {
               return null;
             }
@@ -132,7 +137,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                 key={message.id}
                 message={{
                   id: message.id,
-                  content: message.content,
+                  content: contentStr,
                   avatarSrc: message.avatarSrc,
                   avatarName: message.avatarName,
                   isLoading: message.isLoading,
@@ -170,7 +175,7 @@ export const AIConversation = React.memo<AIConversationProps>(
               message={{
                 id: message.id,
                 name: message.avatarName || "Agent",
-                content: message.content,
+                content: contentStr,
                 toolCalls: message.toolCalls?.filter((tc) => tc.name !== "task"),
                 status: "completed",
               }}

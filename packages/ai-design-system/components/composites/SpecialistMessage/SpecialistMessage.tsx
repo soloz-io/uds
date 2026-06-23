@@ -65,10 +65,17 @@ export const SpecialistMessage = React.memo<SpecialistMessageProps>(
       [message.toolCalls]
     )
 
+    const description = React.useMemo(() => {
+      if (message.description) return message.description;
+      if (message.status === "active") return "Thinking...";
+      return undefined;
+    }, [message.description, message.status]);
+
     return (
       <Plan
         defaultOpen={collapsible ? defaultOpen : true}
         className={cn(isNested && "ml-8")}
+        isStreaming={message.status === "active"}
       >
         <PlanHeader>
           <div>
@@ -76,8 +83,8 @@ export const SpecialistMessage = React.memo<SpecialistMessageProps>(
               {message.icon && message.icon}
               <PlanTitle>{message.name}</PlanTitle>
             </div>
-            {message.description && (
-              <PlanDescription>{message.description}</PlanDescription>
+            {description && (
+              <PlanDescription>{description}</PlanDescription>
             )}
           </div>
           {collapsible && <PlanTrigger />}
