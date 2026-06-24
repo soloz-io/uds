@@ -13,6 +13,8 @@ export interface InboxPanelProps {
   isLoading?: boolean
   emptyMessage?: string
   className?: string
+  title?: string
+  headerAction?: React.ReactNode
 }
 
 export const InboxPanel = React.memo<InboxPanelProps>(
@@ -26,10 +28,19 @@ export const InboxPanel = React.memo<InboxPanelProps>(
     isLoading = false,
     emptyMessage,
     className,
+    title,
+    headerAction,
   }) => {
     return (
       <section className={`flex min-h-0 flex-1 flex-col overflow-hidden ${className ?? ""}`}>
-        <div className="p-4">
+        {title || headerAction ? (
+          <div className="flex items-center justify-between px-4 pt-4 pb-2">
+            {title ? <h2 className="text-sm font-semibold text-muted-foreground">{title}</h2> : <div />}
+            {headerAction ? <div>{headerAction}</div> : null}
+          </div>
+        ) : null}
+
+        <div className="px-4 pb-2">
           <Input
             aria-label="Search inbox items"
             className="h-8"

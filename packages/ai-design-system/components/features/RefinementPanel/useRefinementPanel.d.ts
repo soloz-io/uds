@@ -65,10 +65,18 @@ export interface UseRefinementPanelReturn {
  * @example
  * ```tsx
  * // Real application implementation
- * export function useRefinementPanel(): UseRefinementPanelReturn {
+ * export function useRefinementPanel(options?: { threadId?: string }): UseRefinementPanelReturn {
+ *   const { threadId } = options || {};
  *   const [messages, setMessages] = useState<RefinementMessage[]>([]);
  *   const [fileChanges, setFileChanges] = useState<FileChangeData[]>([]);
  *   const [loading, setLoading] = useState(false);
+ * 
+ *   useEffect(() => {
+ *     if (!threadId) return;
+ *     fetch(`/api/v1/chat/threads/${threadId}/history`)
+ *       .then((res) => res.json())
+ *       .then((data) => setMessages(data.messages));
+ *   }, [threadId]);
  * 
  *   const handleSubmit = async (prompt: string) => {
  *     setLoading(true);
@@ -87,4 +95,4 @@ export interface UseRefinementPanelReturn {
  * }
  * ```
  */
-export function useRefinementPanel(): UseRefinementPanelReturn;
+export function useRefinementPanel(options?: { threadId?: string }): UseRefinementPanelReturn;

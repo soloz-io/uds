@@ -22,6 +22,7 @@ export interface UseRefinementPanelReturn {
 }
 
 export interface UseRefinementPanelOptions {
+  threadId?: string;
   initialMessages?: RefinementMessage[];
   reviewMessages?: RefinementMessage[];
   reviewFileChanges?: FileChangeData[];
@@ -34,6 +35,7 @@ export function useRefinementPanelMock(
   options: UseRefinementPanelOptions = {}
 ): UseRefinementPanelReturn {
   const {
+    threadId,
     initialMessages = [],
     reviewMessages = [],
     reviewFileChanges = [],
@@ -41,6 +43,10 @@ export function useRefinementPanelMock(
     reviewConfig,
     apiDelay = 800,
   } = options;
+
+  if (threadId) {
+    console.log(`[useRefinementPanelMock] threadId=${threadId} — history would be fetched from API in production`);
+  }
 
   const [messages, setMessages] = useState<RefinementMessage[]>(initialMessages);
   const [fileChanges, setFileChanges] = useState<FileChangeData[]>([]);
