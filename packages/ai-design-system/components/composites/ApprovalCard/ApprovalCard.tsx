@@ -155,23 +155,32 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
         const hasOtherSelected = selIdx === options.length;
         const hasRegularSelection = selIdx !== null && selIdx !== undefined && !hasOtherSelected;
         const hasMultiSelectItems = isMultiSelect && Array.isArray(selectedAnswers[qIdx]) && (selectedAnswers[qIdx] as string[]).length > 0;
-        if (!hasRegularSelection && !hasMultiSelectItems && !hasOtherSelected) return;
-        if (hasOtherSelected && !otherTexts[qIdx]?.trim()) return;
+        
+        const isApprovalType = actionRequest.args?.type === 'approval';
+        const isOtherEmpty = hasOtherSelected && !otherTexts[qIdx]?.trim();
+        const hasNoValidSelection = (!hasRegularSelection && !hasMultiSelectItems && !hasOtherSelected) || isOtherEmpty;
+
+        let answer: string | string[] = "Approved";
+
+        if (hasOtherSelected) {
+          answer = otherTexts[qIdx] || "Approved";
+        } else if (isMultiSelect) {
+          answer = (selectedAnswers[qIdx] as string[]).join(", ") || "Approved";
+        } else if (hasRegularSelection) {
+          answer = selectedAnswers[qIdx] as string || "Approved";
+        }
+
+        if (!isApprovalType && hasNoValidSelection) return;
 
         if (currentQuestionIndex === questions.length - 1) {
           const finalAnswers = questions.map((q, idx) => {
-            if (selectedOptionIndices[idx] === q.options?.length) {
-              return otherTexts[idx] || "";
-            }
+            if (idx === qIdx) return answer;
             return selectedAnswers[idx] || "";
           });
-
-          if (onEdit) {
-            onEdit({ ...actionRequest.args, answers: finalAnswers });
-          } else {
-            onApprove();
-          }
+          if (onEdit) onEdit({ ...actionRequest.args, answers: finalAnswers });
+          else onApprove();
         } else {
+          setSelectedAnswers((prev) => ({ ...prev, [qIdx]: answer }));
           setCurrentQuestionIndex((prev) => prev + 1);
         }
       };
