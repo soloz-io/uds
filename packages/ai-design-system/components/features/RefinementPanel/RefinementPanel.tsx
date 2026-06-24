@@ -151,8 +151,6 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
 
     // Handle approve for HITL approval request
     const handleApprovalApprove = React.useCallback(() => {
-      setApprovalCardState("approval-responded");
-      setApprovalCardApproval({ approved: true });
       onApprovalApprove?.();
     }, [onApprovalApprove]);
 
@@ -174,18 +172,6 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       return null;
     }, [messages]);
 
-    // Handle reject for HITL approval request
-    const handleApprovalReject = React.useCallback((reason: string) => {
-      setApprovalCardState("approval-responded");
-      setApprovalCardApproval({ approved: false });
-      onApprovalReject?.(reason);
-
-      if (pendingAskUser) {
-        const dummyEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
-        onSubmit({ text: "Skipped", files: [] }, dummyEvent);
-      }
-    }, [onApprovalReject, pendingAskUser, onSubmit]);
-
     const activeApprovalRequest = React.useMemo(() => {
       if (approvalRequest) return approvalRequest;
       if (pendingAskUser) {
@@ -198,21 +184,27 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       return undefined;
     }, [approvalRequest, pendingAskUser]);
 
+    // Handle reject for HITL approval request
+    const handleApprovalReject = React.useCallback((reason: string) => {
+      if (activeApprovalRequest?.name === "ask_user") {
+        const dummyEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
+        onSubmit({ text: "Skipped", files: [] }, dummyEvent);
+      } else {
+        onApprovalReject?.(reason);
+      }
+    }, [onApprovalReject, activeApprovalRequest, onSubmit]);
+
     // Handle edit for HITL approval request
     const handleApprovalEdit = React.useCallback((editedArgs: Record<string, unknown>) => {
-      setApprovalCardState("approval-responded");
-      setApprovalCardApproval({ approved: true });
-      onApprovalEdit?.(editedArgs);
-      
-      // If there's a pendingAskUser and answers are provided, submit them!
-      if (pendingAskUser && editedArgs.answers) {
+      if (activeApprovalRequest?.name === "ask_user" && editedArgs.answers) {
         const answers = Array.isArray(editedArgs.answers) ? editedArgs.answers : [editedArgs.answers];
         const text = answers.join(', ');
-        // Submit the text response
         const dummyEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
         onSubmit({ text, files: [] }, dummyEvent);
+      } else {
+        onApprovalEdit?.(editedArgs);
       }
-    }, [onApprovalEdit, pendingAskUser, onSubmit]);
+    }, [onApprovalEdit, activeApprovalRequest, onSubmit]);
 
     // Reset file change state when fileChanges are cleared
     React.useEffect(() => {

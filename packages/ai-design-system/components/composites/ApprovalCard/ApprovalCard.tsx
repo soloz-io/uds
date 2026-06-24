@@ -98,6 +98,10 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     const [rejectReason, setRejectReason] = useState("");
     const [showRejectInput, setShowRejectInput] = useState(false);
 
+    const hideSkipButton = (actionRequest.args?.hide_skip_button as boolean) ?? false;
+    const submitButtonText = (actionRequest.args?.button_submit_text as string) || 'Continue';
+    const skipButtonText = (actionRequest.args?.button_skip_text as string) || 'Skip';
+
     // Question states
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string | string[]>>({});
@@ -164,8 +168,9 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
 
           if (onEdit) {
             onEdit({ ...actionRequest.args, answers: finalAnswers });
+          } else {
+            onApprove();
           }
-          onApprove();
         } else {
           setCurrentQuestionIndex((prev) => prev + 1);
         }
@@ -307,17 +312,19 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
           </div>
 
           <ConfirmationActions>
-            <ConfirmationAction
-              variant="outline"
-              type="button"
-              onClick={() => {
-                if (onReject) {
-                  onReject("Skipped question");
-                }
-              }}
-            >
-              Skip
-            </ConfirmationAction>
+            {!hideSkipButton && (
+              <ConfirmationAction
+                variant="outline"
+                type="button"
+                onClick={() => {
+                  if (onReject) {
+                    onReject("Skipped question");
+                  }
+                }}
+              >
+                {skipButtonText}
+              </ConfirmationAction>
+            )}
 
             <ConfirmationAction
               type="button"
@@ -328,7 +335,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
               {currentQuestionIndex === questions.length - 1 ? (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Continue
+                  {submitButtonText}
                 </>
               ) : (
                 <>
@@ -501,7 +508,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                 </>
               ) : (
                 <>
-                  {canReject && (
+                  {canReject && !hideSkipButton && (
                     <ConfirmationAction
                       type="button"
                       variant="outline"
@@ -509,7 +516,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                       disabled={isProcessing}
                     >
                       <X className="h-4 w-4 mr-2" />
-                      Reject
+                      {skipButtonText}
                     </ConfirmationAction>
                   )}
                   {canEdit && (
@@ -530,7 +537,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                     disabled={isProcessing}
                   >
                     <Check className="h-4 w-4 mr-2" />
-                    Approve
+                    {submitButtonText}
                   </ConfirmationAction>
                 </>
               )}

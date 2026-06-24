@@ -43,14 +43,11 @@ export interface UseRefinementPanelReturn {
   /** Review configuration for HITL approval */
   reviewConfig?: ReviewConfig;
 
-  /** Handle approval of HITL approval request */
-  handleApprovalApprove?: () => Promise<void> | void;
+  /** Handle approval of HITL approval request (ask_user or review_content approve) */
+  handleAskUserApprove?: () => Promise<void> | void;
 
   /** Handle rejection of HITL approval request */
-  handleApprovalReject?: (reason: string) => Promise<void> | void;
-
-  /** Handle edit of HITL approval request */
-  handleApprovalEdit?: (editedArgs: Record<string, unknown>) => Promise<void> | void;
+  handleAskUserReject?: (reason: string) => Promise<void> | void;
 
   /** Processing state for HITL approval */
   isApprovalProcessing?: boolean;
