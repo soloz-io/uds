@@ -6,7 +6,7 @@ import {
   type Connection,
   useReactFlow,
 } from "@xyflow/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { Canvas } from "@/components/ai-elements/canvas";
 import { Connection as ConnectionLine } from "@/components/ai-elements/connection";
 import { Controls } from "@/components/ai-elements/controls";
@@ -47,18 +47,6 @@ function WorkflowCanvasInner({
   className,
 }: WorkflowCanvasProps) {
   const { fitView } = useReactFlow();
-  const viewportInitialized = useRef(false);
-  const [isCanvasReady, setIsCanvasReady] = useState(false);
-
-  useEffect(() => {
-    if (!viewportInitialized.current && nodes.length > 0) {
-      setTimeout(() => {
-        fitView({ maxZoom: 1, minZoom: 0.5, padding: 0.2, duration: 0 });
-        viewportInitialized.current = true;
-        setIsCanvasReady(true);
-      }, 0);
-    }
-  }, [nodes.length, fitView]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -85,8 +73,6 @@ function WorkflowCanvasInner({
       className={className}
       data-testid="workflow-canvas"
       style={{
-        opacity: isCanvasReady ? 1 : 0,
-        transition: "opacity 300ms",
         width: "100%",
         height: "100%",
       }}
