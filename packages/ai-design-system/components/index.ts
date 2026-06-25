@@ -8,8 +8,8 @@ export type * from './blocks';
 export type * from './features';
 
 // Composites (value exports not covered by export type *)
-export { ModeSwitcher, ApprovalCard } from './composites';
-export type { ApprovalCardProps, ActionRequest, ReviewConfig } from './composites';
+export { ModeSwitcher, ApprovalCard, ProjectSwitcher, FormReportsDrawerForm } from './composites';
+export type { ApprovalCardProps, ActionRequest, ReviewConfig, ProjectSwitcherProps, Project, FormReportsDrawerFormProps } from './composites';
 export { getLayoutedElements, SectionLayout } from './blocks';
 export type { SectionLayoutSection } from './blocks';
 

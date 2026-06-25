@@ -37,10 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { ChatStatus, FileUIPart } from "ai";
 import {
-  ImageIcon,
   Loader2Icon,
-  MicIcon,
-  PlusIcon,
   SendIcon,
   SquareIcon,
   XIcon,
@@ -387,7 +384,7 @@ export const PromptInputActionAddAttachments = ({
         attachments.openFileDialog();
       }}
     >
-      <ImageIcon className="mr-2 size-4" /> {label}
+      {label}
     </DropdownMenuItem>
   );
 };
@@ -925,7 +922,7 @@ export const PromptInputActionMenuTrigger = ({
 }: PromptInputActionMenuTriggerProps) => (
   <DropdownMenuTrigger asChild>
     <PromptInputButton className={className} {...props}>
-      {children ?? <PlusIcon className="size-4" />}
+      {children}
     </PromptInputButton>
   </DropdownMenuTrigger>
 );
@@ -1148,7 +1145,7 @@ export const PromptInputSpeechButton = ({
       onClick={toggleListening}
       {...props}
     >
-      <MicIcon className="size-4" />
+      <div className="size-4" />
     </PromptInputButton>
   );
 };
