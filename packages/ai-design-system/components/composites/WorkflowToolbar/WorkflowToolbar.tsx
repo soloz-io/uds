@@ -1,6 +1,5 @@
 "use client";
 
-import { Check, ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/primitives/Button";
 import { ButtonGroup } from "@/components/primitives/ButtonGroup";
 import {
@@ -48,7 +47,7 @@ export function WorkflowToolbarActions({
               variant="secondary"
             >
               {action.loading ? (
-                <Loader2 className="size-4 animate-spin" />
+                <Icon name="loader-2" size="sm" className="animate-spin" />
               ) : typeof action.icon === 'string' ? (
                 <Icon name={action.icon} size="sm" />
               ) : (
@@ -133,7 +132,7 @@ export function WorkflowToolbar({
                 variant="secondary"
               >
                 {currentVersion?.label ?? "Version"}
-                <ChevronDown className="ml-1 size-3 opacity-50" />
+                <Icon name="chevron-down" size="xs" className="ml-1 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
@@ -144,7 +143,7 @@ export function WorkflowToolbar({
                   onClick={() => onVersionSelect?.(v.id)}
                 >
                   {v.label}
-                  {v.id === currentVersionId && <Check className="ml-4 size-4" />}
+                  {v.id === currentVersionId && <Icon name="check" size="sm" className="ml-4" />}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

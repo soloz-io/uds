@@ -158,3 +158,27 @@ export type { InboxListItem, InboxListProps } from './InboxList'
 // ModeSwitcher Composite
 export { ModeSwitcher } from './ModeSwitcher'
 export type { Mode, ModeSwitcherProps } from './ModeSwitcher'
+
+// EmptyState Composite
+export { EmptyState } from './EmptyState'
+export type { EmptyStateProps } from './EmptyState'
+
+// ProjectSwitcher Composite
+export { ProjectSwitcher } from './ProjectSwitcher'
+export type { ProjectSwitcherProps, Project } from './ProjectSwitcher'
+
+// DashboardChart Composite
+export { DashboardChart } from './DashboardChart'
+export type { DashboardChartProps } from './DashboardChart'
+
+// DashboardHeader Composite
+export { DashboardHeader } from './DashboardHeader'
+export type { DashboardHeaderProps } from './DashboardHeader'
+
+// LayoutProvider Composite
+export { LayoutProvider } from './LayoutProvider'
+export type { LayoutProviderProps } from './LayoutProvider'
+
+// PromptInput Composite
+export { PromptInput } from './PromptInput'
+export type { PromptInputBlockProps } from './PromptInput'

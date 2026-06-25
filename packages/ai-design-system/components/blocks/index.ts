@@ -10,25 +10,14 @@ export type { DocumentEditorWithCommentsProps } from './DocumentEditorWithCommen
 export { FileChangeQueue } from './FileChangeQueue'
 export type { FileChangeQueueProps } from './FileChangeQueue'
 
-export { PromptInput } from './PromptInput'
-export type { PromptInputBlockProps } from './PromptInput'
-
 // Blocks
-export * from './LayoutProvider'
 export * from './SectionLayout'
-export type { LayoutProviderProps } from './LayoutProvider'
 
 export { WorkflowCanvas, getLayoutedElements } from './WorkflowCanvas'
 export type { WorkflowCanvasProps, WorkflowNode, WorkflowEdge, WorkflowNodeData } from './WorkflowCanvas'
 
-export { DashboardHeader } from './DashboardHeader'
-export type { DashboardHeaderProps } from './DashboardHeader'
-
 export { DashboardMetrics } from './DashboardMetrics'
 export type { DashboardMetricsProps } from './DashboardMetrics'
-
-export { DashboardChart } from './DashboardChart'
-export type { DashboardChartProps } from './DashboardChart'
 
 export { DataTable } from './DataTable'
 export type { DataTableProps } from './DataTable'

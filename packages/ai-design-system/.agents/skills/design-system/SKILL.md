@@ -421,6 +421,22 @@ The design system has **9 automated validation scripts** that enforce governance
 
 **Run**: `node scripts/validations/validate-import-aliases.js`
 
+### 10. Icon Usage Validation
+**Script**: `scripts/validations/validate-icon-usage.js`
+**Enforces**: All icons use the `<Icon>` primitive and registry
+**Forbidden**:
+- Direct imports from `lucide-react` (except `components/ui/`)
+- `LucideIcon` type in component prop interfaces
+- Inline `<svg>` elements (except `components/ui/` and `primitives/Icon/`)
+- Imports from `@tabler/icons-react`
+
+**Required**:
+- Use `<Icon name="..." />` from `@/components/primitives/Icon`
+- Register new icons in `@/registry/icons.ts`
+- Use `ReactNode` for icon props in composite interfaces
+
+**Run**: `node scripts/validations/validate-icon-usage.js`
+
 ### Run All Validations
 ```bash
 # Master validation script
@@ -768,6 +784,7 @@ Runs:
 - Feature hook pattern validation
 - Behavior stories validation
 - Import alias validation
+- Icon usage validation
 
 ### Bypass Hook (NOT RECOMMENDED)
 
@@ -856,6 +873,7 @@ node scripts/validations/validate-feature-stories.js
 node scripts/validations/validate-feature-hook-pattern.js
 node scripts/validations/validate-behavior-stories.js
 node scripts/validations/validate-import-aliases.js
+node scripts/validations/validate-icon-usage.js
 ```
 
 ### Common Fixes
@@ -865,6 +883,7 @@ node scripts/validations/validate-import-aliases.js
 **Story missing**: Create `.stories.tsx` file — see **storybook-guidelines** skill
 **Import alias violation**: Replace `../../` with `@/`
 **Feature story violation**: Add `WithStateManagement` story and mock hook — see **storybook-guidelines** skill
+**Icon usage violation**: Replace direct `lucide-react` imports with `<Icon name="..." />`; register new icons in `@/registry/icons.ts`
 
 ## Troubleshooting
 
@@ -886,6 +905,12 @@ node scripts/validations/validate-import-aliases.js
 - Replace `../../components/` with `@/components/`
 - Replace `../lib/` with `@/lib/`
 - Keep `./` imports for same-directory files
+
+### "Icon usage violation"
+- Replace direct `import { XIcon } from "lucide-react"` with `import { Icon } from "@/components/primitives/Icon"`
+- If the icon name doesn't exist in the registry, add it in `@/registry/icons.ts` using `iconRegistry.register()`
+- Replace `LucideIcon` type in props with `ReactNode`
+- Replace inline `<svg>` elements with `<Icon name="..." />`
 
 ## Best Practices
 

@@ -3,7 +3,7 @@ import { PromptInput } from "./PromptInput";
 import { useState } from "react";
 
 const meta: Meta<typeof PromptInput> = {
-  title: "Blocks/PromptInput",
+  title: "Composites/PromptInput",
   component: PromptInput,
   parameters: {
     layout: "padded",

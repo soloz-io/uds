@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Element } from "hast";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import {
   type ComponentProps,
   createContext,
@@ -163,8 +163,6 @@ export const CodeBlockCopyButton = ({
     }
   };
 
-  const Icon = isCopied ? CheckIcon : CopyIcon;
-
   return (
     <Button
       className={cn("shrink-0", className)}
@@ -173,7 +171,7 @@ export const CodeBlockCopyButton = ({
       variant="ghost"
       {...props}
     >
-      {children ?? <Icon size={14} />}
+      {children ?? <CheckIcon size={14} />}
     </Button>
   );
 };

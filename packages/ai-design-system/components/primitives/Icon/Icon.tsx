@@ -78,7 +78,54 @@ export const Icon = React.memo<IconProps>(
         strokeLinejoin="round"
         {...props}
       >
-        <path d={icon.path} />
+        {icon.elements
+          ? icon.elements.map((el, i) => {
+              switch (el.type) {
+                case "path":
+                  return <path key={i} d={el.attrs.d} {...el.attrs} />;
+                case "circle":
+                  return (
+                    <circle
+                      key={i}
+                      cx={el.attrs.cx}
+                      cy={el.attrs.cy}
+                      r={el.attrs.r}
+                      {...el.attrs}
+                    />
+                  );
+                case "line":
+                  return (
+                    <line
+                      key={i}
+                      x1={el.attrs.x1}
+                      y1={el.attrs.y1}
+                      x2={el.attrs.x2}
+                      y2={el.attrs.y2}
+                      {...el.attrs}
+                    />
+                  );
+                case "rect":
+                  return (
+                    <rect
+                      key={i}
+                      x={el.attrs.x}
+                      y={el.attrs.y}
+                      width={el.attrs.width}
+                      height={el.attrs.height}
+                      rx={el.attrs.rx}
+                      ry={el.attrs.ry}
+                      {...el.attrs}
+                    />
+                  );
+                case "polyline":
+                  return <polyline key={i} points={el.attrs.points} {...el.attrs} />;
+                case "polygon":
+                  return <polygon key={i} points={el.attrs.points} {...el.attrs} />;
+                default:
+                  return null;
+              }
+            })
+          : icon.path && <path d={icon.path} />}
       </svg>
     );
   }

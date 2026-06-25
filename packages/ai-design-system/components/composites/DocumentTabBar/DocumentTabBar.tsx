@@ -7,7 +7,7 @@
 
 import React from 'react'
 import { Tabs, TabsList, TabsTrigger, Button, ScrollArea } from '@/components/primitives'
-import { X, Circle } from 'lucide-react'
+import { Icon } from '@/components/primitives/Icon'
 import { cn } from '@/lib/utils'
 export interface DocumentFile {
   id: string
@@ -102,8 +102,9 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                     <div className="flex items-center gap-2">
                       {/* Dirty indicator */}
                       {tab.isDirty && (
-                        <Circle
-                          className="size-2 fill-primary text-primary flex-shrink-0"
+                        <Icon
+                          name="circle"
+                          className="size-2 fill-primary text-primary"
                           aria-label="unsaved changes"
                         />
                       )}
@@ -128,7 +129,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                     )}
                     aria-label={`Close ${tab.name}`}
                   >
-                    <X className="size-3" />
+                    <Icon name="x" size="xs" />
                   </Button>
                 </div>
               ))}

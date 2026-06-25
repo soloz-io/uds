@@ -19,7 +19,7 @@ const tableSchema = dynamicTableSchema.parse({
   enablePagination: true,
   enableRowSelection: true,
   columns: [
-    { key: "header", label: "Header", sortable: true, hideable: false },
+    { key: "header", label: "Header", renderType: "link", sortable: true, hideable: false },
     { key: "type", label: "Type", sortable: true },
     { key: "status", label: "Status", renderType: "badge", sortable: true },
     { key: "target", label: "Target", align: "right", sortable: true },

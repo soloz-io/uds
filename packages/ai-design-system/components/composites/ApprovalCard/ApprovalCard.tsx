@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { Check, Pencil, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Icon } from "@/components/primitives/Icon";
 import { Input } from "@/components/primitives/Input";
 import { Textarea } from "@/components/primitives/Textarea";
 import { Label } from "@/components/primitives/Label";
@@ -222,7 +222,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                     disabled={currentQuestionIndex === 0}
                     className="hover:text-foreground disabled:opacity-30 p-0.5 transition-colors"
                   >
-                    <ChevronLeft className="h-4 w-4" />
+                    <Icon name="chevron-left" size="sm" />
                   </button>
                   <span className="font-medium">{currentQuestionIndex + 1} of {questions.length}</span>
                   <button
@@ -233,7 +233,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                     disabled={currentQuestionIndex === questions.length - 1}
                     className="hover:text-foreground disabled:opacity-30 p-0.5 transition-colors"
                   >
-                    <ChevronRight className="h-4 w-4" />
+                    <Icon name="chevron-right" size="sm" />
                   </button>
                 </div>
               )}
@@ -343,13 +343,13 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
             >
               {currentQuestionIndex === questions.length - 1 ? (
                 <>
-                  <Check className="h-4 w-4 mr-2" />
+                <Icon name="check" size="sm" className="mr-2" />
                   {submitButtonText}
                 </>
               ) : (
                 <>
                   Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
+                  <Icon name="chevron-right" size="sm" className="ml-2" />
                 </>
               )}
             </ConfirmationAction>
@@ -370,7 +370,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
         {isEditing ? (
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <Pencil className="h-4 w-4" />
+              <Icon name="pencil" size="sm" />
               <span>
                 Edit —{" "}
                 <code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">
@@ -435,7 +435,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                 }}
                 disabled={isProcessing}
               >
-                <Check className="h-4 w-4 mr-2" />
+                    <Icon name="check" size="sm" className="mr-2" />
                 Save & Approve
               </ConfirmationAction>
             </ConfirmationActions>
@@ -511,7 +511,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                     }}
                     disabled={isProcessing}
                   >
-                    <X className="h-4 w-4 mr-2" />
+                      <Icon name="x" size="sm" className="mr-2" />
                     Confirm Rejection
                   </ConfirmationAction>
                 </>
@@ -524,7 +524,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                       onClick={() => setShowRejectInput(true)}
                       disabled={isProcessing}
                     >
-                      <X className="h-4 w-4 mr-2" />
+                    <Icon name="x" size="sm" className="mr-2" />
                       {skipButtonText}
                     </ConfirmationAction>
                   )}
@@ -535,7 +535,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                       onClick={() => setIsEditing(true)}
                       disabled={isProcessing}
                     >
-                      <Pencil className="h-4 w-4 mr-2" />
+                      <Icon name="pencil" size="sm" className="mr-2" />
                       Edit
                     </ConfirmationAction>
                   )}
@@ -545,7 +545,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                     onClick={onApprove}
                     disabled={isProcessing}
                   >
-                    <Check className="h-4 w-4 mr-2" />
+                  <Icon name="check" size="sm" className="mr-2" />
                     {submitButtonText}
                   </ConfirmationAction>
                 </>

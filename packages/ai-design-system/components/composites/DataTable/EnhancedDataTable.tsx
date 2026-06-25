@@ -11,7 +11,7 @@ import {
 } from "@dnd-kit/core"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
-import { MoreVertical, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Columns3, Plus } from "lucide-react"
+import { Icon } from "@/components/primitives/Icon"
 import { flexRender, type ColumnDef } from "@tanstack/react-table"
 import type { DynamicTableSchema, TableColumn } from "ui-schema-contracts"
 
@@ -35,6 +35,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 import { DragHandleCell } from "./DragHandleCell"
 import { DraggableRow } from "./DraggableRow"
+import { RowDetailDrawer } from "./RowDetailDrawer"
 import { createTableSelectColumn } from "./TableSelectColumn"
 import type {
   DashboardPaginationState,
@@ -318,6 +319,16 @@ export function EnhancedDataTable({
           const rawValue = row.original[column.key]
           const rowId = String(toRowId(row.original, tableSchema))
           const isRowEditing = editingRowId === rowId
+          if (column.renderType === "link") {
+            return (
+              <div className={alignClass(column.align)}>
+                <RowDetailDrawer
+                  item={row.original}
+                  onChange={(rowId, key, value) => handleInlineSave(rowId, String(key), value)}
+                />
+              </div>
+            )
+          }
           if (isRowEditing && (column.editable ?? false) && (column.inputType ?? "none") !== "none") {
             return renderEditableCell(row.original, column, rawValue)
           }
@@ -336,7 +347,7 @@ export function EnhancedDataTable({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
-              <MoreVertical className="size-4" />
+              <Icon name="more-vertical" size="sm" />
               <span className="sr-only">Open menu</span>
             </Button>
           </DropdownMenuTrigger>
@@ -470,10 +481,10 @@ export function EnhancedDataTable({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-8">
-                <Columns3 className="size-4" />
+                <Icon name="columns-3" size="sm" />
                 <span className="hidden lg:inline">Customize Columns</span>
                 <span className="lg:hidden">Columns</span>
-                <ChevronDown className="size-4" />
+                <Icon name="chevron-down" size="sm" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -496,7 +507,7 @@ export function EnhancedDataTable({
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" size="sm" className="h-8" onClick={onCreateClick}>
-            <Plus className="size-4" />
+            <Icon name="plus" size="sm" />
             <span>{createButtonLabel}</span>
           </Button>
           {rightActions}
@@ -588,7 +599,7 @@ export function EnhancedDataTable({
                 disabled={!canPreviousPage}
               >
                 <span className="sr-only">Go to first page</span>
-                <ChevronsLeft className="size-4" />
+                <Icon name="chevrons-left" size="sm" />
               </Button>
               <Button
                 variant="outline"
@@ -602,7 +613,7 @@ export function EnhancedDataTable({
                 disabled={!canPreviousPage}
               >
                 <span className="sr-only">Go to previous page</span>
-                <ChevronLeft className="size-4" />
+                <Icon name="chevron-left" size="sm" />
               </Button>
               <Button
                 variant="outline"
@@ -616,7 +627,7 @@ export function EnhancedDataTable({
                 disabled={!canNextPage}
               >
                 <span className="sr-only">Go to next page</span>
-                <ChevronRight className="size-4" />
+                <Icon name="chevron-right" size="sm" />
               </Button>
               <Button
                 variant="outline"
@@ -630,7 +641,7 @@ export function EnhancedDataTable({
                 disabled={!canNextPage}
               >
                 <span className="sr-only">Go to last page</span>
-                <ChevronsRight className="size-4" />
+                <Icon name="chevrons-right" size="sm" />
               </Button>
             </div>
           </div>

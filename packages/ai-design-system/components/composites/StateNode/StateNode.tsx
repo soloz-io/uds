@@ -1,8 +1,8 @@
 "use client";
 
 import type { NodeProps } from "@xyflow/react";
-import { Check, EyeOff, XCircle, Zap } from "lucide-react";
 import { memo } from "react";
+import { Icon } from "@/components/primitives/Icon";
 import {
   Node,
   NodeDescription,
@@ -45,10 +45,10 @@ const StatusBadge = ({
       )}
     >
       {status === "success" && (
-        <Check className="size-3.5 text-white" strokeWidth={2.5} />
+        <Icon name="check" className="size-3.5 text-white" strokeWidth={2.5} />
       )}
       {status === "error" && (
-        <XCircle className="size-3.5 text-white" strokeWidth={2.5} />
+        <Icon name="circle-x" className="size-3.5 text-white" strokeWidth={2.5} />
       )}
     </div>
   );
@@ -79,7 +79,7 @@ export const StateNode = memo(({ data, selected, id }: StateNodeProps) => {
       {/* Disabled badge in top left */}
       {isDisabled && (
         <div className="absolute top-1 left-1 rounded-full bg-gray-500/50 p-0.5">
-          <EyeOff className="size-3 text-white" />
+          <Icon name="eye-off" size="xs" className="text-white" />
         </div>
       )}
 
@@ -87,7 +87,7 @@ export const StateNode = memo(({ data, selected, id }: StateNodeProps) => {
       <StatusBadge status={status} />
 
       <div className="flex h-full w-full items-center justify-center gap-1.5 px-3 py-2">
-        <Zap className="size-3 shrink-0 text-primary" strokeWidth={1.5} />
+        <Icon name="zap" size="xs" className="shrink-0 text-primary" strokeWidth={1.5} />
         <div className="min-w-0 flex-1 text-center">
           <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
             {displayTitle}

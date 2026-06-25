@@ -11,6 +11,9 @@ import {
 import { WorkflowBuilder } from '../WorkflowBuilder/WorkflowBuilder'
 import { RefinementPanel } from '../RefinementPanel/RefinementPanel'
 import { mockEdges, mockNodes, mockVersions } from '../WorkflowBuilder/WorkflowBuilder.mocks'
+import { DashboardFeature } from '../DashboardFeature/DashboardFeature'
+import { ProjectSwitcher } from '@/components/composites/ProjectSwitcher'
+import { useDashboardIntegrationMock } from './useDashboardIntegration.mock'
 
 const meta = {
   title: 'Features/PageLayout',
@@ -88,28 +91,44 @@ export const Default: Story = {
   },
 }
 
-/**
- * With State Management
- *
- * PageLayout with two-panel layout: WorkflowBuilder and RefinementPanel features.
- */
 export const WithStateManagement: Story = {
   render: () => {
     const layoutState = usePageLayoutMock()
     const actions = usePageLayoutStoryActionsMock()
+    const dashboardState = useDashboardIntegrationMock()
+
+    const hasProjects = dashboardState.projects.length > 0
+    const activeTab = hasProjects ? dashboardState.activeTab : null
+
+    // Determine center tabs based on project existence
+    const headerTabs = hasProjects ? [
+      { value: 'dashboard', label: 'Dashboard' },
+      { value: 'agent', label: 'Agent' },
+      { value: 'editor', label: 'Editor' },
+    ] : undefined
 
     return (
       <PageLayout
         sidebar={mockSidebarConfig}
         header={{
-          ...mockHeaderConfigWithTabs,
-          defaultTab: layoutState.activeTab,
-          onTabChange: layoutState.onTabChange,
+          title: (
+            <ProjectSwitcher
+              projects={dashboardState.projects}
+              selectedProjectId={dashboardState.selectedProjectId}
+              onSelectProject={dashboardState.onSelectProject}
+              onCreateProject={dashboardState.onCreateProjectClick}
+            />
+          ),
+          actions: mockHeaderConfigWithTabs.actions,
+          tabs: headerTabs,
+          defaultTab: activeTab || undefined,
+          onTabChange: dashboardState.onTabChange,
         }}
         isLoading={layoutState.isLoading}
         loadingMessage={layoutState.loadingMessage}
         defaultSidebarOpen={layoutState.isSidebarOpen}
-        layoutSections={[
+        layoutSections={
+          activeTab === 'dashboard' || !hasProjects ? undefined : [
           {
             id: 'workflow-builder',
             content: (
@@ -159,7 +178,11 @@ export const WithStateManagement: Story = {
         ]}
         layoutStorageKey="page-layout-workflow-refinement"
         dragHandleColor="primary"
-      />
+      >
+        {(activeTab === 'dashboard' || !hasProjects) && (
+          <DashboardFeature {...dashboardState.dashboardProps} />
+        )}
+      </PageLayout>
     )
   },
 }

@@ -1,5 +1,4 @@
 import * as React from "react"
-import { Plus } from "lucide-react"
 
 import {
   EnhancedDataTable,
@@ -8,6 +7,7 @@ import {
 } from "@/components/composites/DataTable"
 import type { DynamicTableSchema } from "ui-schema-contracts"
 import { Button } from "@/components/primitives/Button"
+import { Icon } from "@/components/primitives/Icon"
 
 export interface DataTableProps {
   rows: DashboardRow[]
@@ -29,7 +29,7 @@ export const DataTable = React.memo<DataTableProps>(({ rows, tableSchema, handle
         rightActions={
           handlers?.onAddSection ? (
             <Button variant="outline" size="sm" className="h-8" onClick={handlers.onAddSection}>
-              <Plus className="size-4" />
+              <Icon name="plus" size="sm" />
               <span className="hidden lg:inline">Add Section</span>
             </Button>
           ) : null

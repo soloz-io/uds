@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable"
-import { GripVertical } from "lucide-react"
 
 import { Button } from "@/components/primitives/Button"
+import { Icon } from "@/components/primitives/Icon"
 
 export interface DragHandleCellProps {
   id: number | string
@@ -19,7 +19,7 @@ export function DragHandleCell({ id }: DragHandleCellProps) {
       className="size-7 text-muted-foreground hover:bg-transparent"
       aria-label="Drag to reorder"
     >
-      <GripVertical className="size-3" />
+      <Icon name="grip-vertical" size="xs" />
     </Button>
   )
 }

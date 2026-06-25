@@ -56,7 +56,7 @@ import {
   InputGroupTextarea,
   InputGroupButton,
 } from '@/components/primitives/InputGroup'
-import { Send } from 'lucide-react'
+import { Icon } from '@/components/primitives/Icon'
 import { formatCommentDate } from '@/utils/ai-editor'
 import type { CommentBoxProps, Comment } from '@/types/ai-editor'
 import { cn } from '@/lib/utils'
@@ -132,7 +132,7 @@ const CommentThreadDisplay = React.memo<{
               }
             }}
           >
-            <Send className="h-4 w-4" />
+            <Icon name="send" size="sm" />
           </InputGroupButton>
         </InputGroup>
       </ConversationContent>
@@ -208,7 +208,7 @@ export const CommentBox = React.memo<CommentBoxProps>(
                   }
                 }}
               >
-                <Send className="h-4 w-4" />
+                <Icon name="send" size="sm" />
               </InputGroupButton>
             </InputGroup>
           </div>

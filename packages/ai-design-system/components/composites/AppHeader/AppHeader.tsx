@@ -22,7 +22,11 @@ export const AppHeader = React.memo<AppHeaderProps>(({
           {showSidebarToggle && showTitle && title && (
             <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
           )}
-          {showTitle && title && <h1 className="max-w-[28rem] truncate text-base font-medium">{title}</h1>}
+          {showTitle && title && (
+            typeof title === 'string' 
+              ? <h1 className="max-w-[28rem] truncate text-base font-medium">{title}</h1>
+              : title
+          )}
         </div>
 
         <div className="justify-self-center">

@@ -1,5 +1,4 @@
 import * as React from "react"
-import { toast } from "sonner"
 
 import { Input } from "@/components/primitives/Input"
 import { Label } from "@/components/primitives/Label"
@@ -23,7 +22,6 @@ export function InlineEditCell({ row, field, onSave }: InlineEditCellProps) {
       const formData = new FormData(event.currentTarget)
       const value = String(formData.get(field) ?? "").trim()
       onSave(rowId, field, value)
-      toast.success(`Saved ${field} for ${rowHeader}`)
     },
     [field, onSave, rowId, rowHeader]
   )

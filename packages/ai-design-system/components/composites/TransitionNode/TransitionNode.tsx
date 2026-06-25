@@ -1,8 +1,8 @@
 "use client";
 
 import type { NodeProps } from "@xyflow/react";
-import { Check, GitBranch, XCircle } from "lucide-react";
 import { memo } from "react";
+import { Icon } from "@/components/primitives/Icon";
 import {
   Node,
   NodeDescription,
@@ -70,16 +70,16 @@ export const TransitionNode = memo(
             )}
           >
             {status === "success" && (
-              <Check className="size-3 text-white" strokeWidth={2.5} />
+              <Icon name="check" size="xs" className="text-white" strokeWidth={2.5} />
             )}
             {status === "error" && (
-              <XCircle className="size-3 text-white" strokeWidth={2.5} />
+              <Icon name="circle-x" size="xs" className="text-white" strokeWidth={2.5} />
             )}
           </div>
         )}
 
         <div className="flex h-full w-full items-center justify-center gap-1.5 px-3 py-2">
-          <GitBranch className="size-3 shrink-0 text-muted-foreground" strokeWidth={1.5} />
+          <Icon name="git-branch" size="xs" className="shrink-0 text-muted-foreground" strokeWidth={1.5} />
           <div className="min-w-0 flex-1 text-center">
             <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
               {displayTitle}

@@ -61,3 +61,24 @@ export const WithStateManagement: Story = {
     )
   },
 }
+
+export const EmptyState: Story = {
+  args: {
+    kpis: [],
+    rows: [],
+    tableSchema: dashboardTableSchema,
+    visitorsSeries: [],
+    createFields: [
+      { name: "name", label: "App Name", type: "text", required: true },
+      { name: "description", label: "Description", type: "text" },
+    ],
+    emptyState: {
+      title: "Create your first App",
+      description: "Get started by creating a new app to build workflows and manage tasks.",
+      actionLabel: "Create App",
+    },
+    quickCreateFields: [
+      { name: "name", label: "App Name", type: "text", required: true },
+    ],
+  },
+}

@@ -18,7 +18,7 @@ const dashboardTableSchemaInput = {
     {
       key: "header",
       label: "Header",
-      renderType: "text",
+      renderType: "link",
       inputType: "text",
       editable: true,
       align: "left",

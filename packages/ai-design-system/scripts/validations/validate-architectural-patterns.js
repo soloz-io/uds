@@ -119,6 +119,77 @@ class ArchitecturalPatternValidator {
     return codePatterns.some(pattern => pattern.test(nonExportLines));
   }
 
+  extractImports(content) {
+    const imports = [];
+    const patterns = [
+      /import\s+(?:{[^}]*}|\w+(?:\s*,\s*{[^}]*})?)\s+from\s+["']([^"']+)["']/g,
+      /import\s+["']([^"']+)["']/g,
+      /export\s+(?:\*|{[^}]*})\s+from\s+["']([^"']+)["']/g,
+      /export\s+type\s+(?:\*|{[^}]*})\s+from\s+["']([^"']+)["']/g,
+    ];
+
+    patterns.forEach((pattern) => {
+      let match;
+      while ((match = pattern.exec(content)) !== null) {
+        imports.push(match[1]);
+      }
+    });
+
+    return imports;
+  }
+
+  detectBlockWithoutComposite(filePath, content) {
+    const currentLayer = this.getLayerFromPath(filePath);
+    if (currentLayer !== 'blocks') return null;
+
+    if (!this.hasActualCode(content)) return null;
+
+    const imports = this.extractImports(content);
+    if (imports.length === 0) return null;
+
+    const componentsDir = this.componentsPath;
+    const compositesDir = path.join(componentsDir, 'composites');
+    const primitivesDir = path.join(componentsDir, 'primitives');
+    const aiElementsDir = path.join(componentsDir, 'ai-elements');
+    const fileDir = path.dirname(filePath);
+
+    let hasCompositeImport = false;
+    let hasLowerLayerImport = false;
+
+    for (const importPath of imports) {
+      let resolved;
+      if (importPath.startsWith('@/components/')) {
+        const normalized = importPath.replace('@/components/', '');
+        resolved = path.join(componentsDir, normalized);
+      } else if (importPath.startsWith('.')) {
+        resolved = path.resolve(fileDir, importPath);
+      } else {
+        continue;
+      }
+
+      if (!hasCompositeImport && !path.relative(compositesDir, resolved).startsWith('..')) {
+        hasCompositeImport = true;
+      }
+
+      if (!hasLowerLayerImport && (
+        !path.relative(primitivesDir, resolved).startsWith('..') ||
+        !path.relative(aiElementsDir, resolved).startsWith('..')
+      )) {
+        hasLowerLayerImport = true;
+      }
+    }
+
+    if (hasLowerLayerImport && !hasCompositeImport) {
+      return {
+        filePath: path.relative(this.repoRoot, filePath),
+        layer: currentLayer,
+        pattern: 'BLOCK_WITHOUT_COMPOSITE',
+      };
+    }
+
+    return null;
+  }
+
   extractExports(content) {
     const exports = [];
     const lines = content.split('\n');
@@ -246,6 +317,12 @@ class ArchitecturalPatternValidator {
     if (workaround) {
       this.violations.push(workaround);
     }
+
+    // Check for blocks that only import primitives/ai-elements (no composites)
+    const missingComposite = this.detectBlockWithoutComposite(filePath, content);
+    if (missingComposite) {
+      this.violations.push(missingComposite);
+    }
   }
 
   validateAll() {
@@ -327,9 +404,35 @@ class ArchitecturalPatternValidator {
       }
     }
 
+    // Print blocks without composite imports
+    if (byPattern.BLOCK_WITHOUT_COMPOSITE) {
+      console.log(`${RED}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}`);
+      console.log(`${RED}${BOLD}⚠️  PATTERN: BLOCK WITHOUT COMPOSITE IMPORTS${RESET}`);
+      console.log(`${RED}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n`);
+
+      for (const violation of byPattern.BLOCK_WITHOUT_COMPOSITE) {
+        console.log(`${RED}${BOLD}✗ ${violation.filePath}${RESET}`);
+        console.log(`  ${YELLOW}Layer: ${violation.layer}/${RESET}`);
+        console.log();
+        console.log(`  ${RED}Issue: This block component imports from primitives/ or ai-elements/${RESET}`);
+        console.log(`  ${RED}but does NOT import from composites/.${RESET}`);
+        console.log();
+        console.log(`  ${BOLD}Why this is wrong:${RESET}`);
+        console.log(`    A component in blocks/ that only uses primitives or ai-elements without`);
+        console.log(`    composing any composite components semantically belongs in composites/.`);
+        console.log(`    The blocks/ layer is for components that combine composites + lower layers.`);
+        console.log();
+        console.log(`  ${BOLD}How to fix:${RESET}`);
+        console.log(`    1. Move this component to components/composites/`);
+        console.log(`    2. If it truly belongs in blocks/, add a composite import`);
+        console.log();
+      }
+    }
+
     console.log(`${BOLD}Design System Principle:${RESET}`);
     console.log(`  Components should be in the correct layer based on what they combine.`);
     console.log(`  Re-export wrappers that bypass layer rules violate architectural integrity.`);
+    console.log(`  Blocks must compose composites — not just primitives or ai-elements alone.`);
     console.log();
   }
 }

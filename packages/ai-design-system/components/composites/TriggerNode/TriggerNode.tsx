@@ -1,8 +1,8 @@
 "use client";
 
 import type { NodeProps } from "@xyflow/react";
-import { Play } from "lucide-react";
 import { memo } from "react";
+import { Icon } from "@/components/primitives/Icon";
 import {
   Node,
   NodeDescription,
@@ -43,7 +43,7 @@ export const TriggerNode = memo(({ data, selected, id }: TriggerNodeProps) => {
       status={status}
     >
       <div className="flex h-full w-full items-center justify-center gap-1.5 px-3 py-2">
-        <Play className="size-3 shrink-0 text-purple-600 dark:text-purple-400" strokeWidth={1.5} />
+        <Icon name="play" size="xs" className="shrink-0 text-purple-600 dark:text-purple-400" strokeWidth={1.5} />
         <div className="min-w-0 flex-1 text-center">
           <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
             {displayTitle}

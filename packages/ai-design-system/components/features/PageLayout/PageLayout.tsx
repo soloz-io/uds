@@ -1,6 +1,6 @@
 import * as React from "react"
 import { AppSidebar, type AppSidebarProps } from "@/components/blocks/AppSidebar"
-import { LayoutProvider } from "@/components/blocks/LayoutProvider"
+import { LayoutProvider } from "@/components/composites/LayoutProvider"
 import { SectionLayout } from "@/components/blocks/SectionLayout/SectionLayout"
 import type { SectionLayoutSection } from "@/components/blocks/SectionLayout/interfaces"
 import { AppHeader, type AppHeaderProps } from "@/components/composites/AppHeader"

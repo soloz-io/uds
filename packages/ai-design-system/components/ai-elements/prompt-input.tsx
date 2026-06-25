@@ -40,23 +40,21 @@ import {
   ImageIcon,
   Loader2Icon,
   MicIcon,
-  PaperclipIcon,
   PlusIcon,
   SendIcon,
   SquareIcon,
   XIcon,
 } from "lucide-react";
+import React from "react";
 import { nanoid } from "nanoid";
 import {
   type ChangeEvent,
   type ChangeEventHandler,
-  Children,
   type ClipboardEventHandler,
   type ComponentProps,
   createContext,
   type FormEvent,
   type FormEventHandler,
-  Fragment,
   type HTMLAttributes,
   type KeyboardEventHandler,
   type PropsWithChildren,
@@ -295,7 +293,7 @@ export function PromptInputAttachment({
                 />
               ) : (
                 <div className="flex size-5 items-center justify-center text-muted-foreground">
-                  <PaperclipIcon className="size-3" />
+                  <div className="size-3" />
                 </div>
               )}
             </div>
@@ -365,7 +363,7 @@ export function PromptInputAttachments({
   }
 
   return attachments.files.map((file) => (
-    <Fragment key={file.id}>{children(file)}</Fragment>
+    <React.Fragment key={file.id}>{children(file)}</React.Fragment>
   ));
 }
 
@@ -900,7 +898,7 @@ export const PromptInputButton = ({
   ...props
 }: PromptInputButtonProps) => {
   const newSize =
-    size ?? (Children.count(props.children) > 1 ? "sm" : "icon-sm");
+    size ?? (React.Children.count(props.children) > 1 ? "sm" : "icon-sm");
 
   return (
     <InputGroupButton

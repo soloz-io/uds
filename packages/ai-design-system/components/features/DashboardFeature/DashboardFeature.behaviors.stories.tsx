@@ -4,8 +4,10 @@ import { Toaster } from "sonner"
 
 import { DashboardFeature } from "./DashboardFeature"
 import {
+  dashboardCreateFields,
   dashboardKpis,
   dashboardRows,
+  dashboardTableSchema,
   visitorsSeries,
 } from "./DashboardFeature.mocks"
 
@@ -34,6 +36,8 @@ const args = {
   kpis: dashboardKpis,
   rows: dashboardRows,
   visitorsSeries,
+  tableSchema: dashboardTableSchema,
+  createFields: dashboardCreateFields,
 }
 
 const interactionSpy = fn()

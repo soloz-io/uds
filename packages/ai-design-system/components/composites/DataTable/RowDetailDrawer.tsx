@@ -1,8 +1,7 @@
 import * as React from "react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import { TrendingUp } from "lucide-react"
-
 import { Button } from "@/components/primitives/Button"
+import { Icon } from "@/components/primitives/Icon"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/primitives/Chart"
 import {
   Drawer,
@@ -90,7 +89,7 @@ export function RowDetailDrawer({ item, onChange }: RowDetailDrawerProps) {
               <Separator />
               <div className="grid gap-2">
                 <div className="flex gap-2 leading-none font-medium">
-                  Trending up by 5.2% this month <TrendingUp className="size-4" />
+                  Trending up by 5.2% this month <Icon name="trending-up" size="sm" />
                 </div>
                 <div className="text-muted-foreground">
                   Showing total visitors for the last 6 months. This section mirrors the v4 row detail panel.

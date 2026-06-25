@@ -11,45 +11,54 @@ import {
 } from "./DashboardFeature.mocks"
 import type { UseDashboardFeatureReturn } from "./useDashboardFeature.d"
 
-export function useDashboardFeatureMock(): UseDashboardFeatureReturn {
-  const getInitialRows = useCallback<() => DashboardRow[]>(
-    () => dashboardRows.map((row) => ({ ...row })),
-    []
-  )
+export const useDashboardFeatureMock = (): UseDashboardFeatureReturn => {
+  const [rows, setRows] = useState<DashboardRow[]>([])
 
-  const [rows, setRows] = useState<DashboardRow[]>(getInitialRows)
+  const handleCreateSubmit = async (values: FormReportsValues) => {
+    const nextId = rows.reduce((max, row) => Math.max(max, Number(row.id)), 0) + 1
+    const payload = {
+      name: values.name || `App ${nextId}`,
+      description: values.description || "",
+      tenant_id: "mock-tenant-id",
+    }
+    console.log("[Mock] Create submitted with simulated BFF payload:", payload)
+    
+    await new Promise(resolve => setTimeout(resolve, 500))
+    setRows(prev => {
+      const newRow: DashboardRow = {
+        id: nextId,
+        header: payload.name,
+        type: "App",
+        status: "Active",
+        target: "0",
+        limit: "0",
+        reviewer: "Unassigned",
+      }
+      return [newRow, ...prev]
+    })
+  }
 
   return {
+    kpis: dashboardKpis,
     rows,
     tableSchema: dashboardTableSchema,
-    kpis: dashboardKpis,
     visitorsSeries,
-    createFields: dashboardCreateFields,
+    createFields: [
+      { name: "name", label: "App Name", type: "text", required: true },
+      { name: "description", label: "Description", type: "text" },
+    ],
+    emptyState: {
+      title: "Create your first App",
+      description: "Get started by creating a new app to build workflows and manage tasks.",
+      actionLabel: "Create App",
+    },
     actionHandlers: {
-      onCreateSubmit: (values: FormReportsValues) => {
-        setRows((prev) => {
-          const nextId = prev.reduce((max, row) => Math.max(max, Number(row.id)), 0) + 1
-          const nextRow: DashboardRow = {
-            id: nextId,
-            header: String(values.slug || `section-${nextId}`),
-            type: String(values.type || "narrative"),
-            status: values.enabled ? "Done" : "Not Started",
-            target: "0",
-            limit: "0",
-            reviewer: "Assign reviewer",
-          }
-          return [nextRow, ...prev]
-        })
-      },
+      onChartTimeRangeChange: (range) => console.log("[Mock] Chart range changed:", range),
+      onCreateSubmit: handleCreateSubmit,
       table: {
         onDeleteRow: (row) => {
-          setRows((prev) => prev.filter((item) => String(item.id) !== String(row.id)))
-        },
-        onCopyRow: (row) => {
-          setRows((prev) => {
-            const nextId = prev.reduce((max, item) => Math.max(max, Number(item.id)), 0) + 1
-            return [{ ...row, id: nextId, header: `${String(row.header ?? "Section")} Copy` }, ...prev]
-          })
+          console.log("[Mock] Delete:", row.id)
+          setRows(prev => prev.filter(r => String(r.id) !== String(row.id)))
         },
       },
     },

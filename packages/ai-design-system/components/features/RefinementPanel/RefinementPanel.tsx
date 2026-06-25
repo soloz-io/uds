@@ -3,7 +3,7 @@
 import * as React from "react";
 import { AIConversation } from "@/components/blocks/AIConversation";
 import { FileChangeQueue } from "@/components/blocks/FileChangeQueue";
-import { PromptInput } from "@/components/blocks/PromptInput";
+import { PromptInput } from "@/components/composites/PromptInput";
 import { ApprovalCard } from "@/components/composites/ApprovalCard";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 import type { SubAgent } from "@/components/composites/AgentIndicator";

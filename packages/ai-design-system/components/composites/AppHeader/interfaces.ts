@@ -6,7 +6,7 @@ export interface TabItem {
 }
 
 export interface AppHeaderProps {
-  title?: string;
+  title?: React.ReactNode;
   actions?: React.ReactNode;
   tabs?: TabItem[];
   defaultTab?: string;

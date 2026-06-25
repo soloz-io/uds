@@ -68,6 +68,12 @@ const validations = [
     description: 'Checking that all imports use @/ alias...',
     script: 'validations/validate-import-aliases.js',
   },
+  {
+    name: 'Icon Usage Validation',
+    emoji: '🖼️',
+    description: 'Checking that components use the Icon primitive instead of direct lucide-react imports or inline SVGs...',
+    script: 'validations/validate-icon-usage.js',
+  },
 ];
 
 const results = [];

@@ -1,6 +1,6 @@
 import * as React from "react"
-
-import { DashboardChart } from "@/components/blocks/DashboardChart"
+import { EmptyState } from "@/components/composites/EmptyState"
+import { DashboardChart } from "@/components/composites/DashboardChart"
 import { DashboardMetrics } from "@/components/blocks/DashboardMetrics"
 import { DataTable } from "@/components/blocks/DataTable"
 import { type DashboardRow } from "@/components/composites/DataTable"
@@ -13,6 +13,7 @@ import {
 import type { DynamicTableSchema } from "ui-schema-contracts"
 
 import type {
+  DashboardApp,
   DashboardFeatureActionHandlers,
   DashboardKpi,
   DashboardSeriesPoint,
@@ -27,6 +28,25 @@ export interface DashboardFeatureProps {
   createEntityName?: string
   createFields: FormReportsFieldDefinition[]
   createButtonLabel?: string
+  apps?: DashboardApp[]
+  currentAppId?: string
+  quickCreateEntityName?: string
+  quickCreateFields?: FormReportsFieldDefinition[]
+  quickCreateButtonLabel?: string
+  /**
+   * Optional empty state configuration. When provided and rows is empty, this state is shown instead of the table.
+   */
+  emptyState?: {
+    title: string
+    description: string
+    actionLabel: string
+  }
+  /** Controlled state for external creation drawer open */
+  createDrawerOpen?: boolean
+  onOpenCreateDrawerChange?: (open: boolean) => void
+  /**
+   * Additional CSS classes
+   */
   className?: string
 }
 
@@ -47,17 +67,41 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
     createEntityName = "Section",
     createFields,
     createButtonLabel = "Create",
+    apps,
+    currentAppId,
+    quickCreateEntityName = "App",
+    quickCreateFields,
+    quickCreateButtonLabel = "Quick Create",
+    emptyState,
+    createDrawerOpen: externalDrawerOpen,
+    onOpenCreateDrawerChange: externalOnDrawerOpenChange,
     className,
   }) => {
-    const [drawerOpen, setDrawerOpen] = React.useState(false)
-    const [values, setValues] = React.useState<FormReportsValues>(() => buildInitialValues(createFields))
+    const [internalDrawerOpen, setInternalDrawerOpen] = React.useState(false)
+    const drawerOpen = externalDrawerOpen !== undefined ? externalDrawerOpen : internalDrawerOpen
+    const setDrawerOpen = externalOnDrawerOpenChange || setInternalDrawerOpen
+    
+    const [drawerMode, setDrawerMode] = React.useState<'table' | 'quick-create' | null>(null)
+    
+    const activeFields = drawerMode === 'quick-create' && quickCreateFields ? quickCreateFields : createFields
+    const activeEntityName = drawerMode === 'quick-create' ? quickCreateEntityName : createEntityName
+    const activeButtonLabel = drawerMode === 'quick-create' ? quickCreateButtonLabel : createButtonLabel
+
+    const [values, setValues] = React.useState<FormReportsValues>(() => buildInitialValues(activeFields))
 
     React.useEffect(() => {
-      setValues(buildInitialValues(createFields))
-    }, [createFields])
+      setValues(buildInitialValues(activeFields))
+    }, [activeFields])
 
     const openCreateDrawer = React.useCallback(() => {
       actionHandlers?.table?.onCreateClick?.()
+      setDrawerMode('table')
+      setDrawerOpen(true)
+      actionHandlers?.onCreateDrawerOpenChange?.(true)
+    }, [actionHandlers])
+
+    const openQuickCreateDrawer = React.useCallback(() => {
+      setDrawerMode('quick-create')
       setDrawerOpen(true)
       actionHandlers?.onCreateDrawerOpenChange?.(true)
     }, [actionHandlers])
@@ -65,6 +109,9 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
     const handleDrawerOpenChange = React.useCallback(
       (open: boolean) => {
         setDrawerOpen(open)
+        if (!open) {
+          setTimeout(() => setDrawerMode(null), 300)
+        }
         actionHandlers?.onCreateDrawerOpenChange?.(open)
       },
       [actionHandlers]
@@ -87,37 +134,59 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
 
     const handleCreateSubmit = React.useCallback(
       async (nextValues: FormReportsValues) => {
-        await Promise.resolve(actionHandlers?.onCreateSubmit?.(nextValues))
+        if (drawerMode === 'quick-create') {
+          await Promise.resolve(actionHandlers?.onQuickCreateSubmit?.(nextValues))
+        } else {
+          await Promise.resolve(actionHandlers?.onCreateSubmit?.(nextValues))
+        }
         setDrawerOpen(false)
+        setTimeout(() => setDrawerMode(null), 300)
         actionHandlers?.onCreateDrawerOpenChange?.(false)
         setValues(buildInitialValues(createFields))
       },
-      [actionHandlers, createFields]
+      [actionHandlers, createFields, drawerMode]
     )
 
     return (
       <div className={`flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6 ${className ?? ""}`}>
-        <DashboardMetrics items={kpis} />
-        <DashboardChart
-          series={visitorsSeries}
-          onTimeRangeChange={actionHandlers?.onChartTimeRangeChange}
-        />
-        <DataTable
-          rows={rows}
-          tableSchema={tableSchema}
-          handlers={actionHandlers?.table}
-          onCreateClick={openCreateDrawer}
-          createButtonLabel={createButtonLabel}
-        />
+        {rows.length === 0 && emptyState ? (
+          <div className="flex flex-1 items-center justify-center min-h-[500px]">
+            <EmptyState
+              title={emptyState.title}
+              description={emptyState.description}
+              actionLabel={emptyState.actionLabel}
+              onAction={quickCreateFields ? openQuickCreateDrawer : openCreateDrawer}
+            />
+          </div>
+        ) : (
+          <>
+            {rows.length > 0 && (
+              <>
+                <DashboardMetrics items={kpis} />
+                <DashboardChart
+                  series={visitorsSeries}
+                  onTimeRangeChange={actionHandlers?.onChartTimeRangeChange}
+                />
+              </>
+            )}
+            <DataTable
+              rows={rows}
+              tableSchema={tableSchema}
+              handlers={actionHandlers?.table}
+              onCreateClick={openCreateDrawer}
+              createButtonLabel={createButtonLabel}
+            />
+          </>
+        )}
 
         <FormReportsDrawerForm
           open={drawerOpen}
           onOpenChange={handleDrawerOpenChange}
-          title={`Create ${createEntityName}`}
-          description={`Enter the details for your new ${createEntityName.toLowerCase()}.`}
-          fields={createFields}
+          title={`Create ${activeEntityName}`}
+          description={`Enter the details for your new ${activeEntityName.toLowerCase()}.`}
+          fields={activeFields}
           values={values}
-          submitLabel={createButtonLabel}
+          submitLabel={activeButtonLabel}
           onFieldChange={handleFieldChange}
           onFieldBlur={handleFieldBlur}
           onSubmit={handleCreateSubmit}
@@ -129,3 +198,5 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
 )
 
 DashboardFeature.displayName = "DashboardFeature"
+
+

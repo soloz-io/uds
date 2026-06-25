@@ -10,7 +10,8 @@ export type * from './features';
 // Composites (value exports not covered by export type *)
 export { ModeSwitcher, ApprovalCard } from './composites';
 export type { ApprovalCardProps, ActionRequest, ReviewConfig } from './composites';
-export { getLayoutedElements } from './blocks';
+export { getLayoutedElements, SectionLayout } from './blocks';
+export type { SectionLayoutSection } from './blocks';
 
 // External library re-exports
 export { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';

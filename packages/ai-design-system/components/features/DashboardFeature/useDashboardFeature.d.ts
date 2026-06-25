@@ -30,6 +30,11 @@ export interface DashboardSeriesPoint {
 
 export type DashboardChartTimeRange = "90d" | "30d" | "7d"
 
+export interface DashboardApp {
+  id: string
+  name: string
+}
+
 /**
  * Consumer callbacks for DashboardFeature interactions.
  * Use this contract to wire feature UI actions to app-specific logic.
@@ -47,8 +52,12 @@ export interface DashboardFeatureActionHandlers {
   onCreateFieldBlur?: (name: string, value: FormReportsValue, values: FormReportsValues) => void
   /** Called when create drawer form is submitted. */
   onCreateSubmit?: (values: FormReportsValues) => void | Promise<void>
+  /** Called when quick create drawer form is submitted. */
+  onQuickCreateSubmit?: (values: FormReportsValues) => void | Promise<void>
   /** Called when create drawer cancel is clicked. */
   onCreateCancel?: () => void
+  /** Called when a different app is selected in the app switcher. */
+  onAppChange?: (appId: string) => void
 }
 
 export interface UseDashboardFeatureReturn {
@@ -59,7 +68,19 @@ export interface UseDashboardFeatureReturn {
   createEntityName?: string
   createFields: FormReportsFieldDefinition[]
   createButtonLabel?: string
+  apps?: DashboardApp[]
+  currentAppId?: string
+  quickCreateEntityName?: string
+  quickCreateFields?: FormReportsFieldDefinition[]
+  quickCreateButtonLabel?: string
   actionHandlers?: DashboardFeatureActionHandlers
+  emptyState?: {
+    title: string
+    description: string
+    actionLabel: string
+  }
+  createDrawerOpen?: boolean
+  onOpenCreateDrawerChange?: (open: boolean) => void
 }
 
 export function useDashboardFeature(): UseDashboardFeatureReturn
