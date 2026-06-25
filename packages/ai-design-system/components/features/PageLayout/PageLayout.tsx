@@ -160,7 +160,7 @@ export const PageLayout = React.memo<PageLayoutProps>(
     const pageContainer = (
       <PageContainer className={`overflow-hidden ${className ?? ""}`}>
         <AppHeader {...header} />
-        <div className={`min-h-0 flex-1 overflow-x-hidden ${layoutSections ? "overflow-hidden" : "overflow-y-auto"}`}>
+        <div className={`min-h-0 flex-1 flex flex-col overflow-x-hidden ${layoutSections ? "overflow-hidden" : "overflow-y-auto"}`}>
           {contentArea}
         </div>
       </PageContainer>
