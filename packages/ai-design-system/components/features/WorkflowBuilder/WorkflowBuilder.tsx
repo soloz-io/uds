@@ -1,7 +1,6 @@
 "use client";
 
 import { WorkflowToolbar, WorkflowToolbarActions } from "@/components/composites/WorkflowToolbar";
-import { Icon } from "@/components/primitives/Icon";
 import { WorkflowCanvas } from "@/components/blocks/WorkflowCanvas";
 import type { WorkflowNode, WorkflowEdge } from "@/components/blocks/WorkflowCanvas";
 import type { ToolbarAction, WorkflowVersion } from "@/components/composites/WorkflowToolbar";
@@ -67,9 +66,9 @@ export function WorkflowBuilder({
 }: WorkflowBuilderProps) {
   const defaultActionGroups: ToolbarAction[][] = [
     [
-      { id: "undo", icon: <Icon name="undo-2" size="sm" />, title: "Undo", onClick: onUndo, disabled: !canUndo },
-      { id: "redo", icon: <Icon name="redo-2" size="sm" />, title: "Redo", onClick: onRedo, disabled: !canRedo },
-      { id: "save", icon: <Icon name="save" size="sm" />, title: "Save", onClick: onSave, loading: isSaving, indicator: hasUnsavedChanges },
+      { id: "undo", icon: "undo-2", title: "Undo", onClick: onUndo, disabled: !canUndo },
+      { id: "redo", icon: "redo-2", title: "Redo", onClick: onRedo, disabled: !canRedo },
+      { id: "save", icon: "save", title: "Save", onClick: onSave, loading: isSaving, indicator: hasUnsavedChanges },
     ],
   ];
 
