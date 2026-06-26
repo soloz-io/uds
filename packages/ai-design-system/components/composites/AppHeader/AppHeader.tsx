@@ -11,6 +11,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
   defaultTab, 
   onTabChange, 
   className,
+  tabsPosition = 'center',
   showSidebarToggle = true,
   showTitle = true 
 }) => {
@@ -30,7 +31,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
         </div>
 
         <div className="justify-self-center">
-          {tabs && tabs.length > 0 && (
+          {tabsPosition === 'center' && tabs && tabs.length > 0 && (
             <Tabs defaultValue={defaultTab || tabs[0]?.value} onValueChange={onTabChange}>
               <TabsList>
                 {tabs.map((tab) => (
@@ -43,7 +44,20 @@ export const AppHeader = React.memo<AppHeaderProps>(({
           )}
         </div>
 
-        <div className="flex min-w-0 items-center justify-end gap-2">{actions}</div>
+        <div className="flex min-w-0 items-center justify-end gap-2">
+          {tabsPosition === 'right' && tabs && tabs.length > 0 && (
+            <Tabs defaultValue={defaultTab || tabs[0]?.value} onValueChange={onTabChange}>
+              <TabsList>
+                {tabs.map((tab) => (
+                  <TabsTrigger key={tab.value} value={tab.value}>
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          )}
+          {actions}
+        </div>
       </div>
     </header>
   )

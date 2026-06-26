@@ -1,3 +1,4 @@
+import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import { PageLayout } from './PageLayout'
 import { usePageLayoutMock, usePageLayoutStoryActionsMock } from './usePageLayout.mock'
@@ -12,7 +13,6 @@ import { WorkflowBuilder } from '../WorkflowBuilder/WorkflowBuilder'
 import { RefinementPanel } from '../RefinementPanel/RefinementPanel'
 import { mockEdges, mockNodes, mockVersions } from '../WorkflowBuilder/WorkflowBuilder.mocks'
 import { DashboardFeature } from '../DashboardFeature/DashboardFeature'
-import { ProjectSwitcher } from '@/components/composites/ProjectSwitcher'
 import { useDashboardIntegrationMock } from './useDashboardIntegration.mock'
 
 const meta = {
@@ -110,76 +110,88 @@ export const WithStateManagement: Story = {
     return (
       <PageLayout
         sidebar={mockSidebarConfig}
-        header={{
-          title: (
-            <ProjectSwitcher
-              projects={dashboardState.projects}
-              selectedProjectId={dashboardState.selectedProjectId}
-              onSelectProject={dashboardState.onSelectProject}
-              onCreateProject={dashboardState.onCreateProjectClick}
-            />
-          ),
-          actions: mockHeaderConfigWithTabs.actions,
-          tabs: headerTabs,
-          defaultTab: activeTab || undefined,
-          onTabChange: dashboardState.onTabChange,
+        header={{ title: '' }} // Intercepted by projectSwitcherProps
+        projectSwitcherProps={{
+          projects: dashboardState.projects,
+          selectedProjectId: dashboardState.selectedProjectId,
+          onSelectProject: dashboardState.onSelectProject,
+          onCreateProject: dashboardState.onCreateProjectClick
+        }}
+        chatToggleProps={{
+          isOpen: actions.isChatOpen,
+          onClick: actions.toggleChat
         }}
         isLoading={layoutState.isLoading}
         loadingMessage={layoutState.loadingMessage}
         defaultSidebarOpen={layoutState.isSidebarOpen}
         layoutSections={
-          activeTab === 'dashboard' || !hasProjects ? undefined : [
-          {
-            id: 'workflow-builder',
-            content: (
-              <WorkflowBuilder
-                workflowName="Order Processing Workflow"
-                currentVersionId="v4"
-                versions={mockVersions}
-                nodes={mockNodes}
-                edges={mockEdges}
-                onVersionSelect={actions.onVersionSelect}
-                onSave={actions.onSave}
-                onUndo={actions.onUndo}
-                onRedo={actions.onRedo}
-                hasUnsavedChanges={true}
-                canUndo={true}
-                canRedo={false}
-                showMinimap={true}
-                interactive={true}
-              />
-            ),
-            defaultSize: 60,
-          },
-          {
-            id: 'refinement-panel',
-            content: (
-              <RefinementPanel
-                messages={mockPageLayoutRefinementMessages}
-                fileChanges={mockPageLayoutFileChanges}
-                onSubmit={actions.onSubmit}
-                onApprove={actions.onApprove}
-                onReject={actions.onReject}
-                placeholder="Ask for workflow optimizations or describe changes..."
-              />
-            ),
-            defaultSize: 40,
-            header: {
-              tabs: [
-                { value: 'chat', label: 'Chat' },
-                { value: 'changes', label: 'Changes' },
-                { value: 'history', label: 'History' },
-              ],
-              defaultTab: 'chat',
-              showSidebarToggle: false,
-              showTitle: false,
+          !hasProjects ? undefined : [
+            ...(actions.isChatOpen ? [{
+              id: 'refinement-panel',
+              content: (
+                <RefinementPanel
+                  messages={mockPageLayoutRefinementMessages}
+                  fileChanges={mockPageLayoutFileChanges}
+                  onSubmit={actions.onSubmit}
+                  onApprove={actions.onApprove}
+                  onReject={actions.onReject}
+                  placeholder="Ask for workflow optimizations or describe changes..."
+                />
+              ),
+              defaultSize: 30,
+              minSize: 30,
+              maxSize: 40,
+              header: {
+                tabs: [
+                  { value: 'chat', label: 'Chat' },
+                  { value: 'changes', label: 'Changes' },
+                  { value: 'history', label: 'History' },
+                ],
+                defaultTab: 'chat',
+                showSidebarToggle: false,
+                showTitle: false,
+              },
+            }] : []),
+            {
+              id: 'main-content',
+              content: activeTab === 'dashboard' ? (
+                <DashboardFeature {...dashboardState.dashboardProps} />
+              ) : (
+                <WorkflowBuilder
+                  workflowName="Order Processing Workflow"
+                  currentVersionId="v4"
+                  versions={mockVersions}
+                  nodes={mockNodes}
+                  edges={mockEdges}
+                  onVersionSelect={actions.onVersionSelect}
+                  onSave={actions.onSave}
+                  onUndo={actions.onUndo}
+                  onRedo={actions.onRedo}
+                  hasUnsavedChanges={true}
+                  canUndo={true}
+                  canRedo={false}
+                  showMinimap={true}
+                  interactive={true}
+                />
+              ),
+              defaultSize: actions.isChatOpen ? 70 : 100,
+              minSize: 60,
+              maxSize: 70,
+              header: {
+                // title is intercepted by chatToggleProps
+                showTitle: true,
+                showSidebarToggle: false,
+                tabs: headerTabs,
+                defaultTab: activeTab || undefined,
+                onTabChange: dashboardState.onTabChange,
+                tabsPosition: 'right',
+                actions: mockHeaderConfigWithTabs.actions,
+              }
             },
-          },
-        ]}
+          ]}
         layoutStorageKey="page-layout-workflow-refinement"
-        dragHandleColor="primary"
       >
-        {(activeTab === 'dashboard' || !hasProjects) && (
+        {!hasProjects && (
           <DashboardFeature {...dashboardState.dashboardProps} />
         )}
       </PageLayout>

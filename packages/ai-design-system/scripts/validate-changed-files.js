@@ -13,11 +13,17 @@ const stagedFiles = execSync('git diff --cached --name-only --diff-filter=ACM', 
   .split('\n')
   .filter(Boolean);
 
+// Strip git prefix (e.g. packages/ai-design-system/) so paths are relative to this package
+const gitPrefix = execSync('git rev-parse --show-prefix', { encoding: 'utf8' }).trim();
+const stripPrefix = (file) => (gitPrefix && file.startsWith(gitPrefix)) ? file.slice(gitPrefix.length) : file;
+
 // Include story files so story-only changes still trigger validation
-const validationFiles = stagedFiles.filter(file =>
-  file.startsWith('components/') && 
-  (file.endsWith('.tsx') || file.endsWith('.ts'))
-);
+const validationFiles = stagedFiles
+  .map(stripPrefix)
+  .filter(file =>
+    file.startsWith('components/') && 
+    (file.endsWith('.tsx') || file.endsWith('.ts'))
+  );
 
 // Filter for implementation component files only
 const componentFiles = validationFiles.filter(file =>

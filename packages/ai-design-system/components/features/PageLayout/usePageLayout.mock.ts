@@ -57,6 +57,13 @@ export const usePageLayoutMock = (): UsePageLayoutReturn => {
 }
 
 export function usePageLayoutStoryActionsMock() {
+  const [isChatOpen, setIsChatOpen] = useState(true)
+
+  const toggleChat = useCallback(() => {
+    setIsChatOpen(prev => !prev)
+    console.log('🔄 State Management - Chat toggled')
+  }, [])
+
   const onVersionSelect = useCallback((id: string) => {
     console.log('🔄 State Management - Selected version:', id)
   }, [])
@@ -86,6 +93,8 @@ export function usePageLayoutStoryActionsMock() {
   }, [])
 
   return {
+    isChatOpen,
+    toggleChat,
     onVersionSelect,
     onSave,
     onUndo,

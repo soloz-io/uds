@@ -15,9 +15,7 @@ const meta = {
   component: WorkflowObservabilityFeature,
   tags: ["autodocs"],
   render: (args) => (
-    <div className="h-dvh min-h-0 p-2">
-      <WorkflowObservabilityFeature {...args} className="h-full" />
-    </div>
+    <WorkflowObservabilityFeature {...args} className="h-dvh w-full" />
   ),
   globals: {
     theme: "dark-neutral",
@@ -127,25 +125,23 @@ export const WithStateManagement: Story = {
     const state = useWorkflowObservabilityFeatureMock()
 
     return (
-      <div className="h-dvh min-h-0 p-2">
-        <WorkflowObservabilityFeature
-          selectedRun={state.selectedRun}
-          spans={state.spans}
-          events={state.events}
-          streams={state.streams}
-          selectedSpanId={state.selectedSpanId}
-          searchQuery={state.searchQuery}
-          runActions={state.runActions}
-          onSearchQueryChange={state.actionHandlers?.onSearchQueryChange}
-          onSelectSpan={state.actionHandlers?.onSelectSpan}
-          inbox={state.inbox ? {
-            ...state.inbox,
-            onSelectItem: state.actionHandlers?.onSelectInboxItem,
-            onSearchQueryChange: state.actionHandlers?.onInboxSearchQueryChange,
-          } : undefined}
-          className="h-full"
-        />
-      </div>
+      <WorkflowObservabilityFeature
+        selectedRun={state.selectedRun}
+        spans={state.spans}
+        events={state.events}
+        streams={state.streams}
+        selectedSpanId={state.selectedSpanId}
+        searchQuery={state.searchQuery}
+        runActions={state.runActions}
+        onSearchQueryChange={state.actionHandlers?.onSearchQueryChange}
+        onSelectSpan={state.actionHandlers?.onSelectSpan}
+        inbox={state.inbox ? {
+          ...state.inbox,
+          onSelectItem: state.actionHandlers?.onSelectInboxItem,
+          onSearchQueryChange: state.actionHandlers?.onInboxSearchQueryChange,
+        } : undefined}
+        className="h-dvh w-full"
+      />
     )
   },
 }

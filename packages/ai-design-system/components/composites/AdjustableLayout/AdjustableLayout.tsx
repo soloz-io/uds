@@ -121,26 +121,44 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
       const deltaX = currentX - startX
       
       const deltaPercent = (deltaX / containerSize) * 100
+      
+      const p1 = sections[draggingIndex]
+      const p2 = sections[draggingIndex + 1]
+      
+      const p1Start = startSizes[draggingIndex]
+      const p2Start = startSizes[draggingIndex + 1]
+      
+      const p1Min = p1.minSize ?? 10
+      const p1Max = p1.maxSize ?? 80
+      const p2Min = p2.minSize ?? 10
+      const p2Max = p2.maxSize ?? 80
+      
+      // Calculate how much we can actually change panel 1
+      // If deltaPercent > 0, we are growing p1 and shrinking p2
+      const maxPositiveDelta = Math.max(0, Math.min(
+        p1Max - p1Start,       // Space p1 has to grow
+        p2Start - p2Min        // Space p2 has to shrink
+      ))
+      
+      // If deltaPercent < 0, we are shrinking p1 and growing p2
+      const maxNegativeDelta = Math.min(0, Math.max(
+        p1Min - p1Start,       // Space p1 has to shrink (negative)
+        p2Start - p2Max        // Space p2 has to grow (negative)
+      ))
+      
+      // Clamp the delta
+      let clampedDelta = deltaPercent
+      if (clampedDelta > 0) {
+        clampedDelta = Math.min(clampedDelta, maxPositiveDelta)
+      } else {
+        clampedDelta = Math.max(clampedDelta, maxNegativeDelta)
+      }
+      
       const newSizes = [...startSizes]
+      newSizes[draggingIndex] = p1Start + clampedDelta
+      newSizes[draggingIndex + 1] = p2Start - clampedDelta
       
-      // Adjust sizes of adjacent panels
-      newSizes[draggingIndex] = Math.max(
-        sections[draggingIndex].minSize ?? 10,
-        Math.min(
-          sections[draggingIndex].maxSize ?? 80,
-          startSizes[draggingIndex] + deltaPercent
-        )
-      )
-      
-      newSizes[draggingIndex + 1] = Math.max(
-        sections[draggingIndex + 1].minSize ?? 10,
-        Math.min(
-          sections[draggingIndex + 1].maxSize ?? 80,
-          startSizes[draggingIndex + 1] - deltaPercent
-        )
-      )
-      
-      // Normalize to 100%
+      // Normalize to 100% just in case of floating point drift
       const total = newSizes.reduce((sum, size) => sum + size, 0)
       const normalizedSizes = newSizes.map(size => (size / total) * 100)
       

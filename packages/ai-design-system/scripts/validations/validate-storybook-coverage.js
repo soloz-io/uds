@@ -27,7 +27,7 @@ const colors = {
 };
 
 // Configuration
-const COMPONENTS_DIR = path.join(__dirname, '../components');
+const COMPONENTS_DIR = path.join(__dirname, '../../components');
 const LAYERS_TO_VALIDATE = ['primitives', 'composites'];
 
 /**

@@ -409,6 +409,14 @@ export const defaultIcons: Record<string, IconDefinition> = {
       { type: 'path', attrs: { d: 'M15 3v18' } },
     ],
   },
+  'panel-left': {
+    name: 'panel-left',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'rect', attrs: { width: '18', height: '18', x: '3', y: '3', rx: '2' } },
+      { type: 'path', attrs: { d: 'M9 3v18' } },
+    ],
+  },
   'chevrons-left': {
     name: 'chevrons-left',
     viewBox: '0 0 24 24',

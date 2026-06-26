@@ -6,6 +6,8 @@ import type { SectionLayoutSection } from "@/components/blocks/SectionLayout/int
 import { AppHeader, type AppHeaderProps } from "@/components/composites/AppHeader"
 import { LoadingShimmer } from "@/components/composites/LoadingShimmer"
 import { PageContainer } from "@/components/composites/PageContainer"
+import { ProjectSwitcher, type ProjectSwitcherProps } from "@/components/composites/ProjectSwitcher"
+import { ChatToggleButton, type ChatToggleButtonProps } from "@/components/composites/ChatToggleButton"
 
 function PageLayoutLoadingState({ message }: { message: string }) {
   return <LoadingShimmer message={message} />
@@ -65,6 +67,16 @@ export interface PageLayoutProps {
    * Header configuration
    */
   header: AppHeaderProps
+  /**
+   * Project Switcher configuration
+   * If provided, renders a ProjectSwitcher in the header title
+   */
+  projectSwitcherProps?: ProjectSwitcherProps
+  /**
+   * Chat Toggle button configuration
+   * If provided, renders a ChatToggleButton in the main content header
+   */
+  chatToggleProps?: ChatToggleButtonProps
   /**
    * Page content
    * Optional when layoutSections is provided
@@ -146,6 +158,8 @@ export const PageLayout = React.memo<PageLayoutProps>(
   ({ 
     sidebar, 
     header, 
+    projectSwitcherProps,
+    chatToggleProps,
     children, 
     isLoading = false,
     loadingMessage = "Loading...",
@@ -162,6 +176,31 @@ export const PageLayout = React.memo<PageLayoutProps>(
     layoutStorageKey,
     dragHandleColor = "border",
   }) => {
+    const processedHeader = React.useMemo(() => {
+      if (!projectSwitcherProps) return header
+      return {
+        ...header,
+        title: <ProjectSwitcher {...projectSwitcherProps} />
+      }
+    }, [header, projectSwitcherProps])
+
+    const processedLayoutSections = React.useMemo(() => {
+      if (!layoutSections || !chatToggleProps) return layoutSections
+      
+      return layoutSections.map(section => {
+        if (section.id === 'main-content') {
+          return {
+            ...section,
+            header: section.header ? {
+              ...section.header,
+              title: <ChatToggleButton {...chatToggleProps} />
+            } : { title: <ChatToggleButton {...chatToggleProps} /> }
+          }
+        }
+        return section
+      })
+    }, [layoutSections, chatToggleProps])
+
     const contentArea = isLoading
       ? (loadingShimmer ?? loadingFallback ?? <PageLayoutLoadingState message={loadingMessage} />)
       : isEmpty && emptyState
@@ -175,9 +214,9 @@ export const PageLayout = React.memo<PageLayoutProps>(
             />
           </div>
         )
-      : layoutSections ? (
+      : processedLayoutSections ? (
           <SectionLayout
-            sections={layoutSections}
+            sections={processedLayoutSections}
             orientation={layoutOrientation}
             storageKey={layoutStorageKey}
             dragHandleColor={dragHandleColor}
@@ -189,8 +228,8 @@ export const PageLayout = React.memo<PageLayoutProps>(
 
     const pageContainer = (
       <PageContainer className={`overflow-hidden ${className ?? ""}`}>
-        <AppHeader {...header} />
-        <div className={`min-h-0 flex-1 flex flex-col overflow-x-hidden ${layoutSections || isEmpty ? "overflow-hidden" : "overflow-y-auto"}`}>
+        <AppHeader {...processedHeader} />
+        <div className={`min-h-0 flex-1 flex flex-col overflow-x-hidden ${processedLayoutSections || isEmpty ? "overflow-hidden" : "overflow-y-auto"}`}>
           {contentArea}
         </div>
       </PageContainer>

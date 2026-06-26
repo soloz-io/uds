@@ -11,6 +11,7 @@ export interface AppHeaderProps {
   tabs?: TabItem[];
   defaultTab?: string;
   onTabChange?: (value: string) => void;
+  tabsPosition?: 'center' | 'right';
   className?: string;
   showSidebarToggle?: boolean;
   showTitle?: boolean;
