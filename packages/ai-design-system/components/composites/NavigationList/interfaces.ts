@@ -3,5 +3,6 @@ export interface NavigationItem {
   url: string;
   icon?: string;
   isActive?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
   items?: NavigationItem[];
 }

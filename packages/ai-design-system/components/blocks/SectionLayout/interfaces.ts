@@ -20,4 +20,5 @@ export interface SectionLayoutProps extends React.ComponentPropsWithoutRef<"div"
   onSectionResize?: (sectionId: string, newSize: number) => void;
   resizable?: boolean;
   dragHandleColor?: "primary" | "secondary" | "accent" | "border" | "muted";
+  padded?: boolean;
 }

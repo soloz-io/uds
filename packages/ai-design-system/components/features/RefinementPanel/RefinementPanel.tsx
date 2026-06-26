@@ -227,7 +227,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
 
     if (activeApprovalRequest) {
       dialog = (
-        <div className="w-full flex-shrink-0 bg-background p-4">
+        <div className="w-full flex-shrink-0 bg-card p-4 rounded-2xl border shadow-sm overflow-hidden">
           <ApprovalCard
             actionRequest={activeApprovalRequest}
             reviewConfig={reviewConfig}
@@ -242,8 +242,8 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       );
     } else if (fileChanges.length > 0) {
       dialog = (
-        <div className="w-full flex-shrink-0 border-t">
-          <div className="max-h-[40vh] overflow-y-auto bg-background">
+        <div className="w-full flex-shrink-0">
+          <div className="max-h-[40vh] overflow-y-auto bg-card rounded-2xl border shadow-sm overflow-hidden p-2">
             <FileChangeQueue
               changes={fileChanges}
               title="Review and approve these file changes"
@@ -264,12 +264,13 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
           showAvatars={true}
           className="flex-1 min-h-0"
         />
-        <div className="sticky bottom-0 z-10 bg-background border-t">
+        <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-card via-card to-transparent pt-6">
           <PromptInput
             dialog={dialog}
             placeholder={placeholder}
             onSubmit={onSubmit}
             loading={loading}
+            className="rounded-2xl border bg-background shadow-sm overflow-hidden"
           />
         </div>
       </div>

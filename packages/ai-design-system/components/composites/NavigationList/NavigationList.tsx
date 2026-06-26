@@ -12,6 +12,7 @@ export interface NavigationItem {
   url: string
   icon?: string
   isActive?: boolean
+  onClick?: (e: React.MouseEvent) => void
 }
 
 export interface NavigationListProps {
@@ -29,7 +30,13 @@ export const NavigationList = React.memo<NavigationListProps>(
             <SidebarMenuButton
               tooltip={item.title}
               isActive={item.isActive}
-              onClick={() => onItemClick?.(item)}
+              onClick={(e) => {
+                if (item.onClick) {
+                  e.preventDefault();
+                  item.onClick(e);
+                }
+                onItemClick?.(item)
+              }}
               asChild
             >
               <a href={item.url}>

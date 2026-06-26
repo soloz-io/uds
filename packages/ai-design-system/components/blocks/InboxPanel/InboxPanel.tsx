@@ -40,7 +40,7 @@ export const InboxPanel = React.memo<InboxPanelProps>(
           </div>
         ) : null}
 
-        <div className="px-4 pb-2">
+        <div className="px-4 pt-4 pb-2">
           <Input
             aria-label="Search inbox items"
             className="h-8"

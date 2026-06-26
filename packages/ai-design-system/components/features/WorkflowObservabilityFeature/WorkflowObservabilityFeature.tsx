@@ -162,10 +162,11 @@ export const WorkflowObservabilityFeature = React.memo<WorkflowObservabilityFeat
         dragHandleColor="border"
         orientation="horizontal"
         resizable={false}
+        padded={false}
         sections={observabilitySections}
       />
     ) : (
-      <div className="rounded-lg border p-6 text-muted-foreground text-sm">
+      <div className="flex h-full items-center justify-center p-6 text-muted-foreground text-sm text-center">
         Select a run to inspect trace, events, and streams.
       </div>
     )
@@ -181,6 +182,7 @@ export const WorkflowObservabilityFeature = React.memo<WorkflowObservabilityFeat
       return [
         {
           id: "inbox",
+          className: "border-none bg-transparent",
           content: (
             <InboxPanel
               items={inbox.items}
@@ -214,6 +216,7 @@ export const WorkflowObservabilityFeature = React.memo<WorkflowObservabilityFeat
             dragHandleColor="primary"
             orientation="horizontal"
             resizable={false}
+            padded={false}
             sections={rootSections}
           />
         ) : (

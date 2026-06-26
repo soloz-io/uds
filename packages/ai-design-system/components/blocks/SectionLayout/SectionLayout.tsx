@@ -21,6 +21,7 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
     resizable = true,
     dragHandleColor = "border",
     className,
+    padded = true,
     ...props 
   }) => {
     // Transform sections to include headers
@@ -47,6 +48,7 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
         onSectionResize={onSectionResize}
         dragHandleColor={dragHandleColor}
         className={className}
+        padded={padded}
         {...props}
       />
     )

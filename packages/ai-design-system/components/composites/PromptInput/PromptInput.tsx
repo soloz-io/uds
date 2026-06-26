@@ -14,6 +14,8 @@ import {
   type PromptInputProps as AIPromptInputProps,
 } from "@/components/ai-elements/prompt-input";
 import type { FormEvent } from "react";
+import { Button } from "@/components/primitives/Button";
+import { Icon } from "@/components/primitives/Icon";
 
 export interface PromptInputBlockProps
   extends Omit<
@@ -80,7 +82,9 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         </PromptInputBody>
         <PromptInputFooter>
           <PromptInputTools>
-            {}
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" type="button" disabled={disabled}>
+              <Icon name="plus" size="sm" />
+            </Button>
           </PromptInputTools>
           <PromptInputSubmit disabled={disabled} status={loading ? "submitted" : undefined} />
         </PromptInputFooter>

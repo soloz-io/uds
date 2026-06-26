@@ -18,6 +18,7 @@ export interface AdjustableLayoutProps extends React.ComponentPropsWithoutRef<"d
   storageKey?: string // localStorage key for persistence
   onSectionResize?: (sectionId: string, newSize: number) => void
   dragHandleColor?: "primary" | "secondary" | "accent" | "border" | "muted"
+  padded?: boolean
 }
 
 /**
@@ -28,19 +29,20 @@ export interface AdjustableLayoutProps extends React.ComponentPropsWithoutRef<"d
  * Supports localStorage persistence and responsive behavior.
  */
 export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
-  ({ 
-    sections, 
-    orientation = "horizontal", 
+  ({
+    sections,
+    orientation = "horizontal",
     storageKey,
     onSectionResize,
     dragHandleColor = "border",
     className,
-    ...props 
+    padded = false,
+    ...props
   }) => {
     // Color mapping for drag handles
     const colorMap = {
       primary: "bg-primary hover:bg-primary/90",
-      secondary: "bg-secondary hover:bg-secondary/80", 
+      secondary: "bg-secondary hover:bg-secondary/80",
       accent: "bg-accent hover:bg-accent/80",
       border: "bg-border hover:bg-border/80",
       muted: "bg-muted hover:bg-muted/80"
@@ -49,7 +51,7 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
     const hoverColorMap = {
       primary: "group-hover:bg-primary/30",
       secondary: "group-hover:bg-secondary/30",
-      accent: "group-hover:bg-accent/30", 
+      accent: "group-hover:bg-accent/30",
       border: "group-hover:bg-border/30",
       muted: "group-hover:bg-muted/30"
     }
@@ -77,7 +79,7 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
       } catch {
         // ignore malformed storage
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [storageKey])
 
     const [draggingIndex, setDraggingIndex] = React.useState<number | null>(null)
@@ -119,33 +121,33 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
 
       const currentX = orientation === "horizontal" ? e.clientX : e.clientY
       const deltaX = currentX - startX
-      
+
       const deltaPercent = (deltaX / containerSize) * 100
-      
+
       const p1 = sections[draggingIndex]
       const p2 = sections[draggingIndex + 1]
-      
+
       const p1Start = startSizes[draggingIndex]
       const p2Start = startSizes[draggingIndex + 1]
-      
+
       const p1Min = p1.minSize ?? 10
       const p1Max = p1.maxSize ?? 80
       const p2Min = p2.minSize ?? 10
       const p2Max = p2.maxSize ?? 80
-      
+
       // Calculate how much we can actually change panel 1
       // If deltaPercent > 0, we are growing p1 and shrinking p2
       const maxPositiveDelta = Math.max(0, Math.min(
         p1Max - p1Start,       // Space p1 has to grow
         p2Start - p2Min        // Space p2 has to shrink
       ))
-      
+
       // If deltaPercent < 0, we are shrinking p1 and growing p2
       const maxNegativeDelta = Math.min(0, Math.max(
         p1Min - p1Start,       // Space p1 has to shrink (negative)
         p2Start - p2Max        // Space p2 has to grow (negative)
       ))
-      
+
       // Clamp the delta
       let clampedDelta = deltaPercent
       if (clampedDelta > 0) {
@@ -153,17 +155,17 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
       } else {
         clampedDelta = Math.max(clampedDelta, maxNegativeDelta)
       }
-      
+
       const newSizes = [...startSizes]
       newSizes[draggingIndex] = p1Start + clampedDelta
       newSizes[draggingIndex + 1] = p2Start - clampedDelta
-      
+
       // Normalize to 100% just in case of floating point drift
       const total = newSizes.reduce((sum, size) => sum + size, 0)
       const normalizedSizes = newSizes.map(size => (size / total) * 100)
-      
+
       setSizes(normalizedSizes)
-      
+
       // Notify parent
       if (onSectionResize) {
         onSectionResize(sections[draggingIndex].id, normalizedSizes[draggingIndex])
@@ -201,12 +203,12 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
           ? { flex: `0 0 ${section.fixedSize}`, width: section.fixedSize, minWidth: section.fixedSize }
           : { flex: `0 0 ${section.fixedSize}`, height: section.fixedSize, minHeight: section.fixedSize }
         : null
-      
+
       return (
         <React.Fragment key={section.id}>
           <div
             className={cn(
-              "min-h-0 overflow-hidden bg-card border border-border rounded-md",
+              "min-h-0 overflow-hidden bg-card border border-border rounded-xl",
               section.className
             )}
             style={{
@@ -217,25 +219,35 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
           >
             {section.content}
           </div>
-          
+
           {/* Show drag handle after this panel if it's not the last one */}
           {isResizable && (
             <div
               className={cn(
-                `${colorMap[dragHandleColor]} flex-shrink-0 transition-colors duration-200 relative group`,
-                orientation === "vertical" 
-                  ? "cursor-row-resize h-1 w-full" 
-                  : "cursor-col-resize w-1 h-full"
+                "flex-shrink-0 flex items-center justify-center relative group",
+                orientation === "vertical"
+                  ? "cursor-row-resize h-2 w-full"
+                  : "cursor-col-resize w-2 h-full"
               )}
               onMouseDown={(e) => handleMouseDown(index, e)}
             >
-              <div 
+              {/* Visible pill */}
+              <div
                 className={cn(
-                  `absolute inset-0 ${hoverColorMap[dragHandleColor]}`,
-                  orientation === "vertical" 
-                    ? "h-3 -translate-y-1" 
-                    : "w-3 -translate-x-1"
-                )} 
+                  `${colorMap[dragHandleColor]} transition-colors duration-200 rounded-full`,
+                  orientation === "vertical"
+                    ? "h-1 w-8"
+                    : "w-1 h-8"
+                )}
+              />
+              {/* Invisible large hit area */}
+              <div
+                className={cn(
+                  "absolute z-10",
+                  orientation === "vertical"
+                    ? "inset-x-0 -top-2 -bottom-2"
+                    : "inset-y-0 -left-2 -right-2"
+                )}
               />
             </div>
           )}
@@ -248,12 +260,13 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
         ref={containerRef}
         className={cn(
           "flex overflow-hidden h-full gap-1 min-w-0",
+          padded && "p-4",
           orientation === "horizontal" ? "flex-row" : "flex-col",
           className
         )}
         {...props}
       >
-        {sections.map((section, index) => 
+        {sections.map((section, index) =>
           renderPanel(section, sizes[index], index)
         )}
       </div>
