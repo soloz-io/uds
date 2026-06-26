@@ -1,5 +1,10 @@
 import * as React from "react"
 import {
+  Avatar,
+  AvatarFallback,
+} from "@/components/ui/avatar"
+import { Icon } from "@/components/primitives/Icon"
+import {
   Message,
   MessageContent,
   MessageAvatar,
@@ -37,12 +42,16 @@ export const UserMessage = React.memo<UserMessageProps>(
   ({ message, showAvatar = true }) => {
     return (
       <Message from="user">
-        {showAvatar && (
-          <MessageAvatar
-            src={message.avatarSrc}
-            name={message.avatarName || "User"}
-            iconName="user"
-          />
+        {showAvatar && (message.avatarSrc
+          ? <MessageAvatar
+              src={message.avatarSrc}
+              name={message.avatarName || "User"}
+            />
+          : <Avatar className="size-8 ring-1 ring-border">
+              <AvatarFallback>
+                <Icon name="user" />
+              </AvatarFallback>
+            </Avatar>
         )}
         <MessageContent variant="contained">{message.content}</MessageContent>
       </Message>

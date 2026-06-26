@@ -3,8 +3,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
-import { Icon } from "@/components/primitives/Icon";
-import type { IconName } from "@/registry/icons";
 import { cn } from "@/lib/utils";
 import type { UIMessage } from "ai";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -65,23 +63,19 @@ export const MessageContent = ({
 );
 
 export type MessageAvatarProps = ComponentProps<typeof Avatar> & {
-  src?: string;
+  src: string;
   name?: string;
-  iconName?: IconName;
 };
 
 export const MessageAvatar = ({
   src,
   name,
-  iconName,
   className,
   ...props
 }: MessageAvatarProps) => (
   <Avatar className={cn("size-8 ring-1 ring-border", className)} {...props}>
-    {src && <AvatarImage alt="" className="mt-0 mb-0" src={src} />}
-    <AvatarFallback>
-      {iconName ? <Icon name={iconName} /> : name?.slice(0, 2) || "ME"}
-    </AvatarFallback>
+    <AvatarImage alt="" className="mt-0 mb-0" src={src} />
+    <AvatarFallback>{name?.slice(0, 2) || "ME"}</AvatarFallback>
   </Avatar>
 );
 

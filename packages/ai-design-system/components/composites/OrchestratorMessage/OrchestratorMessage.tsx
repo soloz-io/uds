@@ -1,5 +1,10 @@
 import * as React from "react"
 import {
+  Avatar,
+  AvatarFallback,
+} from "@/components/ui/avatar"
+import { Icon } from "@/components/primitives/Icon"
+import {
   Message,
   MessageContent,
   MessageAvatar,
@@ -49,12 +54,16 @@ export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
 
     return (
       <Message from="assistant">
-        {showAvatar && (
-          <MessageAvatar
-            src={message.avatarSrc}
-            name={message.avatarName || "Coordinator"}
-            iconName="bot"
-          />
+        {showAvatar && (message.avatarSrc
+          ? <MessageAvatar
+              src={message.avatarSrc}
+              name={message.avatarName || "Coordinator"}
+            />
+          : <Avatar className="size-8 ring-1 ring-border">
+              <AvatarFallback>
+                <Icon name="bot" />
+              </AvatarFallback>
+            </Avatar>
         )}
 
         <div className="flex-1 min-w-0">
