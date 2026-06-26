@@ -2,7 +2,7 @@ import * as React from "react"
 import {
   Avatar,
   AvatarFallback,
-} from "@/components/ui/avatar"
+} from "@/components/primitives/Avatar"
 import { Icon } from "@/components/primitives/Icon"
 import {
   Message,
