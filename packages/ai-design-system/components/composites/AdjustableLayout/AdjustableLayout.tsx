@@ -220,36 +220,45 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
             {section.content}
           </div>
 
-          {/* Show drag handle after this panel if it's not the last one */}
-          {isResizable && (
-            <div
-              className={cn(
-                "flex-shrink-0 flex items-center justify-center relative group",
-                orientation === "vertical"
-                  ? "cursor-row-resize h-2 w-full"
-                  : "cursor-col-resize w-2 h-full"
-              )}
-              onMouseDown={(e) => handleMouseDown(index, e)}
-            >
-              {/* Visible pill */}
+          {/* Show drag handle or spacer after this panel if it's not the last one */}
+          {index < sections.length - 1 && (
+            isResizable ? (
               <div
                 className={cn(
-                  `${colorMap[dragHandleColor]} transition-colors duration-200 rounded-full`,
+                  "flex-shrink-0 flex items-center justify-center relative group",
                   orientation === "vertical"
-                    ? "h-1 w-8"
-                    : "w-1 h-8"
+                    ? "cursor-row-resize h-2 w-full"
+                    : "cursor-col-resize w-2 h-full"
                 )}
-              />
-              {/* Invisible large hit area */}
+                onMouseDown={(e) => handleMouseDown(index, e)}
+              >
+                {/* Visible pill */}
+                <div
+                  className={cn(
+                    `${colorMap[dragHandleColor]} transition-colors duration-200 rounded-full`,
+                    orientation === "vertical"
+                      ? "h-1 w-8"
+                      : "w-1 h-8"
+                  )}
+                />
+                {/* Invisible large hit area */}
+                <div
+                  className={cn(
+                    "absolute z-10",
+                    orientation === "vertical"
+                      ? "inset-x-0 -top-2 -bottom-2"
+                      : "inset-y-0 -left-2 -right-2"
+                  )}
+                />
+              </div>
+            ) : (
               <div
                 className={cn(
-                  "absolute z-10",
-                  orientation === "vertical"
-                    ? "inset-x-0 -top-2 -bottom-2"
-                    : "inset-y-0 -left-2 -right-2"
+                  "flex-shrink-0",
+                  orientation === "vertical" ? "h-2 w-full" : "w-2 h-full"
                 )}
               />
-            </div>
+            )
           )}
         </React.Fragment>
       )

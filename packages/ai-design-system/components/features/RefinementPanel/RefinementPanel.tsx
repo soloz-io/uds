@@ -187,7 +187,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
     // Handle reject for HITL approval request
     const handleApprovalReject = React.useCallback((reason: string) => {
       if (activeApprovalRequest?.name === "ask_user") {
-        const dummyEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
+        const dummyEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
         onSubmit({ text: "Skipped", files: [] }, dummyEvent);
       } else {
         onApprovalReject?.(reason);
@@ -199,7 +199,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       if (activeApprovalRequest?.name === "ask_user" && editedArgs.answers) {
         const answers = Array.isArray(editedArgs.answers) ? editedArgs.answers : [editedArgs.answers];
         const text = answers.join(', ');
-        const dummyEvent = { preventDefault: () => {} } as React.FormEvent<HTMLFormElement>;
+        const dummyEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
         onSubmit({ text, files: [] }, dummyEvent);
       } else {
         onApprovalEdit?.(editedArgs);
@@ -270,7 +270,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
             placeholder={placeholder}
             onSubmit={onSubmit}
             loading={loading}
-            className="rounded-2xl border bg-background shadow-sm overflow-hidden"
+            className="rounded-2xl border border-neutral-600 bg-background shadow-sm overflow-hidden"
           />
         </div>
       </div>

@@ -132,16 +132,16 @@ export const WorkflowObservabilityFeature = React.memo<WorkflowObservabilityFeat
       () =>
         selectedRun
           ? buildObservabilitySections({
-              selectedRun,
-              spans,
-              events,
-              streams,
-              searchQuery,
-              selectedSpanId,
-              onSearchQueryChange,
-              onSelectSpan,
-              runActions,
-            })
+            selectedRun,
+            spans,
+            events,
+            streams,
+            searchQuery,
+            selectedSpanId,
+            onSearchQueryChange,
+            onSelectSpan,
+            runActions,
+          })
           : [],
       [
         selectedRun,
@@ -182,7 +182,6 @@ export const WorkflowObservabilityFeature = React.memo<WorkflowObservabilityFeat
       return [
         {
           id: "inbox",
-          className: "border-none bg-transparent",
           content: (
             <InboxPanel
               items={inbox.items}
@@ -212,11 +211,10 @@ export const WorkflowObservabilityFeature = React.memo<WorkflowObservabilityFeat
       <div className={`flex h-full min-h-0 flex-1 flex-col gap-4 overflow-hidden ${className ?? ""}`}>
         {rootSections ? (
           <SectionLayout
-            className="h-full min-h-0 overflow-hidden"
-            dragHandleColor="primary"
+            dragHandleColor="border"
             orientation="horizontal"
             resizable={false}
-            padded={false}
+            padded={true}
             sections={rootSections}
           />
         ) : (
