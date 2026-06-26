@@ -51,8 +51,9 @@ export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
       <Message from="assistant">
         {showAvatar && (
           <MessageAvatar
-            src={message.avatarSrc || "/coordinator-avatar.png"}
+            src={message.avatarSrc}
             name={message.avatarName || "Coordinator"}
+            iconName="bot"
           />
         )}
 

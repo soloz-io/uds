@@ -17,5 +17,8 @@ export type { SectionLayoutSection } from './blocks';
 export { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';
 export type { NodeChange, EdgeChange, Connection } from '@xyflow/react';
 
+export { toast, Toaster } from 'sonner';
+export type { ExternalToast, ToastT, ToasterProps } from 'sonner';
+
 // Utilities
 export { cn } from '@/lib/utils';

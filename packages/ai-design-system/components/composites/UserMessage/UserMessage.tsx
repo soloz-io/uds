@@ -39,8 +39,9 @@ export const UserMessage = React.memo<UserMessageProps>(
       <Message from="user">
         {showAvatar && (
           <MessageAvatar
-            src={message.avatarSrc || "/user-avatar.png"}
+            src={message.avatarSrc}
             name={message.avatarName || "User"}
+            iconName="user"
           />
         )}
         <MessageContent variant="contained">{message.content}</MessageContent>

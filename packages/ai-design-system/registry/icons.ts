@@ -247,6 +247,15 @@ export const defaultIcons: Record<string, IconDefinition> = {
     viewBox: '0 0 24 24',
     path: 'M20 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2M4 18v2a2 2 0 002 2h12a2 2 0 002-2v-2M4 12h16M4 12v2a2 2 0 002 2h12a2 2 0 002-2v-2M8 6h.01M16 6h.01M8 18h.01M16 18h.01',
   },
+  // Person icons
+  'user': {
+    name: 'user',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'circle', attrs: { cx: '12', cy: '8', r: '4' } },
+      { type: 'path', attrs: { d: 'M20 21a8 8 0 1 0-16 0' } },
+    ],
+  },
   // Plugin specific icons
   'bot': {
     name: 'bot',
