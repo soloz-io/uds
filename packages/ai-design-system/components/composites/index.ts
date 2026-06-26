@@ -182,3 +182,7 @@ export type { LayoutProviderProps } from './LayoutProvider'
 // PromptInput Composite
 export { PromptInput } from './PromptInput'
 export type { PromptInputBlockProps } from './PromptInput'
+
+// ChatToggleButton Composite
+export { ChatToggleButton } from './ChatToggleButton'
+export type { ChatToggleButtonProps } from './ChatToggleButton'
