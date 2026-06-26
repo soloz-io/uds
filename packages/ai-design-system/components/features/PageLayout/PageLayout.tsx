@@ -46,6 +46,15 @@ function PageLayoutLoadingState({ message }: { message: string }) {
  * ```
  */
 
+import { EmptyState } from "@/components/composites/EmptyState"
+
+export interface PageLayoutEmptyState {
+  title: string
+  description: string
+  actionLabel: string
+  onAction?: () => void
+}
+
 export interface PageLayoutProps {
   /**
    * Sidebar configuration
@@ -79,6 +88,14 @@ export interface PageLayoutProps {
    * Custom loading fallback. When provided, this replaces the built-in shimmer layout.
    */
   loadingFallback?: React.ReactNode
+  /**
+   * Whether the page content is in an empty state
+   */
+  isEmpty?: boolean
+  /**
+   * Configuration for the built-in empty state
+   */
+  emptyState?: PageLayoutEmptyState
   /**
    * Additional CSS classes
    */
@@ -134,6 +151,8 @@ export const PageLayout = React.memo<PageLayoutProps>(
     loadingMessage = "Loading...",
     loadingShimmer,
     loadingFallback,
+    isEmpty = false,
+    emptyState,
     className,
     defaultSidebarOpen = true,
     sidebarWidth = "var(--spacing-sidebar-width)",
@@ -145,6 +164,17 @@ export const PageLayout = React.memo<PageLayoutProps>(
   }) => {
     const contentArea = isLoading
       ? (loadingShimmer ?? loadingFallback ?? <PageLayoutLoadingState message={loadingMessage} />)
+      : isEmpty && emptyState
+      ? (
+          <div className="flex h-full items-center justify-center p-8">
+            <EmptyState
+              title={emptyState.title}
+              description={emptyState.description}
+              actionLabel={emptyState.actionLabel}
+              onAction={emptyState.onAction}
+            />
+          </div>
+        )
       : layoutSections ? (
           <SectionLayout
             sections={layoutSections}
@@ -160,7 +190,7 @@ export const PageLayout = React.memo<PageLayoutProps>(
     const pageContainer = (
       <PageContainer className={`overflow-hidden ${className ?? ""}`}>
         <AppHeader {...header} />
-        <div className={`min-h-0 flex-1 flex flex-col overflow-x-hidden ${layoutSections ? "overflow-hidden" : "overflow-y-auto"}`}>
+        <div className={`min-h-0 flex-1 flex flex-col overflow-x-hidden ${layoutSections || isEmpty ? "overflow-hidden" : "overflow-y-auto"}`}>
           {contentArea}
         </div>
       </PageContainer>
