@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ExternalLinkIcon } from "lucide-react"
+import { Icon } from "@/components/primitives/Icon"
 import {
   Tool,
   ToolHeader,
@@ -98,7 +98,7 @@ export const ToolCallDisplay = React.memo<ToolCallDisplayProps>(
             }
           }}
         >
-          <ExternalLinkIcon className="size-4 text-blue-500" />
+          <Icon name="external-link" className="size-4 text-blue-500" />
           <span className="font-medium text-sm text-blue-500 hover:underline">
             {toolCall.linkText || `${name} Action`}
           </span>
