@@ -101,6 +101,10 @@ export interface RefinementPanelProps {
    * Additional CSS classes
    */
   className?: string;
+  /**
+   * Action handler for tool interactions
+   */
+  onToolAction?: (toolCall: ToolCall, action: string) => void;
 }
 
 /**
@@ -122,6 +126,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
     loading = false,
     placeholder = "Ask a question or describe a task...",
     className,
+    onToolAction,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -262,6 +267,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
         <AIConversation
           messages={messages}
           showAvatars={true}
+          onToolAction={onToolAction}
           className="flex-1 min-h-0"
         />
         <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-card via-card to-transparent pt-6">

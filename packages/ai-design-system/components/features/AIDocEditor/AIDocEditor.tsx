@@ -103,6 +103,8 @@ export interface AIDocEditorMultiTabProps {
   onTabClose?: (documentId: string) => void
   /** Optional completely separate file tree to show all available files in the explorer (even closed ones). If not provided, it falls back to showing only the currently open documents. */
   fileTree?: FileTreeNode[]
+  /** When true, hides the document tab bar — useful for single-file mode where the file tree provides navigation. */
+  hideTabBar?: boolean
 }
 
 /**
@@ -273,18 +275,22 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
     /**
      * Multi-tab mode
      */
+    const { hideTabBar } = props as AIDocEditorMultiTabProps
+
     let editorPane: React.ReactNode
 
     if (!currentDocument) {
       editorPane = (
         <div className="ai-doc-editor flex flex-col h-full w-full">
-          <DocumentTabBar
-            className="w-full"
-            tabs={props.documents?.map((doc) => doc.file) || []}
-            activeTabId={props.activeDocumentId}
-            onTabSelect={props.onTabSelect}
-            onTabClose={props.onTabClose}
-          />
+          {!hideTabBar && (
+            <DocumentTabBar
+              className="w-full"
+              tabs={props.documents?.map((doc) => doc.file) || []}
+              activeTabId={props.activeDocumentId}
+              onTabSelect={props.onTabSelect}
+              onTabClose={props.onTabClose}
+            />
+          )}
           <div className="flex-1 flex items-center justify-center p-6 text-muted-foreground">
             No documents open
           </div>
@@ -295,13 +301,15 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
 
       editorPane = (
         <div className="ai-doc-editor flex flex-col h-full w-full">
-          <DocumentTabBar
-            className="w-full"
-            tabs={props.documents?.map((doc) => doc.file) || []}
-            activeTabId={props.activeDocumentId}
-            onTabSelect={props.onTabSelect}
-            onTabClose={props.onTabClose}
-          />
+          {!hideTabBar && (
+            <DocumentTabBar
+              className="w-full"
+              tabs={props.documents?.map((doc) => doc.file) || []}
+              activeTabId={props.activeDocumentId}
+              onTabSelect={props.onTabSelect}
+              onTabClose={props.onTabClose}
+            />
+          )}
           <div className="flex-1 overflow-auto">
             {isMarkdownMulti ? (
               <div className="p-6">

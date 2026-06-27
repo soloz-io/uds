@@ -61,6 +61,10 @@ export interface AIConversationProps
     description?: string
     icon?: React.ReactNode
   }
+  /**
+   * Callback fired when a tool action (like a link click) is triggered
+   */
+  onToolAction?: (toolCall: ToolCall, action: string) => void
 }
 
 /**
@@ -73,6 +77,7 @@ export const AIConversation = React.memo<AIConversationProps>(
     onSelectSubAgent,
     selectedSubAgent,
     emptyState,
+    onToolAction,
     ...conversationProps
   }) => {
     const isEmpty = React.useMemo(
@@ -146,7 +151,7 @@ export const AIConversation = React.memo<AIConversationProps>(
               >
                 {/* Render direct tool calls */}
                 {directToolCalls.map((tc) => (
-                  <ToolCallDisplay key={tc.id} toolCall={tc} />
+                  <ToolCallDisplay key={tc.id} toolCall={tc} onToolAction={onToolAction} />
                 ))}
 
                 {/* Render specialist sub-agents */}

@@ -1,4 +1,5 @@
 import * as React from "react"
+import { ExternalLinkIcon } from "lucide-react"
 import {
   Tool,
   ToolHeader,
@@ -20,6 +21,9 @@ export interface ToolCall {
   args: Record<string, unknown>
   result?: string
   status: "pending" | "completed" | "error"
+  uiVariant?: "default" | "link"
+  linkText?: string
+  linkAction?: string
 }
 
 export interface ToolCallDisplayProps {
@@ -31,13 +35,17 @@ export interface ToolCallDisplayProps {
    * Whether the tool call is initially expanded
    */
   defaultExpanded?: boolean
+  /**
+   * Callback fired when a tool action (like a link click) is triggered
+   */
+  onToolAction?: (toolCall: ToolCall, action: string) => void
 }
 
 /**
  * ToolCallDisplay component - displays tool execution with expandable details
  */
 export const ToolCallDisplay = React.memo<ToolCallDisplayProps>(
-  ({ toolCall, defaultExpanded = false }) => {
+  ({ toolCall, defaultExpanded = false, onToolAction }) => {
     const [isExpanded, setIsExpanded] = React.useState(defaultExpanded)
 
     const { name, args, result, status } = React.useMemo(() => {
@@ -77,6 +85,26 @@ export const ToolCallDisplay = React.memo<ToolCallDisplayProps>(
           return "output-available" as const
       }
     }, [status])
+
+    if (toolCall.uiVariant === "link") {
+      return (
+        <div 
+          className="flex items-center gap-2 p-3 my-2 rounded-md border bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (toolCall.linkAction && onToolAction) {
+              onToolAction(toolCall, toolCall.linkAction);
+            }
+          }}
+        >
+          <ExternalLinkIcon className="size-4 text-blue-500" />
+          <span className="font-medium text-sm text-blue-500 hover:underline">
+            {toolCall.linkText || `${name} Action`}
+          </span>
+        </div>
+      )
+    }
 
     return (
       <Tool open={isExpanded} onOpenChange={setIsExpanded}>

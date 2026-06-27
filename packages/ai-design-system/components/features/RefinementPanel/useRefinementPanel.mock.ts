@@ -3,6 +3,7 @@ import type { RefinementMessage } from "./RefinementPanel";
 import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import type { ActionRequest, ReviewConfig } from "@/components/composites/ApprovalCard";
+import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 import type { FormEvent } from "react";
 
 export interface UseRefinementPanelReturn {
@@ -19,6 +20,7 @@ export interface UseRefinementPanelReturn {
   handleApprovalReject?: (reason: string) => Promise<void>;
   handleApprovalEdit?: (editedArgs: Record<string, unknown>) => Promise<void>;
   isApprovalProcessing?: boolean;
+  handleToolAction?: (toolCall: ToolCall, action: string) => void;
 }
 
 export interface UseRefinementPanelOptions {
@@ -173,5 +175,6 @@ export function useRefinementPanelMock(
     handleApprovalReject: initialApprovalRequest ? handleApprovalReject : undefined,
     handleApprovalEdit: initialApprovalRequest ? handleApprovalEdit : undefined,
     isApprovalProcessing,
+    handleToolAction: (toolCall, action) => console.log(`[Mock Tool Action] ${action} on tool:`, toolCall),
   };
 }
