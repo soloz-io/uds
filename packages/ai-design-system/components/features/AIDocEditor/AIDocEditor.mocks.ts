@@ -114,25 +114,32 @@ export const sampleAnnotations: Annotation[] = [
  */
 export const sampleDocumentFiles: DocumentFile[] = [
   {
-    id: 'doc-1',
+    id: 'docs/Introduction.md',
     name: 'Introduction.md',
     isDirty: false,
     format: 'markdown',
     lastModified: Date.now() - 3600000,
   },
   {
-    id: 'doc-2',
+    id: 'src/workflows/Workflow.json',
     name: 'Workflow.json',
     isDirty: true,
     format: 'json',
     lastModified: Date.now() - 1800000,
   },
   {
-    id: 'doc-3',
+    id: 'config/Configuration.md',
     name: 'Configuration.md',
     isDirty: false,
     format: 'markdown',
     lastModified: Date.now() - 900000,
+  },
+  {
+    id: 'README.md',
+    name: 'README.md',
+    isDirty: false,
+    format: 'markdown',
+    lastModified: Date.now(),
   },
 ]
 

@@ -145,9 +145,15 @@ function useMultiTabDocEditorMockState(
       const exists = prev.some(doc => doc.file.id === documentId)
       if (!exists) {
         console.log('[Multi-Tab Mock] Re-opening closed document:', documentId)
-        const mockDoc = sampleMultiTabDocuments.find(d => d.file.id === documentId)
+        let mockDoc = sampleMultiTabDocuments.find(d => d.file.id === documentId) as unknown as DocumentWithAnnotations
+        if (!mockDoc) {
+          const file = sampleDocumentFiles.find(f => f.id === documentId)
+          if (file) {
+            mockDoc = { file, content: '# ' + file.name, annotations: [] } as unknown as DocumentWithAnnotations
+          }
+        }
         if (mockDoc) {
-          return [...prev, mockDoc as unknown as DocumentWithAnnotations]
+          return [...prev, mockDoc]
         }
       }
       return prev
