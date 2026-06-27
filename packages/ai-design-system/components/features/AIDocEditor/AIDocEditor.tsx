@@ -273,10 +273,13 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
     /**
      * Multi-tab mode
      */
+    let editorPane: React.ReactNode
+
     if (!currentDocument) {
-      return (
-        <div className={cn('ai-doc-editor flex flex-col flex-1 h-screen w-full', className)}>
+      editorPane = (
+        <div className="ai-doc-editor flex flex-col h-full w-full">
           <DocumentTabBar
+            className="w-full"
             tabs={props.documents?.map((doc) => doc.file) || []}
             activeTabId={props.activeDocumentId}
             onTabSelect={props.onTabSelect}
@@ -287,46 +290,47 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
           </div>
         </div>
       )
-    }
+    } else {
+      const isMarkdownMulti = currentDocument.file.format === 'markdown'
 
-    const isMarkdownMulti = currentDocument.file.format === 'markdown'
-
-    const editorPane = (
-      <div className="ai-doc-editor flex flex-col h-full w-full">
-        <DocumentTabBar
-          className="w-full"
-          tabs={props.documents?.map((doc) => doc.file) || []}
-          activeTabId={props.activeDocumentId}
-          onTabSelect={props.onTabSelect}
-          onTabClose={props.onTabClose}
-        />
-        <div className="flex-1 overflow-auto">
-          {isMarkdownMulti ? (
-            <div className="p-6">
-              <Streamdown
-                mode="streaming"
-                isAnimating
-                className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-              >
-                {currentDocument.content as string}
-              </Streamdown>
-            </div>
-          ) : (
-            <DocumentEditorWithComments
-              content={currentDocument.content}
-              format={currentDocument.file.format as 'json' | 'markdown' | undefined}
-              annotations={currentDocument.annotations}
-              currentUserId={currentUser.id}
-              currentUserName={currentUser.name}
-              readOnly={mode === 'readonly'}
-              onAnnotationAdd={handleAnnotationAdd}
-              onAnnotationUpdate={handleAnnotationUpdate}
-              className="p-6 h-full flex flex-col"
-            />
-          )}
+      editorPane = (
+        <div className="ai-doc-editor flex flex-col h-full w-full">
+          <DocumentTabBar
+            className="w-full"
+            tabs={props.documents?.map((doc) => doc.file) || []}
+            activeTabId={props.activeDocumentId}
+            onTabSelect={props.onTabSelect}
+            onTabClose={props.onTabClose}
+          />
+          <div className="flex-1 overflow-auto">
+            {isMarkdownMulti ? (
+              <div className="p-6">
+                <Streamdown
+                  mode="streaming"
+                  isAnimating
+                  className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                >
+                  {currentDocument.content as string}
+                </Streamdown>
+              </div>
+            ) : (
+              <DocumentEditorWithComments
+                content={currentDocument.content}
+                format={currentDocument.file.format as 'json' | 'markdown' | undefined}
+                annotations={currentDocument.annotations}
+                selectedAnnotationId={props.selectedAnnotationId}
+                currentUserId={currentUser.id}
+                currentUserName={currentUser.name}
+                readOnly={mode === 'readonly'}
+                onAnnotationAdd={handleAnnotationAdd}
+                onAnnotationUpdate={handleAnnotationUpdate}
+                className="ai-doc-editor p-6 min-h-full"
+              />
+            )}
+          </div>
         </div>
-      </div>
-    )
+      )
+    }
 
     return (
       <AdjustableLayout

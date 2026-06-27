@@ -127,17 +127,12 @@ function useMultiTabDocEditorMockState(
 
   const closeDocument = useCallback((documentId: string) => {
     console.log('[Multi-Tab Mock] Closing document:', documentId)
-    setDocuments(prev => {
-      const filtered = prev.filter(doc => doc.file.id !== documentId)
-      if (activeDocumentId === documentId && filtered.length > 0) {
-        setActiveDocumentId(filtered[0].file.id)
-      }
-      if (filtered.length === 0) {
-        setActiveDocumentId(undefined)
-      }
-      return filtered
-    })
-  }, [activeDocumentId])
+    setDocuments(prev => prev.filter(doc => doc.file.id !== documentId))
+    if (activeDocumentId === documentId) {
+      const filtered = documents.filter(doc => doc.file.id !== documentId)
+      setActiveDocumentId(filtered.length > 0 ? filtered[0].file.id : undefined)
+    }
+  }, [activeDocumentId, documents])
 
   const switchDocument = useCallback((documentId: string) => {
     console.log('[Multi-Tab Mock] Switching to document:', documentId)

@@ -41,6 +41,40 @@ function renderTree(nodes: FileTreeNode[]): React.ReactNode {
   })
 }
 
+function filterTree(nodes: FileTreeNode[], query: string): FileTreeNode[] {
+  if (!query) return nodes;
+  const lowerQuery = query.toLowerCase();
+
+  return nodes.reduce<FileTreeNode[]>((acc, node) => {
+    if (node.type === 'file') {
+      if (node.name.toLowerCase().includes(lowerQuery)) {
+        acc.push(node);
+      }
+    } else if (node.type === 'folder' && node.children) {
+      const filteredChildren = filterTree(node.children, query);
+      // Keep the folder if it matches the query itself, or if any of its children match
+      if (node.name.toLowerCase().includes(lowerQuery) || filteredChildren.length > 0) {
+        acc.push({ ...node, children: filteredChildren });
+      }
+    }
+    return acc;
+  }, []);
+}
+
+function getAllFolderPaths(nodes: FileTreeNode[]): Set<string> {
+  const paths = new Set<string>();
+  function traverse(n: FileTreeNode[]) {
+    for (const node of n) {
+      if (node.type === 'folder') {
+        paths.add(node.path);
+        if (node.children) traverse(node.children);
+      }
+    }
+  }
+  traverse(nodes);
+  return paths;
+}
+
 export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
   ({
     tree,
@@ -53,6 +87,19 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
     headerClassName,
     className,
   }) => {
+    const [searchQuery, setSearchQuery] = React.useState("")
+
+    const filteredTree = React.useMemo(() => {
+      return filterTree(tree, searchQuery)
+    }, [tree, searchQuery])
+
+    const expandedPaths = React.useMemo(() => {
+      if (searchQuery) {
+        return getAllFolderPaths(filteredTree)
+      }
+      return defaultExpanded
+    }, [searchQuery, filteredTree, defaultExpanded])
+
     return (
       <div className={cn("flex flex-col rounded-lg border bg-background", className)}>
         <div className={cn("flex items-center gap-2 border-b px-3 py-2", headerClassName)}>
@@ -64,6 +111,8 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
             />
             <Input
               placeholder={searchPlaceholder}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-8"
             />
           </div>
@@ -80,11 +129,12 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
         </div>
         <div className="p-2">
           <FileTree
-            defaultExpanded={defaultExpanded}
+            className="border-none bg-transparent"
+            defaultExpanded={expandedPaths}
             selectedPath={selectedPath}
             onSelect={onSelect}
           >
-            {renderTree(tree)}
+            {renderTree(filteredTree)}
           </FileTree>
         </div>
       </div>
