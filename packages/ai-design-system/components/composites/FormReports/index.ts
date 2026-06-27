@@ -1,4 +1,12 @@
 export {
+  FormReports,
+} from "./FormReports"
+
+export type {
+  FormReportsProps,
+} from "./FormReports"
+
+export {
   FormReportsDrawerForm,
 } from "./FormReportsDrawerForm"
 

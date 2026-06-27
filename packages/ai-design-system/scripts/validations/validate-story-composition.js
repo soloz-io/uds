@@ -1,22 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Story Composition Validation Script
- *
- * Enforces that all story files only render their own component,
- * not manually compose child components from other layers.
- *
- * Rules:
- * - Stories should only render the component they're documenting
- * - Stories should NOT import and render components from other layers
- * - Stories should pass props to the component, not build it from parts
- *
- * This ensures:
- * - Components remain encapsulated
- * - Stories reflect actual usage patterns
- * - Internal composition changes don't break stories
- */
-
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -24,7 +7,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ANSI color codes
 const colors = {
   reset: '\x1b[0m',
   red: '\x1b[31m',
@@ -36,13 +18,28 @@ const colors = {
 
 const COMPONENTS_DIR = path.join(__dirname, '../../components');
 
-// Layers to validate — only features need this check.
-// Primitives, composites, blocks, and ai-elements are allowed to use other components in their stories.
-const LAYERS = ['features'];
+const KNOWN_LAYERS = ['primitives', 'ai-elements', 'composites', 'blocks', 'features'];
 
-/**
- * Get all story files in a directory recursively
- */
+const LAYERS = KNOWN_LAYERS;
+
+const LAYER_IMPORT_RULES = {
+  'primitives': {
+    allowedSources: [],
+  },
+  'ai-elements': {
+    allowedSources: [],
+  },
+  'composites': {
+    allowedSources: [],
+  },
+  'blocks': {
+    allowedSources: [],
+  },
+  'features': {
+    allowedSources: ['features'],
+  },
+};
+
 function getStoryFiles(dir) {
   const storyFiles = [];
 
@@ -69,13 +66,14 @@ function getStoryFiles(dir) {
   return storyFiles;
 }
 
-/**
- * Get the component name from a story file path
- * e.g., /path/to/Button/Button.stories.tsx -> Button
- */
 function getComponentName(storyFilePath) {
   const dir = path.dirname(storyFilePath);
-  return path.basename(dir);
+  const dirName = path.basename(dir);
+  if (KNOWN_LAYERS.includes(dirName)) {
+    const storyFileName = path.basename(storyFilePath);
+    return storyFileName.replace(/\.stories\.tsx$/, '');
+  }
+  return dirName;
 }
 
 function getStoryBlocks(content) {
@@ -85,47 +83,31 @@ function getStoryBlocks(content) {
   }));
 }
 
-/**
- * Resolve a relative import path to an absolute filesystem path.
- * Returns null for non-relative imports (bare specifiers, @/ aliases).
- */
 function resolveRelativeImport(importPath, storyFilePath) {
   if (!importPath.startsWith('.')) return null;
   const storyDir = path.dirname(storyFilePath);
   return path.resolve(storyDir, importPath);
 }
 
-/**
- * Given a resolved absolute path, check if it falls under the components/
- * directory and extract the layer name and component name.
- * Returns { layer, componentName } or null.
- */
 function identifyComponentImport(resolvedPath, storyFilePath) {
   const componentsDir = COMPONENTS_DIR;
   const relative = path.relative(componentsDir, resolvedPath);
   if (!relative || relative.startsWith('..')) return null;
 
   const parts = relative.split(path.sep);
-  // Must be at least 2 levels deep: layer/ComponentName
   if (parts.length < 2) return null;
 
   const layer = parts[0];
   const componentName = parts[1];
 
-  const knownLayers = ['primitives', 'ai-elements', 'composites', 'blocks', 'features'];
-  if (!knownLayers.includes(layer)) return null;
+  if (!KNOWN_LAYERS.includes(layer)) return null;
 
   return { layer, componentName };
 }
 
-/**
- * Extract all import declarations from file content.
- * Returns array of { importedName, sourcePath, resolvedPath } objects.
- */
 function extractImports(content, storyFilePath) {
   const imports = [];
 
-  // Named/default imports: import X from "path" or import { X } from "path"
   const importRegex = /import\s+(?:\{[^}]*\}|\w+(?:\s*,\s*\{[^}]*\})?)\s+from\s+['"]([^'"]+)['"]/g;
   let match;
   while ((match = importRegex.exec(content)) !== null) {
@@ -134,7 +116,6 @@ function extractImports(content, storyFilePath) {
       ? path.join(COMPONENTS_DIR, sourcePath.replace('@/components/', ''))
       : resolveRelativeImport(sourcePath, storyFilePath);
 
-    // Extract imported names for named imports
     const importClause = match[0];
     const namedMatch = importClause.match(/import\s+\{([^}]*)\}\s+from/);
     const defaultMatch = importClause.match(/import\s+(\w+)\s+from/);
@@ -152,17 +133,15 @@ function extractImports(content, storyFilePath) {
   return imports;
 }
 
-/**
- * Check if a story file manually composes child components
- */
-function checkStoryComposition(storyFilePath) {
+function checkStoryComposition(storyFilePath, storyLayer) {
   const content = fs.readFileSync(storyFilePath, 'utf-8');
   const componentName = getComponentName(storyFilePath);
   const violations = [];
 
-  // Extract and resolve all imports
   const imports = extractImports(content, storyFilePath);
 
+  const rules = LAYER_IMPORT_RULES[storyLayer];
+  const allowedSources = rules?.allowedSources ?? [];
 
   for (const imp of imports) {
     if (!imp.resolvedPath) continue;
@@ -170,27 +149,29 @@ function checkStoryComposition(storyFilePath) {
     const identified = identifyComponentImport(imp.resolvedPath, storyFilePath);
     if (!identified) continue;
 
-    // Skip if it's importing the component itself (same name)
     if (identified.componentName === componentName) {
       continue;
     }
 
-    // Skip if the resolved path IS the story file itself (circular self-ref)
     if (imp.resolvedPath === storyFilePath) {
       continue;
     }
 
-    // Allow cross-feature imports — only block composites, primitives, blocks, ai-elements
-    if (identified.layer === 'features') continue;
+    const isTypeOnly = !new RegExp(`<${imp.importedName}[\\s/>]`, 'g').test(content);
+    if (isTypeOnly) {
+      continue;
+    }
 
-    // Check if this component is actually used in JSX (not just imported for types)
-    const jsxUsageRegex = new RegExp(`<${imp.importedName}[\\s/>]`, 'g');
-    if (jsxUsageRegex.test(content)) {
+    const isAllowed = allowedSources.includes(identified.layer);
+    if (!isAllowed) {
       violations.push({
         type: 'forbidden-layer-import',
         component: imp.importedName,
-        layer: identified.layer,
+        fromLayer: identified.layer,
+        fromComponent: identified.componentName,
+        storyLayer,
         source: imp.sourcePath,
+        suggestion: `Stories must only import the component being documented — no other design system components`,
       });
     }
   }
@@ -198,7 +179,7 @@ function checkStoryComposition(storyFilePath) {
   const relativePath = path.relative(process.cwd(), storyFilePath);
   const isBehaviorStory = storyFilePath.endsWith('.behaviors.stories.tsx');
 
-  if (!isBehaviorStory) {
+  if (!isBehaviorStory && storyLayer === 'features') {
     const storyBlocks = getStoryBlocks(content);
 
     for (const { storyName, block } of storyBlocks) {
@@ -227,9 +208,6 @@ function checkStoryComposition(storyFilePath) {
   return violations;
 }
 
-/**
- * Validate all story files
- */
 function validate() {
   console.log(`${colors.blue}${colors.bold}📖 Validating story composition...${colors.reset}\n`);
 
@@ -240,7 +218,7 @@ function validate() {
     const storyFiles = getStoryFiles(layerDir);
 
     for (const storyFile of storyFiles) {
-      const violations = checkStoryComposition(storyFile);
+      const violations = checkStoryComposition(storyFile, layer);
 
       if (violations.length > 0) {
         const relativePath = path.relative(process.cwd(), storyFile);
@@ -256,7 +234,6 @@ function validate() {
     }
   }
 
-  // Report results
   if (allViolations.length === 0) {
     console.log(`${colors.green}✅ All stories follow proper composition patterns${colors.reset}\n`);
     return true;
@@ -272,7 +249,7 @@ function validate() {
 
       for (const v of violation.violations) {
         if (v.type === 'forbidden-layer-import') {
-          console.log(`      ${colors.red}✗${colors.reset} Imports <${v.component}> from ${v.layer}/ — not allowed in feature stories (import: ${v.source})`);
+          console.log(`      ${colors.red}✗${colors.reset} Renders <${v.component}> (from ${v.fromLayer}/${v.fromComponent}) — stories must only import the component being documented (import: ${v.source})`);
         }
 
         if (v.type === 'raw-div-wrapper') {
@@ -286,50 +263,27 @@ function validate() {
       console.log();
     }
 
-    console.log(`${colors.yellow}${colors.bold}Story Composition Rules:${colors.reset}\n`);
+    console.log(`${colors.yellow}${colors.bold}Layer Import Rules for Stories:${colors.reset}\n`);
 
-    console.log(`  ${colors.green}✓ ALLOWED imports in features stories:${colors.reset}`);
-    console.log(`    - Other features components (e.g. import { WorkflowBuilder } from '../WorkflowBuilder/WorkflowBuilder')`);
-    console.log(`    - The component's own mocks, hooks, and supporting files`);
-    console.log(`    - React, Storybook types, and external libraries\n`);
+    console.log(`  ${colors.green}✓ ALLOWED imports per layer:${colors.reset}`);
+    for (const [layer, rules] of Object.entries(LAYER_IMPORT_RULES)) {
+      if (rules.allowedSources.length > 0) {
+        console.log(`    ${layer}/: may render components from ${rules.allowedSources.join(', ')}`);
+      } else {
+        console.log(`    ${layer}/: may NOT render components from any design system layer`);
+      }
+    }
+    console.log();
 
-    console.log(`  ${colors.red}✗ FORBIDDEN imports in features stories:${colors.reset}`);
-    console.log(`    - composites/  (e.g. ProjectSwitcher)`);
-    console.log(`    - primitives/  (e.g. Button, Icon)`);
-    console.log(`    - blocks/`);
-    console.log(`    - ai-elements/\n`);
+    console.log(`  ${colors.green}✓ Always allowed:${colors.reset}`);
+    console.log(`    - The component being documented (same name as story file)`);
+    console.log(`    - Type-only imports (not used in JSX)`);
+    console.log(`    - React, Storybook types, external libraries\n`);
 
-    console.log(`  ${colors.red}${colors.bold}Why:${colors.reset}`);
-    console.log(`    Feature stories should only render the feature's own component and pass`);
-    console.log(`    data via props. Lower-layer components (composites, primitives, etc.)`);
-    console.log(`    should be composed inside the feature component, not in the story.\n`);
-
-    console.log(`${colors.yellow}Example - WRONG:${colors.reset}`);
-    console.log(`  ${colors.red}// ❌ Importing composites/primitives directly in story${colors.reset}`);
-    console.log(`  import { ProjectSwitcher } from '@/components/composites/ProjectSwitcher'`);
-    console.log(`  import { Button } from '@/components/primitives/Button'`);
-    console.log(`  import { AppSidebar } from '@/components/blocks/AppSidebar'`);
-    console.log(`  `);
-    console.log(`  export const Default: Story = {`);
-    console.log(`    render: () => (`);
-    console.log(`      <PageLayout>`);
-    console.log(`        <ProjectSwitcher {...switcherProps} />`);
-    console.log(`        <Button>Click</Button>`);
-    console.log(`      </PageLayout>`);
-    console.log(`    )`);
-    console.log(`  }\n`);
-
-    console.log(`${colors.yellow}Example - ALLOWED (cross-feature import):${colors.reset}`);
-    console.log(`  ${colors.green}// ✓ Cross-feature imports are fine${colors.reset}`);
-    console.log(`  import { WorkflowBuilder } from '../WorkflowBuilder/WorkflowBuilder'`);
-    console.log(`  import { PageLayout } from './PageLayout'`);
-    console.log(`  import { mockSidebarConfig } from './PageLayout.mocks'`);
-    console.log(`  `);
-    console.log(`  export const Default: Story = {`);
-    console.log(`    args: {`);
-    console.log(`      sidebar: mockSidebarConfig,`);
-    console.log(`    }`);
-    console.log(`  }\n`);
+    console.log(`${colors.red}${colors.bold}Why:${colors.reset}`);
+    console.log(`    Stories should only render the component they're documenting and pass`);
+    console.log(`    data via props. Lower-layer components should be composed inside the`);
+    console.log(`    component itself, not in the story.\n`);
 
     console.log(`${colors.yellow}See: .claude/skills/design-system/scripts/VALIDATION.md${colors.reset}\n`);
 
@@ -337,6 +291,5 @@ function validate() {
   }
 }
 
-// Run validation
 const success = validate();
 process.exit(success ? 0 : 1);
