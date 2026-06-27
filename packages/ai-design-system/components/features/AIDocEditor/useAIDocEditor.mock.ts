@@ -5,10 +5,12 @@
  * for visual testing and interactive demos in Storybook.
  */
 
-import { useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation } from '@/types/ai-editor/annotations'
+import type { FileTreeNode } from '@/components/composites/FileTreeExplorer'
 import type { UseAIDocEditorReturn, UseAIMultiTabDocEditorReturn } from './useAIDocEditor'
+import { sampleDocumentFiles, sampleMultiTabDocuments } from './AIDocEditor.mocks'
 
 interface DocumentFile {
   id: string
@@ -90,6 +92,33 @@ function useMultiTabDocEditorMockState(
   )
   const [loading, setLoading] = useState(false)
 
+  const fileTree = React.useMemo(() => {
+    const rootNodes: FileTreeNode[] = []
+    sampleDocumentFiles.forEach((doc) => {
+      const parts = doc.id.split('/')
+      if (parts.length > 1) {
+        const folderName = parts[0]
+        let folderNode = rootNodes.find(n => n.name === folderName && n.type === 'folder')
+        if (!folderNode) {
+          folderNode = { name: folderName, path: folderName, type: 'folder', children: [] }
+          rootNodes.push(folderNode)
+        }
+        folderNode.children!.push({
+          name: doc.name,
+          path: doc.id,
+          type: 'file',
+        })
+      } else {
+        rootNodes.push({
+          name: doc.name,
+          path: doc.id,
+          type: 'file',
+        })
+      }
+    })
+    return rootNodes
+  }, [])
+
   const addDocument = useCallback((file: DocumentFile, content: unknown) => {
     console.log('[Multi-Tab Mock] Adding document:', file.name)
     setDocuments(prev => [...prev, { file, content: content as JSONContent | string, annotations: [] }])
@@ -112,6 +141,17 @@ function useMultiTabDocEditorMockState(
 
   const switchDocument = useCallback((documentId: string) => {
     console.log('[Multi-Tab Mock] Switching to document:', documentId)
+    setDocuments(prev => {
+      const exists = prev.some(doc => doc.file.id === documentId)
+      if (!exists) {
+        console.log('[Multi-Tab Mock] Re-opening closed document:', documentId)
+        const mockDoc = sampleMultiTabDocuments.find(d => d.file.id === documentId)
+        if (mockDoc) {
+          return [...prev, mockDoc as unknown as DocumentWithAnnotations]
+        }
+      }
+      return prev
+    })
     setActiveDocumentId(documentId)
   }, [])
 
@@ -145,11 +185,11 @@ function useMultiTabDocEditorMockState(
       prev.map(doc =>
         doc.file.id === activeDocumentId
           ? {
-              ...doc,
-              annotations: doc.annotations.map(a =>
-                a.id === annotation.id ? annotation : a
-              ),
-            }
+            ...doc,
+            annotations: doc.annotations.map(a =>
+              a.id === annotation.id ? annotation : a
+            ),
+          }
           : doc
       )
     )
@@ -168,9 +208,9 @@ function useMultiTabDocEditorMockState(
       prev.map(doc =>
         doc.file.id === activeDocumentId
           ? {
-              ...doc,
-              annotations: doc.annotations.filter(a => a.id !== annotationId),
-            }
+            ...doc,
+            annotations: doc.annotations.filter(a => a.id !== annotationId),
+          }
           : doc
       )
     )
@@ -198,6 +238,7 @@ function useMultiTabDocEditorMockState(
     deleteAnnotation,
     setDocumentDirty,
     loading,
+    fileTree,
   }
 }
 

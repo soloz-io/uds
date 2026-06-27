@@ -47,6 +47,7 @@
 
 import type { Annotation } from '@/types/ai-editor/annotations'
 import type { DocumentFile, DocumentWithAnnotations } from '@/types/ai-editor/editor'
+import type { FileTreeNode } from '@/components/composites/FileTreeExplorer'
 import type { JSONContent } from '@tiptap/core'
 
 /**
@@ -145,6 +146,11 @@ export interface UseAIMultiTabDocEditorReturn {
    * Loading state for async operations
    */
   loading: boolean
+
+  /**
+   * Full workspace file tree, independent of open tabs
+   */
+  fileTree?: FileTreeNode[]
 }
 
 /**

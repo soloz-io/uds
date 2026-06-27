@@ -35,6 +35,9 @@
 import React, { useCallback, useMemo } from 'react'
 import { DocumentEditorWithComments } from '@/components/blocks/DocumentEditorWithComments'
 import { DocumentTabBar } from '@/components/composites/DocumentTabBar'
+import { AdjustableLayout } from '@/components/composites/AdjustableLayout'
+import { FileTreeExplorer } from '@/components/composites/FileTreeExplorer'
+import type { FileTreeNode } from '@/components/composites/FileTreeExplorer'
 import { cn } from '@/lib/utils'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation, User } from '@/types/ai-editor/annotations'
@@ -98,6 +101,8 @@ export interface AIDocEditorMultiTabProps {
   onTabSelect?: (documentId: string) => void
   /** Callback when tab close button is clicked */
   onTabClose?: (documentId: string) => void
+  /** Optional completely separate file tree to show all available files in the explorer (even closed ones). If not provided, it falls back to showing only the currently open documents. */
+  fileTree?: FileTreeNode[]
 }
 
 /**
@@ -154,12 +159,12 @@ function isMultiTabMode(props: AIDocEditorProps): props is AIDocEditorMultiTabPr
 export const AIDocEditor = React.memo<AIDocEditorProps>(
   (props) => {
     const {
+      mode = 'review',
       currentUser,
-      mode,
+      className,
       onAnnotationAdd,
       onAnnotationUpdate,
-      onAnnotationDelete: _onAnnotationDelete,
-      className,
+      onAnnotationClick,
     } = props
 
     const isMultiTab = isMultiTabMode(props)
@@ -196,6 +201,42 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
       },
       [onAnnotationUpdate]
     )
+    const fileTreeNodes = useMemo(() => {
+      if (!isMultiTab) return []
+      
+      const multiProps = props as AIDocEditorMultiTabProps
+      if (multiProps.fileTree) {
+        return multiProps.fileTree
+      }
+
+      if (!multiProps.documents) return []
+      const rootNodes: FileTreeNode[] = []
+      
+      multiProps.documents.forEach((doc) => {
+        const parts = doc.file.id.split('/')
+        if (parts.length > 1) {
+          const folderName = parts[0]
+          
+          let folderNode = rootNodes.find(n => n.name === folderName && n.type === 'folder')
+          if (!folderNode) {
+            folderNode = { name: folderName, path: folderName, type: 'folder', children: [] }
+            rootNodes.push(folderNode)
+          }
+          folderNode.children!.push({
+            name: doc.file.name,
+            path: doc.file.id,
+            type: 'file',
+          })
+        } else {
+          rootNodes.push({
+            name: doc.file.name,
+            path: doc.file.id,
+            type: 'file',
+          })
+        }
+      })
+      return rootNodes
+    }, [isMultiTab, (props as AIDocEditorMultiTabProps).documents, (props as AIDocEditorMultiTabProps).fileTree])
 
     /**
      * Single-document mode
@@ -204,7 +245,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
       const isMarkdown = props.format === 'markdown'
       if (isMarkdown) {
         return (
-          <div className={cn('ai-doc-editor p-6', className)}>
+          <div className={cn('ai-doc-editor p-6 flex flex-col h-screen w-full flex-1', className)}>
             <Streamdown mode="streaming">
               {props.content as string}
             </Streamdown>
@@ -212,18 +253,20 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
         )
       }
       return (
-        <DocumentEditorWithComments
-          content={props.content}
-          format={props.format}
-          annotations={props.annotations}
-          selectedAnnotationId={props.selectedAnnotationId}
-          currentUserId={currentUser.id}
-          currentUserName={currentUser.name}
-          readOnly={mode === 'readonly'}
-          onAnnotationAdd={handleAnnotationAdd}
-          onAnnotationUpdate={handleAnnotationUpdate}
-          className={cn('ai-doc-editor p-6', className)}
-        />
+        <div className={cn('ai-doc-editor flex flex-col h-screen w-full flex-1', className)}>
+          <DocumentEditorWithComments
+            content={props.content}
+            format={props.format}
+            annotations={props.annotations}
+            selectedAnnotationId={props.selectedAnnotationId}
+            currentUserId={currentUser.id}
+            currentUserName={currentUser.name}
+            readOnly={mode === 'readonly'}
+            onAnnotationAdd={handleAnnotationAdd}
+            onAnnotationUpdate={handleAnnotationUpdate}
+            className={cn('ai-doc-editor p-6 h-full flex flex-col', className)}
+          />
+        </div>
       )
     }
 
@@ -232,7 +275,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
      */
     if (!currentDocument) {
       return (
-        <div className={cn('ai-doc-editor flex flex-col h-full', className)}>
+        <div className={cn('ai-doc-editor flex flex-col flex-1 h-screen w-full', className)}>
           <DocumentTabBar
             tabs={props.documents?.map((doc) => doc.file) || []}
             activeTabId={props.activeDocumentId}
@@ -246,18 +289,19 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
       )
     }
 
-    const isMarkdown = currentDocument.file.format === 'markdown'
+    const isMarkdownMulti = currentDocument.file.format === 'markdown'
 
-    return (
-      <div className={cn('ai-doc-editor flex flex-col h-full', className)}>
+    const editorPane = (
+      <div className="ai-doc-editor flex flex-col h-full w-full">
         <DocumentTabBar
+          className="w-full"
           tabs={props.documents?.map((doc) => doc.file) || []}
           activeTabId={props.activeDocumentId}
           onTabSelect={props.onTabSelect}
           onTabClose={props.onTabClose}
         />
         <div className="flex-1 overflow-auto">
-          {isMarkdown ? (
+          {isMarkdownMulti ? (
             <div className="p-6">
               <Streamdown
                 mode="streaming"
@@ -277,11 +321,43 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
               readOnly={mode === 'readonly'}
               onAnnotationAdd={handleAnnotationAdd}
               onAnnotationUpdate={handleAnnotationUpdate}
-              className="p-6"
+              className="p-6 h-full flex flex-col"
             />
           )}
         </div>
       </div>
+    )
+
+    return (
+      <AdjustableLayout
+        className={cn("flex-1 h-screen w-full bg-background", className)}
+        orientation="horizontal"
+        sections={[
+          {
+            id: 'explorer',
+            defaultSize: 20,
+            minSize: 15,
+            maxSize: 30,
+            className: 'border-r rounded-none border-y-0 border-l-0',
+            content: (
+              <FileTreeExplorer
+                className="h-full w-full rounded-none border-0"
+                headerClassName="border-b"
+                tree={fileTreeNodes}
+                selectedPath={props.activeDocumentId}
+                onSelect={props.onTabSelect}
+              />
+            ),
+          },
+          {
+            id: 'editor',
+            defaultSize: 80,
+            minSize: 50,
+            className: 'rounded-none border-0',
+            content: editorPane,
+          },
+        ]}
+      />
     )
   }
 )

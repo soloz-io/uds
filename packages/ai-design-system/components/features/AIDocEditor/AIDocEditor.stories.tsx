@@ -79,6 +79,7 @@ export const WithStateManagement: Story = {
       <AIDocEditor
         documents={mockState.documents}
         activeDocumentId={mockState.activeDocumentId}
+        fileTree={mockState.fileTree}
         currentUser={currentUser}
         mode="review"
         onTabSelect={mockState.switchDocument}
