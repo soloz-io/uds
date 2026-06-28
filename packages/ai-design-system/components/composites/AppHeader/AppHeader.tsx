@@ -2,8 +2,8 @@ import * as React from "react"
 import { SidebarTrigger } from "@/components/primitives/Sidebar"
 import { Separator } from "@/components/primitives/Separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/primitives/Tabs"
-import { ChatToggleButton } from "../ChatToggleButton"
-import { WorkflowSwitcher } from "../WorkflowSwitcher"
+import { ChatToggleButton } from "@/components/composites/ChatToggleButton"
+import { WorkflowSwitcher } from "@/components/composites/WorkflowSwitcher"
 import type { AppHeaderProps } from "./interfaces"
 
 export const AppHeader = React.memo<AppHeaderProps>(({ 

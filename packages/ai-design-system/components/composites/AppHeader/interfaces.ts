@@ -1,6 +1,6 @@
 import type React from "react";
-import type { WorkflowSwitcherProps } from "../WorkflowSwitcher/WorkflowSwitcher";
-import type { ChatToggleButtonProps } from "../ChatToggleButton/ChatToggleButton";
+import type { WorkflowSwitcherProps } from "@/components/composites/WorkflowSwitcher/WorkflowSwitcher";
+import type { ChatToggleButtonProps } from "@/components/composites/ChatToggleButton/ChatToggleButton";
 
 export interface TabItem {
   value: string;
