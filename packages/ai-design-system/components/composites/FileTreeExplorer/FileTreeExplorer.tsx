@@ -88,17 +88,36 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
     className,
   }) => {
     const [searchQuery, setSearchQuery] = React.useState("")
+    const [userExpanded, setUserExpanded] = React.useState<Set<string>>(defaultExpanded || new Set())
+
+    // Auto-expand parents when selectedPath changes
+    React.useEffect(() => {
+      if (selectedPath) {
+        const parts = selectedPath.split('/')
+        if (parts.length > 1) {
+          setUserExpanded(prev => {
+            const next = new Set(prev)
+            let currentPath = ''
+            for (let i = 0; i < parts.length - 1; i++) {
+              currentPath += (i === 0 ? '' : '/') + parts[i]
+              next.add(currentPath)
+            }
+            return next
+          })
+        }
+      }
+    }, [selectedPath])
 
     const filteredTree = React.useMemo(() => {
       return filterTree(tree, searchQuery)
     }, [tree, searchQuery])
 
-    const expandedPaths = React.useMemo(() => {
+    const activeExpanded = React.useMemo(() => {
       if (searchQuery) {
         return getAllFolderPaths(filteredTree)
       }
-      return defaultExpanded
-    }, [searchQuery, filteredTree, defaultExpanded])
+      return userExpanded
+    }, [searchQuery, filteredTree, userExpanded])
 
     return (
       <div className={cn("flex flex-col rounded-lg border bg-background", className)}>
@@ -130,7 +149,8 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
         <div className="p-2">
           <FileTree
             className="border-none bg-transparent"
-            defaultExpanded={expandedPaths}
+            expanded={activeExpanded}
+            onExpandedChange={setUserExpanded}
             selectedPath={selectedPath}
             onSelect={onSelect}
           >
