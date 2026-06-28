@@ -9,6 +9,10 @@
 export { ToolCallDisplay } from './ToolCallDisplay'
 export type { ToolCallDisplayProps, ToolCall } from './ToolCallDisplay'
 
+// ReasoningDisplay Block
+export { ReasoningDisplay } from './ReasoningDisplay'
+export type { ReasoningDisplayProps } from './ReasoningDisplay'
+
 // AgentIndicator Block
 export { AgentIndicator } from './AgentIndicator'
 export type { AgentIndicatorProps, SubAgent } from './AgentIndicator'

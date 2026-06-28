@@ -11,6 +11,7 @@ import { UserMessage } from "@/components/composites/UserMessage"
 import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
 import { OrchestratorMessage } from "@/components/composites/OrchestratorMessage"
 import { ToolCallDisplay } from "@/components/composites/ToolCallDisplay"
+import { ReasoningDisplay } from "@/components/composites/ReasoningDisplay"
 import { ApprovalCard } from "@/components/composites/ApprovalCard"
 
 /**
@@ -127,28 +128,44 @@ export const AIConversation = React.memo<AIConversationProps>(
 
             // Filter tool calls that aren't "task" type (those become sub-agents)
             // Also completely hide "ask_user" and "ask_question" tools so they are ONLY rendered in the prompt input area
-            const directToolCalls =
+            const allToolCalls =
               message.toolCalls?.filter(
                 (tc) => tc.name !== "task" && tc.name !== "ask_user"
               ) || []
 
+            // Split into reasoning tools (shown collapsed) and direct tools (shown normally)
+            const reasoningCalls = allToolCalls.filter((tc) => tc.visibility === "reasoning")
+            const directToolCalls = allToolCalls.filter((tc) => tc.visibility !== "reasoning")
+
             const hasContent = contentStr.trim() !== ""
-            if (!hasContent && directToolCalls.length === 0 && subAgents.length === 0 && !message.isLoading) {
+            const hasReasoning = reasoningCalls.length > 0
+            const reasoningText = hasReasoning ? contentStr : undefined
+            const displayContentStr = hasReasoning ? "" : contentStr
+            const hasDisplayContent = displayContentStr.trim() !== ""
+
+            if (!hasDisplayContent && directToolCalls.length === 0 && reasoningCalls.length === 0 && subAgents.length === 0 && !message.isLoading) {
               return null;
             }
+
+            const isStreaming = reasoningCalls.some((tc) => tc.status === "pending")
 
             return (
               <OrchestratorMessage
                 key={message.id}
                 message={{
                   id: message.id,
-                  content: contentStr,
+                  content: displayContentStr,
                   avatarSrc: message.avatarSrc,
                   avatarName: message.avatarName,
-                  isLoading: message.isLoading,
+                  isLoading: message.isLoading && !hasReasoning,
                 }}
-                showAvatar={showAvatars}
+                showAvatar={showAvatars && hasDisplayContent}
               >
+                {/* Render reasoning-section for hidden tool results */}
+                {hasReasoning && (
+                  <ReasoningDisplay content={reasoningText} items={reasoningCalls} isStreaming={isStreaming} />
+                )}
+
                 {/* Render direct tool calls */}
                 {directToolCalls.map((tc) => (
                   <ToolCallDisplay key={tc.id} toolCall={tc} onToolAction={onToolAction} />

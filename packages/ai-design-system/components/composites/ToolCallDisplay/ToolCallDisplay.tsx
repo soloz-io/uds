@@ -21,6 +21,7 @@ export interface ToolCall {
   args: Record<string, unknown>
   result?: string
   status: "pending" | "completed" | "error"
+  visibility?: "visible" | "reasoning"
   uiVariant?: "default" | "link"
   linkText?: string
   linkAction?: string
