@@ -5,7 +5,7 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
-import type { ToolCall } from "../ToolCallDisplay";
+import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 
 export interface ReasoningDisplayProps {
   items: ToolCall[];
