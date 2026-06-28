@@ -1,4 +1,6 @@
 import type React from "react";
+import type { WorkflowSwitcherProps } from "../WorkflowSwitcher/WorkflowSwitcher";
+import type { ChatToggleButtonProps } from "../ChatToggleButton/ChatToggleButton";
 
 export interface TabItem {
   value: string;
@@ -15,4 +17,6 @@ export interface AppHeaderProps {
   className?: string;
   showSidebarToggle?: boolean;
   showTitle?: boolean;
+  workflowSwitcherProps?: WorkflowSwitcherProps;
+  chatToggleProps?: ChatToggleButtonProps;
 }

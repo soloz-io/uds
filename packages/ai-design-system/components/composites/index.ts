@@ -190,3 +190,7 @@ export type { PromptInputBlockProps } from './PromptInput'
 // ChatToggleButton Composite
 export { ChatToggleButton } from './ChatToggleButton'
 export type { ChatToggleButtonProps } from './ChatToggleButton'
+
+// WorkflowSwitcher Composite
+export { WorkflowSwitcher } from './WorkflowSwitcher'
+export type { WorkflowSwitcherProps, WorkflowItem } from './WorkflowSwitcher'
