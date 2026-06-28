@@ -163,7 +163,12 @@ export const AIConversation = React.memo<AIConversationProps>(
               >
                 {/* Render reasoning-section for hidden tool results */}
                 {hasReasoning && (
-                  <ReasoningDisplay content={reasoningText} items={reasoningCalls} isStreaming={isStreaming} />
+                  <ReasoningDisplay 
+                    content={reasoningText} 
+                    items={reasoningCalls} 
+                    isStreaming={isStreaming} 
+                    onToolAction={onToolAction}
+                  />
                 )}
 
                 {/* Render direct tool calls */}

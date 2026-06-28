@@ -2,56 +2,45 @@
 
 import {
   Reasoning,
-  ReasoningContent,
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
+import { CollapsibleContent } from "@/components/primitives/Collapsible";
+import { Response } from "@/components/ai-elements/response";
+import { ToolCallDisplay } from "@/components/composites/ToolCallDisplay";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 
 export interface ReasoningDisplayProps {
   items: ToolCall[];
   isStreaming?: boolean;
   content?: string;
-}
-
-function formatResult(item: ToolCall): string {
-  let content = `**Tool: ${item.name}**\n\n`;
-  
-  if (item.args && Object.keys(item.args).length > 0) {
-    const argsJson = JSON.stringify(item.args, null, 2);
-    content += `**Input:**\n\`\`\`json\n${argsJson}\n\`\`\`\n\n`;
-  }
-  
-  if (item.result) {
-    content += `**Output:**\n${item.result}\n\n`;
-  } else if (item.status === "pending") {
-    content += `*Running...*\n\n`;
-  }
-  
-  return content.trim();
+  onToolAction?: (toolCall: ToolCall, action: string) => void;
 }
 
 export const ReasoningDisplay = ({
   items,
   isStreaming = false,
   content,
+  onToolAction,
 }: ReasoningDisplayProps) => {
-  if (items.length === 0) return null;
-
-  const resultsStr = items.map(formatResult).filter(Boolean).join("\n\n---\n\n");
-  
-  let finalContent = "";
-  if (content && content.trim()) {
-    finalContent += `${content.trim()}\n\n`;
-  }
-  if (resultsStr) {
-    if (finalContent) finalContent += "---\n\n";
-    finalContent += resultsStr;
-  }
+  if (items.length === 0 && !content) return null;
 
   return (
     <Reasoning isStreaming={isStreaming} defaultOpen={false}>
       <ReasoningTrigger />
-      <ReasoningContent>{finalContent || "No output"}</ReasoningContent>
+      <CollapsibleContent
+        className="mt-4 flex flex-col gap-2 data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 text-muted-foreground outline-none data-[state=closed]:animate-out data-[state=open]:animate-in"
+      >
+        {content && content.trim() && (
+          <div className="mb-4">
+            <Response className="grid gap-2">{content}</Response>
+          </div>
+        )}
+        <div className="flex flex-col gap-2">
+          {items.map((item) => (
+            <ToolCallDisplay key={item.id} toolCall={item} onToolAction={onToolAction} />
+          ))}
+        </div>
+      </CollapsibleContent>
     </Reasoning>
   );
 };
