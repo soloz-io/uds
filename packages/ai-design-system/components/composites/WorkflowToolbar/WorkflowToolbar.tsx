@@ -115,11 +115,16 @@ export function WorkflowToolbar({
       {/* Left: workflow name text + version dropdown */}
       <div className="flex items-center gap-2">
         {/* Plain text title */}
-        <div className="flex h-9 items-center rounded-md border bg-secondary px-3 text-secondary-foreground">
-          <span className="truncate font-medium text-sm">
-            {workflowName || "Untitled Workflow"}
-          </span>
-        </div>
+        {
+          workflowName && (
+            <div className="flex h-9 items-center rounded-md border bg-secondary px-3 text-secondary-foreground">
+              <span className="truncate font-medium text-sm">
+                {workflowName || ""}
+              </span>
+            </div>
+          )
+        }
+
 
         {/* Version selector — only shown when versions are provided */}
         {versions && versions.length > 0 && (
