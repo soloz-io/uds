@@ -213,29 +213,39 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
 
       if (!multiProps.documents) return []
       const rootNodes: FileTreeNode[] = []
-      
+
       multiProps.documents.forEach((doc) => {
         const parts = doc.file.id.split('/')
-        if (parts.length > 1) {
-          const folderName = parts[0]
-          
-          let folderNode = rootNodes.find(n => n.name === folderName && n.type === 'folder')
-          if (!folderNode) {
-            folderNode = { name: folderName, path: folderName, type: 'folder', children: [] }
-            rootNodes.push(folderNode)
-          }
-          folderNode.children!.push({
-            name: doc.file.name,
-            path: doc.file.id,
-            type: 'file',
-          })
-        } else {
+        if (parts.length === 1) {
           rootNodes.push({
             name: doc.file.name,
             path: doc.file.id,
             type: 'file',
           })
+          return
         }
+
+        let currentLevel = rootNodes
+        for (let i = 0; i < parts.length - 1; i++) {
+          const segment = parts[i]
+          let folderNode = currentLevel.find(n => n.name === segment && n.type === 'folder')
+          if (!folderNode) {
+            folderNode = {
+              name: segment,
+              path: parts.slice(0, i + 1).join('/'),
+              type: 'folder',
+              children: [],
+            }
+            currentLevel.push(folderNode)
+          }
+          currentLevel = folderNode.children!
+        }
+
+        currentLevel.push({
+          name: doc.file.name,
+          path: doc.file.id,
+          type: 'file',
+        })
       })
       return rootNodes
     }, [isMultiTab, (props as AIDocEditorMultiTabProps).documents, (props as AIDocEditorMultiTabProps).fileTree])
