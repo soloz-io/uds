@@ -41,7 +41,7 @@ import type { FileTreeNode } from '@/components/composites/FileTreeExplorer'
 import { cn } from '@/lib/utils'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation, User } from '@/types/ai-editor/annotations'
-import { Streamdown } from 'streamdown'
+import { StreamingMarkdown } from '@/components/composites/StreamingMarkdown'
 
 interface DocumentWithAnnotations {
   file: { id: string; name: string; isDirty?: boolean; format?: 'json' | 'markdown' | string; lastModified?: number }
@@ -258,9 +258,9 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
       if (isMarkdown) {
         return (
           <div className={cn('ai-doc-editor p-6 flex flex-col h-screen w-full flex-1', className)}>
-            <Streamdown mode="streaming">
+            <StreamingMarkdown mode="streaming">
               {props.content as string}
-            </Streamdown>
+            </StreamingMarkdown>
           </div>
         )
       }
@@ -323,13 +323,13 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
           <div className="flex-1 overflow-auto">
             {isMarkdownMulti ? (
               <div className="p-6">
-                <Streamdown
+                <StreamingMarkdown
                   mode="streaming"
                   isAnimating
                   className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                 >
                   {currentDocument.content as string}
-                </Streamdown>
+                </StreamingMarkdown>
               </div>
             ) : (
               <DocumentEditorWithComments

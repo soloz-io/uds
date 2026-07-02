@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { BrainIcon, ChevronDownIcon } from "lucide-react";
 import type { ComponentProps } from "react";
 import { createContext, memo, useContext, useEffect, useState } from "react";
-import { Response } from "./response";
 import { Shimmer } from "./shimmer";
 
 type ReasoningContextValue = {
@@ -179,7 +178,7 @@ export const ReasoningContent = memo(
       )}
       {...props}
     >
-      <Response className="grid gap-2">{children}</Response>
+      {children}
     </CollapsibleContent>
   )
 );

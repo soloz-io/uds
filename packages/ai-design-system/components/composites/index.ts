@@ -5,6 +5,9 @@
  * Blocks are composite components that extend AI elements with enhanced functionality.
  */
 
+// Response Composite
+export { Response } from './response'
+
 // ToolCallDisplay Block
 export { ToolCallDisplay } from './ToolCallDisplay'
 export type { ToolCallDisplayProps, ToolCall } from './ToolCallDisplay'

@@ -10,7 +10,7 @@ import {
   MessageAvatar,
   MessageTypingIndicator,
 } from "@/components/ai-elements/message"
-import { Response } from "@/components/ai-elements/response"
+import { Response } from "@/components/composites/response"
 
 /**
  * OrchestratorMessage Block

@@ -9,7 +9,7 @@ import {
 } from "@/components/ai-elements/plan"
 import { ToolCallDisplay, type ToolCall } from "@/components/composites/ToolCallDisplay"
 import { cn } from "@/lib/utils"
-import { Response } from "@/components/ai-elements/response"
+import { Response } from "@/components/composites/response"
 
 /**
  * SpecialistMessage Block

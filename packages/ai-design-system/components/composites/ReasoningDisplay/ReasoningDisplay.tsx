@@ -5,7 +5,7 @@ import {
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
 import { CollapsibleContent } from "@/components/primitives/Collapsible";
-import { Response } from "@/components/ai-elements/response";
+import { Response } from "@/components/composites/response";
 import { ToolCallDisplay } from "@/components/composites/ToolCallDisplay";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 
