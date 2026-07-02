@@ -1,6 +1,6 @@
 import { type ComponentProps, memo } from "react";
-import { CopyIcon, DownloadIcon } from "lucide-react";
 import { Streamdown, defaultRemarkPlugins } from "streamdown";
+import { Icon } from "@/components/primitives/Icon";
 import remarkFrontmatter from "remark-frontmatter";
 
 const customRemarkPlugins = [
@@ -92,14 +92,14 @@ export const StreamingMarkdown = memo(
                   title="Copy"
                   type="button"
                 >
-                  <CopyIcon className="h-4 w-4" />
+                  <Icon name="copy" size="sm" />
                 </button>
                 <button
                   className="flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-foreground"
                   title="Download"
                   type="button"
                 >
-                  <DownloadIcon className="h-4 w-4" />
+                  <Icon name="download" size="sm" />
                 </button>
               </div>
             </div>
