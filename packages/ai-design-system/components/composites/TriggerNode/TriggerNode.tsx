@@ -35,7 +35,7 @@ export const TriggerNode = memo(({ data, selected, id }: TriggerNodeProps) => {
   return (
     <Node
       className={cn(
-        "relative flex flex-col items-center justify-center bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 shadow-none transition-all duration-150 ease-out",
+        "relative flex flex-col items-center justify-center bg-card border border-purple-200 dark:border-purple-800 shadow-none transition-all duration-150 ease-out",
         selected && "border-primary border-2"
       )}
       data-testid={`trigger-node-${id}`}

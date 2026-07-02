@@ -107,6 +107,7 @@ export const StreamingMarkdown = memo(
         )}
         <Streamdown
           remarkPlugins={remarkPlugins || customRemarkPlugins}
+          shikiTheme={["vitesse-light", "vitesse-dark"]}
           {...props}
         >
           {content}

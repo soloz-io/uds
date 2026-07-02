@@ -143,6 +143,14 @@ function isMultiTabMode(props: AIDocEditorProps): props is AIDocEditorMultiTabPr
   return 'documents' in props && props.documents !== undefined
 }
 
+function formatJson(text: string): string {
+  try {
+    return JSON.stringify(JSON.parse(text), null, 2)
+  } catch {
+    return text
+  }
+}
+
 /**
  * AIDocEditor - Document editor with inline comment annotations
  * 
@@ -255,11 +263,15 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
      */
     if (!isMultiTab) {
       const isMarkdown = props.format === 'markdown'
-      if (isMarkdown) {
+      const isJson = props.format === 'json'
+      if (isMarkdown || isJson) {
+        const content = isJson
+          ? `\`\`\`json\n${formatJson(props.content as string)}\n\`\`\``
+          : (props.content as string)
         return (
           <div className={cn('ai-doc-editor p-6 flex flex-col h-screen w-full flex-1', className)}>
             <StreamingMarkdown mode="streaming">
-              {props.content as string}
+              {content}
             </StreamingMarkdown>
           </div>
         )
@@ -308,6 +320,8 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
       )
     } else {
       const isMarkdownMulti = currentDocument.file.format === 'markdown'
+      const isJsonMulti = currentDocument.file.format === 'json'
+      const renderAsStreamdown = isMarkdownMulti || isJsonMulti
 
       editorPane = (
         <div className="ai-doc-editor flex flex-col h-full w-full">
@@ -321,14 +335,16 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
             />
           )}
           <div className="flex-1 overflow-auto">
-            {isMarkdownMulti ? (
+            {renderAsStreamdown ? (
               <div className="p-6">
                 <StreamingMarkdown
                   mode="streaming"
                   isAnimating
                   className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                 >
-                  {currentDocument.content as string}
+                  {isJsonMulti
+                    ? `\`\`\`json\n${formatJson(currentDocument.content as string)}\n\`\`\``
+                    : (currentDocument.content as string)}
                 </StreamingMarkdown>
               </div>
             ) : (

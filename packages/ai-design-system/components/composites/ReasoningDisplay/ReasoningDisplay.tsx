@@ -14,6 +14,8 @@ export interface ReasoningDisplayProps {
   isStreaming?: boolean;
   content?: string;
   onToolAction?: (toolCall: ToolCall, action: string) => void;
+  defaultOpen?: boolean;
+  children?: React.ReactNode;
 }
 
 export const ReasoningDisplay = ({
@@ -21,11 +23,13 @@ export const ReasoningDisplay = ({
   isStreaming = false,
   content,
   onToolAction,
+  defaultOpen = false,
+  children,
 }: ReasoningDisplayProps) => {
-  if (items.length === 0 && !content) return null;
+  if (items.length === 0 && !content && !children) return null;
 
   return (
-    <Reasoning isStreaming={isStreaming} defaultOpen={false}>
+    <Reasoning isStreaming={isStreaming} defaultOpen={defaultOpen}>
       <ReasoningTrigger />
       <CollapsibleContent
         className="mt-4 flex flex-col gap-2 data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 text-muted-foreground outline-none data-[state=closed]:animate-out data-[state=open]:animate-in"
@@ -39,6 +43,7 @@ export const ReasoningDisplay = ({
           {items.map((item) => (
             <ToolCallDisplay key={item.id} toolCall={item} onToolAction={onToolAction} />
           ))}
+          {children}
         </div>
       </CollapsibleContent>
     </Reasoning>

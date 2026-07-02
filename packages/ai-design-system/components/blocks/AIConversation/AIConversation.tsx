@@ -101,9 +101,60 @@ export const AIConversation = React.memo<AIConversationProps>(
     const toMessageString = (content: unknown): string =>
       typeof content === 'string' ? content : ''
 
+    const groupedMessages = React.useMemo(() => {
+      const result: AIMessage[] = [];
+      let currentGroup: AIMessage | null = null;
+
+      for (const msg of messages) {
+        if (msg.role === "orchestrator") {
+          const isFinalResponse =
+            !msg.isLoading &&
+            (!msg.toolCalls || msg.toolCalls.length === 0) &&
+            (!msg.subAgents || msg.subAgents.length === 0);
+
+          if (!isFinalResponse) {
+            if (currentGroup) {
+              if (msg.content) {
+                currentGroup.content = currentGroup.content
+                  ? `${currentGroup.content}\n\n${msg.content}`
+                  : msg.content;
+              }
+              if (msg.toolCalls) {
+                currentGroup.toolCalls = [
+                  ...(currentGroup.toolCalls || []),
+                  ...msg.toolCalls,
+                ];
+              }
+              if (msg.subAgents) {
+                currentGroup.subAgents = [
+                  ...(currentGroup.subAgents || []),
+                  ...msg.subAgents,
+                ];
+              }
+              currentGroup.isLoading = msg.isLoading;
+            } else {
+              currentGroup = {
+                ...msg,
+                toolCalls: msg.toolCalls ? [...msg.toolCalls] : undefined,
+                subAgents: msg.subAgents ? [...msg.subAgents] : undefined,
+              };
+              result.push(currentGroup);
+            }
+          } else {
+            currentGroup = null;
+            result.push(msg);
+          }
+        } else {
+          currentGroup = null;
+          result.push(msg);
+        }
+      }
+      return result;
+    }, [messages]);
+
     const renderedMessages = React.useMemo(
       () =>
-        messages.map((message) => {
+        groupedMessages.map((message, index) => {
           const contentStr = toMessageString(message.content)
 
           // Render based on role field
@@ -137,8 +188,7 @@ export const AIConversation = React.memo<AIConversationProps>(
             const reasoningCalls = allToolCalls.filter((tc) => tc.visibility === "reasoning")
             const directToolCalls = allToolCalls.filter((tc) => tc.visibility !== "reasoning")
 
-            const hasContent = contentStr.trim() !== ""
-            const hasReasoning = reasoningCalls.length > 0
+            const hasReasoning = reasoningCalls.length > 0 || subAgents.length > 0 || directToolCalls.length > 0 || (message.isLoading && contentStr.trim() !== "");
             const reasoningText = hasReasoning ? contentStr : undefined
             const displayContentStr = hasReasoning ? "" : contentStr
             const hasDisplayContent = displayContentStr.trim() !== ""
@@ -147,7 +197,7 @@ export const AIConversation = React.memo<AIConversationProps>(
               return null;
             }
 
-            const isStreaming = reasoningCalls.some((tc) => tc.status === "pending")
+            const isStreaming = message.isLoading || reasoningCalls.some((tc) => tc.status === "pending") || subAgents.some(sa => sa.status === "active") || directToolCalls.some(tc => tc.status === "pending")
 
             return (
               <OrchestratorMessage
@@ -161,36 +211,37 @@ export const AIConversation = React.memo<AIConversationProps>(
                 }}
                 showAvatar={showAvatars && hasDisplayContent}
               >
-                {/* Render reasoning-section for hidden tool results */}
+                {/* Render reasoning-section for hidden tool results and subagents */}
                 {hasReasoning && (
                   <ReasoningDisplay 
                     content={reasoningText} 
                     items={reasoningCalls} 
                     isStreaming={isStreaming} 
                     onToolAction={onToolAction}
-                  />
+                    defaultOpen={isStreaming || index === groupedMessages.length - 1}
+                  >
+                    {/* Render direct tool calls */}
+                    {directToolCalls.map((tc) => (
+                      <ToolCallDisplay key={tc.id} toolCall={tc} onToolAction={onToolAction} />
+                    ))}
+
+                    {/* Render specialist sub-agents */}
+                    {subAgents.map((subAgent) => (
+                      <SpecialistMessage
+                        key={subAgent.id}
+                        message={{
+                          id: subAgent.id,
+                          name: subAgent.subAgentName,
+                          description: undefined,
+                          content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
+                          status: subAgent.status,
+                          toolCalls: [],
+                        }}
+                        isNested={true}
+                      />
+                    ))}
+                  </ReasoningDisplay>
                 )}
-
-                {/* Render direct tool calls */}
-                {directToolCalls.map((tc) => (
-                  <ToolCallDisplay key={tc.id} toolCall={tc} onToolAction={onToolAction} />
-                ))}
-
-                {/* Render specialist sub-agents */}
-                {subAgents.map((subAgent) => (
-                  <SpecialistMessage
-                    key={subAgent.id}
-                    message={{
-                      id: subAgent.id,
-                      name: subAgent.subAgentName,
-                      description: undefined,
-                      content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
-                      status: subAgent.status,
-                      toolCalls: [],
-                    }}
-                    isNested={true}
-                  />
-                ))}
               </OrchestratorMessage>
             )
           }
@@ -210,7 +261,7 @@ export const AIConversation = React.memo<AIConversationProps>(
             />
           )
         }),
-      [messages, showAvatars]
+      [groupedMessages, showAvatars, onToolAction]
     )
 
     return (
