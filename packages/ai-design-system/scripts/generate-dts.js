@@ -340,7 +340,10 @@ import * as React from 'react';
     for (const line of indexLines) {
       const exportMatch = line.match(/^export\s+(?:type\s+)?\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/);
       if (exportMatch) {
-        dtsContent += line + '\n';
+        const fromPath = exportMatch[2];
+        if (!fromPath.startsWith('.')) {
+          dtsContent += line + '\n';
+        }
       }
     }
   }
