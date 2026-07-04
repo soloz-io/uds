@@ -8,6 +8,7 @@ import { LoadingShimmer } from "@/components/composites/LoadingShimmer"
 import { PageContainer } from "@/components/composites/PageContainer"
 import { ProjectSwitcher, type ProjectSwitcherProps } from "@/components/composites/ProjectSwitcher"
 import { ChatToggleButton, type ChatToggleButtonProps } from "@/components/composites/ChatToggleButton"
+import { AppBreadcrumb, type AppBreadcrumbProps } from "@/components/composites/AppBreadcrumb"
 
 function PageLayoutLoadingState({ message }: { message: string }) {
   return <LoadingShimmer message={message} />
@@ -146,6 +147,11 @@ export interface PageLayoutProps {
    * @default "border"
    */
   dragHandleColor?: "primary" | "secondary" | "accent" | "border" | "muted"
+  /**
+   * Breadcrumb items to display below the AppHeader.
+   * If provided, renders an AppBreadcrumb bar between the header and content.
+   */
+  appBreadcrumbProps?: AppBreadcrumbProps
 }
 
 /**
@@ -175,6 +181,7 @@ export const PageLayout = React.memo<PageLayoutProps>(
     layoutOrientation = "horizontal",
     layoutStorageKey,
     dragHandleColor = "border",
+    appBreadcrumbProps,
   }) => {
     const processedHeader = React.useMemo(() => {
       if (!projectSwitcherProps) return header
@@ -229,6 +236,11 @@ export const PageLayout = React.memo<PageLayoutProps>(
     const pageContainer = (
       <PageContainer className={`overflow-hidden ${className ?? ""}`}>
         <AppHeader {...processedHeader} />
+        {appBreadcrumbProps && (
+          <div className="flex-none px-6 border-b border-border bg-background/80 z-10 flex items-center h-10">
+            <AppBreadcrumb {...appBreadcrumbProps} />
+          </div>
+        )}
         <div className={`min-h-0 flex-1 flex flex-col overflow-x-hidden ${processedLayoutSections || isEmpty ? "overflow-hidden" : "overflow-y-auto"}`}>
           {contentArea}
         </div>

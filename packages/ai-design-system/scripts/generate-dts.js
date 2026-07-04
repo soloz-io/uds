@@ -350,6 +350,16 @@ import * as React from 'react';
   dtsContent += '\n';
 
   dtsContent += `// ============================================================================
+// BLOCK COMPONENT EXPORTS (manually declared - re-exported from ./blocks)
+// ============================================================================
+
+export declare const SectionLayout: React.FC<SectionLayoutProps>;
+export declare function getLayoutedElements(nodes: any[], edges: any[]): Promise<{ nodes: any[]; edges: any[] }>;
+export declare function addEdge(edgeParams: any, edges: any[]): any[];
+
+`;
+
+  dtsContent += `// ============================================================================
 // UTILITIES
 // ============================================================================
 
