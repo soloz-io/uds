@@ -13,6 +13,7 @@ export interface BreadcrumbItemData {
   label: React.ReactNode;
   href?: string;
   isCurrentPage?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
 export interface AppBreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
@@ -55,7 +56,12 @@ export const AppBreadcrumb = React.forwardRef<HTMLElement, AppBreadcrumbProps>(
                   {item.isCurrentPage || isLast ? (
                     <BreadcrumbPage>{item.label}</BreadcrumbPage>
                   ) : (
-                    <BreadcrumbLink href={item.href || "#"}>{item.label}</BreadcrumbLink>
+                    <BreadcrumbLink 
+                      href={item.href || "#"} 
+                      onClick={item.onClick}
+                    >
+                      {item.label}
+                    </BreadcrumbLink>
                   )}
                 </BreadcrumbItem>
                 {!isLast && <BreadcrumbSeparator />}
