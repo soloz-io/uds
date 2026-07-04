@@ -11,6 +11,8 @@ import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval } from "@/components/composites/ApprovalCard";
 import type { FormEvent } from "react";
+import { SessionHeader } from "@/components/composites/SessionHeader";
+import type { ChatSessionInfo } from "@/components/composites/SessionHeader";
 
 /**
  * RefinementPanel Feature
@@ -105,6 +107,26 @@ export interface RefinementPanelProps {
    * Action handler for tool interactions
    */
   onToolAction?: (toolCall: ToolCall, action: string) => void;
+  /**
+   * Available chat sessions
+   */
+  sessions?: ChatSessionInfo[];
+  /**
+   * Currently active session ID
+   */
+  activeSessionId?: string | null;
+  /**
+   * Handler to start a new session
+   */
+  onNewSession?: () => void;
+  /**
+   * Handler to close the active session
+   */
+  onCloseSession?: (id: string) => void;
+  /**
+   * Handler to switch sessions
+   */
+  onSelectSession?: (id: string) => void;
 }
 
 /**
@@ -127,6 +149,11 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
     placeholder = "Ask a question or describe a task...",
     className,
     onToolAction,
+    sessions,
+    activeSessionId,
+    onNewSession,
+    onCloseSession,
+    onSelectSession,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -264,6 +291,15 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
 
     return (
       <div className={`relative flex h-full flex-col ${className || ""}`}>
+        {/* Chat Session Header */}
+        <SessionHeader
+          sessions={sessions}
+          activeSessionId={activeSessionId}
+          onNewSession={onNewSession}
+          onCloseSession={onCloseSession}
+          onSelectSession={onSelectSession}
+        />
+
         <AIConversation
           messages={messages}
           showAvatars={true}

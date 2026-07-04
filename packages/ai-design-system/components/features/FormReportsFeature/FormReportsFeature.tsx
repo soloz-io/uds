@@ -25,6 +25,7 @@ export interface FormReportsFeatureProps {
   createButtonLabel?: string
   showCreateButton?: boolean
   enableCreateDrawer?: boolean
+  enableRowSelection?: boolean
   className?: string
 }
 
@@ -47,6 +48,7 @@ export const FormReportsFeature = React.memo<FormReportsFeatureProps>(
     createButtonLabel = "Create",
     showCreateButton = true,
     enableCreateDrawer = true,
+    enableRowSelection = true,
     className,
   }) => {
     const [drawerOpen, setDrawerOpen] = React.useState(false)
@@ -111,6 +113,7 @@ export const FormReportsFeature = React.memo<FormReportsFeatureProps>(
           pagination={pagination}
           rowActions={rowActions}
           tableHandlers={actionHandlers?.table}
+          enableRowSelection={enableRowSelection}
         />
 
         {enableCreateDrawer ? (

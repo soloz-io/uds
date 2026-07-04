@@ -34,4 +34,5 @@ export interface DashboardTableActionHandlers {
   onPaginationChange?: (pageIndex: number, pageSize: number) => void
   onPageSizeChange?: (pageSize: number) => void
   onPageChange?: (pageIndex: number) => void
+  onRowClick?: (row: DashboardRow) => void
 }

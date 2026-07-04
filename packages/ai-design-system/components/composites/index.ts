@@ -197,3 +197,11 @@ export type { ChatToggleButtonProps } from './ChatToggleButton'
 // WorkflowSwitcher Composite
 export { WorkflowSwitcher } from './WorkflowSwitcher'
 export type { WorkflowSwitcherProps, WorkflowItem } from './WorkflowSwitcher'
+
+// SessionHeader Composite
+export { SessionHeader } from './SessionHeader'
+export type { SessionHeaderProps, ChatSessionInfo } from './SessionHeader'
+
+// AppBreadcrumb Composite
+export { AppBreadcrumb } from './AppBreadcrumb'
+export type { AppBreadcrumbProps, BreadcrumbItemData } from './AppBreadcrumb'

@@ -17,6 +17,7 @@ export interface FormReportsSectionProps {
   pagination?: DashboardPaginationState
   tableHandlers?: FormReportsTableHandlers
   tableLeftActions?: React.ReactNode
+  enableRowSelection?: boolean
 }
 
 export const FormReportsSection = React.memo<FormReportsSectionProps>(
@@ -29,6 +30,7 @@ export const FormReportsSection = React.memo<FormReportsSectionProps>(
     pagination,
     tableHandlers,
     tableLeftActions,
+    enableRowSelection,
   }) => {
     return (
       <section>
@@ -41,6 +43,7 @@ export const FormReportsSection = React.memo<FormReportsSectionProps>(
           leftActions={tableLeftActions}
           onCreateClick={onCreateClick}
           createButtonLabel={createButtonLabel}
+          enableRowSelection={enableRowSelection}
         />
       </section>
     )

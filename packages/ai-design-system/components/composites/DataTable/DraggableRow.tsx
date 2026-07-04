@@ -8,9 +8,11 @@ import type { DashboardRow } from "./table-types"
 export interface DraggableRowProps {
   row: Row<DashboardRow>
   rowId: number | string
+  onClick?: (row: DashboardRow) => void
+  className?: string
 }
 
-export function DraggableRow({ row, rowId }: DraggableRowProps) {
+export function DraggableRow({ row, rowId, onClick, className }: DraggableRowProps) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: rowId,
   })
@@ -21,7 +23,8 @@ export function DraggableRow({ row, rowId }: DraggableRowProps) {
       data-row-id={String(rowId)}
       data-state={row.getIsSelected() && "selected"}
       data-dragging={isDragging}
-      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      onClick={() => onClick?.(row.original)}
+      className={`relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80 ${className ?? ""}`}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,

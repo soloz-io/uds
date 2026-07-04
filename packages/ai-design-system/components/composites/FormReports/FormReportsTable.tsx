@@ -38,6 +38,7 @@ export interface FormReportsTableHandlers {
   onPaginationChange?: (pageIndex: number, pageSize: number) => void
   onPageSizeChange?: (pageSize: number) => void
   onPageChange?: (pageIndex: number) => void
+  onRowClick?: (row: FormReportsEntity) => void
 }
 
 export interface FormReportsTableProps {
@@ -50,6 +51,7 @@ export interface FormReportsTableProps {
   rightActions?: React.ReactNode
   onCreateClick?: () => void
   createButtonLabel?: string
+  enableRowSelection?: boolean
 }
 
 const dashboardToFormReportsActionMap: Record<DashboardRowAction, string> = {
@@ -62,7 +64,7 @@ const dashboardToFormReportsActionMap: Record<DashboardRowAction, string> = {
 export type { DashboardPaginationState }
 
 export const FormReportsTable = React.memo<FormReportsTableProps>(
-  ({ items, columns, pagination, handlers, leftActions, rightActions, onCreateClick, createButtonLabel }) => {
+  ({ items, columns, pagination, handlers, leftActions, rightActions, onCreateClick, createButtonLabel, enableRowSelection }) => {
     const { rows, originalById, tableSchema } = React.useMemo(() => {
       const byId = new Map<string, FormReportsEntity>()
       const tableColumns: DynamicTableSchema["columns"] = columns
@@ -87,10 +89,10 @@ export const FormReportsTable = React.memo<FormReportsTableProps>(
           columns: tableColumns,
           enableFiltering: true,
           enablePagination: true,
-          enableRowSelection: true,
+          enableRowSelection: enableRowSelection ?? true,
         }),
       }
-    }, [columns, items])
+    }, [columns, items, enableRowSelection])
 
     const adaptedHandlers = React.useMemo<DashboardTableActionHandlers>(
       () => ({
@@ -164,6 +166,11 @@ export const FormReportsTable = React.memo<FormReportsTableProps>(
         onPaginationChange: (pageIndex, pageSize) => handlers?.onPaginationChange?.(pageIndex, pageSize),
         onPageSizeChange: (pageSize) => handlers?.onPageSizeChange?.(pageSize),
         onPageChange: (pageIndex) => handlers?.onPageChange?.(pageIndex),
+        onRowClick: (row) => {
+          const originalRow = originalById.get(String(row.id))
+          if (!originalRow) return
+          handlers?.onRowClick?.(originalRow)
+        }
       }),
       [handlers, originalById]
     )

@@ -120,16 +120,50 @@ export const AIConversation = React.memo<AIConversationProps>(
                   : msg.content;
               }
               if (msg.toolCalls) {
-                currentGroup.toolCalls = [
-                  ...(currentGroup.toolCalls || []),
-                  ...msg.toolCalls,
-                ];
+                const existingToolCalls = currentGroup.toolCalls || [];
+                const updatedToolCalls = [...existingToolCalls];
+                for (const newCall of msg.toolCalls) {
+                  const existingIndex = updatedToolCalls.findIndex(tc => tc.id === newCall.id);
+                  if (existingIndex >= 0) {
+                    updatedToolCalls[existingIndex] = newCall;
+                  } else {
+                    updatedToolCalls.push(newCall);
+                  }
+                }
+                currentGroup.toolCalls = updatedToolCalls;
               }
               if (msg.subAgents) {
-                currentGroup.subAgents = [
-                  ...(currentGroup.subAgents || []),
-                  ...msg.subAgents,
-                ];
+                const existingSubAgents = currentGroup.subAgents || [];
+                const updatedSubAgents = [...existingSubAgents];
+                for (const newAgent of msg.subAgents) {
+                  const existingIndex = updatedSubAgents.findIndex(a => a.id === newAgent.id);
+                  if (existingIndex >= 0) {
+                    updatedSubAgents[existingIndex] = newAgent;
+                  } else {
+                    // Merge consecutive subAgents with the same name
+                    if (
+                      updatedSubAgents.length > 0 &&
+                      updatedSubAgents[updatedSubAgents.length - 1].subAgentName === newAgent.subAgentName
+                    ) {
+                      const prev = updatedSubAgents[updatedSubAgents.length - 1];
+                      let mergedOutput = prev.output;
+                      if (newAgent.output) {
+                        const prevStr = typeof prev.output === 'string' ? prev.output : (prev.output ? JSON.stringify(prev.output) : '');
+                        const newStr = typeof newAgent.output === 'string' ? newAgent.output : JSON.stringify(newAgent.output);
+                        mergedOutput = prevStr ? `${prevStr}\n\n${newStr}` : newStr;
+                      }
+                      updatedSubAgents[updatedSubAgents.length - 1] = {
+                        ...newAgent,
+                        id: prev.id, // keep the original id so React keys don't jump
+                        input: prev.input, // keep original input or combine? Just keep original
+                        output: mergedOutput
+                      };
+                    } else {
+                      updatedSubAgents.push(newAgent);
+                    }
+                  }
+                }
+                currentGroup.subAgents = updatedSubAgents;
               }
               currentGroup.isLoading = msg.isLoading;
             } else {

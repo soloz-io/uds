@@ -539,7 +539,13 @@ export function EnhancedDataTable({
                 {table.getRowModel().rows?.length ? (
                   <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
                     {table.getRowModel().rows.map((row) => (
-                      <DraggableRow key={row.id} row={row} rowId={toRowId(row.original, tableSchema)} />
+                      <DraggableRow 
+                        key={row.id} 
+                        row={row} 
+                        rowId={toRowId(row.original, tableSchema)} 
+                        onClick={handlers?.onRowClick}
+                        className={handlers?.onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
+                      />
                     ))}
                   </SortableContext>
                 ) : (
