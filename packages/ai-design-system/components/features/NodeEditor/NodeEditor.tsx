@@ -37,6 +37,7 @@ export interface NodeEditorProps {
 
   showMinimap?: boolean;
   interactive?: boolean;
+  hideDefaultActions?: boolean;
   className?: string;
 }
 
@@ -62,6 +63,7 @@ export function NodeEditor({
   extraActions,
   showMinimap,
   interactive = false,
+  hideDefaultActions = false,
   className,
 }: NodeEditorProps) {
   const defaultActionGroups: ToolbarAction[][] = [
@@ -72,9 +74,9 @@ export function NodeEditor({
     ],
   ];
 
-  const allActionGroups = extraActions
-    ? [...extraActions, ...defaultActionGroups]
-    : defaultActionGroups;
+  let allActionGroups: ToolbarAction[][] = [];
+  if (extraActions) allActionGroups = [...allActionGroups, ...extraActions];
+  if (!hideDefaultActions) allActionGroups = [...allActionGroups, ...defaultActionGroups];
 
   return (
     <div
