@@ -46,23 +46,6 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
               ? (activeSession?.title || 'Untitled Session')
               : 'New Session'}
           </span>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-6 w-6 flex-none" 
-            onClick={() => {
-              if (activeSessionId) {
-                onCloseSession?.(activeSessionId);
-              } else {
-                // If closing a 'New Session', we might want to just trigger onCloseSession with null or handle it.
-                // But since the interface requires a string, we can just pass an empty string or 'new'.
-                // Actually, if activeSessionId is null, clicking X should probably revert to the last session.
-                onCloseSession?.('draft');
-              }
-            }}
-          >
-            <Icon name="x" className="h-4 w-4" />
-          </Button>
         </div>
         <div className="flex items-center space-x-1 flex-none">
           <Button variant="ghost" size="icon" onClick={onNewSession} className="h-8 w-8">
