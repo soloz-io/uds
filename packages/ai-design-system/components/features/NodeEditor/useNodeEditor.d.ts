@@ -4,7 +4,7 @@ import type { WorkflowVersion } from "@/components/composites/WorkflowToolbar";
 
 export type { WorkflowVersion };
 
-export interface UseWorkflowBuilderReturn {
+export interface UseNodeEditorReturn {
   // Workflow state
   nodes: WorkflowNode[];
   edges: WorkflowEdge[];
@@ -39,8 +39,8 @@ export interface UseWorkflowBuilderReturn {
   currentWorkflowId?: string;
 }
 
-export type UseWorkflowBuilder = (workflowId?: string) => UseWorkflowBuilderReturn;
+export type UseNodeEditor = (workflowId?: string) => UseNodeEditorReturn;
 
-export function useWorkflowBuilder(workflowId?: string): UseWorkflowBuilderReturn {
-  throw new Error("useWorkflowBuilder must be implemented by the consuming application");
+export function useNodeEditor(workflowId?: string): UseNodeEditorReturn {
+  throw new Error("useNodeEditor must be implemented by the consuming application");
 }

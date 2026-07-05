@@ -1,10 +1,10 @@
 /**
- * Mock data for AIDocEditor stories and tests
+ * Mock data for TextEditor stories and tests
  * 
  * This file contains reusable mock data that can be imported by:
- * - AIDocEditor.stories.tsx (regular stories)
- * - AIDocEditor.behaviors.stories.tsx (behavior tests)
- * - Any other test files that need AIDocEditor mock data
+ * - TextEditor.stories.tsx (regular stories)
+ * - TextEditor.behaviors.stories.tsx (behavior tests)
+ * - Any other test files that need TextEditor mock data
  */
 
 import type { JSONContent } from '@tiptap/core'

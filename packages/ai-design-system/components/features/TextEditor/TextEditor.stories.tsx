@@ -1,30 +1,30 @@
 /**
- * AIDocEditor Feature Stories
+ * TextEditor Feature Stories
  * 
- * Required story patterns for AIDocEditor feature:
+ * Required story patterns for TextEditor feature:
  * - Default: Static single-document mode (backward compatible)
  * - Empty: Empty state for multi-tab mode
  * - WithStateManagement: Interactive multi-tab with mock hook
  */
 
 import type { Meta, StoryObj } from '@storybook/react'
-import { AIDocEditor } from './AIDocEditor'
-import { useAIDocEditorMock } from './useAIDocEditor.mock'
+import { TextEditor } from './TextEditor'
+import { useTextEditorMock } from './useTextEditor.mock'
 import {
   sampleContent,
   currentUser,
   sampleAnnotations,
   sampleMultiTabDocuments,
-} from './AIDocEditor.mocks'
+} from './TextEditor.mocks'
 
 const meta = {
-  title: 'Features/AIDocEditor',
-  component: AIDocEditor,
+  title: 'Features/TextEditor',
+  component: TextEditor,
   parameters: {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof AIDocEditor>
+} satisfies Meta<typeof TextEditor>
 
 export default meta
 type Story = StoryObj<typeof meta>
@@ -70,13 +70,13 @@ export const Empty: Story = {
  */
 export const WithStateManagement: Story = {
   render: () => {
-    const mockState = useAIDocEditorMock({
+    const mockState = useTextEditorMock({
       multiDoc: true,
       initialDocuments: sampleMultiTabDocuments,
     })
 
     return (
-      <AIDocEditor
+      <TextEditor
         documents={mockState.documents}
         activeDocumentId={mockState.activeDocumentId}
         fileTree={mockState.fileTree}

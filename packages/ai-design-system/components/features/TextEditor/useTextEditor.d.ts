@@ -1,5 +1,5 @@
 /**
- * Hook contract for AIDocEditor feature
+ * Hook contract for TextEditor feature
  * 
  * This interface defines the contract for managing document annotations.
  * Applications should implement this hook to provide real data management,
@@ -8,7 +8,7 @@
  * @example
  * ```tsx
  * // Real implementation in application
- * export function useAIDocEditor(documentId: string): UseAIDocEditorReturn {
+ * export function useTextEditor(documentId: string): UseTextEditorReturn {
  *   const [annotations, setAnnotations] = useState<Annotation[]>([])
  *   const [loading, setLoading] = useState(false)
  * 
@@ -29,10 +29,10 @@
  * ```tsx
  * // Usage in component
  * const MyDocumentEditor = ({ documentId }) => {
- *   const { annotations, addAnnotation, updateAnnotation, loading } = useAIDocEditor(documentId)
+ *   const { annotations, addAnnotation, updateAnnotation, loading } = useTextEditor(documentId)
  * 
  *   return (
- *     <AIDocEditor
+ *     <TextEditor
  *       content={document}
  *       annotations={annotations}
  *       currentUser={user}
@@ -51,10 +51,10 @@ import type { FileTreeNode } from '@/components/composites/FileTreeExplorer'
 import type { JSONContent } from '@tiptap/core'
 
 /**
- * Return type for useAIDocEditor hook (single document)
+ * Return type for useTextEditor hook (single document)
  * @deprecated Use UseAIMultiTabDocEditorReturn for multi-tab support
  */
-export interface UseAIDocEditorReturn {
+export interface UseTextEditorReturn {
   /**
    * Array of annotations for the document
    */
@@ -168,7 +168,7 @@ export interface UseAIMultiTabDocEditorReturn {
  * @param documentId - ID of the document to manage annotations for
  * @returns Object containing annotations array and mutation methods
  */
-export function useAIDocEditor(documentId: string): UseAIDocEditorReturn
+export function useTextEditor(documentId: string): UseTextEditorReturn
 
 /**
  * Hook for managing multi-tab documents with annotations

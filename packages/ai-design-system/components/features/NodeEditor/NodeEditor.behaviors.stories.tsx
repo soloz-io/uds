@@ -1,22 +1,22 @@
 /**
- * WorkflowBuilder Behavior Tests
+ * NodeEditor Behavior Tests
  *
  * Tests user interactions and state changes to prevent regressions.
  */
 
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
-import { WorkflowBuilder } from "./WorkflowBuilder";
-import { mockVersions, mockNodes, mockEdges } from "./WorkflowBuilder.mocks";
+import { NodeEditor } from "./NodeEditor";
+import { mockVersions, mockNodes, mockEdges } from "./NodeEditor.mocks";
 
 const meta = {
-  title: "Features/WorkflowBuilder/Behaviors",
-  component: WorkflowBuilder,
+  title: "Features/NodeEditor/Behaviors",
+  component: NodeEditor,
   tags: ["test"],
   parameters: {
     layout: "fullscreen",
   },
-} satisfies Meta<typeof WorkflowBuilder>;
+} satisfies Meta<typeof NodeEditor>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

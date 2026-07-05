@@ -1,5 +1,5 @@
 /**
- * Mock implementation of useAIDocEditor hook for Storybook
+ * Mock implementation of useTextEditor hook for Storybook
  * 
  * This mock provides realistic state management and simulated async operations
  * for visual testing and interactive demos in Storybook.
@@ -9,8 +9,8 @@ import React, { useState, useCallback } from 'react'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation } from '@/types/ai-editor/annotations'
 import type { FileTreeNode } from '@/components/composites/FileTreeExplorer'
-import type { UseAIDocEditorReturn, UseAIMultiTabDocEditorReturn } from './useAIDocEditor'
-import { sampleDocumentFiles, sampleMultiTabDocuments } from './AIDocEditor.mocks'
+import type { UseTextEditorReturn, UseAIMultiTabDocEditorReturn } from './useTextEditor'
+import { sampleDocumentFiles, sampleMultiTabDocuments } from './TextEditor.mocks'
 
 interface DocumentFile {
   id: string
@@ -33,33 +33,33 @@ type MultiDocMockConfig = {
 
 function useSingleDocEditorMockState(
   initialAnnotations: Annotation[]
-): UseAIDocEditorReturn {
+): UseTextEditorReturn {
   const [annotations, setAnnotations] = useState<Annotation[]>(initialAnnotations)
   const [loading, setLoading] = useState(false)
 
   const addAnnotation = useCallback(async (annotation: Annotation) => {
-    console.log('[AIDocEditor Mock] Adding annotation:', annotation)
+    console.log('[TextEditor Mock] Adding annotation:', annotation)
     setLoading(true)
 
     await new Promise(resolve => setTimeout(resolve, 500))
 
     setAnnotations(prev => {
       const updated = [...prev, annotation]
-      console.log('[AIDocEditor Mock] Annotations after add:', updated)
+      console.log('[TextEditor Mock] Annotations after add:', updated)
       return updated
     })
     setLoading(false)
   }, [])
 
   const updateAnnotation = useCallback(async (annotation: Annotation) => {
-    console.log('[AIDocEditor Mock] Updating annotation:', annotation)
+    console.log('[TextEditor Mock] Updating annotation:', annotation)
     setLoading(true)
 
     await new Promise(resolve => setTimeout(resolve, 500))
 
     setAnnotations(prev => {
       const updated = prev.map(a => (a.id === annotation.id ? annotation : a))
-      console.log('[AIDocEditor Mock] Annotations after update:', updated)
+      console.log('[TextEditor Mock] Annotations after update:', updated)
       return updated
     })
     setLoading(false)
@@ -120,13 +120,13 @@ function useMultiTabDocEditorMockState(
   }, [])
 
   const addDocument = useCallback((file: DocumentFile, content: unknown) => {
-    console.log('[Multi-Tab Mock] Adding document:', file.name)
+    console.log('[TextEditor Multi-Tab Mock] Adding document:', file.name)
     setDocuments(prev => [...prev, { file, content: content as JSONContent | string, annotations: [] }])
     setActiveDocumentId(file.id)
   }, [])
 
   const closeDocument = useCallback((documentId: string) => {
-    console.log('[Multi-Tab Mock] Closing document:', documentId)
+    console.log('[TextEditor Multi-Tab Mock] Closing document:', documentId)
     setDocuments(prev => prev.filter(doc => doc.file.id !== documentId))
     if (activeDocumentId === documentId) {
       const filtered = documents.filter(doc => doc.file.id !== documentId)
@@ -135,11 +135,11 @@ function useMultiTabDocEditorMockState(
   }, [activeDocumentId, documents])
 
   const switchDocument = useCallback((documentId: string) => {
-    console.log('[Multi-Tab Mock] Switching to document:', documentId)
+    console.log('[TextEditor Multi-Tab Mock] Switching to document:', documentId)
     setDocuments(prev => {
       const exists = prev.some(doc => doc.file.id === documentId)
       if (!exists) {
-        console.log('[Multi-Tab Mock] Re-opening closed document:', documentId)
+        console.log('[TextEditor Multi-Tab Mock] Re-opening closed document:', documentId)
         let mockDoc = sampleMultiTabDocuments.find(d => d.file.id === documentId) as unknown as DocumentWithAnnotations
         if (!mockDoc) {
           const file = sampleDocumentFiles.find(f => f.id === documentId)
@@ -250,15 +250,15 @@ function useMultiTabDocEditorMockState(
  * and realistic user interactions.
  * 
  * @param initialAnnotations - Initial annotations to display
- * @returns Mock implementation of UseAIDocEditorReturn
+ * @returns Mock implementation of UseTextEditorReturn
  */
-export function useAIDocEditorMock(
+export function useTextEditorMock(
   initialAnnotations: Annotation[]
-): UseAIDocEditorReturn
-export function useAIDocEditorMock(config: MultiDocMockConfig): UseAIMultiTabDocEditorReturn
-export function useAIDocEditorMock(
+): UseTextEditorReturn
+export function useTextEditorMock(config: MultiDocMockConfig): UseAIMultiTabDocEditorReturn
+export function useTextEditorMock(
   initialAnnotationsOrConfig: Annotation[] | MultiDocMockConfig = []
-): UseAIDocEditorReturn | UseAIMultiTabDocEditorReturn {
+): UseTextEditorReturn | UseAIMultiTabDocEditorReturn {
   const isMultiDoc = !Array.isArray(initialAnnotationsOrConfig) && initialAnnotationsOrConfig.multiDoc === true
   const singleInitialAnnotations = Array.isArray(initialAnnotationsOrConfig) ? initialAnnotationsOrConfig : []
   const multiInitialDocuments = !Array.isArray(initialAnnotationsOrConfig)

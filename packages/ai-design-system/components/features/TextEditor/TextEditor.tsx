@@ -1,12 +1,12 @@
 /**
- * AIDocEditor Feature Component
+ * TextEditor Feature Component
  * 
  * Complete document editor with inline comment annotations.
  * Supports both single-document and multi-tab modes.
  * 
  * Single-document mode (backward compatible):
  * ```tsx
- * <AIDocEditor
+ * <TextEditor
  *   content={document}
  *   annotations={annotations}
  *   currentUser={user}
@@ -17,7 +17,7 @@
  * 
  * Multi-tab mode:
  * ```tsx
- * <AIDocEditor
+ * <TextEditor
  *   documents={[
  *     { file: { id: 'doc-1', name: 'File.md', isDirty: false, lastModified: now }, 
  *       content: '...',
@@ -50,9 +50,9 @@ interface DocumentWithAnnotations {
 }
 
 /**
- * Props for AIDocEditor feature component - Single document mode (backward compatible)
+ * Props for TextEditor feature component - Single document mode (backward compatible)
  */
-export interface AIDocEditorSingleProps {
+export interface TextEditorSingleProps {
   /** 
    * Document content - can be either:
    * - JSONContent: Tiptap's JSON format (default)
@@ -82,9 +82,9 @@ export interface AIDocEditorSingleProps {
 }
 
 /**
- * Props for AIDocEditor feature component - Multi-tab mode
+ * Props for TextEditor feature component - Multi-tab mode
  */
-export interface AIDocEditorMultiTabProps {
+export interface TextEditorMultiTabProps {
   /** Array of open documents with their content and annotations */
   documents: DocumentWithAnnotations[]
   /** ID of currently active document */
@@ -108,9 +108,9 @@ export interface AIDocEditorMultiTabProps {
 }
 
 /**
- * Props for AIDocEditor feature component
+ * Props for TextEditor feature component
  */
-export type AIDocEditorProps = (AIDocEditorSingleProps | AIDocEditorMultiTabProps) & {
+export type TextEditorProps = (TextEditorSingleProps | TextEditorMultiTabProps) & {
   /** Current user information */
   currentUser: User
   /** Editor mode: 'review' allows commenting, 'readonly' disables interactions */
@@ -136,7 +136,7 @@ export type AIDocEditorProps = (AIDocEditorSingleProps | AIDocEditorMultiTabProp
 /**
  * Determine if props are multi-tab mode
  */
-function isMultiTabMode(props: AIDocEditorProps): props is AIDocEditorMultiTabProps & {
+function isMultiTabMode(props: TextEditorProps): props is TextEditorMultiTabProps & {
   currentUser: User
   mode: 'review' | 'readonly'
 } {
@@ -152,7 +152,7 @@ function formatJson(text: string): string {
 }
 
 /**
- * AIDocEditor - Document editor with inline comment annotations
+ * TextEditor - Document editor with inline comment annotations
  * 
  * This feature component provides a complete document review experience with:
  * - Single-document or multi-tab display modes
@@ -166,7 +166,7 @@ function formatJson(text: string): string {
  * Note: The refinement panel (right sidebar with Accept All/Reject All) is a
  * separate component in the parent application, not part of this feature.
  */
-export const AIDocEditor = React.memo<AIDocEditorProps>(
+export const TextEditor = React.memo<TextEditorProps>(
   (props) => {
     const {
       mode = 'review',
@@ -214,7 +214,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
     const fileTreeNodes = useMemo(() => {
       if (!isMultiTab) return []
       
-      const multiProps = props as AIDocEditorMultiTabProps
+      const multiProps = props as TextEditorMultiTabProps
       if (multiProps.fileTree) {
         return multiProps.fileTree
       }
@@ -256,7 +256,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
         })
       })
       return rootNodes
-    }, [isMultiTab, (props as AIDocEditorMultiTabProps).documents, (props as AIDocEditorMultiTabProps).fileTree])
+    }, [isMultiTab, (props as TextEditorMultiTabProps).documents, (props as TextEditorMultiTabProps).fileTree])
 
     /**
      * Single-document mode
@@ -269,7 +269,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
           ? `\`\`\`json\n${formatJson(props.content as string)}\n\`\`\``
           : (props.content as string)
         return (
-          <div className={cn('ai-doc-editor p-6 flex flex-col h-screen w-full flex-1', className)}>
+          <div className={cn('text-editor p-6 flex flex-col h-screen w-full flex-1', className)}>
             <StreamingMarkdown mode="streaming">
               {content}
             </StreamingMarkdown>
@@ -277,7 +277,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
         )
       }
       return (
-        <div className={cn('ai-doc-editor flex flex-col h-screen w-full flex-1', className)}>
+        <div className={cn('text-editor flex flex-col h-screen w-full flex-1', className)}>
           <DocumentEditorWithComments
             content={props.content}
             format={props.format}
@@ -288,7 +288,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
             readOnly={mode === 'readonly'}
             onAnnotationAdd={handleAnnotationAdd}
             onAnnotationUpdate={handleAnnotationUpdate}
-            className={cn('ai-doc-editor p-6 h-full flex flex-col', className)}
+            className={cn('text-editor p-6 h-full flex flex-col', className)}
           />
         </div>
       )
@@ -297,13 +297,13 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
     /**
      * Multi-tab mode
      */
-    const { hideTabBar } = props as AIDocEditorMultiTabProps
+    const { hideTabBar } = props as TextEditorMultiTabProps
 
     let editorPane: React.ReactNode
 
     if (!currentDocument) {
       editorPane = (
-        <div className="ai-doc-editor flex flex-col h-full w-full">
+        <div className="text-editor flex flex-col h-full w-full">
           {!hideTabBar && (
             <DocumentTabBar
               className="w-full"
@@ -324,7 +324,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
       const renderAsStreamdown = isMarkdownMulti || isJsonMulti
 
       editorPane = (
-        <div className="ai-doc-editor flex flex-col h-full w-full">
+        <div className="text-editor flex flex-col h-full w-full">
           {!hideTabBar && (
             <DocumentTabBar
               className="w-full"
@@ -358,7 +358,7 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
                 readOnly={mode === 'readonly'}
                 onAnnotationAdd={handleAnnotationAdd}
                 onAnnotationUpdate={handleAnnotationUpdate}
-                className="ai-doc-editor p-6 min-h-full"
+                className="text-editor p-6 min-h-full"
               />
             )}
           </div>
@@ -400,4 +400,4 @@ export const AIDocEditor = React.memo<AIDocEditorProps>(
   }
 )
 
-AIDocEditor.displayName = 'AIDocEditor'
+TextEditor.displayName = 'TextEditor'

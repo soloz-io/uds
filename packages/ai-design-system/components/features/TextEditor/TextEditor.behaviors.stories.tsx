@@ -1,5 +1,5 @@
 /**
- * AIDocEditor Behavior Tests
+ * TextEditor Behavior Tests
  * 
  * Tests user interactions and state changes to prevent regressions.
  * These tests validate functionality, not visual appearance.
@@ -8,17 +8,17 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { expect, fn, userEvent, within, waitFor, screen } from '@storybook/test'
 import type { Annotation } from '@/types/ai-editor'
-import { AIDocEditor } from './AIDocEditor'
-import { currentUser, sampleAnnotations, sampleContent } from './AIDocEditor.mocks'
+import { TextEditor } from './TextEditor'
+import { currentUser, sampleAnnotations, sampleContent } from './TextEditor.mocks'
 
 const meta = {
-  title: 'Features/AIDocEditor/Behaviors',
-  component: AIDocEditor,
+  title: 'Features/TextEditor/Behaviors',
+  component: TextEditor,
   tags: ['test'],
   parameters: {
     layout: 'fullscreen',
   },
-} satisfies Meta<typeof AIDocEditor>
+} satisfies Meta<typeof TextEditor>
 
 export default meta
 type Story = StoryObj<typeof meta>

@@ -1,9 +1,9 @@
 /**
- * Mock data for WorkflowBuilder stories and tests
+ * Mock data for NodeEditor stories and tests
  *
  * Reusable mock data imported by:
- * - WorkflowBuilder.stories.tsx
- * - WorkflowBuilder.behaviors.stories.tsx
+ * - NodeEditor.stories.tsx
+ * - NodeEditor.behaviors.stories.tsx
  */
 
 import type { WorkflowNode, WorkflowEdge } from "@/components/blocks/WorkflowCanvas";

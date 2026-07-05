@@ -122,7 +122,7 @@ function validate() {
     console.log(`  Create ${colors.bold}{FeatureName}.behaviors.stories.tsx${colors.reset} in the feature directory`);
     console.log(`  File should contain interaction tests with play functions\n`);
 
-    console.log(`${colors.yellow}Example: packages/ai-design-system/components/features/AIDocEditor/AIDocEditor.behaviors.stories.tsx${colors.reset}\n`);
+    console.log(`${colors.yellow}Example: packages/ai-design-system/components/features/TextEditor/TextEditor.behaviors.stories.tsx${colors.reset}\n`);
 
     return false;
   }

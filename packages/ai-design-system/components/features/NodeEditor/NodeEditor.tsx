@@ -7,7 +7,7 @@ import type { ToolbarAction, WorkflowVersion } from "@/components/composites/Wor
 import type { Connection, NodeChange, EdgeChange } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 
-export interface WorkflowBuilderProps {
+export interface NodeEditorProps {
   // Toolbar — left
   workflowName?: string;
   versions?: WorkflowVersion[];
@@ -40,7 +40,7 @@ export interface WorkflowBuilderProps {
   className?: string;
 }
 
-export function WorkflowBuilder({
+export function NodeEditor({
   workflowName,
   versions,
   currentVersionId,
@@ -63,7 +63,7 @@ export function WorkflowBuilder({
   showMinimap,
   interactive = false,
   className,
-}: WorkflowBuilderProps) {
+}: NodeEditorProps) {
   const defaultActionGroups: ToolbarAction[][] = [
     [
       { id: "undo", icon: "undo-2", title: "Undo", onClick: onUndo, disabled: !canUndo },

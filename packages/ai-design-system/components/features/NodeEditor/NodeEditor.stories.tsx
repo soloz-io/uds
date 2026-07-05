@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { WorkflowBuilder } from "./WorkflowBuilder";
-import { useWorkflowBuilderMock } from "./useWorkflowBuilder.mock";
-import { mockVersions, mockNodes, mockEdges } from "./WorkflowBuilder.mocks";
+import { NodeEditor } from "./NodeEditor";
+import { useNodeEditorMock } from "./useNodeEditor.mock";
+import { mockVersions, mockNodes, mockEdges } from "./NodeEditor.mocks";
 
 /**
- * WorkflowBuilder Feature
+ * NodeEditor Feature
  *
  * Complete workflow editing experience combining a floating toolbar
  * with a ReactFlow canvas for building state machine workflows.
@@ -17,7 +17,7 @@ import { mockVersions, mockNodes, mockEdges } from "./WorkflowBuilder.mocks";
  * - Minimap support
  *
  * ## Usage
- * Pass individual props directly or wire up via `useWorkflowBuilder` hook
+ * Pass individual props directly or wire up via `useNodeEditor` hook
  * in the consuming application.
  *
  * ## Accessibility
@@ -25,22 +25,22 @@ import { mockVersions, mockNodes, mockEdges } from "./WorkflowBuilder.mocks";
  * - Keyboard navigation supported
  */
 const meta = {
-  title: "Features/WorkflowBuilder",
-  component: WorkflowBuilder,
+  title: "Features/NodeEditor",
+  component: NodeEditor,
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
   },
-} satisfies Meta<typeof WorkflowBuilder>;
+} satisfies Meta<typeof NodeEditor>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function WorkflowBuilderStateManagementStory() {
-  const hook = useWorkflowBuilderMock("wf-1");
+function NodeEditorStateManagementStory() {
+  const hook = useNodeEditorMock("wf-1");
 
   return (
-    <WorkflowBuilder
+    <NodeEditor
       workflowName={hook.workflowName}
       versions={hook.versions}
       currentVersionId={hook.currentVersionId}
@@ -63,11 +63,11 @@ function WorkflowBuilderStateManagementStory() {
   );
 }
 
-function WorkflowBuilderWithMinimapStory() {
-  const hook = useWorkflowBuilderMock("wf-1");
+function NodeEditorWithMinimapStory() {
+  const hook = useNodeEditorMock("wf-1");
 
   return (
-    <WorkflowBuilder
+    <NodeEditor
       workflowName={hook.workflowName}
       versions={hook.versions}
       currentVersionId={hook.currentVersionId}
@@ -100,7 +100,7 @@ export const Default: Story = {
  * WithStateManagement — full interactive mock hook wired up
  */
 export const WithStateManagement: Story = {
-  render: () => <WorkflowBuilderStateManagementStory />,
+  render: () => <NodeEditorStateManagementStory />,
 };
 
 /**
@@ -120,7 +120,7 @@ export const Empty: Story = {
  * WithMinimap — canvas with minimap enabled
  */
 export const WithMinimap: Story = {
-  render: () => <WorkflowBuilderWithMinimapStory />,
+  render: () => <NodeEditorWithMinimapStory />,
 };
 
 /**

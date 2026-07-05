@@ -9,9 +9,9 @@ import {
   mockPageLayoutRefinementMessages,
   mockSidebarConfig,
 } from './PageLayout.mocks'
-import { WorkflowBuilder } from '../WorkflowBuilder/WorkflowBuilder'
+import { NodeEditor } from '../NodeEditor/NodeEditor'
 import { RefinementPanel } from '../RefinementPanel/RefinementPanel'
-import { mockEdges, mockNodes, mockVersions } from '../WorkflowBuilder/WorkflowBuilder.mocks'
+import { mockEdges, mockNodes, mockVersions } from '../NodeEditor/NodeEditor.mocks'
 import { DashboardFeature } from '../DashboardFeature/DashboardFeature'
 import { useDashboardIntegrationMock } from './useDashboardIntegration.mock'
 
@@ -157,7 +157,7 @@ export const WithStateManagement: Story = {
               content: activeTab === 'dashboard' ? (
                 <DashboardFeature {...dashboardState.dashboardProps} />
               ) : (
-                <WorkflowBuilder
+                <NodeEditor
                   workflowName="Order Processing Workflow"
                   currentVersionId="v4"
                   versions={mockVersions}

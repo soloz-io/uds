@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { applyNodeChanges, applyEdgeChanges, addEdge } from "@xyflow/react";
 import type { Connection, NodeChange, EdgeChange } from "@xyflow/react";
 import type { WorkflowNode, WorkflowEdge } from "@/components/blocks/WorkflowCanvas";
-import type { UseWorkflowBuilderReturn } from "./useWorkflowBuilder";
+import type { UseNodeEditorReturn } from "./useNodeEditor";
 
 const mockNodes: WorkflowNode[] = [
   {
@@ -43,7 +43,7 @@ const mockVersions = [
   { id: "v4", label: "v4" },
 ];
 
-export function useWorkflowBuilderMock(workflowId?: string): UseWorkflowBuilderReturn {
+export function useNodeEditorMock(workflowId?: string): UseNodeEditorReturn {
   const [nodes, setNodes] = useState<WorkflowNode[]>(mockNodes);
   const [edges, setEdges] = useState<WorkflowEdge[]>(mockEdges);
   const [workflowName, setWorkflowName] = useState("Order Processing Workflow");

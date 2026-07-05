@@ -17,13 +17,13 @@ export type { RefinementPanelProps, RefinementMessage } from "./RefinementPanel"
 export { SpecNavigator } from "./SpecNavigator";
 export type { SpecNavigatorProps } from "./SpecNavigator";
 
-// AIDocEditor Feature
-export { AIDocEditor } from "./AIDocEditor";
-export type { AIDocEditorProps } from "./AIDocEditor";
+// TextEditor Feature
+export { TextEditor } from "./TextEditor";
+export type { TextEditorProps } from "./TextEditor";
 
-// WorkflowBuilder Feature
-export { WorkflowBuilder } from "./WorkflowBuilder";
-export type { WorkflowBuilderProps } from "./WorkflowBuilder";
+// NodeEditor Feature
+export { NodeEditor } from "./NodeEditor";
+export type { NodeEditorProps } from "./NodeEditor";
 
 // DashboardFeature Feature
 export { DashboardFeature } from "./DashboardFeature";
