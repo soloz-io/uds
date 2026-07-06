@@ -66,7 +66,7 @@ export interface TextEditorSingleProps {
    * 
    * @default 'json'
    */
-  format?: 'json' | 'markdown'
+  format?: 'json' | 'markdown' | string
   /** Array of annotations to display */
   annotations: Annotation[]
   /** ID of currently selected annotation */
@@ -262,12 +262,15 @@ export const TextEditor = React.memo<TextEditorProps>(
      * Single-document mode
      */
     if (!isMultiTab) {
-      const isMarkdown = props.format === 'markdown'
-      const isJson = props.format === 'json'
-      if (isMarkdown || isJson) {
-        const content = isJson
-          ? `\`\`\`json\n${formatJson(props.content as string)}\n\`\`\``
-          : (props.content as string)
+      const format = props.format || 'markdown'
+      const isMarkdown = format === 'markdown'
+      const isCode = !isMarkdown && typeof props.content === 'string'
+      
+      if (isMarkdown || isCode) {
+        const contentStr = props.content as string
+        const content = isCode
+          ? `\`\`\`${format}\n${format === 'json' ? formatJson(contentStr) : contentStr}\n\`\`\``
+          : contentStr
         return (
           <div className={cn('text-editor p-6 flex flex-col h-screen w-full flex-1', className)}>
             <StreamingMarkdown mode="streaming">
@@ -319,9 +322,10 @@ export const TextEditor = React.memo<TextEditorProps>(
         </div>
       )
     } else {
-      const isMarkdownMulti = currentDocument.file.format === 'markdown'
-      const isJsonMulti = currentDocument.file.format === 'json'
-      const renderAsStreamdown = isMarkdownMulti || isJsonMulti
+      const format = currentDocument.file.format || 'markdown'
+      const isMarkdownMulti = format === 'markdown'
+      const isCodeMulti = !isMarkdownMulti && typeof currentDocument.content === 'string'
+      const renderAsStreamdown = isMarkdownMulti || isCodeMulti
 
       editorPane = (
         <div className="text-editor flex flex-col h-full w-full">
@@ -342,8 +346,8 @@ export const TextEditor = React.memo<TextEditorProps>(
                   isAnimating
                   className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                 >
-                  {isJsonMulti
-                    ? `\`\`\`json\n${formatJson(currentDocument.content as string)}\n\`\`\``
+                  {isCodeMulti
+                    ? `\`\`\`${format}\n${format === 'json' ? formatJson(currentDocument.content as string) : currentDocument.content}\n\`\`\``
                     : (currentDocument.content as string)}
                 </StreamingMarkdown>
               </div>

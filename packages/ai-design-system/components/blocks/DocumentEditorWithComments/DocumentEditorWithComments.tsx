@@ -26,7 +26,7 @@ export interface DocumentEditorWithCommentsProps {
    * Content format - determines how content prop is interpreted
    * @default 'json'
    */
-  format?: 'json' | 'markdown'
+  format?: 'json' | 'markdown' | string
   /** Array of annotations to display */
   annotations: Annotation[]
   /** ID of currently selected annotation */

@@ -33,7 +33,7 @@ export interface DocumentEditorProps {
    * 
    * @default 'json'
    */
-  format?: 'json' | 'markdown'
+  format?: 'json' | 'markdown' | string
   /** Array of annotations to display */
   annotations: Annotation[]
   /** ID of currently selected annotation */
@@ -166,7 +166,7 @@ export interface DocumentFile {
   /** Whether document has unsaved changes */
   isDirty: boolean
   /** Content format */
-  format?: 'json' | 'markdown'
+  format?: 'json' | 'markdown' | string
   /** Last modified timestamp */
   lastModified: number
 }

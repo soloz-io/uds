@@ -16,7 +16,7 @@ interface DocumentFile {
   id: string
   name: string
   isDirty: boolean
-  format?: 'json' | 'markdown'
+  format?: 'json' | 'markdown' | string
   lastModified: number
 }
 
