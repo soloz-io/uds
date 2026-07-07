@@ -185,8 +185,7 @@ export const TextEditor = React.memo<TextEditorProps>(
     const currentDocument = useMemo(() => {
       if (isMultiTab && props.documents) {
         return (
-          props.documents.find((doc) => doc.file.id === props.activeDocumentId) ||
-          props.documents[0]
+          props.documents.find((doc) => doc.file.id === props.activeDocumentId) || null
         )
       }
       return null
@@ -213,7 +212,7 @@ export const TextEditor = React.memo<TextEditorProps>(
     )
     const fileTreeNodes = useMemo(() => {
       if (!isMultiTab) return []
-      
+
       const multiProps = props as TextEditorMultiTabProps
       if (multiProps.fileTree) {
         return multiProps.fileTree
@@ -265,7 +264,7 @@ export const TextEditor = React.memo<TextEditorProps>(
       const format = props.format || 'markdown'
       const isMarkdown = format === 'markdown'
       const isCode = !isMarkdown && typeof props.content === 'string'
-      
+
       if (isMarkdown || isCode) {
         const contentStr = props.content as string
         const content = isCode
@@ -317,7 +316,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             />
           )}
           <div className="flex-1 flex items-center justify-center p-6 text-muted-foreground">
-            No documents open
+            No documents selected
           </div>
         </div>
       )
