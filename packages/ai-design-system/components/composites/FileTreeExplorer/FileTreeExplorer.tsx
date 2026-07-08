@@ -16,6 +16,11 @@ export type FileTreeNode = {
   children?: FileTreeNode[]
 }
 
+export interface FileDownloadResult {
+  blob: Blob
+  filename: string
+}
+
 export interface FileTreeExplorerProps {
   tree: FileTreeNode[]
   defaultExpanded?: Set<string>
@@ -24,7 +29,7 @@ export interface FileTreeExplorerProps {
   searchPlaceholder?: string
   onCreateClick?: () => void
   createButtonLabel?: string
-  onDownloadClick?: () => void
+  onDownload?: () => Promise<FileDownloadResult | undefined>
   headerClassName?: string
   className?: string
 }
@@ -85,12 +90,27 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
     searchPlaceholder = "Filter files...",
     onCreateClick,
     createButtonLabel,
-    onDownloadClick,
+    onDownload,
     headerClassName,
     className,
   }) => {
+    const downloadRef = React.useRef<HTMLAnchorElement>(null)
     const [searchQuery, setSearchQuery] = React.useState("")
     const [userExpanded, setUserExpanded] = React.useState<Set<string>>(defaultExpanded || new Set())
+
+    const handleDownloadClick = React.useCallback(async () => {
+      if (!onDownload) return
+      const result = await onDownload()
+      if (!result) return
+      const url = URL.createObjectURL(result.blob)
+      const anchor = downloadRef.current
+      if (anchor) {
+        anchor.href = url
+        anchor.download = result.filename
+        anchor.click()
+      }
+      URL.revokeObjectURL(url)
+    }, [onDownload])
 
     // Auto-expand parents when selectedPath changes
     React.useEffect(() => {
@@ -147,16 +167,17 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
               {createButtonLabel ?? "New"}
             </button>
           ) : null}
-          {onDownloadClick ? (
+          {onDownload ? (
             <button
               type="button"
-              onClick={onDownloadClick}
+              onClick={handleDownloadClick}
               title="Download all files"
               className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <Icon name="download" size="sm" />
             </button>
           ) : null}
+          <a ref={downloadRef} style={{ display: 'none' }} />
         </div>
         <div className="p-2">
           <FileTree

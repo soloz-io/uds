@@ -37,7 +37,7 @@ import { DocumentEditorWithComments } from '@/components/blocks/DocumentEditorWi
 import { DocumentTabBar } from '@/components/composites/DocumentTabBar'
 import { AdjustableLayout } from '@/components/composites/AdjustableLayout'
 import { FileTreeExplorer } from '@/components/composites/FileTreeExplorer'
-import type { FileTreeNode } from '@/components/composites/FileTreeExplorer'
+import type { FileDownloadResult, FileTreeNode } from '@/components/composites/FileTreeExplorer'
 import { cn } from '@/lib/utils'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation, User } from '@/types/ai-editor/annotations'
@@ -106,7 +106,7 @@ export interface TextEditorMultiTabProps {
   /** When true, hides the document tab bar — useful for single-file mode where the file tree provides navigation. */
   hideTabBar?: boolean
   /** Callback when download all button is clicked in the file tree header */
-  onDownloadAllFiles?: () => void
+  onDownloadAllFiles?: () => Promise<FileDownloadResult | undefined>
 }
 
 /**
@@ -389,7 +389,7 @@ export const TextEditor = React.memo<TextEditorProps>(
                 tree={fileTreeNodes}
                 selectedPath={props.activeDocumentId}
                 onSelect={props.onTabSelect}
-                onDownloadClick={onDownloadAllFiles}
+                onDownload={onDownloadAllFiles}
               />
             ),
           },
