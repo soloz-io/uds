@@ -267,6 +267,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                           id: subAgent.id,
                           name: subAgent.subAgentName,
                           description: undefined,
+                          input: subAgent.input,
                           content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
                           status: subAgent.status,
                           toolCalls: [],

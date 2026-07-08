@@ -105,6 +105,8 @@ export interface TextEditorMultiTabProps {
   fileTree?: FileTreeNode[]
   /** When true, hides the document tab bar — useful for single-file mode where the file tree provides navigation. */
   hideTabBar?: boolean
+  /** Callback when download all button is clicked in the file tree header */
+  onDownloadAllFiles?: () => void
 }
 
 /**
@@ -262,7 +264,7 @@ export const TextEditor = React.memo<TextEditorProps>(
      */
     if (!isMultiTab) {
       const format = props.format || 'markdown'
-      const isMarkdown = format === 'markdown'
+      const isMarkdown = format === 'markdown' || format === 'md' || format === 'mdx'
       const isCode = !isMarkdown && typeof props.content === 'string'
 
       if (isMarkdown || isCode) {
@@ -299,7 +301,7 @@ export const TextEditor = React.memo<TextEditorProps>(
     /**
      * Multi-tab mode
      */
-    const { hideTabBar } = props as TextEditorMultiTabProps
+    const { hideTabBar, onDownloadAllFiles } = props as TextEditorMultiTabProps
 
     let editorPane: React.ReactNode
 
@@ -322,7 +324,7 @@ export const TextEditor = React.memo<TextEditorProps>(
       )
     } else {
       const format = currentDocument.file.format || 'markdown'
-      const isMarkdownMulti = format === 'markdown'
+      const isMarkdownMulti = format === 'markdown' || format === 'md' || format === 'mdx'
       const isCodeMulti = !isMarkdownMulti && typeof currentDocument.content === 'string'
       const renderAsStreamdown = isMarkdownMulti || isCodeMulti
 
@@ -387,6 +389,7 @@ export const TextEditor = React.memo<TextEditorProps>(
                 tree={fileTreeNodes}
                 selectedPath={props.activeDocumentId}
                 onSelect={props.onTabSelect}
+                onDownloadClick={onDownloadAllFiles}
               />
             ),
           },

@@ -24,6 +24,7 @@ export interface FileTreeExplorerProps {
   searchPlaceholder?: string
   onCreateClick?: () => void
   createButtonLabel?: string
+  onDownloadClick?: () => void
   headerClassName?: string
   className?: string
 }
@@ -84,6 +85,7 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
     searchPlaceholder = "Filter files...",
     onCreateClick,
     createButtonLabel,
+    onDownloadClick,
     headerClassName,
     className,
   }) => {
@@ -143,6 +145,16 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
             >
               <Icon name="plus" size="sm" />
               {createButtonLabel ?? "New"}
+            </button>
+          ) : null}
+          {onDownloadClick ? (
+            <button
+              type="button"
+              onClick={onDownloadClick}
+              title="Download all files"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <Icon name="download" size="sm" />
             </button>
           ) : null}
         </div>
