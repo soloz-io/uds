@@ -16,8 +16,7 @@ export interface ChatSessionInfo {
   created_at: string;
 }
 
-export type { FileDownloadResult } from '../FileTreeExplorer';
-import type { FileDownloadResult } from '../FileTreeExplorer';
+import type { FileDownloadResult } from '@/components/composites/FileTreeExplorer';
 
 
 export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
