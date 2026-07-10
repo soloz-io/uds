@@ -16,12 +16,17 @@ export interface ChatSessionInfo {
   created_at: string;
 }
 
+export type { FileDownloadResult } from '../FileTreeExplorer';
+import type { FileDownloadResult } from '../FileTreeExplorer';
+
+
 export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   sessions?: ChatSessionInfo[];
   activeSessionId?: string | null;
   onNewSession?: () => void;
   onCloseSession?: (id: string) => void;
   onSelectSession?: (id: string) => void;
+  onDownloadSession?: () => Promise<FileDownloadResult | undefined>;
 }
 
 /**
@@ -31,8 +36,23 @@ export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
  * and a dropdown history of past sessions.
  */
 export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps>(
-  ({ sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, className, ...props }, ref) => {
+  ({ sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, className, ...props }, ref) => {
     const activeSession = sessions?.find(s => s.id === activeSessionId);
+    const downloadRef = React.useRef<HTMLAnchorElement>(null);
+
+    const handleDownloadClick = React.useCallback(async () => {
+      if (!onDownloadSession) return;
+      const result = await onDownloadSession();
+      if (!result) return;
+      const url = URL.createObjectURL(result.blob);
+      const anchor = downloadRef.current;
+      if (anchor) {
+        anchor.href = url;
+        anchor.download = result.filename;
+        anchor.click();
+      }
+      URL.revokeObjectURL(url);
+    }, [onDownloadSession]);
 
     return (
       <div 
@@ -48,7 +68,12 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
           </span>
         </div>
         <div className="flex items-center space-x-1 flex-none">
-          <Button variant="ghost" size="icon" onClick={onNewSession} className="h-8 w-8">
+          {onDownloadSession && (
+            <Button variant="ghost" size="icon" onClick={handleDownloadClick} className="h-8 w-8" title="Download Chat History">
+              <Icon name="download" className="h-4 w-4" />
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" onClick={onNewSession} className="h-8 w-8" title="New Session">
             <Icon name="plus" className="h-4 w-4" />
           </Button>
           
@@ -77,6 +102,7 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+          <a ref={downloadRef} style={{ display: 'none' }} />
         </div>
       </div>
     );

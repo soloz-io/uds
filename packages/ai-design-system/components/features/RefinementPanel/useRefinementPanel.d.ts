@@ -12,6 +12,7 @@ import type { RefinementMessage } from "./RefinementPanel";
 import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { ActionRequest, ReviewConfig } from "@/components/composites/ApprovalCard";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
+import type { FileDownloadResult } from "@/components/composites/FileTreeExplorer";
 
 /**
  * Return type for the refinement panel hook
@@ -55,6 +56,9 @@ export interface UseRefinementPanelReturn {
 
   /** Action handler for tool interactions */
   handleToolAction?: (toolCall: ToolCall, action: string) => void;
+
+  /** Handler to download the session chat history */
+  handleDownloadSession?: () => Promise<FileDownloadResult | undefined>;
 }
 
 /**

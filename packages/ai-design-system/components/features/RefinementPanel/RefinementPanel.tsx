@@ -13,6 +13,7 @@ import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval } from "@/c
 import type { FormEvent } from "react";
 import { SessionHeader } from "@/components/composites/SessionHeader";
 import type { ChatSessionInfo } from "@/components/composites/SessionHeader";
+import type { FileDownloadResult } from "@/components/composites/FileTreeExplorer";
 
 /**
  * RefinementPanel Feature
@@ -127,6 +128,10 @@ export interface RefinementPanelProps {
    * Handler to switch sessions
    */
   onSelectSession?: (id: string) => void;
+  /**
+   * Handler to download the session chat history
+   */
+  onDownloadSession?: () => Promise<FileDownloadResult | undefined>;
 }
 
 /**
@@ -154,6 +159,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
     onNewSession,
     onCloseSession,
     onSelectSession,
+    onDownloadSession,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -298,6 +304,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
           onNewSession={onNewSession}
           onCloseSession={onCloseSession}
           onSelectSession={onSelectSession}
+          onDownloadSession={onDownloadSession}
         />
 
         <AIConversation
