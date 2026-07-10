@@ -176,7 +176,6 @@ export const TextEditor = React.memo<TextEditorProps>(
       className,
       onAnnotationAdd,
       onAnnotationUpdate,
-      onAnnotationClick,
     } = props
 
     const isMultiTab = isMultiTabMode(props)
@@ -212,18 +211,18 @@ export const TextEditor = React.memo<TextEditorProps>(
       },
       [onAnnotationUpdate]
     )
-    const fileTreeNodes = useMemo(() => {
-      if (!isMultiTab) return []
+    const multiTabDocs = isMultiTab ? (props as TextEditorMultiTabProps).documents : undefined
+    const multiTabFileTree = isMultiTab ? (props as TextEditorMultiTabProps).fileTree : undefined
 
-      const multiProps = props as TextEditorMultiTabProps
-      if (multiProps.fileTree) {
-        return multiProps.fileTree
+    const fileTreeNodes = useMemo(() => {
+      if (multiTabFileTree) {
+        return multiTabFileTree
       }
 
-      if (!multiProps.documents) return []
+      if (!multiTabDocs) return []
       const rootNodes: FileTreeNode[] = []
 
-      multiProps.documents.forEach((doc) => {
+      multiTabDocs.forEach((doc) => {
         const parts = doc.file.id.split('/')
         if (parts.length === 1) {
           rootNodes.push({
@@ -257,7 +256,33 @@ export const TextEditor = React.memo<TextEditorProps>(
         })
       })
       return rootNodes
-    }, [isMultiTab, (props as TextEditorMultiTabProps).documents, (props as TextEditorMultiTabProps).fileTree])
+    }, [multiTabDocs, multiTabFileTree])
+
+    const handleTabSelect = isMultiTab ? (props as TextEditorMultiTabProps).onTabSelect : undefined
+
+    const LinkComponent = useCallback((linkProps: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+      const { href, ...rest } = linkProps
+      const isExternal = href?.startsWith('http://') || href?.startsWith('https://') || href?.startsWith('mailto:')
+      const isAnchor = href?.startsWith('#')
+
+      const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        if (!isExternal && !isAnchor && href) {
+          e.preventDefault()
+          let targetId = href
+          if (targetId.startsWith('./')) {
+            targetId = targetId.slice(2)
+          }
+          if (handleTabSelect) {
+            handleTabSelect(targetId)
+          }
+        }
+      }
+
+      if (isExternal) {
+        return <a href={href} target="_blank" rel="noopener noreferrer" {...rest} />
+      }
+      return <a href={href} onClick={handleClick} className="text-primary hover:underline cursor-pointer" {...rest} />
+    }, [handleTabSelect])
 
     /**
      * Single-document mode
@@ -274,7 +299,7 @@ export const TextEditor = React.memo<TextEditorProps>(
           : contentStr
         return (
           <div className={cn('text-editor p-6 flex flex-col h-screen w-full flex-1', className)}>
-            <StreamingMarkdown mode="streaming">
+            <StreamingMarkdown mode="streaming" components={{ a: LinkComponent }}>
               {content}
             </StreamingMarkdown>
           </div>
@@ -346,6 +371,7 @@ export const TextEditor = React.memo<TextEditorProps>(
                   mode="streaming"
                   isAnimating
                   className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                  components={{ a: LinkComponent }}
                 >
                   {isCodeMulti
                     ? `\`\`\`${format}\n${format === 'json' ? formatJson(currentDocument.content as string) : currentDocument.content}\n\`\`\``

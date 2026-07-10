@@ -12,7 +12,6 @@ import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
 import { OrchestratorMessage } from "@/components/composites/OrchestratorMessage"
 import { ToolCallDisplay } from "@/components/composites/ToolCallDisplay"
 import { ReasoningDisplay } from "@/components/composites/ReasoningDisplay"
-import { ApprovalCard } from "@/components/composites/ApprovalCard"
 
 /**
  * AIConversation Section
@@ -24,6 +23,11 @@ import { ApprovalCard } from "@/components/composites/ApprovalCard"
  * Based on reference implementation from deep-agents-ui ChatInterface.
  */
 
+type AIMessageBlock =
+  | { type: 'text'; id: string; text: string }
+  | { type: 'toolCall'; id: string; toolCall: ToolCall }
+  | { type: 'subAgent'; id: string; subAgent: SubAgent }
+
 interface AIMessage {
   id: string;
   type: 'human' | 'ai';
@@ -34,6 +38,7 @@ interface AIMessage {
   toolCalls?: ToolCall[];
   subAgents?: SubAgent[];
   isLoading?: boolean;
+  blocks?: AIMessageBlock[];
 }
 
 export interface AIConversationProps
@@ -112,71 +117,95 @@ export const AIConversation = React.memo<AIConversationProps>(
             (!msg.toolCalls || msg.toolCalls.length === 0) &&
             (!msg.subAgents || msg.subAgents.length === 0);
 
-          if (!isFinalResponse) {
-            if (currentGroup) {
-              if (msg.content) {
-                currentGroup.content = currentGroup.content
-                  ? `${currentGroup.content}\n\n${msg.content}`
-                  : msg.content;
-              }
-              if (msg.toolCalls) {
-                const existingToolCalls = currentGroup.toolCalls || [];
-                const updatedToolCalls = [...existingToolCalls];
-                for (const newCall of msg.toolCalls) {
-                  const existingIndex = updatedToolCalls.findIndex(tc => tc.id === newCall.id);
-                  if (existingIndex >= 0) {
-                    updatedToolCalls[existingIndex] = newCall;
-                  } else {
-                    updatedToolCalls.push(newCall);
-                  }
-                }
-                currentGroup.toolCalls = updatedToolCalls;
-              }
-              if (msg.subAgents) {
-                const existingSubAgents = currentGroup.subAgents || [];
-                const updatedSubAgents = [...existingSubAgents];
-                for (const newAgent of msg.subAgents) {
-                  const existingIndex = updatedSubAgents.findIndex(a => a.id === newAgent.id);
-                  if (existingIndex >= 0) {
-                    updatedSubAgents[existingIndex] = newAgent;
-                  } else {
-                    // Merge consecutive subAgents with the same name
-                    if (
-                      updatedSubAgents.length > 0 &&
-                      updatedSubAgents[updatedSubAgents.length - 1].subAgentName === newAgent.subAgentName
-                    ) {
-                      const prev = updatedSubAgents[updatedSubAgents.length - 1];
-                      let mergedOutput = prev.output;
-                      if (newAgent.output) {
-                        const prevStr = typeof prev.output === 'string' ? prev.output : (prev.output ? JSON.stringify(prev.output) : '');
-                        const newStr = typeof newAgent.output === 'string' ? newAgent.output : JSON.stringify(newAgent.output);
-                        mergedOutput = prevStr ? `${prevStr}\n\n${newStr}` : newStr;
-                      }
-                      updatedSubAgents[updatedSubAgents.length - 1] = {
-                        ...newAgent,
-                        id: prev.id, // keep the original id so React keys don't jump
-                        input: prev.input, // keep original input or combine? Just keep original
-                        output: mergedOutput
-                      };
-                    } else {
-                      updatedSubAgents.push(newAgent);
-                    }
-                  }
-                }
-                currentGroup.subAgents = updatedSubAgents;
-              }
-              currentGroup.isLoading = msg.isLoading;
-            } else {
-              currentGroup = {
-                ...msg,
-                toolCalls: msg.toolCalls ? [...msg.toolCalls] : undefined,
-                subAgents: msg.subAgents ? [...msg.subAgents] : undefined,
-              };
-              result.push(currentGroup);
+          if (currentGroup) {
+            if (msg.content) {
+              currentGroup.content = currentGroup.content
+                ? `${currentGroup.content}\n\n${msg.content}`
+                : msg.content;
             }
+            if (msg.toolCalls) {
+              const existingToolCalls = currentGroup.toolCalls || [];
+              const updatedToolCalls = [...existingToolCalls];
+              for (const newCall of msg.toolCalls) {
+                const existingIndex = updatedToolCalls.findIndex(tc => tc.id === newCall.id);
+                if (existingIndex >= 0) {
+                  updatedToolCalls[existingIndex] = newCall;
+                } else {
+                  updatedToolCalls.push(newCall);
+                }
+              }
+              currentGroup.toolCalls = updatedToolCalls;
+            }
+            if (msg.subAgents) {
+              const existingSubAgents = currentGroup.subAgents || [];
+              const updatedSubAgents = [...existingSubAgents];
+              for (const newAgent of msg.subAgents) {
+                const existingIndex = updatedSubAgents.findIndex(a => a.id === newAgent.id);
+                if (existingIndex >= 0) {
+                  updatedSubAgents[existingIndex] = newAgent;
+                } else {
+                  if (
+                    updatedSubAgents.length > 0 &&
+                    updatedSubAgents[updatedSubAgents.length - 1].subAgentName === newAgent.subAgentName
+                  ) {
+                    const prev = updatedSubAgents[updatedSubAgents.length - 1];
+                    let mergedOutput = prev.output;
+                    if (newAgent.output) {
+                      const prevStr = typeof prev.output === 'string' ? prev.output : (prev.output ? JSON.stringify(prev.output) : '');
+                      const newStr = typeof newAgent.output === 'string' ? newAgent.output : JSON.stringify(newAgent.output);
+                      mergedOutput = prevStr ? `${prevStr}\n\n${newStr}` : newStr;
+                    }
+                    updatedSubAgents[updatedSubAgents.length - 1] = {
+                      ...newAgent,
+                      id: prev.id,
+                      input: prev.input,
+                      output: mergedOutput
+                    };
+                  } else {
+                    updatedSubAgents.push(newAgent);
+                  }
+                }
+              }
+              currentGroup.subAgents = updatedSubAgents;
+            }
+            if (msg.blocks) {
+              const existingBlocks = currentGroup.blocks || [];
+              const updatedBlocks = [...existingBlocks];
+              for (const newBlock of msg.blocks) {
+                const lastBlock = updatedBlocks[updatedBlocks.length - 1];
+                if (
+                  updatedBlocks.length > 0 &&
+                  lastBlock.type === 'text' &&
+                  newBlock.type === 'text'
+                ) {
+                  updatedBlocks[updatedBlocks.length - 1] = {
+                    ...lastBlock,
+                    text: (lastBlock.text || '') + '\n\n' + (newBlock.text || ''),
+                  };
+                } else {
+                  const existingIndex = updatedBlocks.findIndex(b => b.id === newBlock.id && b.type === newBlock.type && b.type !== 'text');
+                  if (existingIndex >= 0) {
+                    updatedBlocks[existingIndex] = newBlock;
+                  } else {
+                    updatedBlocks.push(newBlock);
+                  }
+                }
+              }
+              currentGroup.blocks = updatedBlocks;
+            }
+            currentGroup.isLoading = msg.isLoading;
           } else {
+            currentGroup = {
+              ...msg,
+              toolCalls: msg.toolCalls ? [...msg.toolCalls] : undefined,
+              subAgents: msg.subAgents ? [...msg.subAgents] : undefined,
+              blocks: msg.blocks ? [...msg.blocks] : undefined,
+            };
+            result.push(currentGroup);
+          }
+
+          if (isFinalResponse) {
             currentGroup = null;
-            result.push(msg);
           }
         } else {
           currentGroup = null;
@@ -223,11 +252,11 @@ export const AIConversation = React.memo<AIConversationProps>(
             const directToolCalls = allToolCalls.filter((tc) => tc.visibility !== "reasoning")
 
             const hasReasoning = reasoningCalls.length > 0 || subAgents.length > 0 || directToolCalls.length > 0 || (message.isLoading && contentStr.trim() !== "");
-            const reasoningText = hasReasoning ? contentStr : undefined
+            const reasoningText = (hasReasoning && (!message.blocks || message.blocks.length === 0)) ? contentStr : undefined
             const displayContentStr = hasReasoning ? "" : contentStr
             const hasDisplayContent = displayContentStr.trim() !== ""
 
-            if (!hasDisplayContent && directToolCalls.length === 0 && reasoningCalls.length === 0 && subAgents.length === 0 && !message.isLoading) {
+            if (!hasDisplayContent && directToolCalls.length === 0 && reasoningCalls.length === 0 && subAgents.length === 0 && !message.isLoading && (!message.blocks || message.blocks.length === 0)) {
               return null;
             }
 
@@ -249,32 +278,66 @@ export const AIConversation = React.memo<AIConversationProps>(
                 {hasReasoning && (
                   <ReasoningDisplay 
                     content={reasoningText} 
-                    items={reasoningCalls} 
+                    items={message.blocks && message.blocks.length > 0 ? [] : reasoningCalls} 
                     isStreaming={isStreaming} 
                     onToolAction={onToolAction}
                     defaultOpen={isStreaming || index === groupedMessages.length - 1}
                   >
-                    {/* Render direct tool calls */}
-                    {directToolCalls.map((tc) => (
-                      <ToolCallDisplay key={tc.id} toolCall={tc} onToolAction={onToolAction} />
-                    ))}
+                    {message.blocks && message.blocks.length > 0 ? (
+                      message.blocks.map((block, i) => {
+                        if (block.type === 'text') {
+                          return block.text && block.text.trim() ? (
+                            <div key={`text-${i}`} className="mb-4 text-muted-foreground whitespace-pre-wrap">
+                              {block.text}
+                            </div>
+                          ) : null;
+                        } else if (block.type === 'toolCall' && block.toolCall && block.toolCall.name !== 'ask_user' && block.toolCall.name !== 'ask_question') {
+                          return <ToolCallDisplay key={block.id} toolCall={block.toolCall} onToolAction={onToolAction} />;
+                        } else if (block.type === 'subAgent' && block.subAgent) {
+                          const subAgent = block.subAgent;
+                          return (
+                            <SpecialistMessage
+                              key={subAgent.id}
+                              message={{
+                                id: subAgent.id,
+                                name: subAgent.subAgentName,
+                                description: undefined,
+                                input: subAgent.input,
+                                content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
+                                status: subAgent.status,
+                                toolCalls: [],
+                              }}
+                              isNested={true}
+                            />
+                          );
+                        }
+                        return null;
+                      })
+                    ) : (
+                      <>
+                        {/* Render direct tool calls fallback */}
+                        {directToolCalls.map((tc) => (
+                          <ToolCallDisplay key={tc.id} toolCall={tc} onToolAction={onToolAction} />
+                        ))}
 
-                    {/* Render specialist sub-agents */}
-                    {subAgents.map((subAgent) => (
-                      <SpecialistMessage
-                        key={subAgent.id}
-                        message={{
-                          id: subAgent.id,
-                          name: subAgent.subAgentName,
-                          description: undefined,
-                          input: subAgent.input,
-                          content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
-                          status: subAgent.status,
-                          toolCalls: [],
-                        }}
-                        isNested={true}
-                      />
-                    ))}
+                        {/* Render specialist sub-agents fallback */}
+                        {subAgents.map((subAgent) => (
+                          <SpecialistMessage
+                            key={subAgent.id}
+                            message={{
+                              id: subAgent.id,
+                              name: subAgent.subAgentName,
+                              description: undefined,
+                              input: subAgent.input,
+                              content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
+                              status: subAgent.status,
+                              toolCalls: [],
+                            }}
+                            isNested={true}
+                          />
+                        ))}
+                      </>
+                    )}
                   </ReasoningDisplay>
                 )}
               </OrchestratorMessage>

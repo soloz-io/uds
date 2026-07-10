@@ -179,7 +179,7 @@ export const FileTreeExplorer = React.memo<FileTreeExplorerProps>(
           ) : null}
           <a ref={downloadRef} style={{ display: 'none' }} />
         </div>
-        <div className="p-2">
+        <div className="overflow-y-auto p-2">
           <FileTree
             className="border-none bg-transparent"
             expanded={activeExpanded}
