@@ -269,9 +269,44 @@ export const TextEditor = React.memo<TextEditorProps>(
         if (!isExternal && !isAnchor && href) {
           e.preventDefault()
           let targetId = href
-          if (targetId.startsWith('./')) {
+          
+          if (targetId.startsWith('file://')) {
+            let path = targetId.replace('file://', '')
+            // On Windows, file:///C:/path becomes /C:/path, we want C:/path
+            if (path.match(/^\/[a-zA-Z]:\//)) {
+              path = path.slice(1)
+            }
+            if (isMultiTab && props.documents) {
+              const matchedDoc = props.documents.find(doc => path.endsWith(doc.file.id) || path.endsWith('/' + doc.file.id))
+              if (matchedDoc) {
+                targetId = matchedDoc.file.id
+              } else {
+                targetId = path
+              }
+            } else {
+              targetId = path
+            }
+          } else if (props.activeDocumentId) {
+            if (targetId.startsWith('/')) {
+              targetId = targetId.slice(1)
+            } else {
+              const baseParts = props.activeDocumentId.split('/')
+              baseParts.pop() // remove current filename
+              const targetParts = targetId.split('/')
+              for (const part of targetParts) {
+                if (part === '.' || part === '') continue
+                if (part === '..') {
+                  if (baseParts.length > 0) baseParts.pop()
+                } else {
+                  baseParts.push(part)
+                }
+              }
+              targetId = baseParts.join('/')
+            }
+          } else if (targetId.startsWith('./')) {
             targetId = targetId.slice(2)
           }
+
           if (handleTabSelect) {
             handleTabSelect(targetId)
           }
@@ -282,7 +317,7 @@ export const TextEditor = React.memo<TextEditorProps>(
         return <a href={href} target="_blank" rel="noopener noreferrer" {...rest} />
       }
       return <a href={href} onClick={handleClick} className="text-primary hover:underline cursor-pointer" {...rest} />
-    }, [handleTabSelect])
+    }, [handleTabSelect, props.activeDocumentId])
 
     /**
      * Single-document mode

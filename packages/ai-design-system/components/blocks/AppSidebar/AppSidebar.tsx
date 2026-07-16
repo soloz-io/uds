@@ -20,6 +20,7 @@ export const AppSidebar = React.memo<AppSidebarProps>(
   ({
     logo,
     mainNavigation,
+    navigationGroups,
     secondaryNavigation,
     documents,
     user,
@@ -46,11 +47,22 @@ export const AppSidebar = React.memo<AppSidebarProps>(
         </SidebarHeader>
 
         <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <NavigationList items={mainNavigation} />
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {mainNavigation && mainNavigation.length > 0 && (
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <NavigationList items={mainNavigation} />
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )}
+
+          {navigationGroups?.map((group) => (
+            <SidebarGroup key={group.label}>
+              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <NavigationList items={group.items} />
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
 
           {documents && documents.length > 0 && (
             <SidebarGroup>

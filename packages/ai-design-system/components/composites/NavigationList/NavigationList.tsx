@@ -25,7 +25,7 @@ export const NavigationList = React.memo<NavigationListProps>(
   ({ items, onItemClick, className }) => {
     return (
       <SidebarMenu className={className}>
-        {items.map((item) => (
+        {items?.map((item) => (
           <SidebarMenuItem key={item.title}>
             <SidebarMenuButton
               tooltip={item.title}
