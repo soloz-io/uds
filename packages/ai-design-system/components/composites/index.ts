@@ -205,3 +205,7 @@ export type { SessionHeaderProps, ChatSessionInfo } from './SessionHeader'
 // AppBreadcrumb Composite
 export { AppBreadcrumb } from './AppBreadcrumb'
 export type { AppBreadcrumbProps, BreadcrumbItemData } from './AppBreadcrumb'
+
+// EvalSessionDetailsPanel Composite
+export { EvalSessionDetailsPanel, EvalTriggerButton } from './EvalSessionDetailsPanel'
+export type { EvalSessionDetailsPanelProps, EvalSessionDetails } from './EvalSessionDetailsPanel'

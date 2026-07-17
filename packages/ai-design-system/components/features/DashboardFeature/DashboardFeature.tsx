@@ -67,8 +67,6 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
     createEntityName = "Section",
     createFields,
     createButtonLabel = "Create",
-    apps,
-    currentAppId,
     quickCreateEntityName = "App",
     quickCreateFields,
     quickCreateButtonLabel = "Quick Create",
@@ -98,13 +96,13 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
       setDrawerMode('table')
       setDrawerOpen(true)
       actionHandlers?.onCreateDrawerOpenChange?.(true)
-    }, [actionHandlers])
+    }, [actionHandlers, setDrawerOpen])
 
     const openQuickCreateDrawer = React.useCallback(() => {
       setDrawerMode('quick-create')
       setDrawerOpen(true)
       actionHandlers?.onCreateDrawerOpenChange?.(true)
-    }, [actionHandlers])
+    }, [actionHandlers, setDrawerOpen])
 
     const handleDrawerOpenChange = React.useCallback(
       (open: boolean) => {
@@ -114,7 +112,7 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
         }
         actionHandlers?.onCreateDrawerOpenChange?.(open)
       },
-      [actionHandlers]
+      [actionHandlers, setDrawerOpen]
     )
 
     const handleFieldChange = React.useCallback(
@@ -144,7 +142,7 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
         actionHandlers?.onCreateDrawerOpenChange?.(false)
         setValues(buildInitialValues(createFields))
       },
-      [actionHandlers, createFields, drawerMode]
+      [actionHandlers, createFields, drawerMode, setDrawerOpen]
     )
 
     return (
@@ -166,6 +164,17 @@ export const DashboardFeature = React.memo<DashboardFeatureProps>(
                 <DashboardChart
                   series={visitorsSeries}
                   onTimeRangeChange={actionHandlers?.onChartTimeRangeChange}
+                  title="Total Visitors"
+                  description="Total for the last 3 months"
+                  shortDescription="Last 3 months"
+                  timeRanges={[
+                    { value: "90d", label: "Last 3 months" },
+                    { value: "30d", label: "Last 30 days" },
+                    { value: "7d", label: "Last 7 days" }
+                  ]}
+                  desktopLabel="Desktop"
+                  mobileLabel="Mobile"
+                  showMobile={true}
                 />
               </>
             )}

@@ -28,7 +28,7 @@ export interface DashboardSeriesPoint {
   mobile: number
 }
 
-export type DashboardChartTimeRange = "90d" | "30d" | "7d"
+export type DashboardChartTimeRange = string
 
 export interface DashboardApp {
   id: string

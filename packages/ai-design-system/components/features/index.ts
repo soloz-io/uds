@@ -37,3 +37,9 @@ export type { FormReportsFeatureProps } from "./FormReportsFeature";
 export { WorkflowObservabilityFeature } from "./WorkflowObservabilityFeature";
 export type { WorkflowObservabilityFeatureProps } from "./WorkflowObservabilityFeature";
 
+// EvalDashboardFeature Feature
+export { EvalDashboardFeature } from "./EvalDashboardFeature";
+export type { EvalDashboardFeatureProps } from "./EvalDashboardFeature";
+export type { UseEvalDashboardFeatureReturn, EvalDashboardFeatureInboxState, EvalDashboardFeatureData, GoldenEvalResult, EvalSessionInfo } from "./EvalDashboardFeature";
+
+

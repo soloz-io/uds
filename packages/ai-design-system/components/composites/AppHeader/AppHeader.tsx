@@ -33,6 +33,17 @@ export const AppHeader = React.memo<AppHeaderProps>(({
               : title
           )}
           {chatToggleProps && <ChatToggleButton {...chatToggleProps} />}
+          {tabsPosition === 'left' && tabs && tabs.length > 0 && (
+            <Tabs defaultValue={defaultTab || tabs[0]?.value} onValueChange={onTabChange} className="ml-2">
+              <TabsList>
+                {tabs.map((tab) => (
+                  <TabsTrigger key={tab.value} value={tab.value}>
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          )}
           {workflowSwitcherProps && <WorkflowSwitcher {...workflowSwitcherProps} />}
         </div>
 

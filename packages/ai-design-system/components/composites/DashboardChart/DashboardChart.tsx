@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/primitives/Select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/primitives/ToggleGroup"
+import { cn } from "@/lib/utils"
 
 export interface DashboardChartPoint {
   date: string
@@ -29,15 +30,36 @@ export interface DashboardChartPoint {
   mobile: number
 }
 
-export type DashboardChartTimeRange = "90d" | "30d" | "7d"
+export type DashboardChartTimeRange = string
 
 export interface DashboardChartProps {
   series: DashboardChartPoint[]
   onTimeRangeChange?: (range: DashboardChartTimeRange) => void
+  title: string
+  description: string
+  shortDescription: string
+  timeRanges: { value: string, label: string, shortLabel?: string }[]
+  desktopLabel: string
+  mobileLabel: string
+  showMobile: boolean
+  className?: string
+  chartClassName?: string
 }
 
-export const DashboardChart = React.memo<DashboardChartProps>(({ series, onTimeRangeChange }) => {
-  const [timeRange, setTimeRange] = React.useState<DashboardChartTimeRange>("90d")
+export const DashboardChart = React.memo<DashboardChartProps>(({ 
+  series, 
+  onTimeRangeChange,
+  title,
+  description,
+  shortDescription,
+  timeRanges,
+  desktopLabel,
+  mobileLabel,
+  showMobile,
+  className,
+  chartClassName
+}) => {
+  const [timeRange, setTimeRange] = React.useState<DashboardChartTimeRange>(timeRanges[0]?.value)
 
   const handleTimeRangeChange = React.useCallback(
     (range: DashboardChartTimeRange) => {
@@ -48,29 +70,31 @@ export const DashboardChart = React.memo<DashboardChartProps>(({ series, onTimeR
   )
 
   const filteredSeries = React.useMemo(() => {
-    const referenceDate = series.length > 0 ? new Date(series[series.length - 1].date) : new Date()
+    const referenceDate = series.length > 0 ? series[series.length - 1].date : new Date().toISOString()
     let daysToSubtract = 90
-
     if (timeRange === "30d") {
       daysToSubtract = 30
     } else if (timeRange === "7d") {
       daysToSubtract = 7
+    } else if (timeRange === "10" || timeRange === "20" || timeRange === "30") {
+      // Special logic for count-based limits if passed as timeRange
+      const limit = parseInt(timeRange, 10)
+      return series.slice(-limit)
     }
 
     const startDate = new Date(referenceDate)
     startDate.setDate(startDate.getDate() - daysToSubtract)
-
-    return series.filter((point) => new Date(point.date) >= startDate)
+    return series.filter(item => new Date(item.date) >= startDate)
   }, [series, timeRange])
 
   return (
-    <section className="px-4 lg:px-6">
-      <Card className="@container/card">
-        <CardHeader>
-          <CardTitle>Total Visitors</CardTitle>
+    <section className={cn("px-4 lg:px-6 flex flex-col h-full", className)}>
+      <Card className="@container/card flex flex-col flex-1 min-h-0 border-0 shadow-none bg-transparent">
+        <CardHeader className="shrink-0">
+          <CardTitle>{title}</CardTitle>
           <CardDescription>
-            <span className="hidden @[540px]/card:block">Total for the last 3 months</span>
-            <span className="@[540px]/card:hidden">Last 3 months</span>
+            <span className="hidden @[540px]/card:block">{description}</span>
+            <span className="@[540px]/card:hidden">{shortDescription}</span>
           </CardDescription>
           <CardAction>
             <ToggleGroup
@@ -84,38 +108,34 @@ export const DashboardChart = React.memo<DashboardChartProps>(({ series, onTimeR
               variant="outline"
               className="hidden *:data-[slot=toggle-group-item]:px-4! @[767px]/card:flex"
             >
-              <ToggleGroupItem value="90d">Last 3 months</ToggleGroupItem>
-              <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>
-              <ToggleGroupItem value="7d">Last 7 days</ToggleGroupItem>
+              {timeRanges.map(range => (
+                <ToggleGroupItem key={range.value} value={range.value}>{range.label}</ToggleGroupItem>
+              ))}
             </ToggleGroup>
             <Select value={timeRange} onValueChange={(value) => handleTimeRangeChange(value as DashboardChartTimeRange)}>
               <SelectTrigger
                 className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
                 aria-label="Select a value"
               >
-                <SelectValue placeholder="Last 3 months" />
+                <SelectValue placeholder={timeRanges[0]?.label || "Select range"} />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
-                <SelectItem value="90d" className="rounded-lg">
-                  Last 3 months
-                </SelectItem>
-                <SelectItem value="30d" className="rounded-lg">
-                  Last 30 days
-                </SelectItem>
-                <SelectItem value="7d" className="rounded-lg">
-                  Last 7 days
-                </SelectItem>
+                {timeRanges.map(range => (
+                  <SelectItem key={range.value} value={range.value} className="rounded-lg">
+                    {range.shortLabel || range.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </CardAction>
         </CardHeader>
-        <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+        <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 flex-1 min-h-0 flex flex-col">
           <ChartContainer
             config={{
-              desktop: { label: "Desktop", color: "var(--primary)" },
-              mobile: { label: "Mobile", color: "var(--primary)" },
+              desktop: { label: desktopLabel, color: "var(--primary)" },
+              ...(showMobile ? { mobile: { label: mobileLabel, color: "var(--primary)" } } : {}),
             }}
-            className="aspect-auto h-[250px] w-full"
+            className={cn("aspect-auto w-full", chartClassName || "h-[250px]")}
           >
             <AreaChart data={filteredSeries}>
               <defs>
@@ -123,10 +143,12 @@ export const DashboardChart = React.memo<DashboardChartProps>(({ series, onTimeR
                   <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={1} />
                   <stop offset="95%" stopColor="var(--color-desktop)" stopOpacity={0.1} />
                 </linearGradient>
-                <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-mobile)" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="var(--color-mobile)" stopOpacity={0.1} />
-                </linearGradient>
+                {showMobile && (
+                  <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-mobile)" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="var(--color-mobile)" stopOpacity={0.1} />
+                  </linearGradient>
+                )}
               </defs>
               <CartesianGrid vertical={false} />
               <XAxis
@@ -157,13 +179,15 @@ export const DashboardChart = React.memo<DashboardChartProps>(({ series, onTimeR
                   />
                 }
               />
-              <Area
-                dataKey="mobile"
-                type="natural"
-                fill="url(#fillMobile)"
-                stroke="var(--color-mobile)"
-                stackId="a"
-              />
+              {showMobile && (
+                <Area
+                  dataKey="mobile"
+                  type="natural"
+                  fill="url(#fillMobile)"
+                  stroke="var(--color-mobile)"
+                  stackId="a"
+                />
+              )}
               <Area
                 dataKey="desktop"
                 type="natural"
