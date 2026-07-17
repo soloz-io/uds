@@ -11,6 +11,7 @@ export interface SectionLayoutSection {
   collapsible?: boolean;
   collapsedSize?: number;
   header?: AppHeaderProps;
+  variant?: "default" | "ghost";
 }
 
 export interface SectionLayoutProps extends React.ComponentPropsWithoutRef<"div"> {

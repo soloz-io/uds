@@ -5,9 +5,9 @@ import { DashboardChart } from "@/components/composites/DashboardChart"
 import { EvalSessionDetailsPanel, EvalTriggerButton } from "@/components/composites/EvalSessionDetailsPanel"
 import type { DashboardRow } from "@/components/composites/DataTable"
 import { cn } from "@/lib/utils"
-import type { 
-  EvalDashboardFeatureInboxState, 
-  EvalDashboardFeatureData, 
+import type {
+  EvalDashboardFeatureInboxState,
+  EvalDashboardFeatureData,
   EvalDashboardFeatureActionHandlers,
 } from "./useEvalDashboardFeature.d"
 
@@ -24,9 +24,9 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
     const [showInbox, setShowInbox] = React.useState(true)
     const [activeTab, setActiveTab] = React.useState("golden-evals")
 
-    const selectedSession = React.useMemo(() => 
+    const selectedSession = React.useMemo(() =>
       inbox.items.find(s => s.id === inbox.selectedItemId) || null
-    , [inbox.items, inbox.selectedItemId])
+      , [inbox.items, inbox.selectedItemId])
 
     // Calculate average score for the trend section
     const avgScore = React.useMemo(() => {
@@ -40,7 +40,6 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
         id: session.id,
         title: session.id,
         subtitle: `Score: ${session.score}/${session.total}`,
-        preview: `${session.latency} • ${session.tokens}t`,
         timestamp: new Date(session.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }))
     }, [inbox.items]);
@@ -50,7 +49,7 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
       const sortedItems = [...inbox.items].sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       )
-      
+
       return sortedItems.map(session => ({
         date: session.date,
         // We map score to 'desktop' since DashboardChart is hardcoded for now
@@ -106,6 +105,7 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
               id: "content",
               defaultSize: mockChartData.length > 0 ? 65 : 100,
               minSize: 40,
+              variant: "ghost",
               content: (
                 <div className="h-full w-full min-h-0">
                   <SectionLayout
@@ -157,9 +157,9 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
                           ) : undefined
                         } : undefined,
                         content: sessionDetails ? (
-                          <EvalSessionDetailsPanel 
-                            sessionDetails={sessionDetails} 
-                            activeTab={activeTab} 
+                          <EvalSessionDetailsPanel
+                            sessionDetails={sessionDetails}
+                            activeTab={activeTab}
                           />
                         ) : (
                           <div className="flex-1 flex items-center justify-center text-muted-foreground bg-background h-full">

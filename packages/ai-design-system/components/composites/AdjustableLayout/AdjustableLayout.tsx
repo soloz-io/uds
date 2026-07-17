@@ -10,6 +10,7 @@ export interface AdjustableLayoutSection {
   maxSize?: number // maximum percentage
   resizable?: boolean // default true for >1 sections
   className?: string
+  variant?: "default" | "ghost"
 }
 
 export interface AdjustableLayoutProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -208,7 +209,8 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
         <React.Fragment key={section.id}>
           <div
             className={cn(
-              "min-h-0 overflow-hidden bg-card border border-border rounded-xl",
+              "min-h-0 overflow-hidden",
+              (section.variant ?? "default") === "default" && "bg-card border border-border rounded-xl",
               section.className
             )}
             style={{
