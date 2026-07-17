@@ -74,6 +74,7 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
           resizable={true}
           padded={false}
           className="h-full"
+          storageKey="eval-dashboard-outer"
           sections={[
             ...(mockChartData.length > 0 ? [{
               id: "graph",
@@ -103,7 +104,7 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
             }] : []),
             {
               id: "content",
-              defaultSize: mockChartData.length > 0 ? 65 : 100,
+              defaultSize: mockChartData.length > 0 ? 80 : 100,
               minSize: 40,
               variant: "ghost",
               content: (

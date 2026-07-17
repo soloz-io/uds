@@ -67,6 +67,16 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
 
     const [sizes, setSizes] = React.useState<number[]>(defaultSizes)
 
+    // Sync sizes if the number of sections changes (e.g. data loads and new section appears)
+    React.useEffect(() => {
+      setSizes((prevSizes) => {
+        if (prevSizes.length !== sections.length) {
+          return defaultSizes;
+        }
+        return prevSizes;
+      });
+    }, [sections.length, defaultSizes])
+
     // After hydration, overwrite with persisted sizes if available
     React.useEffect(() => {
       if (!storageKey) return
