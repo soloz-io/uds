@@ -29,12 +29,13 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
       inbox.items.find(s => s.id === inbox.selectedItemId) || null
       , [inbox.items, inbox.selectedItemId])
 
-    // Calculate average score for the trend section
+    // Calculate average score for the trend section (project-wide from runsHistory)
     const avgScore = React.useMemo(() => {
-      if (inbox.items.length === 0) return "0.0";
-      const sum = inbox.items.reduce((acc, curr) => acc + curr.score, 0);
-      return (sum / inbox.items.length).toFixed(1);
-    }, [inbox.items]);
+      const runs = data?.runsHistory || [];
+      if (runs.length === 0) return "0.0";
+      const sum = runs.reduce((acc, curr) => acc + curr.score, 0);
+      return (sum / runs.length).toFixed(1);
+    }, [data?.runsHistory]);
 
     const inboxItems = React.useMemo(() => {
       return inbox.items.map(session => ({
@@ -46,18 +47,19 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
     }, [inbox.items]);
 
     const mockChartData = React.useMemo(() => {
+      const runs = data?.runsHistory || [];
       // Sort items chronologically for the chart
-      const sortedItems = [...inbox.items].sort(
+      const sortedItems = [...runs].sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       )
 
-      return sortedItems.map(session => ({
-        date: session.date,
+      return sortedItems.map(run => ({
+        date: run.date,
         // We map score to 'desktop' since DashboardChart is hardcoded for now
-        desktop: session.score,
+        desktop: run.score,
         mobile: 0
       }))
-    }, [inbox.items]);
+    }, [data?.runsHistory]);
 
     const sessionDetails = selectedSession ? {
       id: selectedSession.id,
@@ -87,12 +89,12 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
                   <DashboardChart
                     series={mockChartData}
                     title="Experiments Analysis"
-                    description={`Average Score: ${avgScore} / 41`}
+                    description={`Average Score: ${avgScore} (per run)`}
                     shortDescription={`Avg: ${avgScore}`}
                     timeRanges={[
-                      { value: "10", label: "Last 10 Sessions", shortLabel: "Last 10" },
-                      { value: "20", label: "Last 20 Sessions", shortLabel: "Last 20" },
-                      { value: "30", label: "Last 30 Sessions", shortLabel: "Last 30" }
+                      { value: "10", label: "Last 10 Runs", shortLabel: "Last 10" },
+                      { value: "20", label: "Last 20 Runs", shortLabel: "Last 20" },
+                      { value: "30", label: "Last 30 Runs", shortLabel: "Last 30" }
                     ]}
                     desktopLabel="Score"
                     mobileLabel=""

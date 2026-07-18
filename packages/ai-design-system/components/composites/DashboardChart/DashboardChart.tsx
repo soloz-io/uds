@@ -76,15 +76,20 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
       daysToSubtract = 30
     } else if (timeRange === "7d") {
       daysToSubtract = 7
-    } else if (timeRange === "10" || timeRange === "20" || timeRange === "30") {
-      // Special logic for count-based limits if passed as timeRange
-      const limit = parseInt(timeRange, 10)
-      return series.slice(-limit)
     }
 
-    const startDate = new Date(referenceDate)
-    startDate.setDate(startDate.getDate() - daysToSubtract)
-    return series.filter(item => new Date(item.date) >= startDate)
+    let filtered = series;
+    if (timeRange === "10" || timeRange === "20" || timeRange === "30") {
+      // Special logic for count-based limits if passed as timeRange
+      const limit = parseInt(timeRange, 10)
+      filtered = series.slice(-limit)
+    } else {
+      const startDate = new Date(referenceDate)
+      startDate.setDate(startDate.getDate() - daysToSubtract)
+      filtered = series.filter(item => new Date(item.date) >= startDate)
+    }
+
+    return filtered.map(item => ({ ...item, timestamp: new Date(item.date).getTime() }))
   }, [series, timeRange])
 
   return (
@@ -152,16 +157,21 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
               </defs>
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="date"
+                dataKey="timestamp"
+                type="number"
+                scale="time"
+                domain={['dataMin', 'dataMax']}
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
                 minTickGap={32}
                 tickFormatter={(value) => {
                   const date = new Date(value)
-                  return date.toLocaleDateString("en-US", {
+                  return date.toLocaleString("en-US", {
                     month: "short",
                     day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit"
                   })
                 }}
               />
@@ -169,11 +179,45 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
                 cursor={false}
                 content={
                   <ChartTooltipContent
-                    labelFormatter={(value) => {
-                      return new Date(String(value)).toLocaleDateString("en-US", {
+                    labelFormatter={(value, payload) => {
+                      const typedPayload = payload as Array<{ payload: { timestamp?: number } }>;
+                      const timestamp = typedPayload?.[0]?.payload?.timestamp;
+                      if (!timestamp) return null;
+                      const date = new Date(timestamp);
+                      if (isNaN(date.getTime())) return ""
+                      return date.toLocaleDateString("en-US", {
                         month: "short",
-                        day: "numeric",
+                        year: "numeric",
                       })
+                    }}
+                    formatter={(value, name, item, index, payload) => {
+                      const typedPayload = payload as { timestamp?: number };
+                      const typedItem = item as { color?: string };
+                      const label = name === "desktop" ? desktopLabel : (name === "mobile" ? mobileLabel : name);
+                      const timeStr = typedPayload?.timestamp ? new Date(typedPayload.timestamp).toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit"
+                      }) : null;
+                      
+                      return (
+                        <div className="flex flex-col w-full">
+                          <div className="flex w-full items-center gap-2">
+                            <div 
+                              className="h-2.5 w-2.5 shrink-0 rounded-[2px]" 
+                              style={{ backgroundColor: typedItem.color }} 
+                            />
+                            <div className="flex flex-1 justify-between items-center gap-4">
+                              <span className="text-muted-foreground">{label as React.ReactNode}</span>
+                              <span className="font-mono font-medium tabular-nums text-foreground">{value as React.ReactNode}</span>
+                            </div>
+                          </div>
+                          {timeStr && (
+                            <div className="text-[10px] text-muted-foreground self-end mt-0.5">
+                              {timeStr}
+                            </div>
+                          )}
+                        </div>
+                      )
                     }}
                     indicator="dot"
                   />
@@ -185,6 +229,7 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
                   type="natural"
                   fill="url(#fillMobile)"
                   stroke="var(--color-mobile)"
+                  strokeWidth={2}
                   stackId="a"
                 />
               )}
@@ -193,6 +238,7 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
                 type="natural"
                 fill="url(#fillDesktop)"
                 stroke="var(--color-desktop)"
+                strokeWidth={2}
                 stackId="a"
               />
             </AreaChart>

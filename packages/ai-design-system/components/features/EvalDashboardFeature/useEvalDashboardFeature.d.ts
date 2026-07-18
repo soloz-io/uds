@@ -28,6 +28,13 @@ export interface EvalDashboardFeatureData {
   goldenEvals: GoldenEvalResult[];
   systemPrompt: string;
   outputTranscript: string;
+  runsHistory?: Array<{
+    id: string;
+    session_id: string;
+    date: string;
+    score: number;
+    total: number;
+  }>;
 }
 
 export interface EvalDashboardFeatureActionHandlers {
