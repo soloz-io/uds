@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react"
 import { EvalSessionDetailsPanel } from "./EvalSessionDetailsPanel"
 
 const meta = {
-  title: "Composites/EvalSessionDetailsPanel",
+  title: "Blocks/EvalSessionDetailsPanel",
   component: EvalSessionDetailsPanel,
   parameters: {
     layout: "padded",

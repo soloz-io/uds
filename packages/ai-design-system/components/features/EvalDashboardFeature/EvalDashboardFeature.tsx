@@ -2,7 +2,7 @@ import * as React from "react"
 import { InboxPanel } from "@/components/blocks/InboxPanel"
 import { SectionLayout } from "@/components/blocks/SectionLayout"
 import { DashboardChart } from "@/components/composites/DashboardChart"
-import { EvalSessionDetailsPanel, EvalTriggerButton } from "@/components/composites/EvalSessionDetailsPanel"
+import { EvalSessionDetailsPanel, EvalTriggerButton } from "@/components/blocks/EvalSessionDetailsPanel"
 import type { DashboardRow } from "@/components/composites/DataTable"
 import { cn } from "@/lib/utils"
 import type {
@@ -17,10 +17,11 @@ export interface EvalDashboardFeatureProps {
   data: EvalDashboardFeatureData | null
   actionHandlers?: EvalDashboardFeatureActionHandlers
   className?: string
+  workflowContent?: React.ReactNode
 }
 
 export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
-  ({ inbox, data, actionHandlers, className }) => {
+  ({ inbox, data, actionHandlers, className, workflowContent }) => {
     const [showInbox, setShowInbox] = React.useState(true)
     const [activeTab, setActiveTab] = React.useState("golden-evals")
 
@@ -144,7 +145,8 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
                           tabs: [
                             { label: "Golden Evals", value: "golden-evals" },
                             { label: "System Prompts", value: "prompts" },
-                            { label: "Outputs", value: "outputs" }
+                            { label: "Outputs", value: "outputs" },
+                            ...(workflowContent ? [{ label: "Workflow", value: "workflow" }] : []),
                           ],
                           defaultTab: activeTab,
                           onTabChange: setActiveTab,
@@ -154,13 +156,15 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
                             onClick: () => setShowInbox(!showInbox)
                           },
                           actions: actionHandlers?.onTriggerEvaluation ? (
-                            <EvalTriggerButton onClick={actionHandlers.onTriggerEvaluation} />
-                          ) : undefined
+                            <EvalTriggerButton onClick={actionHandlers.onTriggerEvaluation} loading={actionHandlers.isTriggering} />
+                          ) : undefined,
                         } : undefined,
                         content: sessionDetails ? (
                           <EvalSessionDetailsPanel
                             sessionDetails={sessionDetails}
                             activeTab={activeTab}
+                            actionHandlers={actionHandlers}
+                            workflowContent={workflowContent}
                           />
                         ) : (
                           <div className="flex-1 flex items-center justify-center text-muted-foreground bg-background h-full">

@@ -506,10 +506,12 @@ export function EnhancedDataTable({
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm" className="h-8" onClick={onCreateClick}>
-            <Icon name="plus" size="sm" />
-            <span>{createButtonLabel}</span>
-          </Button>
+          {onCreateClick && (
+            <Button variant="outline" size="sm" className="h-8" onClick={onCreateClick}>
+              <Icon name="plus" size="sm" />
+              <span>{createButtonLabel}</span>
+            </Button>
+          )}
           {rightActions}
         </div>
       </div>

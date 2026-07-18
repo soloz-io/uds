@@ -27,3 +27,7 @@ export type { FormReportsSectionProps } from './FormReportsSection'
 
 export { InboxPanel } from './InboxPanel'
 export type { InboxPanelProps } from './InboxPanel'
+
+// EvalSessionDetailsPanel Block
+export { EvalSessionDetailsPanel, EvalTriggerButton } from './EvalSessionDetailsPanel'
+export type { EvalSessionDetailsPanelProps, EvalSessionDetails } from './EvalSessionDetailsPanel'

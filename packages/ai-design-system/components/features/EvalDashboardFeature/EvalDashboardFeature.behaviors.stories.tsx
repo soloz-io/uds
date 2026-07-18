@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import * as React from "react"
 import { expect, within, userEvent, fn } from "@storybook/test"
 import { EvalDashboardFeature } from "./EvalDashboardFeature"
-import { evalDashboardFeatureStateMock } from "./EvalDashboardFeature.mocks"
+import { evalDashboardFeatureStateMock, workflowMockNodes, workflowMockEdges } from "./EvalDashboardFeature.mocks"
+import { NodeEditor } from "@/components/features/NodeEditor"
+
+const workflowMock = (
+  <NodeEditor nodes={workflowMockNodes} edges={workflowMockEdges} showMinimap={false} interactive={false} />
+)
 
 const meta = {
   title: "Features/EvalDashboardFeature/Behaviors",
@@ -25,16 +31,17 @@ export const Interactive: Story = {
     actionHandlers: {
       onTriggerEvaluation: fn(),
     },
+    workflowContent: workflowMock,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     
-    // Check if the tabs exist
+    // 4 tabs: Golden Evals, System Prompts, Outputs, Workflow
     const tabs = await canvas.findAllByRole("tab")
-    expect(tabs.length).toBeGreaterThan(0)
+    expect(tabs.length).toBe(4)
     
-    // Switch to Outputs tab
-    const outputsTab = canvas.getByRole("tab", { name: /Outputs/i })
-    await userEvent.click(outputsTab)
+    // Switch to Workflow tab
+    const workflowTab = canvas.getByRole("tab", { name: /Workflow/i })
+    await userEvent.click(workflowTab)
   },
 }

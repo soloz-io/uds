@@ -17,13 +17,14 @@ export type { RefinementPanelProps, RefinementMessage } from "./RefinementPanel"
 export { SpecNavigator } from "./SpecNavigator";
 export type { SpecNavigatorProps } from "./SpecNavigator";
 
+// NodeEditor Feature
+export { NodeEditor } from "./NodeEditor";
+export type { NodeEditorProps } from "./NodeEditor";
+
 // TextEditor Feature
 export { TextEditor } from "./TextEditor";
 export type { TextEditorProps } from "./TextEditor";
 
-// NodeEditor Feature
-export { NodeEditor } from "./NodeEditor";
-export type { NodeEditorProps } from "./NodeEditor";
 
 // DashboardFeature Feature
 export { DashboardFeature } from "./DashboardFeature";

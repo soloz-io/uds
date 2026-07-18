@@ -32,6 +32,7 @@ export interface EvalDashboardFeatureData {
 
 export interface EvalDashboardFeatureActionHandlers {
   onTriggerEvaluation?: () => void;
+  isTriggering?: boolean;
 }
 
 export interface UseEvalDashboardFeatureReturn {

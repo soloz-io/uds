@@ -34,7 +34,7 @@ export const ProjectSwitcher = React.memo<ProjectSwitcherProps>(
   ({ projects, selectedProjectId, onSelectProject, onCreateProject, className }) => {
     const [open, setOpen] = React.useState(false)
 
-    const selectedProject = projects.find((p) => p.id === selectedProjectId)
+    const selectedProject = projects.find((p) => String(p.id) === String(selectedProjectId))
     const displayLabel = selectedProject ? selectedProject.name : "Select Project..."
 
     const defaultValue = selectedProject ? `${selectedProject.name}-${selectedProject.id}` : undefined
@@ -86,7 +86,7 @@ export const ProjectSwitcher = React.memo<ProjectSwitcherProps>(
                       </div>
                       <Icon name="check"
                         className={`h-4 w-4 ${
-                          selectedProjectId === project.id ? "opacity-100" : "opacity-0"
+                          String(selectedProjectId) === String(project.id) ? "opacity-100" : "opacity-0"
                         }`}
                       />
                     </CommandItem>

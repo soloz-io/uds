@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react"
+import * as React from "react"
 import { EvalDashboardFeature } from "./EvalDashboardFeature"
-import { evalDashboardFeatureStateMock } from "./EvalDashboardFeature.mocks"
+import { evalDashboardFeatureStateMock, workflowMockNodes, workflowMockEdges } from "./EvalDashboardFeature.mocks"
 import { useEvalDashboardFeatureMock } from "./useEvalDashboardFeature.mock"
+import { NodeEditor } from "@/components/features/NodeEditor"
+
+const workflowMock = (
+  <NodeEditor nodes={workflowMockNodes} edges={workflowMockEdges} showMinimap={false} interactive={false} />
+)
 
 const meta = {
   title: "Features/EvalDashboardFeature",
@@ -23,12 +29,13 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     ...evalDashboardFeatureStateMock,
+    workflowContent: workflowMock,
   },
 }
 
 export const WithStateManagement: Story = {
   render: () => {
     const state = useEvalDashboardFeatureMock()
-    return <EvalDashboardFeature {...state} className="h-[100dvh]" />
+    return <EvalDashboardFeature {...state} workflowContent={workflowMock} className="h-[100dvh]" />
   },
 }

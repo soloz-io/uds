@@ -18,12 +18,14 @@ export interface EvalSessionDetails {
 export interface EvalSessionDetailsPanelProps {
   sessionDetails: EvalSessionDetails
   activeTab: string
+  actionHandlers?: { onTriggerEvaluation?: () => void }
+  workflowContent?: React.ReactNode
 }
 
-export const EvalTriggerButton = ({ onClick }: { onClick: () => void }) => (
-  <Button onClick={onClick} size="sm">
-    <Icon name="Play" className="w-4 h-4 mr-2" />
-    Trigger Evaluation
+export const EvalTriggerButton = ({ onClick, loading }: { onClick: () => void; loading?: boolean }) => (
+  <Button onClick={onClick} variant="default" size="sm" className="h-8" disabled={loading}>
+    <Icon name={loading ? 'loader-2' : 'play'} className={`w-4 h-4 mr-2${loading ? ' animate-spin' : ''}`} />
+    {loading ? 'Evaluating...' : 'Trigger'}
   </Button>
 )
 
@@ -42,7 +44,7 @@ const goldenEvalTableSchema = dynamicTableSchema.parse({
 })
 
 export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
-  ({ sessionDetails, activeTab }) => {
+  ({ sessionDetails, activeTab, actionHandlers, workflowContent }) => {
     return (
       <div className="flex flex-col h-full bg-background">
         <Tabs value={activeTab} className="flex-1 flex flex-col min-h-0">
@@ -78,6 +80,14 @@ export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
                   </pre>
                 </div>
               </ScrollArea>
+            </TabsContent>
+
+            <TabsContent value="workflow" className="absolute inset-0 m-0 p-0">
+              {workflowContent || (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  No workflow data available.
+                </div>
+              )}
             </TabsContent>
           </div>
         </Tabs>
