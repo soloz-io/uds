@@ -1,5 +1,6 @@
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { Area, Line, ComposedChart, CartesianGrid, XAxis } from "recharts"
+import type { TooltipContentProps } from "recharts"
 
 import {
   ChartContainer,
@@ -70,7 +71,10 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
   )
 
   const filteredSeries = React.useMemo(() => {
-    const referenceDate = series.length > 0 ? series[series.length - 1].date : new Date().toISOString()
+    // 1. Sort ascending chronologically (oldest to newest)
+    const sortedSeries = [...series].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+    const referenceDate = sortedSeries.length > 0 ? sortedSeries[sortedSeries.length - 1].date : new Date().toISOString()
     let daysToSubtract = 90
     if (timeRange === "30d") {
       daysToSubtract = 30
@@ -78,15 +82,15 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
       daysToSubtract = 7
     }
 
-    let filtered = series;
+    let filtered = sortedSeries;
     if (timeRange === "10" || timeRange === "20" || timeRange === "30") {
       // Special logic for count-based limits if passed as timeRange
       const limit = parseInt(timeRange, 10)
-      filtered = series.slice(-limit)
+      filtered = sortedSeries.slice(-limit)
     } else {
       const startDate = new Date(referenceDate)
       startDate.setDate(startDate.getDate() - daysToSubtract)
-      filtered = series.filter(item => new Date(item.date) >= startDate)
+      filtered = sortedSeries.filter(item => new Date(item.date) >= startDate)
     }
 
     return filtered.map(item => ({ ...item, timestamp: new Date(item.date).getTime() }))
@@ -142,7 +146,7 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
             }}
             className={cn("aspect-auto w-full", chartClassName || "h-[250px]")}
           >
-            <AreaChart data={filteredSeries}>
+            <ComposedChart data={filteredSeries}>
               <defs>
                 <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="var(--color-desktop)" stopOpacity={1} />
@@ -177,71 +181,97 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
               />
               <ChartTooltip
                 cursor={false}
-                content={
-                  <ChartTooltipContent
-                    labelFormatter={(value, payload) => {
-                      const typedPayload = payload as Array<{ payload: { timestamp?: number } }>;
-                      const timestamp = typedPayload?.[0]?.payload?.timestamp;
-                      if (!timestamp) return null;
-                      const date = new Date(timestamp);
-                      if (isNaN(date.getTime())) return ""
-                      return date.toLocaleDateString("en-US", {
-                        month: "short",
-                        year: "numeric",
-                      })
-                    }}
-                    formatter={(value, name, item, index, payload) => {
-                      const typedPayload = payload as { timestamp?: number };
-                      const typedItem = item as { color?: string };
-                      const label = name === "desktop" ? desktopLabel : (name === "mobile" ? mobileLabel : name);
-                      const timeStr = typedPayload?.timestamp ? new Date(typedPayload.timestamp).toLocaleTimeString("en-US", {
-                        hour: "numeric",
-                        minute: "2-digit"
-                      }) : null;
-                      
-                      return (
-                        <div className="flex flex-col w-full">
-                          <div className="flex w-full items-center gap-2">
-                            <div 
-                              className="h-2.5 w-2.5 shrink-0 rounded-[2px]" 
-                              style={{ backgroundColor: typedItem.color }} 
-                            />
-                            <div className="flex flex-1 justify-between items-center gap-4">
-                              <span className="text-muted-foreground">{label as React.ReactNode}</span>
-                              <span className="font-mono font-medium tabular-nums text-foreground">{value as React.ReactNode}</span>
+                content={(props: TooltipContentProps) => {
+                  const { active, payload, content: _content, label: _label, ...rest } = props;
+                  if (!active || !payload?.length) return null;
+
+                  const uniquePayload = payload.filter(
+                    (item, index, self) =>
+                      index === self.findIndex((t) => String(t.dataKey) === String(item.dataKey)),
+                  );
+                  
+                  return (
+                      <ChartTooltipContent
+                      {...rest}
+                      payload={uniquePayload}
+                      labelFormatter={(value, tooltipPayload) => {
+                        const typedPayload = tooltipPayload as Array<{ payload: { timestamp?: number } }>;
+                        const timestamp = typedPayload?.[0]?.payload?.timestamp;
+                        if (!timestamp) return null;
+                        const date = new Date(timestamp);
+                        if (isNaN(date.getTime())) return ""
+                        return date.toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                        })
+                      }}
+                      formatter={(value, name, item, index, tooltipPayload) => {
+                        const typedPayload = tooltipPayload as { timestamp?: number };
+                        const typedItem = item as { color?: string };
+                        const labelText = name === "desktop" ? desktopLabel : (name === "mobile" ? mobileLabel : name);
+                        const timeStr = typedPayload?.timestamp ? new Date(typedPayload.timestamp).toLocaleTimeString("en-US", {
+                          hour: "numeric",
+                          minute: "2-digit"
+                        }) : null;
+                        
+                        return (
+                          <div className="flex flex-col w-full">
+                            <div className="flex w-full items-center gap-2">
+                              <div 
+                                className="h-2.5 w-2.5 shrink-0 rounded-[2px]" 
+                                style={{ backgroundColor: typedItem.color }} 
+                              />
+                              <div className="flex flex-1 justify-between items-center gap-4">
+                                <span className="text-muted-foreground">{labelText as React.ReactNode}</span>
+                                <span className="font-mono font-medium tabular-nums text-foreground">{value as React.ReactNode}</span>
+                              </div>
                             </div>
+                            {timeStr && (
+                              <div className="text-[10px] text-muted-foreground self-end mt-0.5">
+                                {timeStr}
+                              </div>
+                            )}
                           </div>
-                          {timeStr && (
-                            <div className="text-[10px] text-muted-foreground self-end mt-0.5">
-                              {timeStr}
-                            </div>
-                          )}
-                        </div>
-                      )
-                    }}
-                    indicator="dot"
-                  />
-                }
+                        )
+                      }}
+                      indicator="dot"
+                    />
+                  );
+                }}
               />
               {showMobile && (
-                <Area
-                  dataKey="mobile"
-                  type="natural"
-                  fill="url(#fillMobile)"
-                  stroke="var(--color-mobile)"
-                  strokeWidth={2}
-                  stackId="a"
-                />
+                <>
+                  <Area
+                    dataKey="mobile"
+                    type="monotone"
+                    fill="url(#fillMobile)"
+                    stroke="none"
+                  />
+                  <Line
+                    dataKey="mobile"
+                    type="monotone"
+                    stroke="var(--color-mobile)"
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 4 }}
+                  />
+                </>
               )}
               <Area
                 dataKey="desktop"
-                type="natural"
+                type="monotone"
                 fill="url(#fillDesktop)"
+                stroke="none"
+              />
+              <Line
+                dataKey="desktop"
+                type="monotone"
                 stroke="var(--color-desktop)"
                 strokeWidth={2}
-                stackId="a"
+                dot={false}
+                activeDot={{ r: 4 }}
               />
-            </AreaChart>
+            </ComposedChart>
           </ChartContainer>
         </CardContent>
       </Card>
