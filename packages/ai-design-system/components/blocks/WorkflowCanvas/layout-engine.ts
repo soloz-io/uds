@@ -1,6 +1,26 @@
 import ELK from 'elkjs';
 import type { WorkflowNode, WorkflowEdge } from './interfaces';
 
+interface ElkNode {
+  id: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  children?: ElkNode[];
+}
+
+interface ElkGraph {
+  id: string;
+  layoutOptions?: Record<string, string>;
+  children?: ElkNode[];
+  edges?: Array<{
+    id: string;
+    sources: string[];
+    targets: string[];
+  }>;
+}
+
 const NODE_WIDTH = 180;
 const NODE_HEIGHT = 52;
 
@@ -10,7 +30,7 @@ export async function getLayoutedElements(
   nodes: WorkflowNode[],
   edges: WorkflowEdge[],
 ): Promise<{ nodes: WorkflowNode[]; edges: WorkflowEdge[] }> {
-  const graph = {
+  const graph: ElkGraph = {
     id: 'root',
     layoutOptions: {
       'elk.algorithm': 'layered',
@@ -36,12 +56,10 @@ export async function getLayoutedElements(
     }),
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const layout = await elk.layout(graph as any);
+  const layout = await elk.layout(graph);
 
   const layoutedNodes: WorkflowNode[] = nodes.map((n) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const elkNode = (layout.children ?? []).find((c: any) => c.id === n.id);
+    const elkNode = (layout.children ?? []).find((c: ElkNode) => c.id === n.id);
     if (!elkNode || elkNode.x == null || elkNode.y == null) return n;
     return {
       ...n,

@@ -65,6 +65,7 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
       id: selectedSession.id,
       date: selectedSession.date,
       goldenEvals: (data?.goldenEvals || []) as DashboardRow[],
+      recommendations: (data?.recommendations ?? []).map((r, i) => ({ id: i, ...r })),
       systemPrompt: data?.systemPrompt,
       outputTranscript: data?.outputTranscript
     } : null
@@ -148,6 +149,7 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
                           tabsPosition: "center",
                           tabs: [
                             { label: "Golden Evals", value: "golden-evals" },
+                            { label: "Recommendations", value: "recommendations" },
                             { label: "System Prompts", value: "prompts" },
                             { label: "Outputs", value: "outputs" },
                             ...(workflowContent ? [{ label: "Workflow", value: "workflow" }] : []),

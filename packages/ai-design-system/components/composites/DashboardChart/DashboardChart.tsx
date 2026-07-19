@@ -1,6 +1,5 @@
 import * as React from "react"
-import { Area, Line, ComposedChart, CartesianGrid, XAxis } from "recharts"
-import type { TooltipContentProps } from "recharts"
+import { Area, CartesianGrid, ComposedChart, Line, XAxis } from "recharts"
 
 import {
   ChartContainer,
@@ -31,7 +30,7 @@ export interface DashboardChartPoint {
   mobile: number
 }
 
-export type DashboardChartTimeRange = string
+export type DashboardChartTimeRange = string;
 
 export interface DashboardChartProps {
   series: DashboardChartPoint[]
@@ -47,6 +46,97 @@ export interface DashboardChartProps {
   className?: string
   chartClassName?: string
 }
+
+interface DashboardTooltipPayloadItem {
+  dataKey?: string | number;
+  value?: number;
+  [key: string]: unknown;
+}
+
+const DashboardTooltipContent = React.memo((props: {
+  active?: boolean;
+  payload?: DashboardTooltipPayloadItem[];
+  label?: string;
+  desktopLabel?: string;
+  mobileLabel?: string;
+  [key: string]: unknown;
+}): React.ReactElement | null => {
+  const { active, payload, desktopLabel, mobileLabel, content: _content, label, ...rest } = props;
+  void _content;
+  if (!active || !payload?.length) return null;
+
+  const uniquePayload = payload.filter(
+    (item: DashboardTooltipPayloadItem, index: number, self: DashboardTooltipPayloadItem[]) =>
+      index === self.findIndex((t: DashboardTooltipPayloadItem) => String(t.dataKey) === String(item.dataKey)),
+  );
+  
+  return (
+    <ChartTooltipContent
+      {...rest}
+      active={active}
+      label={label as string}
+      payload={uniquePayload}
+      labelFormatter={(value, tooltipPayload) => {
+        const typedPayload = tooltipPayload as Array<{ payload: { timestamp?: number } }>;
+        const timestamp = typedPayload?.[0]?.payload?.timestamp;
+        if (!timestamp) return null;
+        const date = new Date(timestamp);
+        if (isNaN(date.getTime())) return ""
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          year: "numeric",
+        })
+      }}
+      formatter={(value, name, item, index, tooltipPayload) => {
+        const typedPayload = tooltipPayload as { timestamp?: number };
+        const typedItem = item as { color?: string };
+        const labelText = name === "desktop" ? desktopLabel : (name === "mobile" ? mobileLabel : name);
+        const timeStr = typedPayload?.timestamp ? new Date(typedPayload.timestamp).toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit"
+        }) : null;
+        
+        return (
+          <div className="flex flex-col w-full">
+            <div className="flex w-full items-center gap-2">
+              <div 
+                className="h-2.5 w-2.5 shrink-0 rounded-[2px]" 
+                style={{ backgroundColor: typedItem.color }} 
+              />
+              <div className="flex flex-1 justify-between items-center gap-4">
+                <span className="text-muted-foreground">{labelText as React.ReactNode}</span>
+                <span className="font-mono font-medium tabular-nums text-foreground">{value as React.ReactNode}</span>
+              </div>
+            </div>
+            {timeStr && (
+              <div className="text-[10px] text-muted-foreground self-end mt-0.5">
+                {timeStr}
+              </div>
+            )}
+          </div>
+        )
+      }}
+      indicator="dot"
+    />
+  );
+});
+DashboardTooltipContent.displayName = "DashboardTooltipContent";
+
+const CustomDot = React.memo((props: { cx?: number; cy?: number; stroke?: string }): React.ReactElement => {
+  const { cx, cy, stroke } = props;
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r={4}
+      fill="var(--background)"
+      stroke={stroke}
+      strokeWidth={2}
+      pointerEvents="none"
+    />
+  );
+});
+CustomDot.displayName = "CustomDot";
 
 export const DashboardChart = React.memo<DashboardChartProps>(({ 
   series, 
@@ -184,65 +274,12 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
               />
               <ChartTooltip
                 cursor={false}
-                content={(props: TooltipContentProps) => {
-                  const { active, payload, content: _content, label: _label, ...rest } = props;
-                  void _content;
-                  void _label;
-                  if (!active || !payload?.length) return null;
-
-                  const uniquePayload = payload.filter(
-                    (item, index, self) =>
-                      index === self.findIndex((t) => String(t.dataKey) === String(item.dataKey)),
-                  );
-                  
-                  return (
-                      <ChartTooltipContent
-                      {...rest}
-                      payload={uniquePayload}
-                      labelFormatter={(value, tooltipPayload) => {
-                        const typedPayload = tooltipPayload as Array<{ payload: { timestamp?: number } }>;
-                        const timestamp = typedPayload?.[0]?.payload?.timestamp;
-                        if (!timestamp) return null;
-                        const date = new Date(timestamp);
-                        if (isNaN(date.getTime())) return ""
-                        return date.toLocaleDateString("en-US", {
-                          month: "short",
-                          year: "numeric",
-                        })
-                      }}
-                      formatter={(value, name, item, index, tooltipPayload) => {
-                        const typedPayload = tooltipPayload as { timestamp?: number };
-                        const typedItem = item as { color?: string };
-                        const labelText = name === "desktop" ? desktopLabel : (name === "mobile" ? mobileLabel : name);
-                        const timeStr = typedPayload?.timestamp ? new Date(typedPayload.timestamp).toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit"
-                        }) : null;
-                        
-                        return (
-                          <div className="flex flex-col w-full">
-                            <div className="flex w-full items-center gap-2">
-                              <div 
-                                className="h-2.5 w-2.5 shrink-0 rounded-[2px]" 
-                                style={{ backgroundColor: typedItem.color }} 
-                              />
-                              <div className="flex flex-1 justify-between items-center gap-4">
-                                <span className="text-muted-foreground">{labelText as React.ReactNode}</span>
-                                <span className="font-mono font-medium tabular-nums text-foreground">{value as React.ReactNode}</span>
-                              </div>
-                            </div>
-                            {timeStr && (
-                              <div className="text-[10px] text-muted-foreground self-end mt-0.5">
-                                {timeStr}
-                              </div>
-                            )}
-                          </div>
-                        )
-                      }}
-                      indicator="dot"
-                    />
-                  );
-                }}
+                content={
+                  <DashboardTooltipContent 
+                    desktopLabel={desktopLabel} 
+                    mobileLabel={mobileLabel} 
+                  />
+                }
               />
               {showMobile && (
                 <>
@@ -257,8 +294,8 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
                     type="monotone"
                     stroke="var(--color-mobile)"
                     strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 4 }}
+                    dot={<CustomDot />}
+                    activeDot={{ r: 6 }}
                   />
                 </>
               )}
@@ -273,8 +310,8 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
                 type="monotone"
                 stroke="var(--color-desktop)"
                 strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
+                dot={<CustomDot />}
+                activeDot={{ r: 6 }}
               />
             </ComposedChart>
           </ChartContainer>

@@ -4,6 +4,7 @@ import {
   ConnectionMode,
   ReactFlowProvider,
   type Connection,
+  type Node,
   useReactFlow,
 } from "@xyflow/react";
 import { useCallback, useEffect } from "react";
@@ -95,8 +96,7 @@ function WorkflowCanvasInner({
         onEdgesChange={onEdgesChange}
         onNodesChange={onNodesChange}
         onPaneClick={onPaneClick}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onNodeClick={onNodeClick as any}
+        onNodeClick={onNodeClick as (event: React.MouseEvent, node: Node) => void}
         onEdgeClick={onEdgeClick}
       >
         {topLeft && (

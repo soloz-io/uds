@@ -41,6 +41,7 @@ export const evalDashboardFeatureStateMock: UseEvalDashboardFeatureReturn = {
     onSelectItem: () => {},
   },
   data: {
+    recommendations: [],
     goldenEvals: [
       { id: 1, category: 'Goal Completion', metric: "Was the user's objective accomplished?", pass: 1, reasoning: "The agent successfully generated the video based on the provided topic." },
       { id: 2, category: 'Conversation Progress', metric: "Does every response advance the task?", pass: 1, reasoning: "Every turn advanced the task without stalling." },

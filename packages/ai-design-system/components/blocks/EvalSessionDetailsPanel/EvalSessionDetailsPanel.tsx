@@ -11,6 +11,7 @@ export interface EvalSessionDetails {
   id: string
   date: string
   goldenEvals: DashboardRow[]
+  recommendations: Array<{ id: number; name: string; rationale: string }>
   systemPrompt?: string
   outputTranscript?: string
 }
@@ -29,6 +30,18 @@ export const EvalTriggerButton = ({ onClick, loading }: { onClick: () => void; l
   </Button>
 )
 
+const recommendationTableSchema = dynamicTableSchema.parse({
+  schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
+  rowKey: "name",
+  enableFiltering: true,
+  enablePagination: false,
+  enableRowSelection: false,
+  columns: [
+    { key: "name", label: "Recommendation", renderType: "text" },
+    { key: "rationale", label: "Rationale", renderType: "text" },
+  ],
+})
+
 const goldenEvalTableSchema = dynamicTableSchema.parse({
   schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
   rowKey: "id",
@@ -44,7 +57,7 @@ const goldenEvalTableSchema = dynamicTableSchema.parse({
 })
 
 export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
-  ({ sessionDetails, activeTab, actionHandlers, workflowContent }) => {
+  ({ sessionDetails, activeTab, actionHandlers: _actionHandlers, workflowContent }) => {
     return (
       <div className="flex flex-col h-full bg-background">
         <Tabs value={activeTab} className="flex-1 flex flex-col min-h-0">
@@ -58,6 +71,19 @@ export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
                   />
                 ) : (
                   <div className="text-sm text-muted-foreground flex-1 flex items-center justify-center">No evaluation data available.</div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="recommendations" className="absolute inset-0 m-0 p-0 overflow-hidden flex flex-col">
+              <div className="p-4 flex-1 min-h-0 flex flex-col">
+                {sessionDetails.recommendations && sessionDetails.recommendations.length > 0 ? (
+                  <EnhancedDataTable
+                    data={sessionDetails.recommendations}
+                    tableSchema={recommendationTableSchema}
+                  />
+                ) : (
+                  <div className="text-sm text-muted-foreground flex-1 flex items-center justify-center">No recommendations available.</div>
                 )}
               </div>
             </TabsContent>

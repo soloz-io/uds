@@ -74,6 +74,12 @@ const validations = [
     description: 'Checking that components use the Icon primitive instead of direct lucide-react imports or inline SVGs...',
     script: 'validations/validate-icon-usage.js',
   },
+  {
+    name: 'ESLint Disable Validation',
+    emoji: '🚫',
+    description: 'Checking for eslint-disable comments that suppress no-explicit-any...',
+    script: 'validations/validate-no-eslint-disable.js',
+  },
 ];
 
 const results = [];

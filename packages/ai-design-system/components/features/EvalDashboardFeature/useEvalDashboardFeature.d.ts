@@ -24,8 +24,14 @@ export interface EvalDashboardFeatureInboxState {
   error?: string;
 }
 
+export interface EvalRecommendation {
+  name: string;
+  rationale: string;
+}
+
 export interface EvalDashboardFeatureData {
   goldenEvals: GoldenEvalResult[];
+  recommendations: EvalRecommendation[];
   systemPrompt: string;
   outputTranscript: string;
   runsHistory?: Array<{
