@@ -96,6 +96,8 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
                       { value: "20", label: "Last 20 Runs", shortLabel: "Last 20" },
                       { value: "30", label: "Last 30 Runs", shortLabel: "Last 30" }
                     ]}
+                    timeRange={actionHandlers?.timeRange}
+                    onTimeRangeChange={actionHandlers?.onTimeRangeChange}
                     desktopLabel="Score"
                     mobileLabel=""
                     showMobile={false}

@@ -35,6 +35,7 @@ export type DashboardChartTimeRange = string
 
 export interface DashboardChartProps {
   series: DashboardChartPoint[]
+  timeRange?: DashboardChartTimeRange
   onTimeRangeChange?: (range: DashboardChartTimeRange) => void
   title: string
   description: string
@@ -49,6 +50,7 @@ export interface DashboardChartProps {
 
 export const DashboardChart = React.memo<DashboardChartProps>(({ 
   series, 
+  timeRange: propsTimeRange,
   onTimeRangeChange,
   title,
   description,
@@ -60,11 +62,12 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
   className,
   chartClassName
 }) => {
-  const [timeRange, setTimeRange] = React.useState<DashboardChartTimeRange>(timeRanges[0]?.value)
+  const [localTimeRange, setLocalTimeRange] = React.useState<DashboardChartTimeRange>(timeRanges[0]?.value)
+  const timeRange = propsTimeRange ?? localTimeRange
 
   const handleTimeRangeChange = React.useCallback(
     (range: DashboardChartTimeRange) => {
-      setTimeRange(range)
+      setLocalTimeRange(range)
       onTimeRangeChange?.(range)
     },
     [onTimeRangeChange]
@@ -183,6 +186,8 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
                 cursor={false}
                 content={(props: TooltipContentProps) => {
                   const { active, payload, content: _content, label: _label, ...rest } = props;
+                  void _content;
+                  void _label;
                   if (!active || !payload?.length) return null;
 
                   const uniquePayload = payload.filter(

@@ -40,6 +40,8 @@ export interface EvalDashboardFeatureData {
 export interface EvalDashboardFeatureActionHandlers {
   onTriggerEvaluation?: () => void;
   isTriggering?: boolean;
+  timeRange?: string;
+  onTimeRangeChange?: (range: string) => void;
 }
 
 export interface UseEvalDashboardFeatureReturn {
