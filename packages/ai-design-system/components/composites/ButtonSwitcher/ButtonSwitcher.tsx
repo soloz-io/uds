@@ -8,21 +8,22 @@ import {
 } from "@/components/primitives/DropdownMenu"
 import { Icon } from "@/components/primitives/Icon"
 
-export interface WorkflowItem {
+export interface ButtonSwitcherItem {
   id: string
   name: string
 }
 
-export interface WorkflowSwitcherProps {
-  workflows: WorkflowItem[]
-  currentWorkflowId?: string | null
-  onSelectWorkflow: (id: string) => void
+export interface ButtonSwitcherProps {
+  items: ButtonSwitcherItem[]
+  activeId?: string | null
+  onSelect: (id: string) => void
   className?: string
+  placeholder?: string
 }
 
-export const WorkflowSwitcher = React.memo<WorkflowSwitcherProps>(
-  ({ workflows, currentWorkflowId, onSelectWorkflow, className }) => {
-    const currentWorkflow = workflows.find((w) => w.id === currentWorkflowId)
+export const ButtonSwitcher = React.memo<ButtonSwitcherProps>(
+  ({ items, activeId, onSelect, className, placeholder = "Select Item" }) => {
+    const currentItem = items.find((w) => w.id === activeId)
 
     return (
       <div className={className}>
@@ -35,25 +36,25 @@ export const WorkflowSwitcher = React.memo<WorkflowSwitcherProps>(
               variant="secondary"
             >
               <span className="truncate max-w-[150px]">
-                {currentWorkflow?.name ?? "Select Workflow"}
+                {currentItem?.name ?? placeholder}
               </span>
               <Icon name="chevron-down" size="xs" className="ml-1 opacity-50 shrink-0" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            {workflows.map((w) => (
+            {items.map((w) => (
               <DropdownMenuItem
                 className="flex items-center justify-between"
                 key={w.id}
-                onClick={() => onSelectWorkflow(w.id)}
+                onClick={() => onSelect(w.id)}
               >
                 <span className="truncate pr-4">{w.name}</span>
-                {w.id === currentWorkflowId && <Icon name="check" size="sm" className="ml-auto shrink-0" />}
+                {w.id === activeId && <Icon name="check" size="sm" className="ml-auto shrink-0" />}
               </DropdownMenuItem>
             ))}
-            {workflows.length === 0 && (
+            {items.length === 0 && (
               <div className="px-2 py-1.5 text-sm text-muted-foreground text-center">
-                No workflows found
+                No items found
               </div>
             )}
           </DropdownMenuContent>
@@ -63,4 +64,4 @@ export const WorkflowSwitcher = React.memo<WorkflowSwitcherProps>(
   }
 )
 
-WorkflowSwitcher.displayName = "WorkflowSwitcher"
+ButtonSwitcher.displayName = "ButtonSwitcher"

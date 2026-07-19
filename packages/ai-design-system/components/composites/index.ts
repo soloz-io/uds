@@ -65,9 +65,9 @@ export type { ModeToggleProps } from './ModeToggle'
 export { DocumentTabBar } from './DocumentTabBar'
 export type { DocumentTabBarProps } from './DocumentTabBar'
 
-// ThemeSelector Composite
-export { ThemeSelector } from './ThemeSelector'
-export type { ThemeSelectorProps, Theme } from './ThemeSelector'
+// DefaultSwitcher Composite
+export { DefaultSwitcher } from './DefaultSwitcher'
+export type { DefaultSwitcherProps, DefaultSwitcherItem } from './DefaultSwitcher'
 
 // TablePagination Composite
 export { TablePagination } from './TablePagination'
@@ -194,9 +194,9 @@ export type { PromptInputBlockProps } from './PromptInput'
 export { ChatToggleButton } from './ChatToggleButton'
 export type { ChatToggleButtonProps } from './ChatToggleButton'
 
-// WorkflowSwitcher Composite
-export { WorkflowSwitcher } from './WorkflowSwitcher'
-export type { WorkflowSwitcherProps, WorkflowItem } from './WorkflowSwitcher'
+// ButtonSwitcher Composite
+export { ButtonSwitcher } from './ButtonSwitcher'
+export type { ButtonSwitcherProps, ButtonSwitcherItem } from './ButtonSwitcher'
 
 // SessionHeader Composite
 export { SessionHeader } from './SessionHeader'
@@ -205,5 +205,9 @@ export type { SessionHeaderProps, ChatSessionInfo } from './SessionHeader'
 // AppBreadcrumb Composite
 export { AppBreadcrumb } from './AppBreadcrumb'
 export type { AppBreadcrumbProps, BreadcrumbItemData } from './AppBreadcrumb'
+
+// IconButton Composite
+export { IconButton } from './IconButton'
+export type { IconButtonProps } from './IconButton'
 
 

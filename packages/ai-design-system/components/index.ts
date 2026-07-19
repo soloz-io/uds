@@ -22,5 +22,5 @@ export type { ExternalToast, ToastT, ToasterProps } from 'sonner';
 
 // Utilities
 export { cn } from '@/lib/utils';
-export { WorkflowSwitcher } from './composites';
-export type { WorkflowSwitcherProps, WorkflowItem } from './composites';
+export { ButtonSwitcher } from './composites';
+export type { ButtonSwitcherProps, ButtonSwitcherItem } from './composites';

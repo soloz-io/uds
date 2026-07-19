@@ -4,6 +4,7 @@ import { SectionLayout } from "@/components/blocks/SectionLayout"
 import { DashboardChart } from "@/components/composites/DashboardChart"
 import { EvalSessionDetailsPanel, EvalTriggerButton } from "@/components/blocks/EvalSessionDetailsPanel"
 import type { DashboardRow } from "@/components/composites/DataTable"
+import { IconButton } from "@/components/composites/IconButton"
 import { cn } from "@/lib/utils"
 import type {
   EvalDashboardFeatureInboxState,
@@ -147,22 +148,30 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
                           showTitle: false,
                           showSidebarToggle: false,
                           tabsPosition: "center",
-                          tabs: [
-                            { label: "Golden Evals", value: "golden-evals" },
-                            { label: "Recommendations", value: "recommendations" },
-                            { label: "Session Instructions", value: "prompts" },
-                            { label: "Outputs", value: "outputs" },
-                            ...(workflowContent ? [{ label: "Workflow", value: "workflow" }] : []),
-                          ],
-                          defaultTab: activeTab,
-                          onTabChange: setActiveTab,
+                          buttonSwitcherProps: {
+                            items: [
+                              { name: "Golden Evals", id: "golden-evals" },
+                              { name: "Recommendations", id: "recommendations" },
+                              { name: "Session Instructions", id: "prompts" },
+                              { name: "Outputs", id: "outputs" },
+                              ...(workflowContent ? [{ name: "Workflow", id: "workflow" }] : []),
+                            ],
+                            activeId: activeTab,
+                            onSelect: setActiveTab,
+                            placeholder: "Select View",
+                          },
                           chatToggleProps: {
                             isOpen: showInbox,
                             label: showInbox ? "Hide Inbox" : "Show Inbox",
                             onClick: () => setShowInbox(!showInbox)
                           },
                           actions: actionHandlers?.onTriggerEvaluation ? (
-                            <EvalTriggerButton onClick={actionHandlers.onTriggerEvaluation} loading={actionHandlers.isTriggering} />
+                            <div className="flex items-center gap-2">
+                              <EvalTriggerButton onClick={actionHandlers.onTriggerEvaluation} loading={actionHandlers.isTriggering} />
+                              {actionHandlers.onDownloadPrompt && (
+                                <IconButton onClick={actionHandlers.onDownloadPrompt} variant="outline" size="sm" className="h-8 w-8 p-0" title="Download Prompt" icon="download" />
+                              )}
+                            </div>
                           ) : undefined,
                         } : undefined,
                         content: sessionDetails ? (

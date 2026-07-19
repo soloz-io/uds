@@ -3,7 +3,7 @@ import { SidebarTrigger } from "@/components/primitives/Sidebar"
 import { Separator } from "@/components/primitives/Separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/primitives/Tabs"
 import { ChatToggleButton } from "@/components/composites/ChatToggleButton"
-import { WorkflowSwitcher } from "@/components/composites/WorkflowSwitcher"
+import { ButtonSwitcher } from "@/components/composites/ButtonSwitcher"
 import type { AppHeaderProps } from "./interfaces"
 
 export const AppHeader = React.memo<AppHeaderProps>(({ 
@@ -16,7 +16,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
   tabsPosition = 'center',
   showSidebarToggle = true,
   showTitle = true,
-  workflowSwitcherProps,
+  buttonSwitcherProps,
   chatToggleProps
 }) => {
   return (
@@ -24,7 +24,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
       <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center px-4 lg:px-6">
         <div className="min-w-0 flex items-center gap-1 lg:gap-2">
           {showSidebarToggle && <SidebarTrigger className="-ml-1" />}
-          {showSidebarToggle && (showTitle && title || workflowSwitcherProps || chatToggleProps) && (
+          {showSidebarToggle && (showTitle && title || buttonSwitcherProps || chatToggleProps) && (
             <Separator orientation="vertical" className="mx-2 data-[orientation=vertical]:h-4" />
           )}
           {showTitle && title && (
@@ -44,7 +44,7 @@ export const AppHeader = React.memo<AppHeaderProps>(({
               </TabsList>
             </Tabs>
           )}
-          {workflowSwitcherProps && <WorkflowSwitcher {...workflowSwitcherProps} />}
+          {buttonSwitcherProps && <ButtonSwitcher {...buttonSwitcherProps} />}
         </div>
 
         <div className="justify-self-center">

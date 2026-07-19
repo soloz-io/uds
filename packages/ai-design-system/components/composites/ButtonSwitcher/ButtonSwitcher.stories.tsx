@@ -1,26 +1,24 @@
 import * as React from "react"
 import type { Meta, StoryObj } from "@storybook/react"
-import { WorkflowSwitcher } from "./WorkflowSwitcher"
+import { ButtonSwitcher } from "./ButtonSwitcher"
 
-const meta: Meta<typeof WorkflowSwitcher> = {
-  title: "Composites/WorkflowSwitcher",
-  component: WorkflowSwitcher,
-  parameters: {
-    layout: "centered",
-  },
+const meta: Meta<typeof ButtonSwitcher> = {
+  title: "Composites/ButtonSwitcher",
+  component: ButtonSwitcher,
+  tags: ["autodocs"],
   args: {
-    workflows: [
+    items: [
       { id: "1", name: "Alpha Workflow" },
       { id: "2", name: "Beta Workflow" },
       { id: "3", name: "Gamma Workflow" },
     ],
-    currentWorkflowId: "1",
-    onSelectWorkflow: () => {},
+    activeId: "1",
+    onSelect: () => {},
   },
 }
 
 export default meta
-type Story = StoryObj<typeof WorkflowSwitcher>
+type Story = StoryObj<typeof ButtonSwitcher>
 
 export const Default: Story = {}
 

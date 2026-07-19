@@ -144,3 +144,33 @@ export const ManyTabs: Story = {
     </SidebarProvider>
   ),
 }
+
+/**
+ * With Button Switcher
+ *
+ * Header with a button switcher (dropdown) instead of a title.
+ */
+export const WithButtonSwitcher: Story = {
+  render: () => (
+    <SidebarProvider>
+      <Sidebar />
+      <SidebarInset>
+        <AppHeader
+          buttonSwitcherProps={{
+            items: [
+              { id: "1", name: "Alpha Workflow" },
+              { id: "2", name: "Beta Workflow" },
+            ],
+            activeId: "1",
+            onSelect: fn(),
+          }}
+          actions={
+            <Button size="sm">
+              Deploy
+            </Button>
+          }
+        />
+      </SidebarInset>
+    </SidebarProvider>
+  ),
+}

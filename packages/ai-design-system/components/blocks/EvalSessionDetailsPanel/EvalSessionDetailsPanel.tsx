@@ -24,9 +24,8 @@ export interface EvalSessionDetailsPanelProps {
 }
 
 export const EvalTriggerButton = ({ onClick, loading }: { onClick: () => void; loading?: boolean }) => (
-  <Button onClick={onClick} variant="default" size="sm" className="h-8" disabled={loading}>
-    <Icon name={loading ? 'loader-2' : 'play'} className={`w-4 h-4 mr-2${loading ? ' animate-spin' : ''}`} />
-    {loading ? 'Evaluating...' : 'Trigger'}
+  <Button onClick={onClick} variant="default" size="sm" className="h-8 w-8 p-0" disabled={loading} title={loading ? 'Evaluating...' : 'Trigger'}>
+    <Icon name={loading ? 'loader-2' : 'play'} className={`w-4 h-4${loading ? ' animate-spin' : ''}`} />
   </Button>
 )
 

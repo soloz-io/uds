@@ -8,7 +8,7 @@ import {
 } from "@/components/primitives/Select"
 
 /**
- * ThemeSelector Composite
+ * DefaultSwitcher Composite
  *
  * A theme variant selector component that allows users to choose from multiple theme options.
  * Composes Select primitive.
@@ -20,20 +20,20 @@ import {
  *   { label: "Ocean", value: "ocean" },
  *   { label: "Forest", value: "forest" },
  * ]
- * <ThemeSelector themes={themes} value="default" onValueChange={setTheme} />
+ * <DefaultSwitcher themes={themes} value="default" onValueChange={setTheme} />
  * ```
  */
 
-export interface Theme {
+export interface DefaultSwitcherItem {
   label: string
   value: string
 }
 
-export interface ThemeSelectorProps {
+export interface DefaultSwitcherProps {
   /**
    * Available theme options
    */
-  themes: Theme[]
+  themes: DefaultSwitcherItem[]
   /**
    * Currently selected theme value
    */
@@ -53,11 +53,11 @@ export interface ThemeSelectorProps {
 }
 
 /**
- * ThemeSelector component
+ * DefaultSwitcher component
  *
  * Provides a select dropdown to choose from multiple theme variants.
  */
-export const ThemeSelector = React.memo<ThemeSelectorProps>(
+export const DefaultSwitcher = React.memo<DefaultSwitcherProps>(
   ({ themes, value, onValueChange, placeholder = "Select theme", className }) => {
     return (
       <Select value={value} onValueChange={onValueChange}>
@@ -76,4 +76,4 @@ export const ThemeSelector = React.memo<ThemeSelectorProps>(
   }
 )
 
-ThemeSelector.displayName = "ThemeSelector"
+DefaultSwitcher.displayName = "DefaultSwitcher"
