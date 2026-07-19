@@ -150,7 +150,7 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
                           tabs: [
                             { label: "Golden Evals", value: "golden-evals" },
                             { label: "Recommendations", value: "recommendations" },
-                            { label: "System Prompts", value: "prompts" },
+                            { label: "Session Instructions", value: "prompts" },
                             { label: "Outputs", value: "outputs" },
                             ...(workflowContent ? [{ label: "Workflow", value: "workflow" }] : []),
                           ],
