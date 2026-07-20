@@ -43,9 +43,11 @@ export interface EvalDashboardFeatureData {
   }>;
 }
 
+import type { FileDownloadResult } from '@/components/composites/FileTreeExplorer';
+
 export interface EvalDashboardFeatureActionHandlers {
   onTriggerEvaluation?: () => void;
-  onDownloadPrompt?: () => void;
+  onDownloadPrompt?: () => Promise<FileDownloadResult | undefined>;
   isTriggering?: boolean;
   timeRange?: string;
   onTimeRangeChange?: (range: string) => void;

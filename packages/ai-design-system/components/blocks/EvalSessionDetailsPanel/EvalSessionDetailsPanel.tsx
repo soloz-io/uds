@@ -19,7 +19,7 @@ export interface EvalSessionDetails {
 export interface EvalSessionDetailsPanelProps {
   sessionDetails: EvalSessionDetails
   activeTab: string
-  actionHandlers?: { onTriggerEvaluation?: () => void }
+  actionHandlers?: { onTriggerEvaluation?: () => void; onDownloadPrompt?: () => Promise<import('@/components/composites/FileTreeExplorer').FileDownloadResult | undefined> }
   workflowContent?: React.ReactNode
 }
 

@@ -5,6 +5,7 @@ import { DashboardChart } from "@/components/composites/DashboardChart"
 import { EvalSessionDetailsPanel, EvalTriggerButton } from "@/components/blocks/EvalSessionDetailsPanel"
 import type { DashboardRow } from "@/components/composites/DataTable"
 import { IconButton } from "@/components/composites/IconButton"
+import type { FileDownloadResult } from "@/components/composites/FileTreeExplorer"
 import { cn } from "@/lib/utils"
 import type {
   EvalDashboardFeatureInboxState,
@@ -25,6 +26,27 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
   ({ inbox, data, actionHandlers, className, workflowContent }) => {
     const [showInbox, setShowInbox] = React.useState(true)
     const [activeTab, setActiveTab] = React.useState("golden-evals")
+    const [isDownloading, setIsDownloading] = React.useState(false)
+    const downloadRef = React.useRef<HTMLAnchorElement>(null)
+
+    const handleDownloadClick = React.useCallback(async () => {
+      if (!actionHandlers?.onDownloadPrompt || isDownloading) return
+      setIsDownloading(true)
+      try {
+        const result: FileDownloadResult | undefined = await actionHandlers.onDownloadPrompt()
+        if (!result) return
+        const url = URL.createObjectURL(result.blob)
+        const anchor = downloadRef.current
+        if (anchor) {
+          anchor.href = url
+          anchor.download = result.filename
+          anchor.click()
+        }
+        URL.revokeObjectURL(url)
+      } finally {
+        setIsDownloading(false)
+      }
+    }, [actionHandlers?.onDownloadPrompt, isDownloading])
 
     const selectedSession = React.useMemo(() =>
       inbox.items.find(s => s.id === inbox.selectedItemId) || null
@@ -72,6 +94,7 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
     } : null
 
     return (
+      <>
       <div className={cn("h-full w-full overflow-hidden bg-background", className)}>
         <SectionLayout
           dragHandleColor="border"
@@ -169,7 +192,7 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
                             <div className="flex items-center gap-2">
                               <EvalTriggerButton onClick={actionHandlers.onTriggerEvaluation} loading={actionHandlers.isTriggering} />
                               {actionHandlers.onDownloadPrompt && (
-                                <IconButton onClick={actionHandlers.onDownloadPrompt} variant="outline" size="sm" className="h-8 w-8 p-0" title="Download Prompt" icon="download" />
+                                <IconButton onClick={handleDownloadClick} variant="outline" size="sm" className="h-8 w-8 p-0" title={isDownloading ? 'Preparing...' : 'Download Prompt'} icon={isDownloading ? 'loader-2' : 'download'} iconClassName={`w-4 h-4${isDownloading ? ' animate-spin' : ''}`} />
                               )}
                             </div>
                           ) : undefined,
@@ -194,9 +217,11 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
             }
           ]}
         />
-      </div>
+        </div>
+        <a ref={downloadRef} style={{ display: 'none' }} />
+      </>
     )
   }
 )
-
+ 
 EvalDashboardFeature.displayName = "EvalDashboardFeature"
