@@ -276,16 +276,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             if (path.match(/^\/[a-zA-Z]:\//)) {
               path = path.slice(1)
             }
-            if (isMultiTab && props.documents) {
-              const matchedDoc = props.documents.find(doc => path.endsWith(doc.file.id) || path.endsWith('/' + doc.file.id))
-              if (matchedDoc) {
-                targetId = matchedDoc.file.id
-              } else {
-                targetId = path
-              }
-            } else {
-              targetId = path
-            }
+            targetId = path
           } else if (props.activeDocumentId) {
             if (targetId.startsWith('/')) {
               targetId = targetId.slice(1)
@@ -307,7 +298,36 @@ export const TextEditor = React.memo<TextEditorProps>(
             targetId = targetId.slice(2)
           }
 
+          console.log('[TextEditor:LinkComponent:handleClick]', {
+            href,
+            activeDocumentId: props.activeDocumentId,
+            computedTargetId: targetId,
+            documentsCount: props.documents?.length
+          })
+
+          if (isMultiTab && props.documents) {
+            const cleanTarget = targetId.replace(/^\.\//, '').replace(/^\//, '')
+            const matchedDoc = props.documents.find((doc) => {
+              const cleanDocId = doc.file.id.replace(/^\.\//, '').replace(/^\//, '')
+              return (
+                cleanDocId === cleanTarget ||
+                cleanDocId.endsWith('/' + cleanTarget) ||
+                cleanTarget.endsWith('/' + cleanDocId) ||
+                doc.file.name === targetId
+              )
+            })
+            console.log('[TextEditor:LinkComponent:matching]', {
+              cleanTarget,
+              matchedDocId: matchedDoc?.file?.id,
+              availableDocIds: props.documents.map(d => d.file.id)
+            })
+            if (matchedDoc) {
+              targetId = matchedDoc.file.id
+            }
+          }
+
           if (handleTabSelect) {
+            console.log('[TextEditor:LinkComponent:onTabSelect]', targetId)
             handleTabSelect(targetId)
           }
         }
@@ -317,7 +337,7 @@ export const TextEditor = React.memo<TextEditorProps>(
         return <a href={href} target="_blank" rel="noopener noreferrer" {...rest} />
       }
       return <a href={href} onClick={handleClick} className="text-primary hover:underline cursor-pointer" {...rest} />
-    }, [handleTabSelect, props.activeDocumentId])
+    }, [handleTabSelect, isMultiTab, props.activeDocumentId, props.documents])
 
     /**
      * Single-document mode
@@ -387,6 +407,14 @@ export const TextEditor = React.memo<TextEditorProps>(
       const isMarkdownMulti = format === 'markdown' || format === 'md' || format === 'mdx'
       const isCodeMulti = !isMarkdownMulti && typeof currentDocument.content === 'string'
       const renderAsStreamdown = isMarkdownMulti || isCodeMulti
+      const hasContent = typeof currentDocument.content === 'string' ? currentDocument.content.trim().length > 0 : !!currentDocument.content
+
+      console.log('[TextEditor:renderEditorPane]', {
+        fileId: currentDocument.file.id,
+        format,
+        hasContent,
+        contentLength: typeof currentDocument.content === 'string' ? currentDocument.content.length : undefined
+      })
 
       editorPane = (
         <div className="text-editor flex flex-col h-full w-full">
@@ -400,7 +428,11 @@ export const TextEditor = React.memo<TextEditorProps>(
             />
           )}
           <div className="flex-1 overflow-auto">
-            {renderAsStreamdown ? (
+            {!hasContent ? (
+              <div className="flex items-center justify-center p-8 text-muted-foreground animate-pulse">
+                Loading document content...
+              </div>
+            ) : renderAsStreamdown ? (
               <div className="p-6">
                 <StreamingMarkdown
                   mode="streaming"
