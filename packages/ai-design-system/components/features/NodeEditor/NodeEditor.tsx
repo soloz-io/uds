@@ -15,6 +15,11 @@ const GLOW: Record<string, string> = {
   error: "0 0 14px 5px rgba(239, 68, 68, 0.9)",
 };
 
+export interface NodeStatusEntry {
+  nodeId: string;
+  status: string;
+}
+
 export interface NodeEditorProps {
   // Toolbar — left
   workflowName?: string;
@@ -48,8 +53,22 @@ export interface NodeEditorProps {
   hideDefaultActions?: boolean;
   className?: string;
 
-  /** Per-node highlight states: { [nodeId]: 'active' | 'pending' | 'done' | 'error' } */
-  nodeHighlights?: Record<string, string>;
+  /** Runtime node statuses from the API. NodeEditor derives highlights internally. */
+  nodeStatuses?: NodeStatusEntry[];
+  /** Per-node actions */
+  nodeActions?: Record<string, ToolbarAction[]>;
+}
+
+function statusToGlow(status: string): string | null {
+  switch (status) {
+    case 'running': return 'active';
+    case 'pending_hitl': return 'pending';
+    case 'success':
+    case 'completed': return 'done';
+    case 'error':
+    case 'failed': return 'error';
+    default: return null;
+  }
 }
 
 export function NodeEditor({
@@ -76,19 +95,37 @@ export function NodeEditor({
   interactive = false,
   hideDefaultActions = false,
   className,
-  nodeHighlights,
+  nodeStatuses,
+  nodeActions,
 }: NodeEditorProps) {
   const highlightedNodes = useMemo(
-    () =>
-      nodes.map((n: WorkflowNode) => {
-        const glow = nodeHighlights?.[n.id];
-        if (!glow) return n;
+    () => {
+      const statusGlows: Record<string, string> = {};
+      for (const ns of nodeStatuses ?? []) {
+        const g = statusToGlow(ns.status);
+        if (g) statusGlows[ns.nodeId] = g;
+      }
+
+      return nodes.map((n: WorkflowNode) => {
+        const glow =
+          statusGlows[n.id] ??
+          (nodeActions?.[n.id]?.some((a) => a.switcher) ? 'pending' : undefined) ??
+          statusToGlow(n.data?.status ?? '');
+
+        const actions = nodeActions?.[n.id];
+
+        if (!glow && !actions) return n;
         return {
           ...n,
-          style: { ...(n.style ?? {}), boxShadow: GLOW[glow] },
+          data: {
+            ...n.data,
+            actions,
+          },
+          style: { ...(n.style ?? {}), boxShadow: glow ? GLOW[glow] : undefined },
         };
-      }),
-    [nodes, nodeHighlights],
+      });
+    },
+    [nodes, nodeStatuses, nodeActions],
   );
   const defaultActionGroups: ToolbarAction[][] = [
     [

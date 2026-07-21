@@ -6,12 +6,43 @@ import { EnhancedDataTable } from "@/components/composites/DataTable"
 import type { DashboardRow } from "@/components/composites/DataTable"
 import { Button } from "@/components/primitives/Button"
 import { Icon } from "@/components/primitives/Icon"
+import { IconButton } from "@/components/composites/IconButton"
+
+const CopyButton = ({ text, className }: { text: string; className?: string }) => {
+  const [copied, setCopied] = React.useState(false)
+
+  const handleCopy = React.useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      try {
+        await navigator.clipboard.writeText(text)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch (err) {
+        console.error("Failed to copy:", err)
+      }
+    },
+    [text]
+  )
+
+  return (
+    <IconButton
+      icon={copied ? "check" : "copy"}
+      size="sm"
+      variant="secondary"
+      className={className}
+      title={copied ? "Copied!" : "Copy"}
+      onClick={handleCopy}
+    />
+  )
+}
 
 export interface EvalSessionDetails {
   id: string
   date: string
   goldenEvals: DashboardRow[]
-  recommendations: Array<{ id: number; name: string; rationale: string }>
+  recommendations: Array<{ id: number; change: string; rationale: string }>
   systemPrompt?: string
   outputTranscript?: string
 }
@@ -31,12 +62,12 @@ export const EvalTriggerButton = ({ onClick, loading }: { onClick: () => void; l
 
 const recommendationTableSchema = dynamicTableSchema.parse({
   schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
-  rowKey: "name",
+  rowKey: "change",
   enableFiltering: true,
   enablePagination: false,
   enableRowSelection: false,
   columns: [
-    { key: "name", label: "Recommendation", renderType: "text" },
+    { key: "change", label: "Recommendation", renderType: "text" },
     { key: "rationale", label: "Rationale", renderType: "text" },
   ],
 })
@@ -56,7 +87,7 @@ const goldenEvalTableSchema = dynamicTableSchema.parse({
 })
 
 export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
-  ({ sessionDetails, activeTab, actionHandlers: _actionHandlers, workflowContent }) => {
+  ({ sessionDetails, activeTab, workflowContent }) => {
     return (
       <div className="flex flex-col h-full bg-background">
         <Tabs value={activeTab} className="flex-1 flex flex-col min-h-0">
@@ -89,7 +120,15 @@ export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
 
             <TabsContent value="prompts" className="absolute inset-0 m-0 p-0">
               <ScrollArea className="h-full">
-                <div className="p-4">
+                <div className="p-4 relative group">
+                  {sessionDetails.systemPrompt && (
+                    <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <CopyButton 
+                        text={sessionDetails.systemPrompt}
+                        className="h-8 w-8 p-0"
+                      />
+                    </div>
+                  )}
                   <pre className="text-xs font-mono bg-muted p-4 rounded whitespace-pre-wrap">
                     {sessionDetails.systemPrompt || "No system prompt available."}
                   </pre>
@@ -99,7 +138,15 @@ export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
 
             <TabsContent value="outputs" className="absolute inset-0 m-0 p-0">
               <ScrollArea className="h-full">
-                <div className="p-4">
+                <div className="p-4 relative group">
+                  {sessionDetails.outputTranscript && (
+                    <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <CopyButton 
+                        text={sessionDetails.outputTranscript}
+                        className="h-8 w-8 p-0"
+                      />
+                    </div>
+                  )}
                   <pre className="text-xs font-mono bg-muted p-4 rounded whitespace-pre-wrap">
                     {sessionDetails.outputTranscript || "No transcript available."}
                   </pre>

@@ -25,8 +25,10 @@ export interface EvalDashboardFeatureInboxState {
 }
 
 export interface EvalRecommendation {
-  name: string;
+  change: string;
   rationale: string;
+  priority?: number;
+  expected_metrics?: number[];
 }
 
 export interface EvalDashboardFeatureData {

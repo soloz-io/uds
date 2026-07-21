@@ -5,6 +5,19 @@ export interface WorkflowVersion {
   label: string;
 }
 
+export interface ToolbarActionSwitcherItem {
+  label: string;
+  value: string;
+}
+
+export interface ToolbarActionSwitcher {
+  items: ToolbarActionSwitcherItem[];
+  value?: string;
+  onValueChange: (value: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+}
+
 export interface ToolbarAction {
   id: string;
   icon: string | React.ReactNode;
@@ -13,6 +26,7 @@ export interface ToolbarAction {
   disabled?: boolean;
   loading?: boolean;
   indicator?: boolean;
+  switcher?: ToolbarActionSwitcher;
 }
 
 export interface WorkflowToolbarActionsProps {

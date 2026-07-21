@@ -1,7 +1,10 @@
+import React from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { NodeEditor } from "./NodeEditor";
 import { useNodeEditorMock } from "./useNodeEditor.mock";
 import { mockVersions, mockNodes, mockEdges } from "./NodeEditor.mocks";
+import type { WorkflowNode, WorkflowEdge } from "@/components/blocks/WorkflowCanvas";
+import type { ToolbarAction } from "@/components/composites/WorkflowToolbar";
 
 /**
  * NodeEditor Feature
@@ -138,4 +141,61 @@ export const Saving: Story = {
     canUndo: true,
     canRedo: false,
   },
+};
+
+/**
+ * WithHITLApproval — single HITL transition node with a floating DefaultSwitcher
+ * containing workflow-defined approval options beside the node.
+ */
+function NodeEditorWithHITLApprovalStory() {
+  const [selectedValue, setSelectedValue] = React.useState("");
+
+  const hitlNode: WorkflowNode = {
+    id: "hitl-1",
+    type: "transition",
+    position: { x: 300, y: 100 },
+    data: {
+      label: "Human Approval",
+      description: "Manager review required",
+      type: "transition",
+      status: "idle",
+    },
+  };
+
+  const nodeActions: Record<string, ToolbarAction[]> = {
+    "hitl-1": [
+      {
+        id: "switcher-hitl-1",
+        icon: "chevrons-up-down",
+        title: "Select approval decision",
+        switcher: {
+          items: [
+            { label: "Approve", value: "approve" },
+            { label: "Reject", value: "reject" },
+          ],
+          value: selectedValue,
+          onValueChange: setSelectedValue,
+          placeholder: "Do you approve this evaluation?",
+        },
+      },
+    ],
+  };
+
+  return (
+    <NodeEditor
+      workflowName="HITL Approval"
+      versions={[{ id: "v1", label: "v1" }]}
+      currentVersionId="v1"
+      nodes={[hitlNode]}
+      edges={[]}
+      nodeActions={nodeActions}
+      interactive={false}
+      hideDefaultActions={true}
+      showMinimap={false}
+    />
+  );
+}
+
+export const WithHITLApproval: Story = {
+  render: () => <NodeEditorWithHITLApprovalStory />,
 };
