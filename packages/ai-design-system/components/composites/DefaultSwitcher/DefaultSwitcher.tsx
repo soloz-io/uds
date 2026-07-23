@@ -66,7 +66,11 @@ export const DefaultSwitcher = React.memo<DefaultSwitcherProps>(
         </SelectTrigger>
         <SelectContent>
           {themes.map((theme) => (
-            <SelectItem key={theme.value} value={theme.value}>
+            <SelectItem 
+              key={theme.value} 
+              value={theme.value}
+              onClick={() => onValueChange?.(theme.value)}
+            >
               {theme.label}
             </SelectItem>
           ))}
