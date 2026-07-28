@@ -10,6 +10,7 @@ import {
   Node,
   NodeDescription,
   NodeTitle,
+  getHighlightIconColor,
 } from "@/components/ai-elements/node";
 import { cn } from "@/lib/utils";
 import type { ToolbarAction } from "@/components/composites/WorkflowToolbar";
@@ -21,6 +22,7 @@ export type StateNodeData = {
   /** True for terminal states — marks workflow completion, no outgoing transitions */
   isTerminal?: boolean;
   status?: "idle" | "running" | "success" | "error";
+  highlightStatus?: "active" | "pending" | "done" | "error";
   enabled?: boolean;
   actions?: ToolbarAction[];
 };
@@ -91,7 +93,7 @@ export const StateNode = memo(({ data, selected, id }: StateNodeProps) => {
       <StatusBadge status={status} />
 
       <div className="flex h-full w-full items-center justify-center gap-1.5 px-3 py-2">
-        <Icon name="zap" size="xs" className="shrink-0 text-primary" strokeWidth={1.5} />
+        <Icon name="zap" size="xs" className={cn("shrink-0", getHighlightIconColor(status, data.highlightStatus, "text-primary"))} strokeWidth={1.5} />
         <div className="min-w-0 flex-1 text-center">
           <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
             {displayTitle}

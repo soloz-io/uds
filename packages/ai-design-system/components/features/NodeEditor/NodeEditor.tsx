@@ -8,7 +8,9 @@ import type { ToolbarAction, WorkflowVersion } from "@/components/composites/Wor
 import type { Connection, NodeChange, EdgeChange } from "@xyflow/react";
 import { cn } from "@/lib/utils";
 
-const GLOW: Record<string, string> = {
+export type HighlightStatus = "active" | "pending" | "done" | "error";
+
+const GLOW: Record<HighlightStatus, string> = {
   active: "0 0 14px 5px rgba(99, 102, 241, 0.9)",
   pending: "0 0 14px 5px rgba(251, 146, 60, 1)",
   done: "0 0 10px 3px rgba(34, 197, 94, 0.75)",
@@ -59,7 +61,7 @@ export interface NodeEditorProps {
   nodeActions?: Record<string, ToolbarAction[]>;
 }
 
-function statusToGlow(status: string): string | null {
+function statusToGlow(status: string): HighlightStatus | null {
   switch (status) {
     case 'running': return 'active';
     case 'pending_hitl': return 'pending';
@@ -100,17 +102,17 @@ export function NodeEditor({
 }: NodeEditorProps) {
   const highlightedNodes = useMemo(
     () => {
-      const statusGlows: Record<string, string> = {};
+      const statusGlows: Record<string, HighlightStatus> = {};
       for (const ns of nodeStatuses ?? []) {
         const g = statusToGlow(ns.status);
         if (g) statusGlows[ns.nodeId] = g;
       }
 
       return nodes.map((n: WorkflowNode) => {
-        const glow =
+        const glow: HighlightStatus | undefined =
           statusGlows[n.id] ??
           (nodeActions?.[n.id]?.some((a) => a.switcher) ? 'pending' : undefined) ??
-          statusToGlow(n.data?.status ?? '');
+          (statusToGlow(n.data?.status ?? '') || undefined);
 
         const actions = nodeActions?.[n.id];
 
@@ -120,6 +122,7 @@ export function NodeEditor({
           data: {
             ...n.data,
             actions,
+            highlightStatus: glow,
           },
           style: { ...(n.style ?? {}), boxShadow: glow ? GLOW[glow] : undefined },
         };

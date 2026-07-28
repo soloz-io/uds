@@ -10,6 +10,7 @@ import {
   Node,
   NodeDescription,
   NodeTitle,
+  getHighlightIconColor,
 } from "@/components/ai-elements/node";
 import { cn } from "@/lib/utils";
 import type { ToolbarAction } from "@/components/composites/WorkflowToolbar";
@@ -36,6 +37,7 @@ export type TransitionNodeData = {
   /** Transition-type-specific configuration */
   config?: TransitionNodeConfig;
   status?: "idle" | "running" | "success" | "error";
+  highlightStatus?: "active" | "pending" | "done" | "error";
   enabled?: boolean;
   actions?: ToolbarAction[];
 };
@@ -84,7 +86,7 @@ export const TransitionNode = memo(
         )}
 
         <div className="flex h-full w-full items-center justify-center gap-1.5 px-3 py-2">
-          <Icon name="git-branch" size="xs" className="shrink-0 text-muted-foreground" strokeWidth={1.5} />
+          <Icon name="git-branch" size="xs" className={cn("shrink-0", getHighlightIconColor(status, data.highlightStatus, "text-muted-foreground"))} strokeWidth={1.5} />
           <div className="min-w-0 flex-1 text-center">
             <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
               {displayTitle}

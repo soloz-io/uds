@@ -88,3 +88,35 @@ export const NodeFooter = ({ className, ...props }: NodeFooterProps) => (
     {...props}
   />
 );
+
+export function getHighlightIconColor(
+  status?: string,
+  highlightStatus?: string,
+  defaultColorClass: string = "text-primary"
+): string {
+  const effectiveHighlight =
+    highlightStatus ??
+    (status === "success" || status === "completed" || status === "done"
+      ? "done"
+      : status === "pending_hitl" || status === "pending"
+      ? "pending"
+      : status === "running" || status === "active"
+      ? "active"
+      : status === "error" || status === "failed"
+      ? "error"
+      : undefined);
+
+  switch (effectiveHighlight) {
+    case "done":
+      return "text-green-500";
+    case "pending":
+      return "text-amber-500";
+    case "active":
+      return "text-indigo-400";
+    case "error":
+      return "text-red-500";
+    default:
+      return defaultColorClass;
+  }
+}
+
