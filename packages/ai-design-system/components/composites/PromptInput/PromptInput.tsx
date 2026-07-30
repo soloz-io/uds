@@ -32,6 +32,7 @@ export interface PromptInputBlockProps
   ) => void | Promise<void>;
   dialog?: ReactNode;
   loading?: boolean;
+  onStop?: () => void;
 }
 
 export const PromptInput = React.memo<PromptInputBlockProps>(
@@ -43,17 +44,21 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     onSubmit,
     dialog,
     loading = false,
+    onStop,
     ...props
   }) => {
     const handleSubmit = React.useCallback(
       (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => {
-        if (disabled) {
+        if (disabled || (loading && onStop)) {
           event.preventDefault();
+          if (loading && onStop) {
+            onStop();
+          }
           return;
         }
         onSubmit(message, event);
       },
-      [disabled, onSubmit]
+      [disabled, loading, onStop, onSubmit]
     );
 
     const isControlled = value !== undefined && onChange !== undefined;
@@ -71,22 +76,28 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
       return <>{dialog}</>;
     }
 
+    const isStopping = loading && Boolean(onStop);
+
     const promptInputContent = (
       <AIPromptInput onSubmit={handleSubmit} {...props}>
         <PromptInputBody>
           <PromptInputTextarea
             placeholder={placeholder}
-            disabled={false}
+            disabled={disabled}
             onChange={isControlled ? handleControlledChange : undefined}
           />
         </PromptInputBody>
         <PromptInputFooter>
           <PromptInputTools>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" type="button" disabled={disabled}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" type="button" disabled={disabled || loading}>
               <Icon name="plus" size="sm" />
             </Button>
           </PromptInputTools>
-          <PromptInputSubmit disabled={disabled} status={loading ? "submitted" : undefined} />
+          <PromptInputSubmit
+            disabled={disabled || (loading && !onStop)}
+            status={loading ? (onStop ? "streaming" : "submitted") : undefined}
+            onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
+          />
         </PromptInputFooter>
       </AIPromptInput>
     );

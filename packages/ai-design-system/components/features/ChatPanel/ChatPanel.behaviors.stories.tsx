@@ -7,12 +7,12 @@
 
 import type { Meta, StoryObj } from '@storybook/react'
 import { expect, fn, userEvent, within, waitFor, screen } from '@storybook/test'
-import { RefinementPanel } from './RefinementPanel'
-import { inputStateMessages, reviewStateMessages, sampleFileChanges } from './RefinementPanel.mocks'
+import { ChatPanel } from './ChatPanel'
+import { inputStateMessages, reviewStateMessages, sampleFileChanges } from './ChatPanel.mocks'
 
-const meta: Meta<typeof RefinementPanel> = {
-  title: 'Features/RefinementPanel/Behaviors',
-  component: RefinementPanel,
+const meta: Meta<typeof ChatPanel> = {
+  title: 'Features/ChatPanel/Behaviors',
+  component: ChatPanel,
   tags: ['test'],
   parameters: {
     layout: 'fullscreen',
@@ -20,7 +20,7 @@ const meta: Meta<typeof RefinementPanel> = {
 }
 
 export default meta
-type Story = StoryObj<typeof RefinementPanel>
+type Story = StoryObj<typeof ChatPanel>
 
 // ============================================================================
 // CRITICAL PRIORITY TESTS (100% coverage required)

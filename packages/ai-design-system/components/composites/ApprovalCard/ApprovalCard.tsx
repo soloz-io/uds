@@ -13,6 +13,7 @@ import {
   ConfirmationActions,
   ConfirmationAction,
 } from "@/components/ai-elements/confirmation";
+import { StreamingMarkdown } from "@/components/composites/StreamingMarkdown";
 
 export interface ActionRequest {
   name: string;
@@ -209,10 +210,14 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
           className={cn("w-full", className)}
         >
           <ConfirmationTitle>
-            <div className="flex items-start justify-between gap-4 select-none">
-              <div className="flex items-start gap-3">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3 min-w-0 flex-1">
                 <QuestionIcon className="h-5 w-5 text-muted-foreground mt-0.5 flex-shrink-0" />
-                <span>{currentQuestion.question}</span>
+                <div className="flex-1 min-w-0 max-h-60 overflow-y-auto pr-1 text-sm leading-relaxed text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                  <StreamingMarkdown controls={false}>
+                    {currentQuestion.question}
+                  </StreamingMarkdown>
+                </div>
               </div>
               {questions.length > 1 && (
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0 font-normal">

@@ -9,9 +9,9 @@
 export { PageLayout } from "./PageLayout";
 export type { PageLayoutProps } from "./PageLayout";
 
-// RefinementPanel Feature
-export { RefinementPanel } from "./RefinementPanel";
-export type { RefinementPanelProps, RefinementMessage } from "./RefinementPanel";
+// ChatPanel Feature
+export { ChatPanel, ChatPanel as RefinementPanel } from "./ChatPanel";
+export type { ChatPanelProps, ChatPanelProps as RefinementPanelProps, RefinementMessage } from "./ChatPanel";
 
 // SpecNavigator Feature
 export { SpecNavigator } from "./SpecNavigator";

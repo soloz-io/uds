@@ -1,4 +1,4 @@
-import { type ComponentProps, memo } from "react";
+import { type ComponentProps, memo, useState, useCallback } from "react";
 import { Streamdown, defaultRemarkPlugins } from "streamdown";
 import { Icon } from "@/components/primitives/Icon";
 import remarkFrontmatter from "remark-frontmatter";
@@ -11,6 +11,7 @@ const customRemarkPlugins = [
 export type StreamingMarkdownProps = ComponentProps<typeof Streamdown> & {
   title?: string;
   description?: string;
+  type?: string;
   status?: string;
 };
 /**
@@ -23,13 +24,39 @@ export const StreamingMarkdown = memo(
     children,
     title: propsTitle,
     description: propsDescription,
+    type: propsType,
     status: propsStatus,
+    controls: propsControls,
     ...props
   }: StreamingMarkdownProps) => {
+    const [copied, setCopied] = useState(false);
     let content = children;
     let title = propsTitle;
     let description = propsDescription;
+    let type = propsType;
     let status = propsStatus;
+
+    const handleCopy = useCallback(async () => {
+      if (typeof content !== "string" || !content) return;
+      try {
+        await navigator.clipboard.writeText(content);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error("Failed to copy content:", err);
+      }
+    }, [content]);
+
+    const handleDownload = useCallback(() => {
+      if (typeof content !== "string" || !content) return;
+      const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${(title || "document").toLowerCase().replace(/\s+/g, "-")}.md`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }, [content, title]);
     
     // Strip and parse YAML frontmatter to prevent Streamdown from splitting it into standard markdown blocks.
     if (typeof content === "string" && content.startsWith("---\n")) {
@@ -55,6 +82,7 @@ export const StreamingMarkdown = memo(
 
         if (!title && fm.title) title = fm.title;
         if (!description && fm.description) description = fm.description;
+        if (!type && fm.type) type = fm.type;
         if (!status && fm.status) status = fm.status;
       } else {
         // Still streaming frontmatter, hide it
@@ -62,7 +90,7 @@ export const StreamingMarkdown = memo(
       }
     }
 
-    const hasHeader = title || description || status;
+    const hasHeader = title || description || type || status;
 
     return (
       <div className="flex w-full flex-col">
@@ -75,6 +103,11 @@ export const StreamingMarkdown = memo(
                     <h1 className="text-3xl font-semibold tracking-tight text-foreground">
                       {title}
                     </h1>
+                  )}
+                  {type && (
+                    <span className="inline-flex items-center rounded-md border border-border bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                      {type}
+                    </span>
                   )}
                   {status && (
                     <span className="inline-flex items-center rounded-md border border-transparent bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
@@ -91,13 +124,15 @@ export const StreamingMarkdown = memo(
                   className="flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-foreground"
                   title="Copy"
                   type="button"
+                  onClick={handleCopy}
                 >
-                  <Icon name="copy" size="sm" />
+                  <Icon name={copied ? "check" : "copy"} size="sm" />
                 </button>
                 <button
                   className="flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-foreground"
                   title="Download"
                   type="button"
+                  onClick={handleDownload}
                 >
                   <Icon name="download" size="sm" />
                 </button>
@@ -108,6 +143,10 @@ export const StreamingMarkdown = memo(
         <Streamdown
           remarkPlugins={remarkPlugins || customRemarkPlugins}
           shikiTheme={["vitesse-light", "vitesse-dark"]}
+          controls={propsControls ?? {
+            code: true,
+            mermaid: true,
+          }}
           {...props}
         >
           {content}

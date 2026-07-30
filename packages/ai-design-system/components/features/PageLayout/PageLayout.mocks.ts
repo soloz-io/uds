@@ -3,7 +3,7 @@
  */
 
 import type { FileChangeData } from '@/components/composites/FileQueue'
-import type { RefinementMessage } from '@/components/features/RefinementPanel'
+import type { RefinementMessage } from '@/components/features/ChatPanel'
 
 export const mockSidebarConfig = {
   logo: { icon: 'command', text: 'Acme Inc.', href: '/' },

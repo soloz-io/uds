@@ -1,26 +1,27 @@
 /**
- * Hook Contract Definition for RefinementPanel
+ * Hook Contract Definition for ChatPanel
  * 
  * This file defines the interface contract between the design system and consuming applications.
  * It specifies the expected behavior of a real application hook without providing implementation.
  * 
  * Applications should implement this interface with real API calls and state management.
- * The design system provides a mock implementation (useRefinementPanel.mock.ts) for Storybook.
+ * The design system provides a mock implementation (useChatPanel.mock.ts) for Storybook.
  */
 
-import type { RefinementMessage } from "./RefinementPanel";
+import type { RefinementMessage } from "./ChatPanel";
 import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { ActionRequest, ReviewConfig } from "@/components/composites/ApprovalCard";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 import type { FileDownloadResult } from "@/components/composites/FileTreeExplorer";
+import type { UseChatPanelOptions } from "./useChatPanel.mock";
 
 /**
- * Return type for the refinement panel hook
+ * Return type for the chat panel hook
  * 
  * This interface defines what state and handlers the hook must provide
- * to integrate with the RefinementPanel component.
+ * to integrate with the ChatPanel component.
  */
-export interface UseRefinementPanelReturn {
+export interface UseChatPanelReturn {
   /** Current conversation messages */
   messages: RefinementMessage[];
   
@@ -30,7 +31,10 @@ export interface UseRefinementPanelReturn {
   /** Loading state for async operations */
   loading: boolean;
   
-  /** Handle user submission of refinement requests */
+  /** Stop / cancel active agent turn */
+  onStop?: () => void;
+  
+  /** Handle user submission of chat requests */
   handleSubmit: (prompt: string) => Promise<void> | void;
   
   /** Handle approval of all file changes */
@@ -61,46 +65,4 @@ export interface UseRefinementPanelReturn {
   handleDownloadSession?: () => Promise<FileDownloadResult | undefined>;
 }
 
-/**
- * Hook for managing refinement panel state and interactions
- * 
- * Applications should implement this hook to:
- * - Fetch and manage conversation messages
- * - Process user refinement requests via API
- * - Handle file change approval/rejection workflows
- * - Manage loading states during async operations
- * 
- * @example
- * ```tsx
- * // Real application implementation
- * export function useRefinementPanel(options?: { threadId?: string }): UseRefinementPanelReturn {
- *   const { threadId } = options || {};
- *   const [messages, setMessages] = useState<RefinementMessage[]>([]);
- *   const [fileChanges, setFileChanges] = useState<FileChangeData[]>([]);
- *   const [loading, setLoading] = useState(false);
- * 
- *   useEffect(() => {
- *     if (!threadId) return;
- *     fetch(`/api/v1/chat/threads/${threadId}/history`)
- *       .then((res) => res.json())
- *       .then((data) => setMessages(data.messages));
- *   }, [threadId]);
- * 
- *   const handleSubmit = async (prompt: string) => {
- *     setLoading(true);
- *     try {
- *       const response = await api.submitRefinement(prompt);
- *       setMessages(response.messages);
- *       setFileChanges(response.fileChanges);
- *     } finally {
- *       setLoading(false);
- *     }
- *   };
- * 
- *   // ... implement handleApprove and handleReject
- * 
- *   return { messages, fileChanges, loading, handleSubmit, handleApprove, handleReject };
- * }
- * ```
- */
-export function useRefinementPanel(options?: { threadId?: string }): UseRefinementPanelReturn;
+export function useChatPanel(options?: UseChatPanelOptions): UseChatPanelReturn;

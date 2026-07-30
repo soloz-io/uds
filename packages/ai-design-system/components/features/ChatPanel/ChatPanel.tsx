@@ -13,6 +13,7 @@ import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval } from "@/c
 import type { FormEvent } from "react";
 import { SessionHeader } from "@/components/composites/SessionHeader";
 import type { ChatSessionInfo } from "@/components/composites/SessionHeader";
+import { exportMessagesToMarkdownFile, type ExportableMessage } from "@/utils/markdown-formatter";
 import type { FileDownloadResult } from "@/components/composites/FileTreeExplorer";
 
 /**
@@ -42,9 +43,9 @@ export interface RefinementMessage {
 }
 
 /**
- * RefinementPanel component props
+ * ChatPanel component props
  */
-export interface RefinementPanelProps {
+export interface ChatPanelProps {
   /**
    * Conversation messages to display
    */
@@ -59,57 +60,61 @@ export interface RefinementPanelProps {
   onSubmit: (
     message: PromptInputMessage,
     event: FormEvent<HTMLFormElement>
-  ) => void | Promise<void>;
+  ) => void;
   /**
-   * Approve handler for file changes
+   * Handler to approve file changes
    */
   onApprove?: () => void;
   /**
-   * Reject handler for file changes
+   * Handler to reject file changes
    */
   onReject?: () => void;
   /**
-   * HITL approval request (when agent pauses for human input via interrupt)
+   * Active HITL approval request (from tool execution or ask_user)
    */
   approvalRequest?: ActionRequest;
   /**
-   * Review configuration for HITL approval (allowed decisions)
+   * Review config for allowed decisions
    */
   reviewConfig?: ReviewConfig;
   /**
-   * Approve handler for HITL approval request
+   * Handler to approve HITL approval request
    */
   onApprovalApprove?: () => void;
   /**
-   * Reject handler for HITL approval request
+   * Handler to reject HITL approval request
    */
   onApprovalReject?: (reason: string) => void;
   /**
-   * Edit handler for HITL approval request
+   * Handler to edit HITL approval request arguments
    */
   onApprovalEdit?: (editedArgs: Record<string, unknown>) => void;
   /**
-   * Processing state for HITL approval
+   * Processing state for HITL approval request
    */
   isApprovalProcessing?: boolean;
   /**
-   * Loading state — shows spinner on send button while streaming
+   * Loading state for user input submission
    */
   loading?: boolean;
   /**
-   * Placeholder text for input
+   * Handler to cancel / stop active agent execution
+   */
+  onStop?: () => void;
+  /**
+   * Placeholder text for prompt input
    */
   placeholder?: string;
   /**
-   * Additional CSS classes
+   * Custom className for container
    */
   className?: string;
   /**
-   * Action handler for tool interactions
+   * Callback when a tool action is clicked in ToolCallDisplay
    */
   onToolAction?: (toolCall: ToolCall, action: string) => void;
   /**
-   * Available chat sessions
+   * List of chat sessions for session switching
    */
   sessions?: ChatSessionInfo[];
   /**
@@ -135,9 +140,9 @@ export interface RefinementPanelProps {
 }
 
 /**
- * RefinementPanel component - two-state refinement workflow interface
+ * ChatPanel component - chat workflow interface
  */
-export const RefinementPanel = React.memo<RefinementPanelProps>(
+export const ChatPanel = React.memo<ChatPanelProps>(
   ({
     messages,
     fileChanges = [],
@@ -151,6 +156,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
     onApprovalEdit,
     isApprovalProcessing = false,
     loading = false,
+    onStop,
     placeholder = "Ask a question or describe a task...",
     className,
     onToolAction,
@@ -187,40 +193,42 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
       onReject?.();
     }, [onReject]);
 
-    // Handle approve for HITL approval request
-    const handleApprovalApprove = React.useCallback(() => {
-      onApprovalApprove?.();
-    }, [onApprovalApprove]);
-
-    // Extract pending ask_user tool call from messages
+    // Pending ask_user question extracted from approvalRequest args
     const pendingAskUser = React.useMemo(() => {
-      console.log("[RefinementPanel] Messages length:", messages.length);
-      // Look from the end
-      for (let i = messages.length - 1; i >= 0; i--) {
-        const msg = messages[i];
-        if (msg.toolCalls && msg.toolCalls.length > 0) {
-          console.log(`[RefinementPanel] Message ${i} (${msg.id}) has ${msg.toolCalls.length} tool calls`, msg.toolCalls.map(tc => `${tc.name} [${tc.status}]`));
-          const askUserTc = msg.toolCalls.find(tc => tc.name === "ask_user" && tc.status === "pending");
-          if (askUserTc) {
-            console.log("[RefinementPanel] Found pending ask_user:", askUserTc);
-            return askUserTc;
-          }
-        }
+      if (approvalRequest?.name === "ask_user" && approvalRequest.args.question) {
+        return {
+          question: approvalRequest.args.question as string,
+          options: approvalRequest.args.options as string[] | undefined,
+        };
       }
       return null;
-    }, [messages]);
+    }, [approvalRequest]);
 
-    const activeApprovalRequest = React.useMemo(() => {
+    // Active approval request derived from props or pending ask_user
+    const activeApprovalRequest = React.useMemo<ActionRequest | undefined>(() => {
       if (approvalRequest) return approvalRequest;
       if (pendingAskUser) {
-        console.log("[RefinementPanel] ask_user args:", JSON.stringify(pendingAskUser.args));
         return {
-          name: pendingAskUser.name,
-          args: pendingAskUser.args,
+          name: "ask_user",
+          args: {
+            question: pendingAskUser.question,
+            options: pendingAskUser.options,
+          },
+          description: pendingAskUser.question,
         };
       }
       return undefined;
     }, [approvalRequest, pendingAskUser]);
+
+    // Handle approve for HITL approval request
+    const handleApprovalApprove = React.useCallback(() => {
+      if (activeApprovalRequest?.name === "ask_user") {
+        const dummyEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
+        onSubmit({ text: "Approved", files: [] }, dummyEvent);
+      } else {
+        onApprovalApprove?.();
+      }
+    }, [onApprovalApprove, activeApprovalRequest, onSubmit]);
 
     // Handle reject for HITL approval request
     const handleApprovalReject = React.useCallback((reason: string) => {
@@ -265,7 +273,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
 
     if (activeApprovalRequest) {
       dialog = (
-        <div className="w-full flex-shrink-0 bg-card p-4 rounded-2xl border shadow-sm overflow-hidden">
+        <div className="w-full flex-shrink-0">
           <ApprovalCard
             actionRequest={activeApprovalRequest}
             reviewConfig={reviewConfig}
@@ -304,7 +312,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
           onNewSession={onNewSession}
           onCloseSession={onCloseSession}
           onSelectSession={onSelectSession}
-          onDownloadSession={onDownloadSession}
+          onDownloadSession={onDownloadSession || (async () => exportMessagesToMarkdownFile(messages as ExportableMessage[]))}
         />
 
         <AIConversation
@@ -319,6 +327,7 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
             placeholder={placeholder}
             onSubmit={onSubmit}
             loading={loading}
+            onStop={onStop}
             className="rounded-2xl border border-neutral-600 bg-background shadow-sm overflow-hidden"
           />
         </div>
@@ -327,4 +336,4 @@ export const RefinementPanel = React.memo<RefinementPanelProps>(
   }
 );
 
-RefinementPanel.displayName = "RefinementPanel";
+ChatPanel.displayName = "ChatPanel";

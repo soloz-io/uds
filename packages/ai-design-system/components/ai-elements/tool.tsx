@@ -36,6 +36,8 @@ import type { ComponentProps, ReactNode } from "react";
 import { isValidElement } from "react";
 import { CodeBlock } from "./code-block";
 
+import { Shimmer } from "@/components/ai-elements/shimmer";
+
 export type ToolProps = ComponentProps<typeof Collapsible>;
 
 export const Tool = ({ className, ...props }: ToolProps) => (
@@ -65,7 +67,7 @@ const getStatusBadge = (status: ToolUIPart["state"]) => {
 
   const icons: Record<ToolUIPart["state"], ReactNode> = {
     "input-streaming": <CircleIcon className="size-4" />,
-    "input-available": <ClockIcon className="size-4 animate-pulse" />,
+    "input-available": <ClockIcon className="size-4 animate-spin text-primary" />,
     "approval-requested": <ClockIcon className="size-4 text-yellow-600" />,
     "approval-responded": <CheckCircleIcon className="size-4 text-blue-600" />,
     "output-available": <CheckCircleIcon className="size-4 text-green-600" />,
@@ -73,10 +75,22 @@ const getStatusBadge = (status: ToolUIPart["state"]) => {
     "output-denied": <XCircleIcon className="size-4 text-orange-600" />,
   };
 
+  const isRunning = status === "input-available";
+
   return (
-    <Badge className="gap-1.5 rounded-full text-xs" variant="secondary">
+    <Badge
+      className={cn(
+        "gap-1.5 rounded-full text-xs font-medium transition-all relative overflow-hidden",
+        isRunning && "border border-primary/30 bg-primary/10 text-primary shadow-xs"
+      )}
+      variant={isRunning ? "outline" : "secondary"}
+    >
       {icons[status]}
-      {labels[status]}
+      {isRunning ? (
+        <Shimmer className="text-xs font-medium text-foreground inline-block">Running</Shimmer>
+      ) : (
+        labels[status]
+      )}
     </Badge>
   );
 };

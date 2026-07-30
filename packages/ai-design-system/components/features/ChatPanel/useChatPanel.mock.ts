@@ -1,12 +1,12 @@
 import { useState, useCallback } from "react";
-import type { RefinementMessage } from "./RefinementPanel";
+import type { RefinementMessage } from "./ChatPanel";
 import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import type { ActionRequest, ReviewConfig } from "@/components/composites/ApprovalCard";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 import type { FormEvent } from "react";
 
-export interface UseRefinementPanelReturn {
+export interface UseChatPanelReturn {
   messages: RefinementMessage[];
   fileChanges: FileChangeData[];
   loading: boolean;
@@ -23,7 +23,7 @@ export interface UseRefinementPanelReturn {
   handleToolAction?: (toolCall: ToolCall, action: string) => void;
 }
 
-export interface UseRefinementPanelOptions {
+export interface UseChatPanelOptions {
   threadId?: string;
   initialMessages?: RefinementMessage[];
   reviewMessages?: RefinementMessage[];
@@ -33,9 +33,9 @@ export interface UseRefinementPanelOptions {
   apiDelay?: number;
 }
 
-export function useRefinementPanelMock(
-  options: UseRefinementPanelOptions = {}
-): UseRefinementPanelReturn {
+export function useChatPanelMock(
+  options: UseChatPanelOptions = {}
+): UseChatPanelReturn {
   const {
     threadId,
     initialMessages = [],

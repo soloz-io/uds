@@ -7,7 +7,7 @@
  * - Any other test files that need RefinementPanel mock data
  */
 
-import type { RefinementMessage } from './RefinementPanel'
+import type { RefinementMessage } from './ChatPanel'
 import type { FileChangeData } from '@/components/composites/FileQueue'
 import type { ActionRequest } from '@/components/composites/ApprovalCard'
 

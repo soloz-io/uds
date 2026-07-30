@@ -963,22 +963,26 @@ export const PromptInputSubmit = ({
   ...props
 }: PromptInputSubmitProps) => {
   let Icon = <SendIcon className="size-4" />;
+  let buttonVariant = variant;
+  let customClass = className;
 
   if (status === "submitted") {
     Icon = <Loader2Icon className="size-4 animate-spin" />;
   } else if (status === "streaming") {
-    Icon = <SquareIcon className="size-4" />;
+    Icon = <SquareIcon className="size-3.5 fill-current" />;
+    buttonVariant = "default";
+    customClass = cn("rounded-full", className);
   } else if (status === "error") {
     Icon = <XIcon className="size-4" />;
   }
 
   return (
     <InputGroupButton
-      aria-label="Submit"
-      className={cn(className)}
+      aria-label={status === "streaming" ? "Stop" : "Submit"}
+      className={customClass}
       size={size}
       type="submit"
-      variant={variant}
+      variant={buttonVariant}
       {...props}
     >
       {children ?? Icon}
