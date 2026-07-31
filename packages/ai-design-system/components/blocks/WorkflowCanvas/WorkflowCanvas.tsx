@@ -16,6 +16,7 @@ import { Panel } from "@/components/ai-elements/panel";
 import { StateNode } from "@/components/composites/StateNode";
 import { TransitionNode } from "@/components/composites/TransitionNode";
 import { TriggerNode } from "@/components/composites/TriggerNode";
+import { SpatialContainerNode } from "@/components/composites/SpatialContainerNode";
 import type { WorkflowCanvasProps, WorkflowEdge } from "./interfaces";
 import "@xyflow/react/dist/style.css";
 
@@ -29,6 +30,7 @@ const nodeTypes = {
   state: StateNode,
   transition: TransitionNode,
   trigger: TriggerNode,
+  spatialContainer: SpatialContainerNode,
 };
 
 function WorkflowCanvasInner({

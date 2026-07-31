@@ -496,6 +496,86 @@ export const defaultIcons: Record<string, IconDefinition> = {
       { type: 'path', attrs: { d: 'M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719' } },
     ],
   },
+  'box': {
+    name: 'box',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z' } },
+      { type: 'polyline', attrs: { points: '3.27 6.96 12 12.01 20.73 6.96' } },
+      { type: 'line', attrs: { x1: '12', y1: '22.08', x2: '12', y2: '12' } },
+    ],
+  },
+  'layers': {
+    name: 'layers',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'm12.83 2.18 8.44 4.5a1 1 0 0 1 0 1.76l-8.44 4.5a1 1 0 0 1-.86 0l-8.44-4.5a1 1 0 0 1 0-1.76l8.44-4.5a1 1 0 0 1 .86 0Z' } },
+      { type: 'path', attrs: { d: 'm2.5 12 9 4.8 9-4.8' } },
+      { type: 'path', attrs: { d: 'm2.5 17 9 4.8 9-4.8' } },
+    ],
+  },
+  'layout-grid': {
+    name: 'layout-grid',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'rect', attrs: { width: '7', height: '7', x: '3', y: '3', rx: '1' } },
+      { type: 'rect', attrs: { width: '7', height: '7', x: '14', y: '3', rx: '1' } },
+      { type: 'rect', attrs: { width: '7', height: '7', x: '14', y: '14', rx: '1' } },
+      { type: 'rect', attrs: { width: '7', height: '7', x: '3', y: '14', rx: '1' } },
+    ],
+  },
+  'heart': {
+    name: 'heart',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z' } },
+    ],
+  },
+  'truck': {
+    name: 'truck',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2' } },
+      { type: 'path', attrs: { d: 'M15 18H9' } },
+      { type: 'path', attrs: { d: 'M19 18h2a1 1 0 0 0 1-1v-5l-3-4h-5v10h1' } },
+      { type: 'circle', attrs: { cx: '7', cy: '18', r: '2' } },
+      { type: 'circle', attrs: { cx: '17', cy: '18', r: '2' } },
+    ],
+  },
+  'users': {
+    name: 'users',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2' } },
+      { type: 'circle', attrs: { cx: '9', cy: '7', r: '4' } },
+      { type: 'path', attrs: { d: 'M22 21v-2a4 4 0 0 0-3-3.87' } },
+      { type: 'path', attrs: { d: 'M16 3.13a4 4 0 0 1 0 7.75' } },
+    ],
+  },
+  'activity': {
+    name: 'activity',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M22 12h-4l-3 9L9 3l-3 9H2' } },
+    ],
+  },
+  'handshake': {
+    name: 'handshake',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'm11 17 2 2a1 1 0 0 0 1.4 0l5.6-5.6a2 2 0 0 0 0-2.8l-1.4-1.4a2 2 0 0 0-2.8 0L14 11' } },
+      { type: 'path', attrs: { d: 'm13 11 2-2a2 2 0 0 0 0-2.8l-1.4-1.4a2 2 0 0 0-2.8 0L5.2 10.4a2 2 0 0 0 0 2.8l5.6 5.6a1 1 0 0 0 1.4 0l.8-.8' } },
+    ],
+  },
+  'wallet': {
+    name: 'wallet',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M21 12V7H5a2 2 0 0 1 0-4h14v4' } },
+      { type: 'path', attrs: { d: 'M3 5v14a2 2 0 0 0 2 2h16v-5' } },
+      { type: 'path', attrs: { d: 'M18 12a2 2 0 0 0 0 4h4v-4Z' } },
+    ],
+  },
 };
 
 /**

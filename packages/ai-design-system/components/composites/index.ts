@@ -142,6 +142,10 @@ export type { TransitionNodeData } from './TransitionNode'
 export { TriggerNode } from './TriggerNode'
 export type { TriggerNodeData } from './TriggerNode'
 
+// SpatialContainerNode Composite
+export { SpatialContainerNode } from './SpatialContainerNode'
+export type { SpatialContainerNodeData, SpatialContainerColorTheme, SpatialContainerVariant } from './SpatialContainerNode'
+
 // WorkflowToolbar Composite
 export { WorkflowToolbar, WorkflowToolbarActions } from './WorkflowToolbar'
 export type { WorkflowToolbarProps, WorkflowToolbarActionsProps, WorkflowVersion, ToolbarAction } from './WorkflowToolbar'

@@ -3,8 +3,13 @@ import type React from "react";
 import type { StateNodeData } from "@/components/composites/StateNode";
 import type { TransitionNodeData } from "@/components/composites/TransitionNode";
 import type { TriggerNodeData } from "@/components/composites/TriggerNode";
+import type { SpatialContainerNodeData } from "@/components/composites/SpatialContainerNode";
 
-export type WorkflowNodeData = StateNodeData | TransitionNodeData | TriggerNodeData;
+export type WorkflowNodeData =
+  | StateNodeData
+  | TransitionNodeData
+  | TriggerNodeData
+  | SpatialContainerNodeData;
 export type WorkflowNode = Node<WorkflowNodeData>;
 
 export interface WorkflowEdge {

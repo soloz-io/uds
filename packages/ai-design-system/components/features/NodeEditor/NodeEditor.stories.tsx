@@ -2,7 +2,7 @@ import React from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { NodeEditor } from "./NodeEditor";
 import { useNodeEditorMock } from "./useNodeEditor.mock";
-import { mockVersions, mockNodes, mockEdges } from "./NodeEditor.mocks";
+import { mockVersions, mockNodes, mockEdges, mockSpatialNodes, mockSpatialEdges } from "./NodeEditor.mocks";
 import type { WorkflowNode, WorkflowEdge } from "@/components/blocks/WorkflowCanvas";
 import type { ToolbarAction } from "@/components/composites/WorkflowToolbar";
 
@@ -199,3 +199,24 @@ function NodeEditorWithHITLApprovalStory() {
 export const WithHITLApproval: Story = {
   render: () => <NodeEditorWithHITLApprovalStory />,
 };
+
+/**
+ * SpatialGridLayout — 2.5D visual container grid layout (Business Model Canvas / Spatial Architecture)
+ *
+ * Showcases NodeEditor with Spatial Container parent nodes (`spatialContainer`), 2.5D extrusion styling,
+ * nested child nodes (`parentId`), and spatial ribbon connections.
+ */
+export const SpatialGridLayout: Story = {
+  args: {
+    workflowName: "Business Model Canvas (Spatial Grid)",
+    versions: mockVersions,
+    currentVersionId: "v4",
+    nodes: mockSpatialNodes,
+    edges: mockSpatialEdges,
+    interactive: true,
+    showMinimap: true,
+    canUndo: true,
+    canRedo: true,
+  },
+};
+
