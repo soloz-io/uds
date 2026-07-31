@@ -208,7 +208,7 @@ export const WithHITLApproval: Story = {
  */
 export const SpatialGridLayout: Story = {
   args: {
-    workflowName: "Business Model Canvas (Spatial Grid)",
+    hideWorkflowName: true,
     versions: mockVersions,
     currentVersionId: "v4",
     nodes: mockSpatialNodes,

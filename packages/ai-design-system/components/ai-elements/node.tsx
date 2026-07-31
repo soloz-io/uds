@@ -23,7 +23,7 @@ export type NodeProps = ComponentProps<typeof Card> & {
 export const Node = ({ handles, className, status, ...props }: NodeProps) => (
   <Card
     className={cn(
-      "node-container relative h-[52px] w-[180px] gap-0 overflow-hidden rounded-md bg-card p-0 transition-all duration-200",
+      "node-container group relative h-[52px] w-[180px] gap-0 overflow-hidden rounded-md bg-card p-0 transition-all duration-200",
       status === "success" && "border-green-500 border-2",
       status === "error" && "border-red-500 border-2",
       className
@@ -33,18 +33,18 @@ export const Node = ({ handles, className, status, ...props }: NodeProps) => (
     {status === "running" && <AnimatedBorder />}
     {handles.target && (
       <>
-        <Handle id="target-top"    position={Position.Top}    type="target" />
-        <Handle id="target-right"  position={Position.Right}  type="target" />
-        <Handle id="target-bottom" position={Position.Bottom} type="target" />
-        <Handle id="target-left"   position={Position.Left}   type="target" />
+        <Handle id="target-top"    position={Position.Top}    type="target" className="opacity-0 group-hover:opacity-100 group-[.selected]:opacity-100 transition-opacity duration-150" />
+        <Handle id="target-right"  position={Position.Right}  type="target" className="opacity-0 group-hover:opacity-100 group-[.selected]:opacity-100 transition-opacity duration-150" />
+        <Handle id="target-bottom" position={Position.Bottom} type="target" className="opacity-0 group-hover:opacity-100 group-[.selected]:opacity-100 transition-opacity duration-150" />
+        <Handle id="target-left"   position={Position.Left}   type="target" className="opacity-0 group-hover:opacity-100 group-[.selected]:opacity-100 transition-opacity duration-150" />
       </>
     )}
     {handles.source && (
       <>
-        <Handle id="source-top"    position={Position.Top}    type="source" />
-        <Handle id="source-right"  position={Position.Right}  type="source" />
-        <Handle id="source-bottom" position={Position.Bottom} type="source" />
-        <Handle id="source-left"   position={Position.Left}   type="source" />
+        <Handle id="source-top"    position={Position.Top}    type="source" className="opacity-0 group-hover:opacity-100 group-[.selected]:opacity-100 transition-opacity duration-150" />
+        <Handle id="source-right"  position={Position.Right}  type="source" className="opacity-0 group-hover:opacity-100 group-[.selected]:opacity-100 transition-opacity duration-150" />
+        <Handle id="source-bottom" position={Position.Bottom} type="source" className="opacity-0 group-hover:opacity-100 group-[.selected]:opacity-100 transition-opacity duration-150" />
+        <Handle id="source-left"   position={Position.Left}   type="source" className="opacity-0 group-hover:opacity-100 group-[.selected]:opacity-100 transition-opacity duration-150" />
       </>
     )}
     {props.children}

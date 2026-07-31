@@ -53,6 +53,7 @@ export interface NodeEditorProps {
   showMinimap?: boolean;
   interactive?: boolean;
   hideDefaultActions?: boolean;
+  hideWorkflowName?: boolean;
   className?: string;
 
   /** Runtime node statuses from the API. NodeEditor derives highlights internally. */
@@ -96,6 +97,7 @@ export function NodeEditor({
   showMinimap,
   interactive = false,
   hideDefaultActions = false,
+  hideWorkflowName = false,
   className,
   nodeStatuses,
   nodeActions,
@@ -142,6 +144,8 @@ export function NodeEditor({
   if (extraActions) allActionGroups = [...allActionGroups, ...extraActions];
   if (!hideDefaultActions) allActionGroups = [...allActionGroups, ...defaultActionGroups];
 
+  const showTopLeftToolbar = (!hideWorkflowName && workflowName) || (versions && versions.length > 0);
+
   return (
     <div
       className={cn("relative h-screen w-full", className)}
@@ -154,12 +158,15 @@ export function NodeEditor({
         nodes={highlightedNodes}
         showMinimap={showMinimap}
         topLeft={
-          <WorkflowToolbar
-            currentVersionId={currentVersionId}
-            versions={versions}
-            workflowName={workflowName}
-            onVersionSelect={onVersionSelect}
-          />
+          showTopLeftToolbar ? (
+            <WorkflowToolbar
+              currentVersionId={currentVersionId}
+              versions={versions}
+              workflowName={workflowName}
+              hideWorkflowName={hideWorkflowName}
+              onVersionSelect={onVersionSelect}
+            />
+          ) : undefined
         }
         topRight={
           <WorkflowToolbarActions actionGroups={allActionGroups} />

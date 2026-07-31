@@ -12,6 +12,12 @@ import {
   NodeTitle,
   getHighlightIconColor,
 } from "@/components/ai-elements/node";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/primitives/Tooltip";
 import { cn } from "@/lib/utils";
 import type { ToolbarAction } from "@/components/composites/WorkflowToolbar";
 
@@ -27,6 +33,14 @@ export type SpatialContainerColorTheme =
 
 export type SpatialContainerVariant = "extruded3d" | "flat" | "glassmorphism";
 
+export type SpatialContainerItem = {
+  id: string;
+  label: string;
+  description?: string;
+  status?: "idle" | "running" | "success" | "error";
+  icon?: string;
+};
+
 export type SpatialContainerNodeData = {
   label: string;
   description?: string;
@@ -41,6 +55,8 @@ export type SpatialContainerNodeData = {
   actions?: ToolbarAction[];
   /** Badge count or sub-item summary tag */
   badgeText?: string;
+  /** Sub-items rendered as HTML card elements inside spatial container */
+  items?: SpatialContainerItem[];
 };
 
 type SpatialContainerNodeProps = NodeProps & {
@@ -149,8 +165,8 @@ export const SpatialContainerNode = memo(
 
     return (
       <div className="relative group" style={{ width, height }}>
-        {/* Node Resizer */}
-        <NodeResizer minWidth={180} minHeight={140} isVisible={selected} />
+        {/* Node Resizer — disabled for clean spatial sections */}
+        <NodeResizer minWidth={180} minHeight={140} isVisible={false} />
 
         {/* 2.5D Extrusion Side & Bottom Panels for extruded3d visual mode */}
         {variant === "extruded3d" && (
@@ -158,14 +174,14 @@ export const SpatialContainerNode = memo(
             {/* Bottom Extrusion Shadow Face */}
             <div
               className={cn(
-                "absolute -bottom-3 left-3 right-0 h-3 rounded-b-md transition-all duration-200",
+                "absolute -bottom-3.5 left-3.5 right-0 h-3.5 rounded-b-md transition-all duration-200 border-b border-r border-black/30 dark:border-black/60 shadow-md",
                 theme.extrusionBottom
               )}
             />
             {/* Right Side Extrusion Face */}
             <div
               className={cn(
-                "absolute -right-3 top-3 bottom-0 w-3 rounded-r-md transition-all duration-200",
+                "absolute -right-3.5 top-3.5 bottom-0 w-3.5 rounded-r-md transition-all duration-200 border-t border-r border-black/30 dark:border-black/60 shadow-md",
                 theme.extrusionSide
               )}
             />
@@ -174,18 +190,20 @@ export const SpatialContainerNode = memo(
 
         <Node
           className={cn(
-            "relative h-full w-full flex flex-col border transition-all duration-200 ease-out overflow-hidden rounded-lg",
+            "relative h-full w-full flex flex-col border transition-all duration-200 ease-out overflow-hidden rounded-lg shadow-sm",
             theme.border,
             theme.bg,
             variant === "glassmorphism" && "backdrop-blur-md bg-opacity-70 dark:bg-opacity-40",
-            variant === "extruded3d" && "shadow-lg hover:shadow-xl",
-            selected ? "border-primary border-2 shadow-primary/20 ring-2 ring-primary/30" : "shadow-sm",
+            variant === "extruded3d" && "shadow-xl border-t border-l border-white/20 dark:border-white/10",
             isDisabled && "opacity-50"
           )}
           data-testid={`spatial-container-node-${id}`}
           handles={{ target: true, source: true }}
           status={status}
         >
+          {/* Top 3D Highlight Line */}
+          <div className="absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none z-10" />
+
           {/* Header Panel */}
           <div
             className={cn(
@@ -203,13 +221,42 @@ export const SpatialContainerNode = memo(
                 )}
                 strokeWidth={2}
               />
-              <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 min-w-0 flex-1">
                 <NodeTitle
-                  className="line-clamp-1 text-xs font-semibold tracking-wide uppercase"
+                  className="truncate text-xs font-bold tracking-wider uppercase"
                   title={displayTitle}
                 >
                   {displayTitle}
                 </NodeTitle>
+                {displayDescription && (
+                  <TooltipProvider>
+                    <Tooltip delayDuration={100}>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-help text-muted-foreground/60 hover:text-foreground shrink-0 transition-colors">
+                          <Icon name="info" size="xs" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="top"
+                        align="start"
+                        className="max-w-xs p-3 text-xs bg-popover text-popover-foreground border border-border shadow-lg space-y-2"
+                      >
+                        {displayDescription.split('\n\n').map((paragraph, idx) => (
+                          <p
+                            key={idx}
+                            className={cn(
+                              idx === 0 && "font-medium text-foreground",
+                              idx === 1 && "italic text-primary/90 font-medium",
+                              idx === 2 && "text-muted-foreground text-[11px]"
+                            )}
+                          >
+                            {paragraph}
+                          </p>
+                        ))}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
             </div>
 
@@ -226,19 +273,35 @@ export const SpatialContainerNode = memo(
             )}
           </div>
 
-          {/* Body Container Region for Child Nodes */}
-          <div className="relative flex-1 p-3 flex flex-col justify-between pointer-events-none">
-            {displayDescription && (
-              <NodeDescription
-                className="text-[11px] text-muted-foreground line-clamp-2"
-                title={displayDescription}
-              >
-                {displayDescription}
-              </NodeDescription>
+          {/* Body Container Region for Child HTML Card Items */}
+          <div className="relative flex-1 p-2.5 overflow-y-auto nowheel nodrag nopan custom-scrollbar pointer-events-auto flex flex-col gap-2">
+            {data.items && data.items.length > 0 ? (
+              data.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="group relative flex items-center gap-2 rounded-md border border-border/70 bg-card/95 px-3 py-2 text-xs shadow-2xs transition-all hover:border-primary/50 hover:bg-accent/30"
+                >
+                  <Icon
+                    name={item.icon || "zap"}
+                    size="xs"
+                    className="shrink-0 text-primary"
+                    strokeWidth={1.5}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-foreground truncate" title={item.label}>
+                      {item.label}
+                    </div>
+                    {item.description && (
+                      <div className="text-[10px] text-muted-foreground truncate" title={item.description}>
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none -z-10" />
             )}
-
-            {/* Subtle Spatial Grid Watermark / Grid Background Accent */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none -z-10" />
           </div>
 
           {/* Node Toolbar Actions */}

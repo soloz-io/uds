@@ -41,7 +41,7 @@ export const mockSpatialNodes: WorkflowNode[] = [
     id: "cp",
     type: "spatialContainer",
     position: { x: 40, y: 40 },
-    style: { width: 260, height: 380 },
+    style: { width: 280, height: 380 },
     data: {
       label: "Key Partners",
       description: "Strategic alliances, cloud providers & integrations",
@@ -50,31 +50,19 @@ export const mockSpatialNodes: WorkflowNode[] = [
       variant: "extruded3d",
       icon: "handshake",
       badgeText: "2 Vendors",
+      items: [
+        { id: "cp-1", label: "AWS Cloud Infrastructure", description: "Compute & Storage" },
+        { id: "cp-2", label: "Stripe Payments", description: "Billing Gateway" },
+      ],
     },
-  },
-  {
-    id: "cp-1",
-    type: "state",
-    parentId: "cp",
-    extent: "parent",
-    position: { x: 20, y: 60 },
-    data: { label: "AWS Cloud Infrastructure", description: "Compute & Storage", type: "state", status: "success" },
-  },
-  {
-    id: "cp-2",
-    type: "state",
-    parentId: "cp",
-    extent: "parent",
-    position: { x: 20, y: 180 },
-    data: { label: "Stripe Payments", description: "Billing Gateway", type: "state", status: "success" },
   },
 
   // 2. Key Activities (Parent Container)
   {
     id: "ka",
     type: "spatialContainer",
-    position: { x: 330, y: 40 },
-    style: { width: 260, height: 180 },
+    position: { x: 350, y: 40 },
+    style: { width: 280, height: 180 },
     data: {
       label: "Key Activities",
       description: "Platform core development & AI training",
@@ -83,23 +71,18 @@ export const mockSpatialNodes: WorkflowNode[] = [
       variant: "extruded3d",
       icon: "activity",
       badgeText: "Engineering",
+      items: [
+        { id: "ka-1", label: "LLM Fine-tuning", description: "Model Optimization" },
+      ],
     },
-  },
-  {
-    id: "ka-1",
-    type: "transition",
-    parentId: "ka",
-    extent: "parent",
-    position: { x: 20, y: 60 },
-    data: { label: "LLM Fine-tuning", type: "transition", status: "running" },
   },
 
   // 3. Key Resources (Parent Container)
   {
     id: "kr",
     type: "spatialContainer",
-    position: { x: 330, y: 240 },
-    style: { width: 260, height: 180 },
+    position: { x: 350, y: 250 },
+    style: { width: 280, height: 180 },
     data: {
       label: "Key Resources",
       description: "Proprietary IP & engineering talent",
@@ -108,23 +91,18 @@ export const mockSpatialNodes: WorkflowNode[] = [
       variant: "extruded3d",
       icon: "database",
       badgeText: "Assets",
+      items: [
+        { id: "kr-1", label: "Agentic Architecture IP", description: "Core Engine" },
+      ],
     },
-  },
-  {
-    id: "kr-1",
-    type: "state",
-    parentId: "kr",
-    extent: "parent",
-    position: { x: 20, y: 60 },
-    data: { label: "Agentic Architecture IP", description: "Core Engine", type: "state", status: "idle" },
   },
 
   // 4. Value Propositions (Parent Container)
   {
     id: "vp",
     type: "spatialContainer",
-    position: { x: 620, y: 40 },
-    style: { width: 280, height: 380 },
+    position: { x: 660, y: 40 },
+    style: { width: 300, height: 380 },
     data: {
       label: "Value Propositions",
       description: "Core products and automated design system solutions",
@@ -133,56 +111,40 @@ export const mockSpatialNodes: WorkflowNode[] = [
       variant: "extruded3d",
       icon: "box",
       badgeText: "Core Offerings",
+      items: [
+        { id: "vp-1", label: "Autonomous Node Editor", description: "Spatial & Canvas UI" },
+        { id: "vp-2", label: "AI Design System", description: "Layered Governance" },
+        { id: "vp-3", label: "Multi-Agent Canvas", description: "Orchestration Pipeline" },
+      ],
     },
-  },
-  {
-    id: "vp-1",
-    type: "state",
-    parentId: "vp",
-    extent: "parent",
-    position: { x: 20, y: 60 },
-    data: { label: "Autonomous Node Editor", description: "Spatial & Canvas UI", type: "state", status: "running" },
-  },
-  {
-    id: "vp-2",
-    type: "state",
-    parentId: "vp",
-    extent: "parent",
-    position: { x: 20, y: 180 },
-    data: { label: "AI Design System", description: "Layered Governance", type: "state", status: "success" },
   },
 
   // 5. Customer Relationships (Parent Container)
   {
     id: "cr",
     type: "spatialContainer",
-    position: { x: 930, y: 40 },
-    style: { width: 260, height: 180 },
+    position: { x: 990, y: 40 },
+    style: { width: 300, height: 180 },
     data: {
       label: "Customer Relationships",
       description: "Self-service onboarding & dedicated support",
       type: "spatialContainer",
       themeColor: "purple",
-      variant: "glassmorphism",
+      variant: "extruded3d",
       icon: "heart",
       badgeText: "High Touch",
+      items: [
+        { id: "cr-1", label: "Dedicated Account Lead", description: "Enterprise SLAs" },
+      ],
     },
-  },
-  {
-    id: "cr-1",
-    type: "transition",
-    parentId: "cr",
-    extent: "parent",
-    position: { x: 20, y: 60 },
-    data: { label: "Dedicated Account Lead", type: "transition", status: "idle" },
   },
 
   // 6. Channels (Parent Container)
   {
     id: "ch",
     type: "spatialContainer",
-    position: { x: 930, y: 240 },
-    style: { width: 260, height: 180 },
+    position: { x: 990, y: 250 },
+    style: { width: 300, height: 180 },
     data: {
       label: "Channels",
       description: "Direct web IDE, API endpoints & SDK",
@@ -191,23 +153,18 @@ export const mockSpatialNodes: WorkflowNode[] = [
       variant: "extruded3d",
       icon: "truck",
       badgeText: "Distribution",
+      items: [
+        { id: "ch-1", label: "Cloud Web IDE", description: "Direct Browser" },
+      ],
     },
-  },
-  {
-    id: "ch-1",
-    type: "state",
-    parentId: "ch",
-    extent: "parent",
-    position: { x: 20, y: 60 },
-    data: { label: "Cloud Web IDE", description: "Direct Browser", type: "state", status: "idle" },
   },
 
   // 7. Customer Segments (Parent Container)
   {
     id: "cs",
     type: "spatialContainer",
-    position: { x: 1220, y: 40 },
-    style: { width: 260, height: 380 },
+    position: { x: 1320, y: 40 },
+    style: { width: 280, height: 380 },
     data: {
       label: "Customer Segments",
       description: "Target enterprise teams and AI developers",
@@ -216,56 +173,39 @@ export const mockSpatialNodes: WorkflowNode[] = [
       variant: "extruded3d",
       icon: "users",
       badgeText: "Enterprise B2B",
+      items: [
+        { id: "cs-1", label: "SaaS Product Teams", description: "Designers & Engineers" },
+      ],
     },
-  },
-  {
-    id: "cs-1",
-    type: "state",
-    parentId: "cs",
-    extent: "parent",
-    position: { x: 20, y: 60 },
-    data: { label: "SaaS Product Teams", description: "Designers & Engineers", type: "state", status: "idle" },
   },
 
   // 8. Cost Structure (Parent Container)
   {
     id: "cost",
     type: "spatialContainer",
-    position: { x: 40, y: 440 },
-    style: { width: 700, height: 160 },
+    position: { x: 40, y: 465 },
+    style: { width: 760, height: 160 },
     data: {
       label: "Cost Structure",
       description: "Fixed compute, GPU training clusters & salary overhead",
       type: "spatialContainer",
       themeColor: "rose",
-      variant: "flat",
+      variant: "extruded3d",
       icon: "wallet",
       badgeText: "$150k / mo",
+      items: [
+        { id: "cost-1", label: "GPU Inference Costs", description: "Compute Infrastructure" },
+        { id: "cost-2", label: "R&D Licensing", description: "Proprietary models" },
+      ],
     },
-  },
-  {
-    id: "cost-1",
-    type: "transition",
-    parentId: "cost",
-    extent: "parent",
-    position: { x: 20, y: 55 },
-    data: { label: "GPU Inference Costs", type: "transition", status: "idle" },
-  },
-  {
-    id: "cost-2",
-    type: "state",
-    parentId: "cost",
-    extent: "parent",
-    position: { x: 360, y: 55 },
-    data: { label: "R&D Licensing", description: "Proprietary models", type: "state", status: "idle" },
   },
 
   // 9. Revenue Streams (Parent Container)
   {
     id: "rev",
     type: "spatialContainer",
-    position: { x: 770, y: 440 },
-    style: { width: 710, height: 160 },
+    position: { x: 840, y: 465 },
+    style: { width: 760, height: 160 },
     data: {
       label: "Revenue Streams",
       description: "Enterprise licenses, seats & API token usage",
@@ -274,23 +214,11 @@ export const mockSpatialNodes: WorkflowNode[] = [
       variant: "extruded3d",
       icon: "wallet",
       badgeText: "ARR $2.4M",
+      items: [
+        { id: "rev-1", label: "Enterprise Annual Seat License", description: "Per-user pricing" },
+        { id: "rev-2", label: "API Usage Metering", description: "Pay-as-you-go" },
+      ],
     },
-  },
-  {
-    id: "rev-1",
-    type: "state",
-    parentId: "rev",
-    extent: "parent",
-    position: { x: 20, y: 55 },
-    data: { label: "Enterprise Annual Seat License", description: "Per-user pricing", type: "state", status: "success" },
-  },
-  {
-    id: "rev-2",
-    type: "transition",
-    parentId: "rev",
-    extent: "parent",
-    position: { x: 370, y: 55 },
-    data: { label: "API Usage Metering", type: "transition", status: "idle" },
   },
 ];
 

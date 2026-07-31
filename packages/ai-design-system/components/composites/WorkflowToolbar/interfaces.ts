@@ -36,6 +36,7 @@ export interface WorkflowToolbarActionsProps {
 
 export interface WorkflowToolbarProps {
   workflowName?: string;
+  hideWorkflowName?: boolean;
   versions?: WorkflowVersion[];
   currentVersionId?: string;
   onVersionSelect?: (versionId: string) => void;

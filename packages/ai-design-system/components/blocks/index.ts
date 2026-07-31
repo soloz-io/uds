@@ -16,6 +16,9 @@ export * from './SectionLayout'
 export { WorkflowCanvas, getLayoutedElements } from './WorkflowCanvas'
 export type { WorkflowCanvasProps, WorkflowNode, WorkflowEdge, WorkflowNodeData } from './WorkflowCanvas'
 
+export { bmcToCanvas } from './BmcCanvas'
+export type { BmcBlockId, BmcItem, BmcBlock, CompiledBmc, BmcCanvasView } from './BmcCanvas'
+
 export { DashboardMetrics } from './DashboardMetrics'
 export type { DashboardMetricsProps } from './DashboardMetrics'
 

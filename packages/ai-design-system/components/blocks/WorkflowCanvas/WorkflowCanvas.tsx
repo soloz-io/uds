@@ -81,7 +81,7 @@ function WorkflowCanvasInner({
       }}
     >
       <Canvas
-        className="bg-background"
+        className="bg-background [&_.react-flow\_\_handle]:opacity-0 [&_.react-flow\_\_handle]:pointer-events-none [&_.react-flow\_\_node:hover_.react-flow\_\_handle]:opacity-100 [&_.react-flow\_\_node:hover_.react-flow\_\_handle]:pointer-events-auto [&_.react-flow\_\_node.selected_.react-flow\_\_handle]:opacity-100 [&_.react-flow\_\_node.selected_.react-flow\_\_handle]:pointer-events-auto [&_.react-flow\_\_handle]:transition-opacity [&_.react-flow\_\_handle]:duration-150"
         connectionLineComponent={ConnectionLine}
         connectionMode={ConnectionMode.Strict}
         edges={edges}
