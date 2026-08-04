@@ -67,6 +67,9 @@ export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
         )}
 
         <div className="flex-1 min-w-0">
+          {/* Child components (reasoning, specialists and tool calls) */}
+          {children && <div className="mb-4 space-y-4">{children}</div>}
+
           {/* Orchestrator's message content */}
           {message.isLoading ? (
             <MessageContent variant="contained" className="w-fit pr-6">
@@ -77,9 +80,6 @@ export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
               <Response mode={message.isLoading ? "streaming" : "static"} isAnimating={!!message.isLoading}>{message.content}</Response>
             </MessageContent>
           )}
-
-          {/* Child components (specialists and tool calls) */}
-          {children && <div className="mt-4 space-y-4">{children}</div>}
         </div>
       </Message>
     )

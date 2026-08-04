@@ -252,8 +252,43 @@ export const AIConversation = React.memo<AIConversationProps>(
             const directToolCalls = allToolCalls.filter((tc) => tc.visibility !== "reasoning")
 
             const hasReasoning = reasoningCalls.length > 0 || subAgents.length > 0 || directToolCalls.length > 0 || (message.isLoading && contentStr.trim() !== "");
-            const reasoningText = (hasReasoning && (!message.blocks || message.blocks.length === 0)) ? contentStr : undefined
-            const displayContentStr = hasReasoning ? "" : contentStr
+            
+            let reasoningText: string | undefined = undefined;
+            let displayContentStr = contentStr;
+            let reasoningBlocks: AIMessageBlock[] = [];
+            const mainDisplayBlocks: AIMessageBlock[] = [];
+
+            if (hasReasoning) {
+              if (message.blocks && message.blocks.length > 0) {
+                // Find index of the last text block
+                let lastTextIdx = -1;
+                for (let i = message.blocks.length - 1; i >= 0; i--) {
+                  const block = message.blocks[i];
+                  if (block.type === 'text' && block.text?.trim()) {
+                    lastTextIdx = i;
+                    displayContentStr = block.text;
+                    break;
+                  }
+                }
+
+                if (lastTextIdx !== -1) {
+                  reasoningBlocks = message.blocks.filter((_, idx) => idx !== lastTextIdx);
+                } else {
+                  displayContentStr = "";
+                  reasoningBlocks = message.blocks;
+                }
+              } else {
+                const lastBreakIndex = contentStr.lastIndexOf("\n\n");
+                if (lastBreakIndex !== -1) {
+                  reasoningText = contentStr.slice(0, lastBreakIndex).trim();
+                  displayContentStr = contentStr.slice(lastBreakIndex + 2).trim();
+                } else {
+                  reasoningText = undefined;
+                  displayContentStr = contentStr;
+                }
+              }
+            }
+
             const hasDisplayContent = displayContentStr.trim() !== ""
 
             if (!hasDisplayContent && directToolCalls.length === 0 && reasoningCalls.length === 0 && subAgents.length === 0 && !message.isLoading && (!message.blocks || message.blocks.length === 0)) {
@@ -284,7 +319,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                     defaultOpen={isStreaming || index === groupedMessages.length - 1}
                   >
                     {message.blocks && message.blocks.length > 0 ? (
-                      message.blocks.map((block, i) => {
+                      reasoningBlocks.map((block, i) => {
                         if (block.type === 'text') {
                           return block.text && block.text.trim() ? (
                             <div key={`text-${i}`} className="mb-4 text-muted-foreground whitespace-pre-wrap">
