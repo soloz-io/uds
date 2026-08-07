@@ -94,6 +94,10 @@ export function useNodeEditorMock(workflowId?: string): UseNodeEditorReturn {
     }
   }, []);
 
+  const onPublish = useCallback(() => {
+    console.warn("useNodeEditor.mock: onPublish not implemented");
+  }, []);
+
   return {
     nodes,
     edges,
@@ -102,6 +106,7 @@ export function useNodeEditorMock(workflowId?: string): UseNodeEditorReturn {
     versions: mockVersions,
     currentVersionId,
     onVersionSelect,
+    onPublish,
     isSaving,
     hasUnsavedChanges,
     canUndo: false,

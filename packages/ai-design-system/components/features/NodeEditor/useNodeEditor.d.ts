@@ -15,6 +15,7 @@ export interface UseNodeEditorReturn {
   versions: WorkflowVersion[];
   currentVersionId: string;
   onVersionSelect: (versionId: string) => void;
+  onPublish: () => void;
 
   // UI state
   isSaving: boolean;
