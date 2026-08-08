@@ -303,6 +303,15 @@ export const ChatPanel = React.memo<ChatPanelProps>(
       );
     }
 
+    const isAgentRunning = React.useMemo(() => {
+      if (loading) return true;
+      return messages.some(
+        (m) =>
+          m.subAgents?.some((sa) => sa.status === "active" || sa.status === "pending" || sa.status === "running" || sa.status === "in_progress") ||
+          m.toolCalls?.some((tc) => tc.status === "pending" || tc.status === "running" || tc.status === "in_progress" || tc.status === "active")
+      );
+    }, [loading, messages]);
+
     return (
       <div className={`relative flex h-full flex-col ${className || ""}`}>
         {/* Chat Session Header */}
@@ -326,7 +335,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             dialog={dialog}
             placeholder={placeholder}
             onSubmit={onSubmit}
-            loading={loading}
+            loading={isAgentRunning}
             onStop={onStop}
             className="rounded-2xl border border-neutral-600 bg-background shadow-sm overflow-hidden"
           />

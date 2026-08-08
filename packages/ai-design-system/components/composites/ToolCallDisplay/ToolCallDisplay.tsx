@@ -20,7 +20,7 @@ export interface ToolCall {
   name: string
   args: Record<string, unknown>
   result?: string
-  status: "pending" | "completed" | "error"
+  status: "pending" | "completed" | "error" | "active" | "running" | "in_progress"
   visibility?: "visible" | "reasoning"
   uiVariant?: "default" | "link"
   linkText?: string

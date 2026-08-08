@@ -23,7 +23,7 @@ export interface SpecialistMessageData {
   icon?: React.ReactNode
   content: string
   toolCalls?: ToolCall[]
-  status: "pending" | "active" | "completed" | "error"
+  status: "pending" | "active" | "completed" | "error" | "running" | "in_progress"
   avatarSrc?: string
   avatarName?: string
   input?: string | Record<string, unknown>
