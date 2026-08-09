@@ -10,6 +10,7 @@ import type { ToolCall, SubAgent } from "@/components/composites"
 import { UserMessage } from "@/components/composites/UserMessage"
 import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
 import { OrchestratorMessage } from "@/components/composites/OrchestratorMessage"
+import { SystemMessage } from "@/components/composites/SystemMessage"
 import { ToolCallDisplay } from "@/components/composites/ToolCallDisplay"
 import { ReasoningDisplay } from "@/components/composites/ReasoningDisplay"
 
@@ -71,6 +72,11 @@ export interface AIConversationProps
    * Callback fired when a tool action (like a link click) is triggered
    */
   onToolAction?: (toolCall: ToolCall, action: string) => void
+  /**
+   * Custom renderer for system messages.
+   * Receives the raw content string and returns a ReactNode.
+   */
+  renderSystemMessage?: (content: string) => React.ReactNode
 }
 
 /**
@@ -84,6 +90,7 @@ export const AIConversation = React.memo<AIConversationProps>(
     selectedSubAgent,
     emptyState,
     onToolAction,
+    renderSystemMessage,
     ...conversationProps
   }) => {
     const isEmpty = React.useMemo(
@@ -221,6 +228,20 @@ export const AIConversation = React.memo<AIConversationProps>(
           const contentStr = toMessageString(message.content)
 
           // Render based on role field
+          if (message.role === "system") {
+            return (
+              <SystemMessage
+                key={message.id}
+                message={{
+                  id: message.id,
+                  content: contentStr,
+                  avatarName: message.avatarName,
+                }}
+                renderContent={renderSystemMessage}
+              />
+            )
+          }
+
           if (message.role === "user") {
             return (
               <UserMessage

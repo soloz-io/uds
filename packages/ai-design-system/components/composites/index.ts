@@ -32,6 +32,10 @@ export type { SpecialistMessageProps, SpecialistMessageData } from './Specialist
 export { OrchestratorMessage } from './OrchestratorMessage'
 export type { OrchestratorMessageProps, OrchestratorMessageData } from './OrchestratorMessage'
 
+// SystemMessage Block
+export { SystemMessage } from './SystemMessage'
+export type { SystemMessageProps, SystemMessageData } from './SystemMessage'
+
 
 // FileQueue Block
 export { FileQueue, FileStatusBadge } from './FileQueue'

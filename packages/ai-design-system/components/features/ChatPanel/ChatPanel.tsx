@@ -33,7 +33,7 @@ import type { FileDownloadResult } from "@/components/composites/FileTreeExplore
 export interface RefinementMessage {
   id: string;
   type: "human" | "ai";
-  role: "user" | "orchestrator" | "specialist";
+  role: "user" | "orchestrator" | "specialist" | "system";
   content: string;
   avatarSrc?: string;
   avatarName?: string;
@@ -137,6 +137,11 @@ export interface ChatPanelProps {
    * Handler to download the session chat history
    */
   onDownloadSession?: () => Promise<FileDownloadResult | undefined>;
+  /**
+   * Custom renderer for system messages.
+   * Receives the raw content string and returns a ReactNode.
+   */
+  renderSystemMessage?: (content: string) => React.ReactNode;
 }
 
 /**
@@ -166,6 +171,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onCloseSession,
     onSelectSession,
     onDownloadSession,
+    renderSystemMessage,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -328,6 +334,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           messages={messages}
           showAvatars={true}
           onToolAction={onToolAction}
+          renderSystemMessage={renderSystemMessage}
           className="flex-1 min-h-0"
         />
         <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-card via-card to-transparent pt-6">
