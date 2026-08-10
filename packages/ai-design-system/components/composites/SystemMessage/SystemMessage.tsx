@@ -26,6 +26,15 @@ export interface SystemMessageProps {
 
 export const SystemMessage = React.memo<SystemMessageProps>(
   ({ message, renderContent }) => {
+    if (!message.content || !message.content.trim()) {
+      return null;
+    }
+
+    const contentNode = renderContent ? renderContent(message.content) : <span>{message.content}</span>;
+    if (!contentNode) {
+      return null;
+    }
+
     return (
       <div className="flex w-full justify-center py-3">
         <div
@@ -35,11 +44,7 @@ export const SystemMessage = React.memo<SystemMessageProps>(
             "max-w-[85%]"
           )}
         >
-          {renderContent ? (
-            renderContent(message.content)
-          ) : (
-            <span>{message.content}</span>
-          )}
+          {contentNode}
         </div>
       </div>
     )

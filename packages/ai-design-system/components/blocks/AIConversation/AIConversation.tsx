@@ -229,6 +229,9 @@ export const AIConversation = React.memo<AIConversationProps>(
 
           // Render based on role field
           if (message.role === "system") {
+            if (!contentStr || !contentStr.trim()) {
+              return null;
+            }
             return (
               <SystemMessage
                 key={message.id}
