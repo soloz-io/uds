@@ -124,6 +124,15 @@ export const AIConversation = React.memo<AIConversationProps>(
             (!msg.toolCalls || msg.toolCalls.length === 0) &&
             (!msg.subAgents || msg.subAgents.length === 0);
 
+          const currentGroupHasTools =
+            currentGroup &&
+            ((currentGroup.toolCalls && currentGroup.toolCalls.length > 0) ||
+              (currentGroup.subAgents && currentGroup.subAgents.length > 0));
+
+          if (currentGroupHasTools && isFinalResponse) {
+            currentGroup = null;
+          }
+
           if (currentGroup) {
             if (msg.content) {
               currentGroup.content = currentGroup.content
@@ -276,9 +285,9 @@ export const AIConversation = React.memo<AIConversationProps>(
             const directToolCalls = allToolCalls.filter((tc) => tc.visibility !== "reasoning")
 
             const hasReasoning = reasoningCalls.length > 0 || subAgents.length > 0 || directToolCalls.length > 0 || (message.isLoading && contentStr.trim() !== "");
-            const reasoningText = (hasReasoning && (!message.blocks || message.blocks.length === 0)) ? contentStr : undefined
-            const displayContentStr = hasReasoning ? "" : contentStr
-            const hasDisplayContent = displayContentStr.trim() !== ""
+            const reasoningText = (hasReasoning && (!message.blocks || message.blocks.length === 0)) ? contentStr : undefined;
+            const displayContentStr = hasReasoning ? "" : contentStr;
+            const hasDisplayContent = displayContentStr.trim() !== "";
 
             if (!hasDisplayContent && directToolCalls.length === 0 && reasoningCalls.length === 0 && subAgents.length === 0 && !message.isLoading && (!message.blocks || message.blocks.length === 0)) {
               return null;
