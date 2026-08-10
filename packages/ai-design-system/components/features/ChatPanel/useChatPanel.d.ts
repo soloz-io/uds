@@ -49,7 +49,7 @@ export interface UseChatPanelReturn {
   /** Review configuration for HITL approval */
   reviewConfig?: ReviewConfig;
 
-  /** Handle approval of HITL approval request (ask_user or review_content approve) */
+  /** Handle approval of HITL approval request (ask_user approve) */
   handleAskUserApprove?: () => Promise<void> | void;
 
   /** Handle rejection of HITL approval request */
