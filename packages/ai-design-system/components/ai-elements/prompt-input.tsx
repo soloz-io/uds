@@ -969,8 +969,8 @@ export const PromptInputSubmit = ({
   if (status === "submitted") {
     Icon = <Loader2Icon className="size-4 animate-spin" />;
   } else if (status === "streaming") {
-    Icon = <SquareIcon className="size-3.5 fill-current" />;
-    buttonVariant = "default";
+    Icon = <SquareIcon className="size-3.5 fill-white text-white" />;
+    buttonVariant = "outline-primary";
     customClass = cn("rounded-full", className);
   } else if (status === "error") {
     Icon = <XIcon className="size-4" />;
