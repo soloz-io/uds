@@ -43,4 +43,9 @@ export { EvalDashboardFeature } from "./EvalDashboardFeature";
 export type { EvalDashboardFeatureProps } from "./EvalDashboardFeature";
 export type { UseEvalDashboardFeatureReturn, EvalDashboardFeatureInboxState, EvalDashboardFeatureData, GoldenEvalResult, EvalSessionInfo } from "./EvalDashboardFeature";
 
+// AuthFeature Feature
+export { AuthFeature } from "./AuthFeature";
+export type { AuthFeatureProps } from "./AuthFeature";
+
+
 

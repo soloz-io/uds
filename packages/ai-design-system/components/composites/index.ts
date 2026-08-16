@@ -218,4 +218,8 @@ export type { AppBreadcrumbProps, BreadcrumbItemData } from './AppBreadcrumb'
 export { IconButton } from './IconButton'
 export type { IconButtonProps } from './IconButton'
 
+// AuthCard Composite
+export { AuthCard } from './AuthCard'
+export type { AuthCardProps, AuthMode, SocialProvider } from './AuthCard'
+
 
