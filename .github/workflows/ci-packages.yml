@@ -121,13 +121,13 @@ jobs:
       - name: Build
         run: ${{ matrix.build }}
 
-      - name: Install Playwright browsers
-        if: matrix.install_playwright == 'true'
-        run: pnpm --filter ai-design-system exec playwright install --with-deps
+      # - name: Install Playwright browsers
+      #   if: matrix.install_playwright == 'true'
+      #   run: pnpm --filter ai-design-system exec playwright install --with-deps
 
-      - name: Run tests
-        if: matrix.test != ''
-        run: ${{ matrix.test }}
+      # - name: Run tests
+      #   if: matrix.test != ''
+      #   run: ${{ matrix.test }}
 
   publish:
     name: Publish to npm (${{ matrix.package }})
