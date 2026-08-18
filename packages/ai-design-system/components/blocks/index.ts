@@ -13,6 +13,9 @@ export type { FileChangeQueueProps } from './FileChangeQueue'
 // Blocks
 export * from './SectionLayout'
 
+export { ExpoAppPreview } from './ExpoAppPreview'
+export type { ExpoAppPreviewProps } from './ExpoAppPreview'
+
 export { WorkflowCanvas, getLayoutedElements } from './WorkflowCanvas'
 export type { WorkflowCanvasProps, WorkflowNode, WorkflowEdge, WorkflowNodeData } from './WorkflowCanvas'
 
