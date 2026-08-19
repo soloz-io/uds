@@ -4,12 +4,14 @@ import type { StateNodeData } from "@/components/composites/StateNode";
 import type { TransitionNodeData } from "@/components/composites/TransitionNode";
 import type { TriggerNodeData } from "@/components/composites/TriggerNode";
 import type { SpatialContainerNodeData } from "@/components/composites/SpatialContainerNode";
+import type { DevicePreviewNodeData } from "@/components/composites/DevicePreviewNode";
 
 export type WorkflowNodeData =
   | StateNodeData
   | TransitionNodeData
   | TriggerNodeData
-  | SpatialContainerNodeData;
+  | SpatialContainerNodeData
+  | DevicePreviewNodeData;
 export type WorkflowNode = Node<WorkflowNodeData>;
 
 export interface WorkflowEdge {
@@ -36,5 +38,6 @@ export interface WorkflowCanvasProps {
   interactive?: boolean;
   topLeft?: React.ReactNode;
   topRight?: React.ReactNode;
+  topCenter?: React.ReactNode;
   className?: string;
 }

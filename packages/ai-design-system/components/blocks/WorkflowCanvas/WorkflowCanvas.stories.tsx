@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { NodeChange, EdgeChange, Connection } from "@xyflow/react";
 import { applyNodeChanges, applyEdgeChanges } from "@xyflow/react";
 import { WorkflowCanvas, type WorkflowNode, type WorkflowEdge } from "./WorkflowCanvas";
+import { DevicePreviewToolbar } from "@/components/composites/DevicePreviewToolbar";
 import "@xyflow/react/dist/style.css";
 
 /**
@@ -272,6 +273,65 @@ export const Empty: Story = {
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+        />
+      </div>
+    );
+  },
+};
+
+/**
+ * Device Preview mode — `devicePreview` nodes + the DevicePreviewToolbar in
+ * the topCenter panel slot (the config the BuilderPage 'Preview' tab uses).
+ */
+export const DevicePreviewMode: Story = {
+  render: () => {
+    const [nodes, setNodes] = useState<WorkflowNode[]>(() => {
+      const routes = ["/login", "/signup", "/dashboard", "/settings"];
+      return routes.map((route, i) => ({
+        id: `preview-${i}`,
+        type: "devicePreview",
+        position: { x: (i % 2) * 500, y: Math.floor(i / 2) * 760 },
+        data: {
+          type: "devicePreview",
+          src: "about:blank",
+          label: `demo-app · ${route}`,
+          route,
+          presetId: "iphone-16-pro",
+          showRouteBadge: true,
+        },
+      }));
+    });
+    const [viewMode, setViewMode] = useState<"play" | "single" | "interactive" | "grid">("grid");
+    const [activeRoute, setActiveRoute] = useState("/login");
+    const [presetId, setPresetId] = useState("iphone-16-pro");
+
+    const onNodesChange = (changes: NodeChange[]) => {
+      setNodes((nds) => applyNodeChanges(changes, nds) as WorkflowNode[]);
+    };
+
+    return (
+      <div style={{ width: "100vw", height: "100vh" }}>
+        <WorkflowCanvas
+          nodes={nodes}
+          edges={[]}
+          onNodesChange={onNodesChange}
+          interactive
+          topCenter={
+            <DevicePreviewToolbar
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              routes={[
+                { id: "/login", label: "Login" },
+                { id: "/signup", label: "Signup" },
+                { id: "/dashboard", label: "Dashboard" },
+                { id: "/settings", label: "Settings" },
+              ]}
+              activeRoute={activeRoute}
+              onRouteChange={setActiveRoute}
+              devicePresetId={presetId}
+              onDevicePresetChange={setPresetId}
+            />
+          }
         />
       </div>
     );

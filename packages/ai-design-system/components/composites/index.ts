@@ -150,6 +150,14 @@ export type { TriggerNodeData } from './TriggerNode'
 export { SpatialContainerNode } from './SpatialContainerNode'
 export type { SpatialContainerNodeData, SpatialContainerColorTheme, SpatialContainerVariant } from './SpatialContainerNode'
 
+// DevicePreviewNode Composite
+export { DevicePreviewNode, DEVICE_PRESETS, DEFAULT_PRESET_ID, getPreset } from './DevicePreviewNode'
+export type { DevicePreset, DevicePreviewNodeData, DevicePreviewNodeType, DeviceScreenshotRequest } from './DevicePreviewNode'
+
+// DevicePreviewToolbar Composite
+export { DevicePreviewToolbar } from './DevicePreviewToolbar'
+export type { DevicePreviewToolbarProps, DevicePreviewViewMode, DevicePreviewRoute } from './DevicePreviewToolbar'
+
 // WorkflowToolbar Composite
 export { WorkflowToolbar, WorkflowToolbarActions } from './WorkflowToolbar'
 export type { WorkflowToolbarProps, WorkflowToolbarActionsProps, WorkflowVersion, ToolbarAction } from './WorkflowToolbar'

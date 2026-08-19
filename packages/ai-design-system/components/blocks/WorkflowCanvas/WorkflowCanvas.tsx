@@ -17,6 +17,7 @@ import { StateNode } from "@/components/composites/StateNode";
 import { TransitionNode } from "@/components/composites/TransitionNode";
 import { TriggerNode } from "@/components/composites/TriggerNode";
 import { SpatialContainerNode } from "@/components/composites/SpatialContainerNode";
+import { DevicePreviewNode } from "@/components/composites/DevicePreviewNode";
 import type { WorkflowCanvasProps, WorkflowEdge } from "./interfaces";
 import "@xyflow/react/dist/style.css";
 
@@ -31,6 +32,7 @@ const nodeTypes = {
   transition: TransitionNode,
   trigger: TriggerNode,
   spatialContainer: SpatialContainerNode,
+  devicePreview: DevicePreviewNode,
 };
 
 function WorkflowCanvasInner({
@@ -47,6 +49,7 @@ function WorkflowCanvasInner({
   interactive = false,
   topLeft,
   topRight,
+  topCenter,
   className,
 }: WorkflowCanvasProps) {
   const { fitView } = useReactFlow();
@@ -115,6 +118,14 @@ function WorkflowCanvasInner({
             position="top-right"
           >
             {topRight}
+          </Panel>
+        )}
+        {topCenter && (
+          <Panel
+            className="pointer-events-auto border-none bg-transparent p-0"
+            position="top-center"
+          >
+            {topCenter}
           </Panel>
         )}
         <Panel

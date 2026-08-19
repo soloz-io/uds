@@ -24,3 +24,15 @@ export type { ExternalToast, ToastT, ToasterProps } from 'sonner';
 export { cn } from '@/lib/utils';
 export { ButtonSwitcher } from './composites';
 export type { ButtonSwitcherProps, ButtonSwitcherItem } from './composites';
+
+// Device preview composites (canvas + toolbar)
+export { DevicePreviewNode, DEVICE_PRESETS, DEFAULT_PRESET_ID, getPreset, DevicePreviewToolbar } from './composites';
+export type {
+  DevicePreset,
+  DevicePreviewNodeData,
+  DevicePreviewNodeType,
+  DeviceScreenshotRequest,
+  DevicePreviewToolbarProps,
+  DevicePreviewViewMode,
+  DevicePreviewRoute,
+} from './composites';

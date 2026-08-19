@@ -106,6 +106,16 @@ export interface ChatPanelProps {
    */
   placeholder?: string;
   /**
+   * Controlled draft prompt value (e.g. set programmatically to inject a
+   * screenshot markdown image). When provided with onPromptValueChange the
+   * PromptInput becomes fully controlled.
+   */
+  promptValue?: string;
+  /**
+   * Controlled draft prompt change handler.
+   */
+  onPromptValueChange?: (value: string) => void;
+  /**
    * Custom className for container
    */
   className?: string;
@@ -163,6 +173,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     loading = false,
     onStop,
     placeholder = "Ask a question or describe a task...",
+    promptValue,
+    onPromptValueChange,
     className,
     onToolAction,
     sessions,
@@ -341,6 +353,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           <PromptInput
             dialog={dialog}
             placeholder={placeholder}
+            value={promptValue}
+            onChange={onPromptValueChange}
             onSubmit={onSubmit}
             loading={isAgentRunning}
             onStop={onStop}

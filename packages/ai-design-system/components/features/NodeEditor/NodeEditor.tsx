@@ -60,6 +60,9 @@ export interface NodeEditorProps {
   nodeStatuses?: NodeStatusEntry[];
   /** Per-node actions */
   nodeActions?: Record<string, ToolbarAction[]>;
+
+  /** Consumer-provided overlay rendered in the canvas top-center (e.g. a device-preview toolbar). */
+  topCenter?: React.ReactNode;
 }
 
 function statusToGlow(status: string): HighlightStatus | null {
@@ -101,6 +104,7 @@ export function NodeEditor({
   className,
   nodeStatuses,
   nodeActions,
+  topCenter,
 }: NodeEditorProps) {
   const highlightedNodes = useMemo(
     () => {
@@ -171,6 +175,7 @@ export function NodeEditor({
         topRight={
           <WorkflowToolbarActions actionGroups={allActionGroups} />
         }
+        topCenter={topCenter}
         onConnect={onConnect}
         onEdgesChange={onEdgesChange}
         onNodesChange={onNodesChange}

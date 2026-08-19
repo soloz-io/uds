@@ -12,6 +12,7 @@ import {
   PromptInputProvider,
   type PromptInputMessage,
   type PromptInputProps as AIPromptInputProps,
+  usePromptInputController,
 } from "@/components/ai-elements/prompt-input";
 import type { FormEvent } from "react";
 import { Button } from "@/components/primitives/Button";
@@ -105,6 +106,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     if (isControlled) {
       return (
         <PromptInputProvider initialInput={value}>
+          <ExternalValueSync value={value} />
           {promptInputContent}
         </PromptInputProvider>
       );
@@ -113,5 +115,20 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     return promptInputContent;
   }
 );
+
+/**
+ * Syncs a controlled external value into the PromptInput controller state so
+ * consumers (e.g. waypoint inserting a screenshot markdown image) can update
+ * the draft prompt reactively, not just as an initial value.
+ */
+function ExternalValueSync({ value }: { value?: string }) {
+  const controller = usePromptInputController();
+  React.useEffect(() => {
+    if (value !== undefined && controller.textInput.value !== value) {
+      controller.textInput.setInput(value);
+    }
+  }, [value, controller]);
+  return null;
+}
 
 PromptInput.displayName = "PromptInput";

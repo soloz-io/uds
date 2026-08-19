@@ -42,6 +42,12 @@ export interface ExpoAppPreviewProps extends React.HTMLAttributes<HTMLDivElement
   /** Fired when the iframe errors. */
   onError?: () => void
   /**
+   * Receives the iframe element once mounted (and `null` on unmount).
+   * Lets consumers capture a screenshot (e.g. html-to-image) without the
+   * block owning capture tooling.
+   */
+  registerIframe?: (el: HTMLIFrameElement | null) => void
+  /**
    * Receives host-side `message` events originating from the iframe window
    * (browser postMessage primitive; optional passthrough — not required for
    * standalone rendering).

@@ -10,7 +10,7 @@ import {
   mockSidebarConfig,
 } from './PageLayout.mocks'
 import { NodeEditor } from '@/components/features/NodeEditor'
-import { RefinementPanel } from '../RefinementPanel/RefinementPanel'
+import { ChatPanel } from '../ChatPanel/ChatPanel'
 import { mockEdges, mockNodes, mockVersions } from '@/components/features/NodeEditor/NodeEditor.mocks'
 import { DashboardFeature } from '../DashboardFeature/DashboardFeature'
 import { useDashboardIntegrationMock } from './useDashboardIntegration.mock'
@@ -129,7 +129,7 @@ export const WithStateManagement: Story = {
             ...(actions.isChatOpen ? [{
               id: 'refinement-panel',
               content: (
-                <RefinementPanel
+                <ChatPanel
                   messages={mockPageLayoutRefinementMessages}
                   fileChanges={mockPageLayoutFileChanges}
                   onSubmit={actions.onSubmit}

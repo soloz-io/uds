@@ -1,6 +1,6 @@
 import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { ExpoAppPreview } from './ExpoAppPreview'
+import { ExpoAppPreview } from '@/components/ai-elements/ExpoAppPreview'
 
 const HARNESS = 'http://localhost:4173/expo-preview'
 
@@ -43,10 +43,14 @@ function PreviewDemo({
 }
 
 /**
- * ExpoAppPreview Block Stories
+ * ExpoAppPreview Demos (moved into the DevicePreviewNode composite)
  *
  * Renders an Expo / React Native app compiled to web inside a full-bleed,
- * sandboxed iframe. The same block serves both preview modes:
+ * sandboxed iframe. `ExpoAppPreview` itself is an ai-element (no stories
+ * allowed there), so these demo stories live under the composite that
+ * composes it.
+ *
+ * The same element serves both preview modes:
  *
  * - **Dev (live reload):** `src` points at the waypoint preview route, which
  *   the POC harness proxies to the app's Metro dev server. Editing the app
@@ -140,7 +144,7 @@ function LiveReloadDemo({ src }: { src: string }) {
 }
 
 const meta = {
-  title: 'Blocks/ExpoAppPreview',
+  title: 'Composites/ExpoAppPreview',
   component: ExpoAppPreview,
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },

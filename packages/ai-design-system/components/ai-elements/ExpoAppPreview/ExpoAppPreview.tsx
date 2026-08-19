@@ -37,6 +37,7 @@ export const ExpoAppPreview = React.memo<ExpoAppPreviewProps>(
     onLoad,
     onError,
     onMessage,
+    registerIframe,
     className,
     iframeClassName,
     ...props
@@ -44,6 +45,12 @@ export const ExpoAppPreview = React.memo<ExpoAppPreviewProps>(
     const iframeRef = React.useRef<HTMLIFrameElement>(null)
     const onMessageRef = React.useRef(onMessage)
     onMessageRef.current = onMessage
+
+    React.useEffect(() => {
+      if (!registerIframe) return undefined
+      registerIframe(iframeRef.current)
+      return () => registerIframe(null)
+    }, [registerIframe])
 
     React.useEffect(() => {
       if (!onMessageRef.current) return undefined
