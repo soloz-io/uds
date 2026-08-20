@@ -1,6 +1,6 @@
-import { getLayoutedElements } from '../WorkflowCanvas/layout-engine';
-import { DEVICE_PRESETS } from '../../composites/DevicePreviewNode/interfaces';
-import type { WorkflowEdge, WorkflowNode } from '../WorkflowCanvas/interfaces';
+import { getLayoutedElements } from '@/lib/workflow/layout-engine';
+import { DEVICE_PRESETS } from '@/components/composites/DevicePreviewNode/interfaces';
+import type { WorkflowEdge, WorkflowNode } from '@/lib/workflow/interfaces';
 import type { AppRouteManifest } from './interfaces';
 
 export interface PreviewLayoutOptions {

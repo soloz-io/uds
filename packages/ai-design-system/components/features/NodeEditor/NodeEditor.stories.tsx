@@ -98,7 +98,7 @@ function NodeEditorWithDevicePreviewStory() {
 
     // Grid / play: full Bookgeek flow loaded from compiled bookgeek.preview.json
     import("@/components/blocks/PreviewCanvas/preview-layout").then(({ deviceNodeSize }) => {
-      import("@/components/blocks/WorkflowCanvas/layout-engine").then(({ getLayoutedElements }) => {
+      import("@/lib/workflow/layout-engine").then(({ getLayoutedElements }) => {
         const devSize = deviceNodeSize(presetId, true);
 
         // Inject runtime states + preview src into JSON nodes

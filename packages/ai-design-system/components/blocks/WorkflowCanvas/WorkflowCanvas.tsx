@@ -18,7 +18,7 @@ import { TransitionNode } from "@/components/composites/TransitionNode";
 import { TriggerNode } from "@/components/composites/TriggerNode";
 import { SpatialContainerNode } from "@/components/composites/SpatialContainerNode";
 import { DevicePreviewNode } from "@/components/composites/DevicePreviewNode";
-import type { WorkflowCanvasProps, WorkflowEdge } from "./interfaces";
+import type { WorkflowCanvasProps, WorkflowEdge } from "@/lib/workflow/interfaces";
 import "@xyflow/react/dist/style.css";
 
 const edgeTypes = {
