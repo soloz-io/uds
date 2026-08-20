@@ -66,6 +66,8 @@ export interface DevicePreviewNodeData {
   label?: string
   /** Current device preset id (see `DEVICE_PRESETS`). */
   presetId?: string
+  /** Visual scale factor for compact canvas mode (e.g. 0.6). Defaults to 0.6 when hideControls is true, 1.0 otherwise. */
+  scale?: number
   /** Workflow-agnostic status badge, kept for canvas-wide consistency. */
   status?: "idle" | "running" | "success" | "error"
   /** Called when the user changes the device preset. */

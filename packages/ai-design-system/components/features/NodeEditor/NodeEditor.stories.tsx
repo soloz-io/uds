@@ -45,72 +45,7 @@ type Story = StoryObj<typeof meta>;
 /* ─── Shared preview URL ─── */
 const DEVICE_PREVIEW_SRC = "http://localhost:8081";
 
-/** Canonical app flow graph — topology only, no positions (ELK assigns those). */
-const BOOKGEEK_MANIFEST = {
-  appId: 'bookgeek',
-  routes: [
-    { id: 'welcome',          path: '/welcome',          label: 'Welcome',              isInitial: true },
-    { id: 'signin',           path: '/signin',           label: 'Sign In' },
-    { id: 'signup',           path: '/signup',           label: 'Sign Up' },
-    { id: 'google-signup',    path: '/google-signup',    label: 'Sign Up with Google' },
-    { id: 'categories',       path: '/categories',       label: 'Select genres' },
-    { id: 'authors',          path: '/authors',          label: 'Authors' },
-    { id: 'subscribe',        path: '/subscribe',        label: 'Subscribe' },
-    { id: 'discount',         path: '/discount',         label: 'My Discount' },
-    { id: 'checkout',         path: '/checkout',         label: 'Checkout' },
-    { id: 'checkout-voucher', path: '/checkout-voucher', label: 'Checkout with Voucher' },
-    { id: 'otp',              path: '/otp',              label: 'OTP Verification' },
-    { id: 'payment-success',  path: '/payment-success',  label: 'Payment Success' },
-    { id: 'payment-declined', path: '/payment-declined', label: 'Payment Declined' },
-  ],
-  links: [
-    // Welcome → Sign In (yes) / Sign Up (no)
-    { fromRouteId: 'welcome',          toRouteId: 'signin',           sourceHandle: 'btn-get-started', label: 'Yes' },
-    { fromRouteId: 'welcome',          toRouteId: 'signup',           sourceHandle: 'btn-get-started', label: 'No' },
-    // Sign In → content
-    { fromRouteId: 'signin',           toRouteId: 'subscribe',        sourceHandle: 'btn-signin-submit', label: 'To content' },
-    // Sign Up → onboarding / Google
-    { fromRouteId: 'signup',           toRouteId: 'categories',       sourceHandle: 'btn-signup-submit', label: 'To onboarding' },
-    { fromRouteId: 'signup',           toRouteId: 'google-signup',    sourceHandle: 'btn-signup-google', label: 'Google sign up' },
-    // Google Sign Up → content
-    { fromRouteId: 'google-signup',    toRouteId: 'subscribe',        sourceHandle: 'btn-google-continue', label: 'To content' },
-    // Onboarding chain
-    { fromRouteId: 'categories',       toRouteId: 'authors',          sourceHandle: 'btn-cat-next',    label: 'Next step' },
-    { fromRouteId: 'authors',          toRouteId: 'subscribe',        sourceHandle: 'btn-authors-done', label: 'To content' },
-    // Subscribe → voucher / direct checkout
-    { fromRouteId: 'subscribe',        toRouteId: 'discount',         sourceHandle: 'btn-add-voucher',  label: 'Add voucher' },
-    { fromRouteId: 'subscribe',        toRouteId: 'checkout',         sourceHandle: 'btn-activate-now', label: 'Checkout without voucher' },
-    // Discount → checkout with voucher
-    { fromRouteId: 'discount',         toRouteId: 'checkout-voucher', sourceHandle: 'btn-apply-voucher', label: 'Checkout with voucher' },
-    // Both checkouts → OTP
-    { fromRouteId: 'checkout',         toRouteId: 'otp',              sourceHandle: 'btn-pay-otp',      label: 'To OTP' },
-    { fromRouteId: 'checkout-voucher', toRouteId: 'otp',              sourceHandle: 'btn-pay-voucher-otp', label: 'To OTP' },
-    // OTP → success / declined
-    { fromRouteId: 'otp', toRouteId: 'payment-success',  sourceHandle: 'btn-verify-otp', label: 'Yes' },
-    { fromRouteId: 'otp', toRouteId: 'payment-declined', sourceHandle: 'btn-verify-otp', label: 'No' },
-  ],
-};
-
-/** Per-route action ports used in grid/play view for DOM-reflection handles. */
-const BOOKGEEK_ACTION_PORTS: Record<string, Array<{ id: string; label?: string; top: number }>> = {
-  welcome:          [{ id: 'btn-get-started',     label: 'Get Started',         top: 430 }],
-  signin:           [{ id: 'btn-signin-submit',   label: 'Sign In',             top: 160 }],
-  signup:           [
-    { id: 'btn-signup-submit', label: 'Sign Up',              top: 560 },
-    { id: 'btn-signup-google', label: 'Sign Up with Google',  top: 590 },
-  ],
-  'google-signup':  [{ id: 'btn-google-continue', label: 'Sign In',             top: 935 }],
-  categories:       [{ id: 'btn-cat-next',         label: 'Next',                top: 640 }],
-  authors:          [{ id: 'btn-authors-done',     label: 'Done',                top: 640 }],
-  subscribe:        [
-    { id: 'btn-add-voucher',   label: 'Add Voucher',          top: 595 },
-    { id: 'btn-activate-now',  label: 'Activate Now',         top: 680 },
-  ],
-  discount:         [{ id: 'btn-apply-voucher',    label: 'Apply',               top: 370 }],
-  checkout:         [{ id: 'btn-pay-otp',          label: 'Pay',                 top: 440 }],
-  'checkout-voucher': [{ id: 'btn-pay-voucher-otp', label: 'Pay',               top: 660 }],
-  otp:              [{ id: 'btn-verify-otp',       label: 'Verify and Proceed',  top: 675 }],
-};
+import bookgeekWorkflow from "./bookgeek.preview.json";
 
 function NodeEditorWithDevicePreviewStory() {
   const [viewMode, setViewMode] = React.useState<DevicePreviewViewMode>("grid");
@@ -126,12 +61,23 @@ function NodeEditorWithDevicePreviewStory() {
     error: nodeState === "error" ? "The Metro dev server is unreachable." : undefined,
   };
 
-  // Run ELK layout whenever view mode or preset changes — same pattern as useNodeEditor.ts
+  const previewRoutes = React.useMemo(() => {
+    return (bookgeekWorkflow.nodes as WorkflowNode[])
+      .filter((n) => n.type === "devicePreview")
+      .map((n) => ({
+        id: n.id.replace(/^preview-/, ""),
+        label: (n.data?.label as string) || n.id,
+        path: (n.data?.route as string) || `/${n.id}`,
+        isInitial: !!n.data?.isInitial,
+      }));
+  }, []);
+
+  // Run ELK layout whenever view mode or preset changes — loading directly from compiled bookgeek.preview.json
   React.useEffect(() => {
     if (viewMode !== "grid" && viewMode !== "play") {
       // Single / interactive: one node, no layout needed
-      const resolved = activeRoute ?? BOOKGEEK_MANIFEST.routes.find((r) => r.isInitial)?.id ?? BOOKGEEK_MANIFEST.routes[0]?.id;
-      const route = BOOKGEEK_MANIFEST.routes.find((r) => r.id === resolved);
+      const resolved = activeRoute ?? previewRoutes.find((r) => r.isInitial)?.id ?? previewRoutes[0]?.id;
+      const route = previewRoutes.find((r) => r.id === resolved);
       setLayoutNodes([{
         id: "preview-active",
         type: "devicePreview",
@@ -150,90 +96,31 @@ function NodeEditorWithDevicePreviewStory() {
       return;
     }
 
-    // Grid / play: full Bookgeek flow — devicePreview nodes + condition transition nodes + all edges.
-    // We call getLayoutedElements directly so ELK receives ALL node types and can lay them out together.
+    // Grid / play: full Bookgeek flow loaded from compiled bookgeek.preview.json
     import("@/components/blocks/PreviewCanvas/preview-layout").then(({ deviceNodeSize }) => {
       import("@/components/blocks/WorkflowCanvas/layout-engine").then(({ getLayoutedElements }) => {
         const devSize = deviceNodeSize(presetId, true);
 
-        // ── All nodes: 13 screens + 2 condition diamonds ──────────────────────────
-        const allNodes: WorkflowNode[] = [
-          // Device screen nodes
-          ...BOOKGEEK_MANIFEST.routes.map((r) => ({
-            id: `preview-${r.id}`,
-            type: "devicePreview" as const,
-            position: { x: 0, y: 0 },
-            data: {
-              type: "devicePreview" as const,
-              src: DEVICE_PREVIEW_SRC,
-              route: r.path,
-              label: r.label,
-              presetId,
-              isInitial: r.isInitial,
-              hideControls: true,
-              actionPorts: BOOKGEEK_ACTION_PORTS[r.id] ?? [],
-              ...states,
-            },
-          })),
-          // Condition: Existing user? (between Welcome and Sign In / Sign Up)
-          {
-            id: "cond-existing-user",
-            type: "transition" as const,
-            position: { x: 0, y: 0 },
-            data: {
-              type: "transition" as const,
-              label: "Existing user?",
-              transitionType: "conditional" as const,
-              description: "Branch to Sign In or Sign Up",
-            },
-          },
-          // Condition: OTP Verified? (after OTP screen)
-          {
-            id: "cond-otp-verified",
-            type: "transition" as const,
-            position: { x: 0, y: 0 },
-            data: {
-              type: "transition" as const,
-              label: "OTP Verified?",
-              transitionType: "conditional" as const,
-              description: "Verify SMS code",
-            },
-          },
-        ];
+        // Inject runtime states + preview src into JSON nodes
+        const rawNodes = (bookgeekWorkflow.nodes as WorkflowNode[]).map((n) => {
+          if (n.type === "devicePreview") {
+            return {
+              ...n,
+              data: {
+                ...n.data,
+                src: DEVICE_PREVIEW_SRC,
+                presetId,
+                hideControls: true,
+                ...states,
+              },
+            };
+          }
+          return n;
+        });
 
-        // ── Edges: screen → condition → screen connections ────────────────────────
-        const allEdges: WorkflowEdge[] = [
-          // Welcome → Existing user? condition
-          { id: "e-welcome-cond", source: "preview-welcome", target: "cond-existing-user", sourceHandle: "btn-get-started", type: "straight" },
-          // Condition → Sign In / Sign Up branches
-          { id: "e-cond-signin",  source: "cond-existing-user", target: "preview-signin",  label: "Yes", type: "straight" },
-          { id: "e-cond-signup",  source: "cond-existing-user", target: "preview-signup",  label: "No",  type: "straight" },
-          // Sign In → content
-          { id: "e-signin-subscribe", source: "preview-signin", target: "preview-subscribe", sourceHandle: "btn-signin-submit", label: "To content", type: "straight" },
-          // Sign Up → onboarding / Google
-          { id: "e-signup-cat",    source: "preview-signup", target: "preview-categories",  sourceHandle: "btn-signup-submit",  label: "To onboarding", type: "straight" },
-          { id: "e-signup-google", source: "preview-signup", target: "preview-google-signup", sourceHandle: "btn-signup-google", label: "Google sign up", type: "straight" },
-          // Google Sign Up → content
-          { id: "e-google-subscribe", source: "preview-google-signup", target: "preview-subscribe", sourceHandle: "btn-google-continue", label: "To content", type: "straight" },
-          // Onboarding chain
-          { id: "e-cat-authors",      source: "preview-categories", target: "preview-authors",   sourceHandle: "btn-cat-next",    label: "Next step",  type: "straight" },
-          { id: "e-authors-subscribe", source: "preview-authors",   target: "preview-subscribe", sourceHandle: "btn-authors-done", label: "To content", type: "straight" },
-          // Subscribe → voucher / direct checkout
-          { id: "e-subscribe-discount",  source: "preview-subscribe", target: "preview-discount",         sourceHandle: "btn-add-voucher",  label: "Add voucher",              type: "straight" },
-          { id: "e-subscribe-checkout",  source: "preview-subscribe", target: "preview-checkout",          sourceHandle: "btn-activate-now", label: "Checkout without voucher", type: "straight" },
-          // Discount → checkout with voucher
-          { id: "e-discount-checkout-v", source: "preview-discount", target: "preview-checkout-voucher", sourceHandle: "btn-apply-voucher", label: "Checkout with voucher", type: "straight" },
-          // Both checkouts → OTP
-          { id: "e-checkout-otp",   source: "preview-checkout",         target: "preview-otp", sourceHandle: "btn-pay-otp",         label: "To OTP", type: "straight" },
-          { id: "e-checkout-v-otp", source: "preview-checkout-voucher", target: "preview-otp", sourceHandle: "btn-pay-voucher-otp", label: "To OTP", type: "straight" },
-          // OTP → OTP Verified? condition
-          { id: "e-otp-cond", source: "preview-otp", target: "cond-otp-verified", sourceHandle: "btn-verify-otp", type: "straight" },
-          // Condition → Payment results
-          { id: "e-cond-success",  source: "cond-otp-verified", target: "preview-payment-success",  label: "Yes", type: "straight" },
-          { id: "e-cond-declined", source: "cond-otp-verified", target: "preview-payment-declined", label: "No",  type: "straight" },
-        ];
+        const rawEdges = bookgeekWorkflow.edges as WorkflowEdge[];
 
-        return getLayoutedElements(allNodes, allEdges, {
+        return getLayoutedElements(rawNodes, rawEdges, {
           direction: "RIGHT",
           nodeSpacingX: devSize.width * 0.4,
           nodeSpacingY: devSize.height * 0.3,
@@ -249,7 +136,7 @@ function NodeEditorWithDevicePreviewStory() {
       });
     }).catch((err) => {
       console.error("[BookgeekStory] ELK layout failed, falling back to simple row:", err);
-      const fallback = BOOKGEEK_MANIFEST.routes.map((r, i) => ({
+      const fallback = previewRoutes.map((r, i) => ({
         id: `preview-${r.id}`,
         type: "devicePreview" as const,
         position: { x: i * 560, y: 200 },
@@ -259,7 +146,7 @@ function NodeEditorWithDevicePreviewStory() {
       setLayoutEdges([]);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewMode, presetId, nodeState]);
+  }, [viewMode, presetId, nodeState, previewRoutes]);
 
   const handleTakeScreenshot = (request: DeviceScreenshotRequest) => {
     console.log("screenshot requested for", request.route);
@@ -318,7 +205,7 @@ function NodeEditorWithDevicePreviewStory() {
             <DevicePreviewToolbar
               viewMode={viewMode}
               onViewModeChange={setViewMode}
-              routes={BOOKGEEK_MANIFEST.routes.map((r) => ({ id: r.id, label: r.label }))}
+              routes={previewRoutes.map((r) => ({ id: r.id, label: r.label }))}
               activeRoute={activeRoute}
               onRouteChange={setActiveRoute}
               devicePresetId={presetId}

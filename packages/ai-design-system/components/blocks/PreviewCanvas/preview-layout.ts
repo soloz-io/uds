@@ -21,18 +21,20 @@ export interface PreviewLayoutOptions {
 export function deviceNodeSize(
   presetId: string,
   hideControls = true,
+  scale = 0.45,
 ): { width: number; height: number } {
   const preset =
     DEVICE_PRESETS.find((p) => p.id === presetId) ??
     DEVICE_PRESETS.find((p) => p.id === 'iphone-16-pro') ??
     DEVICE_PRESETS[0];
 
-  if (preset.isResponsive) {
-    return { width: 420, height: 780 };
-  }
+  const baseWidth = preset.isResponsive ? 420 : preset.width;
+  const baseHeight = preset.isResponsive ? 780 : preset.height;
+
+  const effectiveScale = hideControls ? scale : 1.0;
   return {
-    width:  preset.width  + (hideControls ? 16 : 32),
-    height: preset.height + (hideControls ? 16 : 88),
+    width: Math.round(baseWidth * effectiveScale) + (hideControls ? 12 : 32),
+    height: Math.round(baseHeight * effectiveScale) + (hideControls ? 12 : 88),
   };
 }
 

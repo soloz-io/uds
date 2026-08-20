@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useRef, useState } from "react";
+import { memo, useMemo, useRef, useState } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { ExpoAppPreview } from "@/components/ai-elements/ExpoAppPreview";
 import { Badge } from "@/components/primitives/Badge";
@@ -54,6 +54,19 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
   const [reloadKey, setReloadKey] = useState(0);
   const registeredRef = useRef<HTMLIFrameElement | null>(null);
 
+  const effectiveSrc = useMemo(() => {
+    if (!data?.src) return "";
+    if (!data?.route) return data.src;
+    try {
+      const url = new URL(data.src, typeof window !== "undefined" ? window.location.href : "http://localhost");
+      url.searchParams.set("route", data.route);
+      return url.toString();
+    } catch {
+      const sep = data.src.includes("?") ? "&" : "?";
+      return `${data.src}${sep}route=${encodeURIComponent(data.route)}`;
+    }
+  }, [data?.src, data?.route]);
+
   if (!data) {
     return null;
   }
@@ -72,25 +85,31 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
     data.onTakeScreenshot?.({ route: data.route, iframe });
   };
 
-  const screenWidth = preset.isResponsive ? "100%" : preset.width;
-  const screenHeight = preset.isResponsive ? "100%" : preset.height;
+  const scale = data.scale ?? (data.hideControls ? 0.45 : 1.0);
+  const baseWidth = preset.isResponsive ? 420 : preset.width;
+  const baseHeight = preset.isResponsive ? 780 : preset.height;
+
+  const screenWidth = Math.round(baseWidth * scale);
+  const screenHeight = Math.round(baseHeight * scale);
+  const outerWidth = screenWidth + (data.hideControls ? 12 : 32);
+  const outerHeight = screenHeight + (data.hideControls ? 12 : 88);
 
   return (
     <div
       className={cn(
-        "relative rounded-[2.5rem] border-4 border-slate-300 dark:border-slate-700 bg-card p-2 shadow-2xl",
+        "relative rounded-[1.75rem] border-3 border-slate-300 dark:border-slate-700 bg-card p-1.5 shadow-2xl",
         "transition-all duration-150 ease-out",
-        data.hideControls && "p-1.5 rounded-[2.25rem] border-[3px]"
+        !data.hideControls && "p-2 rounded-[2.5rem] border-4"
       )}
       data-testid={`device-preview-node-${id}`}
       style={{
-        width: preset.isResponsive ? undefined : preset.width + (data.hideControls ? 16 : 32),
-        height: preset.isResponsive ? undefined : preset.height + (data.hideControls ? 16 : 88),
+        width: preset.isResponsive ? undefined : outerWidth,
+        height: preset.isResponsive ? undefined : outerHeight,
       }}
     >
       {/* Top eyebrow title above device frame */}
       {data.label && (
-        <div className="absolute -top-7 left-0 right-0 text-center text-xs font-semibold text-muted-foreground tracking-wider uppercase">
+        <div className="absolute -top-6 left-0 right-0 text-center text-[11px] font-semibold text-muted-foreground tracking-wider uppercase">
           {data.label}
         </div>
       )}
@@ -156,23 +175,32 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
       {/* Device screen */}
       <div
         className={cn(
-          "relative overflow-hidden rounded-[1.75rem] border border-border/40 bg-background",
+          "relative overflow-hidden rounded-[1.25rem] border border-border/40 bg-background",
           data.interactive !== true && "pointer-events-none",
         )}
         style={{ width: screenWidth, height: screenHeight }}
       >
-        <ExpoAppPreview
-          key={reloadKey}
-          src={data.src}
-          title={data.label ? `${data.label} preview` : "App preview"}
-          loading={data.loading}
-          isEmpty={data.isEmpty}
-          error={data.error}
-          registerIframe={(el) => {
-            registeredRef.current = el;
-            data.registerIframe?.(el);
+        <div
+          style={{
+            width: baseWidth,
+            height: baseHeight,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
           }}
-        />
+        >
+          <ExpoAppPreview
+            key={reloadKey}
+            src={effectiveSrc}
+            title={data.label ? `${data.label} preview` : "App preview"}
+            loading={data.loading}
+            isEmpty={data.isEmpty}
+            error={data.error}
+            registerIframe={(el) => {
+              registeredRef.current = el;
+              data.registerIframe?.(el);
+            }}
+          />
+        </div>
 
         {data.showRouteBadge && data.route && (
           <div className="absolute bottom-2 left-2">
@@ -204,8 +232,8 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
             id={port.id}
             type="source"
             position={Position.Right}
-            style={{ top: port.top }}
-            className="!h-3 !w-3 !bg-blue-600 !border-2 !border-white shadow-sm"
+            style={{ top: (data.hideControls ? 6 : 40) + port.top * scale }}
+            className="!h-2.5 !w-2.5 !bg-blue-600 !border-2 !border-white shadow-sm"
           />
         ))}
 

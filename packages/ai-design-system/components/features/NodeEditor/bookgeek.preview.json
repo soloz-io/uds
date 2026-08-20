@@ -1,0 +1,311 @@
+{
+  "name": "expo-preview-app-workflow",
+  "version": "1",
+  "preset": "iphone-16-pro",
+  "nodes": [
+    {
+      "id": "preview-welcome",
+      "type": "devicePreview",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "devicePreview",
+        "route": "/welcome",
+        "label": "Welcome",
+        "isInitial": true,
+        "presetId": "iphone-16-pro",
+        "hideControls": true,
+        "actionPorts": [
+          {
+            "id": "btn-get-started",
+            "label": "Get Started",
+            "top": 779
+          }
+        ]
+      }
+    },
+    {
+      "id": "transition-get-started",
+      "type": "transition",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "transition",
+        "label": "Get Started",
+        "action": {
+          "after": []
+        }
+      }
+    },
+    {
+      "id": "preview-signup",
+      "type": "devicePreview",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "devicePreview",
+        "route": "/signup",
+        "label": "Sign Up",
+        "isInitial": false,
+        "presetId": "iphone-16-pro",
+        "hideControls": true,
+        "actionPorts": [
+          {
+            "id": "btn-signup-submit",
+            "label": "Sign Up",
+            "top": 371
+          }
+        ]
+      }
+    },
+    {
+      "id": "transition-signup-categories",
+      "type": "transition",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "transition",
+        "label": "To onboarding",
+        "action": {
+          "after": []
+        }
+      }
+    },
+    {
+      "id": "preview-categories",
+      "type": "devicePreview",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "devicePreview",
+        "route": "/categories",
+        "label": "Categories",
+        "isInitial": false,
+        "presetId": "iphone-16-pro",
+        "hideControls": true,
+        "actionPorts": [
+          {
+            "id": "btn-cat-next",
+            "label": "Next",
+            "top": 791
+          }
+        ]
+      }
+    },
+    {
+      "id": "transition-categories-authors",
+      "type": "transition",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "transition",
+        "label": "Next step",
+        "action": {
+          "after": []
+        }
+      }
+    },
+    {
+      "id": "preview-authors",
+      "type": "devicePreview",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "devicePreview",
+        "route": "/authors",
+        "label": "Authors",
+        "isInitial": false,
+        "presetId": "iphone-16-pro",
+        "hideControls": true,
+        "actionPorts": [
+          {
+            "id": "btn-authors-done",
+            "label": "Done",
+            "top": 791
+          }
+        ]
+      }
+    },
+    {
+      "id": "preview-signin",
+      "type": "devicePreview",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "devicePreview",
+        "route": "/signin",
+        "label": "Sign In",
+        "isInitial": false,
+        "presetId": "iphone-16-pro",
+        "hideControls": true,
+        "actionPorts": [
+          {
+            "id": "btn-signin-submit",
+            "label": "Sign In",
+            "top": 307
+          }
+        ]
+      }
+    },
+    {
+      "id": "preview-google-signup",
+      "type": "devicePreview",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "devicePreview",
+        "route": "/google-signup",
+        "label": "Sign Up with Google",
+        "isInitial": false,
+        "presetId": "iphone-16-pro",
+        "hideControls": true,
+        "actionPorts": [
+          {
+            "id": "btn-google-continue",
+            "label": "Sign Up",
+            "top": 327
+          }
+        ]
+      }
+    },
+    {
+      "id": "transition-to-content",
+      "type": "transition",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "transition",
+        "label": "To content",
+        "action": {
+          "after": []
+        }
+      }
+    },
+    {
+      "id": "preview-home",
+      "type": "devicePreview",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "type": "devicePreview",
+        "route": "/home",
+        "label": "Home",
+        "isInitial": false,
+        "presetId": "iphone-16-pro",
+        "hideControls": true,
+        "actionPorts": [
+          {
+            "id": "btn-profile",
+            "label": "Manage profile",
+            "top": 83
+          },
+          {
+            "id": "card-book-1",
+            "label": "View book",
+            "top": 450
+          },
+          {
+            "id": "tab-discover",
+            "label": "Discover",
+            "top": 826
+          },
+          {
+            "id": "tab-collection",
+            "label": "Collection",
+            "top": 826
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-preview-welcome-transition-get-started",
+      "source": "preview-welcome",
+      "target": "transition-get-started",
+      "sourceHandle": "btn-get-started",
+      "type": "straight"
+    },
+    {
+      "id": "e-transition-get-started-preview-signup",
+      "source": "transition-get-started",
+      "target": "preview-signup",
+      "type": "straight"
+    },
+    {
+      "id": "e-preview-signup-transition-signup-categories",
+      "source": "preview-signup",
+      "target": "transition-signup-categories",
+      "sourceHandle": "btn-signup-submit",
+      "type": "straight"
+    },
+    {
+      "id": "e-transition-signup-categories-preview-categories",
+      "source": "transition-signup-categories",
+      "target": "preview-categories",
+      "type": "straight"
+    },
+    {
+      "id": "e-preview-categories-transition-categories-authors",
+      "source": "preview-categories",
+      "target": "transition-categories-authors",
+      "sourceHandle": "btn-cat-next",
+      "type": "straight"
+    },
+    {
+      "id": "e-transition-categories-authors-preview-authors",
+      "source": "transition-categories-authors",
+      "target": "preview-authors",
+      "type": "straight"
+    },
+    {
+      "id": "e-preview-authors-transition-to-content",
+      "source": "preview-authors",
+      "target": "transition-to-content",
+      "sourceHandle": "btn-authors-done",
+      "type": "straight"
+    },
+    {
+      "id": "e-preview-signin-transition-to-content",
+      "source": "preview-signin",
+      "target": "transition-to-content",
+      "sourceHandle": "btn-signin-submit",
+      "type": "straight"
+    },
+    {
+      "id": "e-preview-google-signup-transition-to-content",
+      "source": "preview-google-signup",
+      "target": "transition-to-content",
+      "sourceHandle": "btn-google-continue",
+      "type": "straight"
+    },
+    {
+      "id": "e-transition-to-content-preview-home",
+      "source": "transition-to-content",
+      "target": "preview-home",
+      "type": "straight"
+    }
+  ]
+}
