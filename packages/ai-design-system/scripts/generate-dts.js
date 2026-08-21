@@ -136,10 +136,11 @@ async function generateDts() {
 // DO NOT EDIT MANUALLY - This file is auto-generated
 
 import * as React from 'react';
+import type { Node, Connection, EdgeChange, NodeChange, OnConnectStartParams } from '@xyflow/react';
 
 `;
 
-  const interfaceFiles = await glob('components/**/interfaces.ts', {
+  const interfaceFiles = await glob('{components,lib}/**/interfaces.ts', {
     cwd: path.join(__dirname, '..'),
     absolute: true,
   });
@@ -354,6 +355,7 @@ import * as React from 'react';
 // ============================================================================
 
 export declare const SectionLayout: React.FC<SectionLayoutProps>;
+export declare const WorkflowCanvas: React.FC<WorkflowCanvasProps>;
 export declare function getLayoutedElements(nodes: any[], edges: any[]): Promise<{ nodes: any[]; edges: any[] }>;
 export declare function bmcToCanvas(bmc: CompiledBmc | null, message?: string): BmcCanvasView;
 export declare function addEdge(edgeParams: any, edges: any[]): any[];
