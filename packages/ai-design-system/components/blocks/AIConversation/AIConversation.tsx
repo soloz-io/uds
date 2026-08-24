@@ -6,6 +6,11 @@ import {
   ConversationScrollButton,
   type ConversationProps,
 } from "@/components/ai-elements/conversation"
+import {
+  Checkpoint,
+  CheckpointIcon,
+  CheckpointTrigger,
+} from "@/components/ai-elements/checkpoint"
 import type { ToolCall, SubAgent } from "@/components/composites"
 import { UserMessage } from "@/components/composites/UserMessage"
 import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
@@ -40,6 +45,7 @@ interface AIMessage {
   subAgents?: SubAgent[];
   isLoading?: boolean;
   blocks?: AIMessageBlock[];
+  checkpointId?: string;
 }
 
 export interface AIConversationProps
@@ -77,6 +83,10 @@ export interface AIConversationProps
    * Receives the raw content string and returns a ReactNode.
    */
   renderSystemMessage?: (content: string) => React.ReactNode
+  /**
+   * Callback fired when user restores a conversation checkpoint
+   */
+  onRestoreCheckpoint?: (messageId: string, checkpointId: string) => void
 }
 
 /**
@@ -91,6 +101,7 @@ export const AIConversation = React.memo<AIConversationProps>(
     emptyState,
     onToolAction,
     renderSystemMessage,
+    onRestoreCheckpoint,
     ...conversationProps
   }) => {
     const isEmpty = React.useMemo(
@@ -209,6 +220,9 @@ export const AIConversation = React.memo<AIConversationProps>(
               }
               currentGroup.blocks = updatedBlocks;
             }
+            if (msg.checkpointId) {
+              currentGroup.checkpointId = msg.checkpointId;
+            }
             currentGroup.isLoading = msg.isLoading;
           } else {
             currentGroup = {
@@ -216,6 +230,7 @@ export const AIConversation = React.memo<AIConversationProps>(
               toolCalls: msg.toolCalls ? [...msg.toolCalls] : undefined,
               subAgents: msg.subAgents ? [...msg.subAgents] : undefined,
               blocks: msg.blocks ? [...msg.blocks] : undefined,
+              checkpointId: msg.checkpointId,
             };
             result.push(currentGroup);
           }
@@ -269,7 +284,7 @@ export const AIConversation = React.memo<AIConversationProps>(
             )
           }
 
-          if (message.role === "orchestrator") {
+          if (message.role === "orchestrator" || message.role === "assistant" || (!message.role && message.type === "ai")) {
             // Extract sub-agents from the message
             const subAgents = message.subAgents || []
 
@@ -296,39 +311,65 @@ export const AIConversation = React.memo<AIConversationProps>(
             const isStreaming = message.isLoading || reasoningCalls.some((tc) => tc.status === "pending") || subAgents.some(sa => sa.status === "active") || directToolCalls.some(tc => tc.status === "pending")
 
             return (
-              <OrchestratorMessage
-                key={message.id}
-                message={{
-                  id: message.id,
-                  content: displayContentStr,
-                  avatarSrc: message.avatarSrc,
-                  avatarName: message.avatarName,
-                  isLoading: message.isLoading && !hasReasoning,
-                }}
-                showAvatar={showAvatars && hasDisplayContent}
-              >
-                {/* Render reasoning-section for hidden tool results and subagents */}
-                {hasReasoning && (
-                  <ReasoningDisplay 
-                    content={reasoningText} 
-                    items={message.blocks && message.blocks.length > 0 ? [] : reasoningCalls} 
-                    isStreaming={isStreaming} 
-                    onToolAction={onToolAction}
-                    defaultOpen={isStreaming || index === groupedMessages.length - 1}
-                  >
-                    {message.blocks && message.blocks.length > 0 ? (
-                      message.blocks.map((block, i) => {
-                        if (block.type === 'text') {
-                          return block.text && block.text.trim() ? (
-                            <div key={`text-${i}`} className="mb-4 text-muted-foreground whitespace-pre-wrap">
-                              {block.text}
-                            </div>
-                          ) : null;
-                        } else if (block.type === 'toolCall' && block.toolCall && block.toolCall.name !== 'ask_user' && block.toolCall.name !== 'ask_question') {
-                          return <ToolCallDisplay key={block.id} toolCall={block.toolCall} onToolAction={onToolAction} />;
-                        } else if (block.type === 'subAgent' && block.subAgent) {
-                          const subAgent = block.subAgent;
-                          return (
+              <React.Fragment key={message.id}>
+                <OrchestratorMessage
+                  message={{
+                    id: message.id,
+                    content: displayContentStr,
+                    avatarSrc: message.avatarSrc,
+                    avatarName: message.avatarName,
+                    isLoading: message.isLoading && !hasReasoning,
+                  }}
+                  showAvatar={showAvatars && hasDisplayContent}
+                >
+                  {/* Render reasoning-section for hidden tool results and subagents */}
+                  {hasReasoning && (
+                    <ReasoningDisplay 
+                      content={reasoningText} 
+                      items={message.blocks && message.blocks.length > 0 ? [] : reasoningCalls} 
+                      isStreaming={isStreaming} 
+                      onToolAction={onToolAction}
+                      defaultOpen={isStreaming || index === groupedMessages.length - 1}
+                    >
+                      {message.blocks && message.blocks.length > 0 ? (
+                        message.blocks.map((block, i) => {
+                          if (block.type === 'text') {
+                            return block.text && block.text.trim() ? (
+                              <div key={`text-${i}`} className="mb-4 text-muted-foreground whitespace-pre-wrap">
+                                {block.text}
+                              </div>
+                            ) : null;
+                          } else if (block.type === 'toolCall' && block.toolCall && block.toolCall.name !== 'ask_user' && block.toolCall.name !== 'ask_question') {
+                            return <ToolCallDisplay key={block.id} toolCall={block.toolCall} onToolAction={onToolAction} />;
+                          } else if (block.type === 'subAgent' && block.subAgent) {
+                            const subAgent = block.subAgent;
+                            return (
+                              <SpecialistMessage
+                                key={subAgent.id}
+                                message={{
+                                  id: subAgent.id,
+                                  name: subAgent.subAgentName,
+                                  description: undefined,
+                                  input: subAgent.input,
+                                  content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
+                                  status: subAgent.status,
+                                  toolCalls: [],
+                                }}
+                                isNested={true}
+                              />
+                            );
+                          }
+                          return null;
+                        })
+                      ) : (
+                        <>
+                          {/* Render direct tool calls fallback */}
+                          {directToolCalls.map((tc) => (
+                            <ToolCallDisplay key={tc.id} toolCall={tc} onToolAction={onToolAction} />
+                          ))}
+
+                          {/* Render specialist sub-agents fallback */}
+                          {subAgents.map((subAgent) => (
                             <SpecialistMessage
                               key={subAgent.id}
                               message={{
@@ -342,57 +383,57 @@ export const AIConversation = React.memo<AIConversationProps>(
                               }}
                               isNested={true}
                             />
-                          );
-                        }
-                        return null;
-                      })
-                    ) : (
-                      <>
-                        {/* Render direct tool calls fallback */}
-                        {directToolCalls.map((tc) => (
-                          <ToolCallDisplay key={tc.id} toolCall={tc} onToolAction={onToolAction} />
-                        ))}
-
-                        {/* Render specialist sub-agents fallback */}
-                        {subAgents.map((subAgent) => (
-                          <SpecialistMessage
-                            key={subAgent.id}
-                            message={{
-                              id: subAgent.id,
-                              name: subAgent.subAgentName,
-                              description: undefined,
-                              input: subAgent.input,
-                              content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
-                              status: subAgent.status,
-                              toolCalls: [],
-                            }}
-                            isNested={true}
-                          />
-                        ))}
-                      </>
-                    )}
-                  </ReasoningDisplay>
+                          ))}
+                        </>
+                      )}
+                    </ReasoningDisplay>
+                  )}
+                </OrchestratorMessage>
+                {message.checkpointId && onRestoreCheckpoint && !message.isLoading && !hasReasoning && (
+                  <Checkpoint>
+                    <CheckpointIcon />
+                    <CheckpointTrigger
+                      onClick={() =>
+                        onRestoreCheckpoint(message.id, message.checkpointId!)
+                      }
+                    >
+                      Restore checkpoint
+                    </CheckpointTrigger>
+                  </Checkpoint>
                 )}
-              </OrchestratorMessage>
+              </React.Fragment>
             )
           }
 
           // Default to specialist message for any other AI messages
           return (
-            <SpecialistMessage
-              key={message.id}
-              message={{
-                id: message.id,
-                name: message.avatarName || "Agent",
-                content: contentStr,
-                toolCalls: message.toolCalls?.filter((tc) => tc.name !== "task"),
-                status: "completed",
-              }}
-              isNested={false}
-            />
+            <React.Fragment key={message.id}>
+              <SpecialistMessage
+                message={{
+                  id: message.id,
+                  name: message.avatarName || "Agent",
+                  content: contentStr,
+                  toolCalls: message.toolCalls?.filter((tc) => tc.name !== "task"),
+                  status: "completed",
+                }}
+                isNested={false}
+              />
+              {message.checkpointId && onRestoreCheckpoint && !message.isLoading && (
+                <Checkpoint>
+                  <CheckpointIcon />
+                  <CheckpointTrigger
+                    onClick={() =>
+                      onRestoreCheckpoint(message.id, message.checkpointId!)
+                    }
+                  >
+                    Restore checkpoint
+                  </CheckpointTrigger>
+                </Checkpoint>
+              )}
+            </React.Fragment>
           )
         }),
-      [groupedMessages, showAvatars, onToolAction]
+      [groupedMessages, showAvatars, onToolAction, onRestoreCheckpoint]
     )
 
     return (

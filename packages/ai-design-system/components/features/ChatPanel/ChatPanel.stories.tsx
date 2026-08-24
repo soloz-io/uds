@@ -178,6 +178,7 @@ export const WithStateManagement: Story = {
       handleApprovalApprove,
       handleApprovalReject,
       isApprovalProcessing,
+      handleRestoreCheckpoint,
     } = useChatPanelMock({
       initialMessages: inputStateMessages,
       approvalRequest: approvalQuestionRequest,
@@ -200,6 +201,7 @@ export const WithStateManagement: Story = {
         onSubmit={onSubmit}
         onApprove={handleApprove}
         onReject={handleReject}
+        onRestoreCheckpoint={handleRestoreCheckpoint}
       />
     );
   },

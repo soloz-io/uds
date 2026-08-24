@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+import { fn } from '@storybook/test'
 import { AIConversation } from './AIConversation'
 
 const meta: Meta<typeof AIConversation> = {
@@ -160,5 +161,47 @@ export const UserOnly: Story = {
         avatarName: 'User',
       },
     ],
+  },
+}
+
+export const WithCheckpointRestore: Story = {
+  args: {
+    messages: [
+      {
+        id: '1',
+        type: 'human',
+        role: 'user',
+        content: 'What is React?',
+        avatarSrc: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+        avatarName: 'User',
+      },
+      {
+        id: '2',
+        type: 'ai',
+        role: 'orchestrator',
+        content: 'React is a JavaScript library for building user interfaces. It was developed by Facebook and is now maintained by Meta and a community of developers.',
+        avatarSrc: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+        avatarName: 'Coordinator',
+        checkpointId: 'cp-step-1',
+      },
+      {
+        id: '3',
+        type: 'human',
+        role: 'user',
+        content: 'How does component state work?',
+        avatarSrc: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+        avatarName: 'User',
+      },
+      {
+        id: '4',
+        type: 'ai',
+        role: 'orchestrator',
+        content: 'State in React represents values that can change over time and trigger component re-renders when updated.',
+        avatarSrc: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+        avatarName: 'Coordinator',
+        checkpointId: 'cp-step-2',
+      },
+    ],
+    onRestoreCheckpoint: fn(),
   },
 }

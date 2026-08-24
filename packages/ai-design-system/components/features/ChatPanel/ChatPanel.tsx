@@ -40,6 +40,7 @@ export interface RefinementMessage {
   toolCalls?: ToolCall[];
   subAgents?: SubAgent[];
   isLoading?: boolean;
+  checkpointId?: string;
 }
 
 /**
@@ -152,6 +153,10 @@ export interface ChatPanelProps {
    * Receives the raw content string and returns a ReactNode.
    */
   renderSystemMessage?: (content: string) => React.ReactNode;
+  /**
+   * Callback fired when user restores a conversation checkpoint
+   */
+  onRestoreCheckpoint?: (messageId: string, checkpointId: string) => void;
 }
 
 /**
@@ -184,6 +189,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onSelectSession,
     onDownloadSession,
     renderSystemMessage,
+    onRestoreCheckpoint,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -347,6 +353,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           showAvatars={true}
           onToolAction={onToolAction}
           renderSystemMessage={renderSystemMessage}
+          onRestoreCheckpoint={onRestoreCheckpoint}
           className="flex-1 min-h-0"
         />
         <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-card via-card to-transparent pt-6">

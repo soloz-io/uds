@@ -21,6 +21,7 @@ export interface UseChatPanelReturn {
   handleApprovalEdit?: (editedArgs: Record<string, unknown>) => Promise<void>;
   isApprovalProcessing?: boolean;
   handleToolAction?: (toolCall: ToolCall, action: string) => void;
+  handleRestoreCheckpoint?: (messageId: string, checkpointId: string) => Promise<void>;
 }
 
 export interface UseChatPanelOptions {
@@ -161,6 +162,16 @@ export function useChatPanelMock(
     setLoading(false);
   }, [apiDelay]);
 
+  const handleRestoreCheckpoint = useCallback(async (messageId: string, _checkpointId: string) => {
+    setLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, apiDelay));
+    setMessages((prev) => {
+      const idx = prev.findIndex((m) => m.id === messageId);
+      return idx !== -1 ? prev.slice(0, idx + 1) : prev;
+    });
+    setLoading(false);
+  }, [apiDelay]);
+
   return {
     messages,
     fileChanges,
@@ -176,5 +187,6 @@ export function useChatPanelMock(
     handleApprovalEdit: initialApprovalRequest ? handleApprovalEdit : undefined,
     isApprovalProcessing,
     handleToolAction: (toolCall, action) => console.log(`[Mock Tool Action] ${action} on tool:`, toolCall),
+    handleRestoreCheckpoint,
   };
 }

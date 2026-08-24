@@ -63,6 +63,9 @@ export interface UseChatPanelReturn {
 
   /** Handler to download the session chat history */
   handleDownloadSession?: () => Promise<FileDownloadResult | undefined>;
+
+  /** Handler to restore conversation to a prior checkpoint */
+  handleRestoreCheckpoint?: (messageId: string, checkpointId: string) => Promise<void> | void;
 }
 
 export function useChatPanel(options?: UseChatPanelOptions): UseChatPanelReturn;
