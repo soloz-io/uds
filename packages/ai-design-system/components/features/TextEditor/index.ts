@@ -22,3 +22,6 @@ export {
   sampleDocumentFiles,
   sampleMultiTabDocuments,
 } from './TextEditor.mocks'
+
+export { MediaPreview, isMediaFile, isVideoFile, isAudioFile, isImageFile, isPdfFile } from '@/components/composites/MediaPreview'
+export type { MediaPreviewProps } from '@/components/composites/MediaPreview'

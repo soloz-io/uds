@@ -34,6 +34,21 @@ type AIMessageBlock =
   | { type: 'toolCall'; id: string; toolCall: ToolCall }
   | { type: 'subAgent'; id: string; subAgent: SubAgent }
 
+// SpecialistMessage's `subAgents` prop expects string-only `output`, while
+// SubAgent allows structured output — normalize recursively when nesting.
+function toNestedSubAgents(
+  agents?: SubAgent[]
+): { id: string; subAgentName: string; status: SubAgent['status']; input?: string | Record<string, unknown>; output?: string; subAgents?: ReturnType<typeof toNestedSubAgents> }[] | undefined {
+  return agents?.map((a) => ({
+    id: a.id,
+    subAgentName: a.subAgentName,
+    status: a.status,
+    input: a.input,
+    output: typeof a.output === 'string' ? a.output : a.output ? JSON.stringify(a.output) : undefined,
+    subAgents: toNestedSubAgents(a.subAgents),
+  }));
+}
+
 interface AIMessage {
   id: string;
   type: 'human' | 'ai';
@@ -354,6 +369,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                                   content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
                                   status: subAgent.status,
                                   toolCalls: [],
+                                  subAgents: toNestedSubAgents(subAgent.subAgents),
                                 }}
                                 isNested={true}
                               />
@@ -380,6 +396,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                                 content: typeof subAgent.output === 'string' ? subAgent.output : (subAgent.output ? JSON.stringify(subAgent.output) : ''),
                                 status: subAgent.status,
                                 toolCalls: [],
+                                subAgents: toNestedSubAgents(subAgent.subAgents),
                               }}
                               isNested={true}
                             />

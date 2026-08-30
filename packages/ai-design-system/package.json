@@ -1,6 +1,6 @@
 {
   "name": "ai-design-system",
-  "version": "0.1.77",
+  "version": "0.1.78",
   "private": false,
   "type": "module",
   "description": "AI-powered design system with React components, built with Tailwind CSS and Radix UI - test",

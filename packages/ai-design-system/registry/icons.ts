@@ -636,6 +636,38 @@ export const defaultIcons: Record<string, IconDefinition> = {
       { type: 'path', attrs: { d: 'M18 12a2 2 0 0 0 0 4h4v-4Z' } },
     ],
   },
+  'film': {
+    name: 'film',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'rect', attrs: { width: '18', height: '18', x: '3', y: '3', rx: '2' } },
+      { type: 'path', attrs: { d: 'M7 3v18' } },
+      { type: 'path', attrs: { d: 'M3 7.5h4' } },
+      { type: 'path', attrs: { d: 'M3 12h18' } },
+      { type: 'path', attrs: { d: 'M3 16.5h4' } },
+      { type: 'path', attrs: { d: 'M17 3v18' } },
+      { type: 'path', attrs: { d: 'M17 7.5h4' } },
+      { type: 'path', attrs: { d: 'M17 16.5h4' } },
+    ],
+  },
+  'music': {
+    name: 'music',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M9 18V5l12-2v13' } },
+      { type: 'circle', attrs: { cx: '6', cy: '18', r: '3' } },
+      { type: 'circle', attrs: { cx: '18', cy: '16', r: '3' } },
+    ],
+  },
+  'image': {
+    name: 'image',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'rect', attrs: { width: '18', height: '18', x: '3', y: '3', rx: '2', ry: '2' } },
+      { type: 'circle', attrs: { cx: '9', cy: '9', r: '2' } },
+      { type: 'path', attrs: { d: 'm21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21' } },
+    ],
+  },
 };
 
 /**

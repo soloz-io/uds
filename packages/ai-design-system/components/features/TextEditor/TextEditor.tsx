@@ -41,13 +41,9 @@ import type { FileDownloadResult, FileTreeNode } from '@/components/composites/F
 import { cn } from '@/lib/utils'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation, User } from '@/types/ai-editor/annotations'
+import type { DocumentFile, DocumentWithAnnotations } from '@/types/ai-editor/editor'
 import { StreamingMarkdown } from '@/components/composites/StreamingMarkdown'
-
-interface DocumentWithAnnotations {
-  file: { id: string; name: string; isDirty?: boolean; format?: 'json' | 'markdown' | string; lastModified?: number }
-  content: JSONContent | string
-  annotations: Annotation[]
-}
+import { MediaPreview, isMediaFile } from '@/components/composites/MediaPreview'
 
 /**
  * Props for TextEditor feature component - Single document mode (backward compatible)
@@ -298,13 +294,6 @@ export const TextEditor = React.memo<TextEditorProps>(
             targetId = targetId.slice(2)
           }
 
-          console.log('[TextEditor:LinkComponent:handleClick]', {
-            href,
-            activeDocumentId: props.activeDocumentId,
-            computedTargetId: targetId,
-            documentsCount: props.documents?.length
-          })
-
           if (isMultiTab && props.documents) {
             const cleanTarget = targetId.replace(/^\.\//, '').replace(/^\//, '')
             const matchedDoc = props.documents.find((doc) => {
@@ -316,18 +305,12 @@ export const TextEditor = React.memo<TextEditorProps>(
                 doc.file.name === targetId
               )
             })
-            console.log('[TextEditor:LinkComponent:matching]', {
-              cleanTarget,
-              matchedDocId: matchedDoc?.file?.id,
-              availableDocIds: props.documents.map(d => d.file.id)
-            })
             if (matchedDoc) {
               targetId = matchedDoc.file.id
             }
           }
 
           if (handleTabSelect) {
-            console.log('[TextEditor:LinkComponent:onTabSelect]', targetId)
             handleTabSelect(targetId)
           }
         }
@@ -338,6 +321,8 @@ export const TextEditor = React.memo<TextEditorProps>(
       }
       return <a href={href} onClick={handleClick} className="text-primary hover:underline cursor-pointer" {...rest} />
     }, [handleTabSelect, isMultiTab, props.activeDocumentId, props.documents])
+
+    const markdownComponents = useMemo(() => ({ a: LinkComponent }), [LinkComponent])
 
     /**
      * Single-document mode
@@ -354,7 +339,7 @@ export const TextEditor = React.memo<TextEditorProps>(
           : contentStr
         return (
           <div className={cn('text-editor p-6 flex flex-col h-screen w-full flex-1', className)}>
-            <StreamingMarkdown mode="streaming" components={{ a: LinkComponent }}>
+            <StreamingMarkdown mode="static" isAnimating={false} components={markdownComponents}>
               {content}
             </StreamingMarkdown>
           </div>
@@ -402,6 +387,23 @@ export const TextEditor = React.memo<TextEditorProps>(
           </div>
         </div>
       )
+    } else if (isMediaFile(currentDocument.file)) {
+      editorPane = (
+        <div className="text-editor flex flex-col h-full w-full">
+          {!hideTabBar && (
+            <DocumentTabBar
+              className="w-full"
+              tabs={props.documents?.map((doc) => doc.file) || []}
+              activeTabId={props.activeDocumentId}
+              onTabSelect={props.onTabSelect}
+              onTabClose={props.onTabClose}
+            />
+          )}
+          <div className="flex-1 overflow-auto">
+            <MediaPreview file={currentDocument.file} />
+          </div>
+        </div>
+      )
     } else {
       const format = currentDocument.file.format || 'markdown'
       const isMarkdownMulti = format === 'markdown' || format === 'md' || format === 'mdx'
@@ -435,10 +437,10 @@ export const TextEditor = React.memo<TextEditorProps>(
             ) : renderAsStreamdown ? (
               <div className="p-6">
                 <StreamingMarkdown
-                  mode="streaming"
-                  isAnimating
+                  mode="static"
+                  isAnimating={false}
                   className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-                  components={{ a: LinkComponent }}
+                  components={markdownComponents}
                 >
                   {isCodeMulti
                     ? `\`\`\`${format}\n${format === 'json' ? formatJson(currentDocument.content as string) : currentDocument.content}\n\`\`\``

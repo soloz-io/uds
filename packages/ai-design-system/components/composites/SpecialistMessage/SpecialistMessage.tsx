@@ -16,6 +16,16 @@ import { Response } from "@/components/composites/response"
  * Uses Tool AI element for consistent styling with tool calls.
  */
 
+// Inline recursive type — avoids circular import with ChatPanel
+type NestedSubAgent = {
+  id: string
+  subAgentName: string
+  status: string
+  input?: string | Record<string, unknown>
+  output?: string
+  subAgents?: NestedSubAgent[]
+}
+
 export interface SpecialistMessageData {
   id: string
   name: string
@@ -23,6 +33,7 @@ export interface SpecialistMessageData {
   icon?: React.ReactNode
   content: string
   toolCalls?: ToolCall[]
+  subAgents?: NestedSubAgent[]
   status: "pending" | "active" | "completed" | "error" | "running" | "in_progress"
   avatarSrc?: string
   avatarName?: string
@@ -64,6 +75,10 @@ export const SpecialistMessage = React.memo<SpecialistMessageProps>(
     const hasToolCalls = React.useMemo(
       () => message.toolCalls !== undefined && message.toolCalls.length > 0,
       [message.toolCalls]
+    )
+    const hasSubAgents = React.useMemo(
+      () => message.subAgents !== undefined && message.subAgents.length > 0,
+      [message.subAgents]
     )
 
     const toolState = React.useMemo(() => {
@@ -112,11 +127,32 @@ export const SpecialistMessage = React.memo<SpecialistMessageProps>(
               </Response>
             )}
 
-            {/* Tool calls */}
+            {/* Leaf tool calls (read_file, write_file, etc.) */}
             {hasToolCalls && (
               <div className={cn("space-y-2", hasContent && "mt-4")}>
                 {message.toolCalls!.map((toolCall: ToolCall) => (
                   <ToolCallDisplay key={toolCall.id} toolCall={toolCall} />
+                ))}
+              </div>
+            )}
+
+            {/* Nested subagent cards (video-sequencer, motion-graphics, etc.)
+                Indented with a left border to visually express hierarchy. */}
+            {hasSubAgents && (
+              <div className={cn("space-y-2 pl-3 border-l border-border/50", (hasContent || hasToolCalls) && "mt-4")}>
+                {message.subAgents!.map((sa) => (
+                  <SpecialistMessage
+                    key={sa.id}
+                    isNested={true}
+                    message={{
+                      id: sa.id,
+                      name: sa.subAgentName,
+                      content: typeof sa.output === 'string' ? sa.output : '',
+                      status: sa.status as SpecialistMessageData['status'],
+                      input: sa.input,
+                      subAgents: sa.subAgents,
+                    }}
+                  />
                 ))}
               </div>
             )}

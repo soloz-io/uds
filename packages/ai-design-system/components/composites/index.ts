@@ -230,4 +230,6 @@ export type { IconButtonProps } from './IconButton'
 export { AuthCard } from './AuthCard'
 export type { AuthCardProps, AuthMode, SocialProvider } from './AuthCard'
 
-
+// MediaPreview Composite
+export { MediaPreview, isVideoFile, isAudioFile, isImageFile, isPdfFile, isMediaFile } from './MediaPreview'
+export type { MediaPreviewProps, MediaFileLike } from './MediaPreview'

@@ -14,6 +14,15 @@ export type StreamingMarkdownProps = ComponentProps<typeof Streamdown> & {
   type?: string;
   status?: string;
 };
+
+const DEFAULT_SHIKI_THEME: NonNullable<StreamingMarkdownProps["shikiTheme"]> = [
+  "vitesse-light",
+  "vitesse-dark",
+];
+const DEFAULT_CONTROLS = {
+  code: true,
+  mermaid: true,
+};
 /**
  * A composite component that wraps Streamdown with all configured plugins.
  * Features should import this component instead of importing Streamdown directly.
@@ -142,11 +151,8 @@ export const StreamingMarkdown = memo(
         )}
         <Streamdown
           remarkPlugins={remarkPlugins || customRemarkPlugins}
-          shikiTheme={["vitesse-light", "vitesse-dark"]}
-          controls={propsControls ?? {
-            code: true,
-            mermaid: true,
-          }}
+          shikiTheme={props.shikiTheme ?? DEFAULT_SHIKI_THEME}
+          controls={propsControls ?? DEFAULT_CONTROLS}
           {...props}
         >
           {content}

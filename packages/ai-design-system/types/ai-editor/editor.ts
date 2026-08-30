@@ -164,11 +164,15 @@ export interface DocumentFile {
   /** Human-readable document name */
   name: string
   /** Whether document has unsaved changes */
-  isDirty: boolean
+  isDirty?: boolean
   /** Content format */
   format?: 'json' | 'markdown' | string
   /** Last modified timestamp */
-  lastModified: number
+  lastModified?: number
+  /** Media stream / file URL (for audio, video, images) */
+  url?: string
+  /** MIME media type (e.g. video/mp4, audio/wav, image/png) */
+  mediaType?: string
 }
 
 /**

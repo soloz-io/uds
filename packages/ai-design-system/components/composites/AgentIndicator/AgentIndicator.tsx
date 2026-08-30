@@ -17,6 +17,7 @@ export interface SubAgent {
   input: string | Record<string, unknown>
   output?: string | Record<string, unknown>
   status: "pending" | "active" | "completed" | "error" | "running" | "in_progress"
+  subAgents?: SubAgent[]
 }
 
 export interface AgentIndicatorProps {

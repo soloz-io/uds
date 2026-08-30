@@ -49,3 +49,7 @@ storybook-static
 app/_generated-tokens*.css
 app/_generated-semantic-aliases.css
 app/globals.css
+
+# Local build cache — written by waypoint's sync-local-ds.ts to skip
+# rebuilding when source hasn't changed since the last local stack run
+.local-build-hash

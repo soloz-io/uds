@@ -127,6 +127,92 @@ export const MultipleAgents: Story = {
   },
 }
 
+export const NestedSubAgents: Story = {
+  args: {
+    messages: [
+      {
+        id: '1',
+        type: 'human',
+        role: 'user',
+        content: 'Generate a 30 second product demo video with motion graphics overlays',
+        avatarSrc: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+        avatarName: 'User',
+      },
+      {
+        id: '2',
+        type: 'ai',
+        role: 'orchestrator',
+        content: '',
+        avatarSrc: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+        avatarName: 'Coordinator',
+        subAgents: [
+          {
+            id: 'call_00_soED4oref3iyY11T',
+            name: 'task',
+            subAgentName: 'media-generator-agent',
+            input: 'Generate a 30 second product demo video with motion graphics overlays',
+            status: 'active',
+            // Nested children — video-sequencer and motion-graphics are both
+            // dispatched by media-generator-agent (task() calls), and stream
+            // their own tool-call-started/tool-output-delta/tool-finished
+            // events. This is what AIConversation must render one level deep.
+            subAgents: [
+              {
+                id: 'call_00_9LyCOvjRGrApV6II',
+                name: 'task',
+                subAgentName: 'video-sequencer',
+                input: 'Sequence the raw clips into a 30s cut with transitions',
+                output: 'Sequenced 12 clips into a 30s timeline. Exported sequence.json (30069 bytes).',
+                status: 'completed',
+              },
+              {
+                id: 'call_00_pQZBX2VUDWwmKQUz',
+                name: 'task',
+                subAgentName: 'motion-graphics',
+                input: 'Add lower-thirds, logo animation, and title card overlays',
+                output: 'Rendering title card overlay (2 of 4 assets)...',
+                status: 'active',
+              },
+            ],
+          },
+        ],
+        blocks: [
+          { type: 'text', id: 'text-1', text: "I'll generate this using two specialized sub-agents." },
+          {
+            type: 'subAgent',
+            id: 'call_00_soED4oref3iyY11T',
+            subAgent: {
+              id: 'call_00_soED4oref3iyY11T',
+              name: 'task',
+              subAgentName: 'media-generator-agent',
+              input: 'Generate a 30 second product demo video with motion graphics overlays',
+              status: 'active',
+              subAgents: [
+                {
+                  id: 'call_00_9LyCOvjRGrApV6II',
+                  name: 'task',
+                  subAgentName: 'video-sequencer',
+                  input: 'Sequence the raw clips into a 30s cut with transitions',
+                  output: 'Sequenced 12 clips into a 30s timeline. Exported sequence.json (30069 bytes).',
+                  status: 'completed',
+                },
+                {
+                  id: 'call_00_pQZBX2VUDWwmKQUz',
+                  name: 'task',
+                  subAgentName: 'motion-graphics',
+                  input: 'Add lower-thirds, logo animation, and title card overlays',
+                  output: 'Rendering title card overlay (2 of 4 assets)...',
+                  status: 'active',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+  },
+}
+
 export const Empty: Story = {
   args: {
     messages: [],

@@ -60,21 +60,20 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
 
     // Compute default sizes (server-safe — no localStorage access)
     const defaultSizes = React.useMemo(() => {
-      const raw = sections.map(section => section.defaultSize ?? (100 / sections.length))
+      const raw = sections.map((section) => section.defaultSize ?? (100 / sections.length))
       const total = raw.reduce((sum, size) => sum + size, 0)
-      return raw.map(size => (size / total) * 100)
+      return raw.map((size) => (size / total) * 100)
     }, [sections])
 
     const [sizes, setSizes] = React.useState<number[]>(defaultSizes)
 
     // Sync sizes if the number of sections changes (e.g. data loads and new section appears)
+    const prevSectionsLengthRef = React.useRef(sections.length)
     React.useEffect(() => {
-      setSizes((prevSizes) => {
-        if (prevSizes.length !== sections.length) {
-          return defaultSizes;
-        }
-        return prevSizes;
-      });
+      if (prevSectionsLengthRef.current !== sections.length) {
+        prevSectionsLengthRef.current = sections.length
+        setSizes(defaultSizes)
+      }
     }, [sections.length, defaultSizes])
 
     // After hydration, overwrite with persisted sizes if available
@@ -90,8 +89,7 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
       } catch {
         // ignore malformed storage
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [storageKey])
+    }, [storageKey, sections.length])
 
     const [draggingIndex, setDraggingIndex] = React.useState<number | null>(null)
     const [startX, setStartX] = React.useState(0)

@@ -8,23 +8,10 @@
 import React, { useState, useCallback } from 'react'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation } from '@/types/ai-editor/annotations'
+import type { DocumentFile, DocumentWithAnnotations } from '@/types/ai-editor/editor'
 import type { FileTreeNode } from '@/components/composites/FileTreeExplorer'
 import type { UseTextEditorReturn, UseAIMultiTabDocEditorReturn } from './useTextEditor'
 import { sampleDocumentFiles, sampleMultiTabDocuments } from './TextEditor.mocks'
-
-interface DocumentFile {
-  id: string
-  name: string
-  isDirty: boolean
-  format?: 'json' | 'markdown' | string
-  lastModified: number
-}
-
-interface DocumentWithAnnotations {
-  file: DocumentFile
-  content: JSONContent | string
-  annotations: Annotation[]
-}
 
 type MultiDocMockConfig = {
   multiDoc: true
