@@ -354,7 +354,7 @@ export function EnhancedDataTable({
           <Button
             variant="ghost"
             size="icon"
-            className="flex size-8 text-muted-foreground hover:text-foreground"
+            className="flex size-8 cursor-pointer text-muted-foreground hover:text-foreground"
             onClick={(e) => {
               e.stopPropagation()
               emitRowAction(singleAction.key, row.original)
@@ -372,7 +372,7 @@ export function EnhancedDataTable({
         cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
+              <Button variant="ghost" className="flex size-8 cursor-pointer text-muted-foreground data-[state=open]:bg-muted" size="icon">
                 <Icon name="more-vertical" size="sm" />
                 <span className="sr-only">Open menu</span>
               </Button>
