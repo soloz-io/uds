@@ -33,7 +33,7 @@ export const FormReportsSection = React.memo<FormReportsSectionProps>(
     enableRowSelection,
   }) => {
     return (
-      <section>
+      <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <FormReportsTable
           items={items}
           columns={columns}
