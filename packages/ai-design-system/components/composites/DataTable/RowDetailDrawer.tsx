@@ -69,12 +69,12 @@ export function RowDetailDrawer({ item, onChange }: RowDetailDrawerProps) {
           {item.header as React.ReactNode}
         </Button>
       </DrawerTrigger>
-      <DrawerContent>
-        <DrawerHeader className="gap-1">
+      <DrawerContent className="max-h-[90vh] sm:max-h-full flex flex-col">
+        <DrawerHeader className="gap-1 shrink-0">
           <DrawerTitle>{item.header as React.ReactNode}</DrawerTitle>
           <DrawerDescription>Showing total visitors for the last 6 months</DrawerDescription>
         </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
+        <div className="flex-1 min-h-0 flex flex-col gap-4 overflow-y-auto px-4 text-sm">
           {open && !isMobile ? (
             <>
               <ChartContainer config={chartConfig} className="h-[220px] w-full">

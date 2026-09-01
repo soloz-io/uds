@@ -112,97 +112,99 @@ export const FormReportsDrawerForm = React.memo<FormReportsDrawerFormProps>(
 
     return (
       <Drawer open={open} onOpenChange={onOpenChange} direction={isMobile ? "bottom" : "right"}>
-        <DrawerContent>
-          <DrawerHeader className="gap-1">
+        <DrawerContent className="max-h-[90vh] sm:max-h-full flex flex-col">
+          <DrawerHeader className="gap-1 shrink-0">
             <DrawerTitle>{title}</DrawerTitle>
             {description ? <DrawerDescription>{description}</DrawerDescription> : null}
           </DrawerHeader>
 
-          <form className="flex flex-col gap-4 overflow-y-auto px-4 text-sm" onSubmit={handleSubmit}>
-            {fields.map((field) => {
-              const value = values[field.name]
+          <form className="flex min-h-0 flex-1 flex-col overflow-hidden text-sm" onSubmit={handleSubmit}>
+            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 flex flex-col gap-4">
+              {fields.map((field) => {
+                const value = values[field.name]
 
-              return (
-                <div key={field.name} className="flex flex-col gap-2">
-                  <Label htmlFor={`form-reports-${field.name}`}>
-                    {field.label}
-                    {field.required ? <span className="ml-1 text-destructive">*</span> : null}
-                  </Label>
+                return (
+                  <div key={field.name} className="flex flex-col gap-2">
+                    <Label htmlFor={`form-reports-${field.name}`}>
+                      {field.label}
+                      {field.required ? <span className="ml-1 text-destructive">*</span> : null}
+                    </Label>
 
-                  {field.type === "textarea" ? (
-                    <Textarea
-                      id={`form-reports-${field.name}`}
-                      value={toInputValue(value)}
-                      placeholder={field.placeholder}
-                      onChange={(event) => setField(field.name, event.target.value)}
-                      onBlur={(event) => onFieldBlur?.(field.name, event.target.value, values)}
-                      rows={4}
-                    />
-                  ) : null}
-
-                  {field.type === "select" ? (
-                    <Select
-                      value={toInputValue(value)}
-                      onValueChange={(nextValue) => setField(field.name, nextValue)}
-                    >
-                      <SelectTrigger id={`form-reports-${field.name}`}>
-                        <SelectValue placeholder={field.placeholder ?? `Select ${field.label}`} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(field.options ?? []).map((option: FormFieldOption) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : null}
-
-                  {field.type === "boolean" ? (
-                    <div className="flex items-center gap-2 rounded-md border px-3 py-2">
-                      <Checkbox
+                    {field.type === "textarea" ? (
+                      <Textarea
                         id={`form-reports-${field.name}`}
-                        checked={Boolean(value)}
-                        onCheckedChange={(checked) => setField(field.name, Boolean(checked))}
-                        onBlur={() => onFieldBlur?.(field.name, Boolean(value), values)}
+                        value={toInputValue(value)}
+                        placeholder={field.placeholder}
+                        onChange={(event) => setField(field.name, event.target.value)}
+                        onBlur={(event) => onFieldBlur?.(field.name, event.target.value, values)}
+                        rows={4}
                       />
-                      <Label htmlFor={`form-reports-${field.name}`}>{field.placeholder ?? `Enable ${field.label}`}</Label>
-                    </div>
-                  ) : null}
+                    ) : null}
 
-                  {field.type === "text" || field.type === "number" || field.type === "date" ? (
-                    <Input
-                      id={`form-reports-${field.name}`}
-                      type={field.type === "text" ? "text" : field.type}
-                      value={toInputValue(value)}
-                      placeholder={field.placeholder}
-                      onChange={(event) => {
-                        const nextValue =
-                          field.type === "number"
-                            ? event.target.value === ""
-                              ? ""
-                              : Number(event.target.value)
-                            : event.target.value
-                        setField(field.name, nextValue)
-                      }}
-                      onBlur={(event) => {
-                        const blurValue =
-                          field.type === "number"
-                            ? event.target.value === ""
-                              ? ""
-                              : Number(event.target.value)
-                            : event.target.value
-                        onFieldBlur?.(field.name, blurValue, values)
-                      }}
-                    />
-                  ) : null}
+                    {field.type === "select" ? (
+                      <Select
+                        value={toInputValue(value)}
+                        onValueChange={(nextValue) => setField(field.name, nextValue)}
+                      >
+                        <SelectTrigger id={`form-reports-${field.name}`}>
+                          <SelectValue placeholder={field.placeholder ?? `Select ${field.label}`} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(field.options ?? []).map((option: FormFieldOption) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : null}
 
-                  {field.description ? <p className="text-xs text-muted-foreground">{field.description}</p> : null}
-                </div>
-              )
-            })}
+                    {field.type === "boolean" ? (
+                      <div className="flex items-center gap-2 rounded-md border px-3 py-2">
+                        <Checkbox
+                          id={`form-reports-${field.name}`}
+                          checked={Boolean(value)}
+                          onCheckedChange={(checked) => setField(field.name, Boolean(checked))}
+                          onBlur={() => onFieldBlur?.(field.name, Boolean(value), values)}
+                        />
+                        <Label htmlFor={`form-reports-${field.name}`}>{field.placeholder ?? `Enable ${field.label}`}</Label>
+                      </div>
+                    ) : null}
 
-            <DrawerFooter className="px-0">
+                    {field.type === "text" || field.type === "number" || field.type === "date" ? (
+                      <Input
+                        id={`form-reports-${field.name}`}
+                        type={field.type === "text" ? "text" : field.type}
+                        value={toInputValue(value)}
+                        placeholder={field.placeholder}
+                        onChange={(event) => {
+                          const nextValue =
+                            field.type === "number"
+                              ? event.target.value === ""
+                                ? ""
+                                : Number(event.target.value)
+                              : event.target.value
+                          setField(field.name, nextValue)
+                        }}
+                        onBlur={(event) => {
+                          const blurValue =
+                            field.type === "number"
+                              ? event.target.value === ""
+                                ? ""
+                                : Number(event.target.value)
+                              : event.target.value
+                          onFieldBlur?.(field.name, blurValue, values)
+                        }}
+                      />
+                    ) : null}
+
+                    {field.description ? <p className="text-xs text-muted-foreground">{field.description}</p> : null}
+                  </div>
+                )
+              })}
+            </div>
+
+            <DrawerFooter className="px-4 py-3 border-t shrink-0">
               <Button type="submit">{submitLabel}</Button>
               <DrawerClose asChild>
                 <Button
