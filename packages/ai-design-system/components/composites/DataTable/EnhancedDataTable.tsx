@@ -270,8 +270,20 @@ export function EnhancedDataTable({
     const value = toDisplayValue(rawValue)
 
     if (renderType === "badge" || renderType === "status") {
+      const lower = value.toLowerCase()
+      let statusClass = "text-muted-foreground border-border"
+      if (lower.includes("complete") || lower.includes("done") || lower.includes("success") || lower.includes("approved")) {
+        statusClass = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+      } else if (lower.includes("fail") || lower.includes("error") || lower.includes("reject")) {
+        statusClass = "text-rose-400 bg-rose-500/10 border-rose-500/20"
+      } else if (lower.includes("cancel")) {
+        statusClass = "text-muted-foreground bg-muted/30 border-border"
+      } else if (lower.includes("progress") || lower.includes("running") || lower.includes("pending")) {
+        statusClass = "text-amber-400 bg-amber-500/10 border-amber-500/20"
+      }
+
       return (
-        <Badge variant="outline" className="px-1.5 text-muted-foreground">
+        <Badge variant="outline" className={`px-2 py-0.5 text-xs font-medium ${statusClass}`}>
           {value}
         </Badge>
       )
