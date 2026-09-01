@@ -8,7 +8,7 @@ export type DashboardRow = z.infer<typeof dashboardRowSchema>
 
 export type DashboardInlineEditableField = "target" | "limit"
 
-export type DashboardRowAction = "edit" | "copy" | "favorite" | "delete"
+export type DashboardRowAction = "edit" | "copy" | "favorite" | "delete" | string
 
 export interface DashboardPaginationState {
   pageIndex: number

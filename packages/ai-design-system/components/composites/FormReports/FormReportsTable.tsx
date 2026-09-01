@@ -18,6 +18,7 @@ export type FormReportsColumn = TableColumn
 export interface FormReportsRowAction {
   key: string
   label: string
+  icon?: string
 }
 
 export interface FormReportsTableHandlers {
@@ -64,7 +65,7 @@ const dashboardToFormReportsActionMap: Record<DashboardRowAction, string> = {
 export type { DashboardPaginationState }
 
 export const FormReportsTable = React.memo<FormReportsTableProps>(
-  ({ items, columns, pagination, handlers, leftActions, rightActions, onCreateClick, createButtonLabel, enableRowSelection }) => {
+  ({ items, columns, rowActions, pagination, handlers, leftActions, rightActions, onCreateClick, createButtonLabel, enableRowSelection }) => {
     const { rows, originalById, tableSchema } = React.useMemo(() => {
       const byId = new Map<string, FormReportsEntity>()
       const tableColumns: DynamicTableSchema["columns"] = columns
@@ -185,6 +186,7 @@ export const FormReportsTable = React.memo<FormReportsTableProps>(
         rightActions={rightActions}
         onCreateClick={onCreateClick}
         createButtonLabel={createButtonLabel}
+        rowActions={rowActions}
       />
     )
   }

@@ -55,6 +55,7 @@ export interface EnhancedDataTableProps {
   rightActions?: React.ReactNode
   onCreateClick?: () => void
   createButtonLabel?: string
+  rowActions?: Array<{ key: string; label: string; icon?: string }>
 }
 
 function toRowId(row: DashboardRow, schema: DynamicTableSchema): number | string {
@@ -96,6 +97,7 @@ export function EnhancedDataTable({
   rightActions,
   onCreateClick,
   createButtonLabel = "Create",
+  rowActions,
 }: EnhancedDataTableProps) {
   const [searchQuery, setSearchQuery] = React.useState("")
 
@@ -341,45 +343,100 @@ export function EnhancedDataTable({
       }))
     )
 
-    dynamicColumns.push({
-      id: "actions",
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
-              <Icon name="more-vertical" size="sm" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem
-              onClick={() => {
-                setEditingRowId(String(toRowId(row.original, tableSchema)))
-                emitRowAction("edit", row.original)
-              }}
-            >
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => emitRowAction("copy", row.original)}>Make a copy</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => emitRowAction("favorite", row.original)}>Favorite</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                if (editingRowId === String(toRowId(row.original, tableSchema))) {
-                  setEditingRowId(null)
-                }
-                emitRowAction("delete", row.original)
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    })
+    if (rowActions && rowActions.length === 0) {
+      // No actions column if rowActions is explicitly empty
+    } else if (rowActions && rowActions.length === 1) {
+      const singleAction = rowActions[0]
+      const iconName = singleAction.icon || (singleAction.key === "retry" ? "refresh-cw" : "more-vertical")
+      dynamicColumns.push({
+        id: "actions",
+        cell: ({ row }) => (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="flex size-8 text-muted-foreground hover:text-foreground"
+            onClick={(e) => {
+              e.stopPropagation()
+              emitRowAction(singleAction.key, row.original)
+            }}
+            title={singleAction.label}
+            aria-label={singleAction.label}
+          >
+            <Icon name={iconName} size="sm" />
+          </Button>
+        ),
+      })
+    } else if (rowActions && rowActions.length > 1) {
+      dynamicColumns.push({
+        id: "actions",
+        cell: ({ row }) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
+                <Icon name="more-vertical" size="sm" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              {rowActions.map((action) => (
+                <DropdownMenuItem
+                  key={action.key}
+                  onClick={() => {
+                    if (action.key === "edit") {
+                      setEditingRowId(String(toRowId(row.original, tableSchema)))
+                    }
+                    emitRowAction(action.key, row.original)
+                  }}
+                >
+                  {action.icon && <Icon name={action.icon} size="xs" className="mr-2 inline" />}
+                  {action.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      })
+    } else {
+      dynamicColumns.push({
+        id: "actions",
+        cell: ({ row }) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="flex size-8 text-muted-foreground data-[state=open]:bg-muted" size="icon">
+                <Icon name="more-vertical" size="sm" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                onClick={() => {
+                  setEditingRowId(String(toRowId(row.original, tableSchema)))
+                  emitRowAction("edit", row.original)
+                }}
+              >
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => emitRowAction("copy", row.original)}>Make a copy</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => emitRowAction("favorite", row.original)}>Favorite</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  if (editingRowId === String(toRowId(row.original, tableSchema))) {
+                    setEditingRowId(null)
+                  }
+                  emitRowAction("delete", row.original)
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ),
+      })
+    }
 
     return dynamicColumns
-  }, [editingRowId, emitRowAction, renderEditableCell, renderReadonlyCell, tableSchema])
+  }, [editingRowId, emitRowAction, renderEditableCell, renderReadonlyCell, rowActions, tableSchema])
 
   const filterKeys = React.useMemo(() => tableSchema.columns.map((column) => column.key), [tableSchema.columns])
 
