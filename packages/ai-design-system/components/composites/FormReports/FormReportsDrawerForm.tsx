@@ -112,14 +112,13 @@ export const FormReportsDrawerForm = React.memo<FormReportsDrawerFormProps>(
 
     return (
       <Drawer open={open} onOpenChange={onOpenChange} direction={isMobile ? "bottom" : "right"}>
-        <DrawerContent className="max-h-[90vh] sm:max-h-full flex flex-col">
-          <DrawerHeader className="gap-1 shrink-0">
+        <DrawerContent>
+          <DrawerHeader className="gap-1">
             <DrawerTitle>{title}</DrawerTitle>
             {description ? <DrawerDescription>{description}</DrawerDescription> : null}
           </DrawerHeader>
-
-          <form className="flex min-h-0 flex-1 flex-col overflow-hidden text-sm" onSubmit={handleSubmit}>
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 flex flex-col gap-4">
+          <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
+            <form id="form-reports-drawer-form" className="flex flex-col gap-4" onSubmit={handleSubmit}>
               {fields.map((field) => {
                 const value = values[field.name]
 
@@ -202,24 +201,25 @@ export const FormReportsDrawerForm = React.memo<FormReportsDrawerFormProps>(
                   </div>
                 )
               })}
-            </div>
-
-            <DrawerFooter className="px-4 py-3 border-t shrink-0">
-              <Button type="submit">{submitLabel}</Button>
-              <DrawerClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    onCancel?.()
-                    onOpenChange(false)
-                  }}
-                >
-                  {cancelLabel}
-                </Button>
-              </DrawerClose>
-            </DrawerFooter>
-          </form>
+            </form>
+          </div>
+          <DrawerFooter>
+            <Button form="form-reports-drawer-form" type="submit">
+              {submitLabel}
+            </Button>
+            <DrawerClose asChild>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  onCancel?.()
+                  onOpenChange(false)
+                }}
+              >
+                {cancelLabel}
+              </Button>
+            </DrawerClose>
+          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     )
