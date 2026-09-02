@@ -23,7 +23,23 @@
             "label": "Get Started",
             "top": 779
           }
-        ]
+        ],
+        "action": {
+          "after": [
+            {
+              "stepId": "await-nav-welcome",
+              "actionType": "step/await-navigation",
+              "semantics": {
+                "label": "Await navigation from Welcome",
+                "description": "Pause and wait for user to trigger a navigation event"
+              },
+              "config": {
+                "screenId": "welcome",
+                "route": "/welcome"
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -61,7 +77,23 @@
             "label": "Sign Up",
             "top": 371
           }
-        ]
+        ],
+        "action": {
+          "after": [
+            {
+              "stepId": "await-nav-signup",
+              "actionType": "step/await-navigation",
+              "semantics": {
+                "label": "Await navigation from Sign Up",
+                "description": "Pause and wait for user to trigger a navigation event"
+              },
+              "config": {
+                "screenId": "signup",
+                "route": "/signup"
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -99,7 +131,23 @@
             "label": "Next",
             "top": 791
           }
-        ]
+        ],
+        "action": {
+          "after": [
+            {
+              "stepId": "await-nav-categories",
+              "actionType": "step/await-navigation",
+              "semantics": {
+                "label": "Await navigation from Categories",
+                "description": "Pause and wait for user to trigger a navigation event"
+              },
+              "config": {
+                "screenId": "categories",
+                "route": "/categories"
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -137,7 +185,23 @@
             "label": "Done",
             "top": 791
           }
-        ]
+        ],
+        "action": {
+          "after": [
+            {
+              "stepId": "await-nav-authors",
+              "actionType": "step/await-navigation",
+              "semantics": {
+                "label": "Await navigation from Authors",
+                "description": "Pause and wait for user to trigger a navigation event"
+              },
+              "config": {
+                "screenId": "authors",
+                "route": "/authors"
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -160,7 +224,23 @@
             "label": "Sign In",
             "top": 307
           }
-        ]
+        ],
+        "action": {
+          "after": [
+            {
+              "stepId": "await-nav-signin",
+              "actionType": "step/await-navigation",
+              "semantics": {
+                "label": "Await navigation from Sign In",
+                "description": "Pause and wait for user to trigger a navigation event"
+              },
+              "config": {
+                "screenId": "signin",
+                "route": "/signin"
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -183,7 +263,23 @@
             "label": "Sign Up",
             "top": 327
           }
-        ]
+        ],
+        "action": {
+          "after": [
+            {
+              "stepId": "await-nav-google-signup",
+              "actionType": "step/await-navigation",
+              "semantics": {
+                "label": "Await navigation from Google Sign Up",
+                "description": "Pause and wait for user to trigger a navigation event"
+              },
+              "config": {
+                "screenId": "google-signup",
+                "route": "/google-signup"
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -236,7 +332,23 @@
             "label": "Collection",
             "top": 826
           }
-        ]
+        ],
+        "action": {
+          "after": [
+            {
+              "stepId": "await-nav-home",
+              "actionType": "step/await-navigation",
+              "semantics": {
+                "label": "Await navigation from Home",
+                "description": "Pause and wait for user to trigger a navigation event"
+              },
+              "config": {
+                "screenId": "home",
+                "route": "/home"
+              }
+            }
+          ]
+        }
       }
     }
   ],

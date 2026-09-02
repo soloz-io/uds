@@ -52,6 +52,8 @@ export interface NodeEditorProps {
 
   showMinimap?: boolean;
   interactive?: boolean;
+  panOnDrag?: boolean | number[];
+  selectionOnDrag?: boolean;
   hideDefaultActions?: boolean;
   hideWorkflowName?: boolean;
   className?: string;
@@ -99,6 +101,8 @@ export function NodeEditor({
   extraActions,
   showMinimap,
   interactive = false,
+  panOnDrag = false,
+  selectionOnDrag,
   hideDefaultActions = false,
   hideWorkflowName = false,
   className,
@@ -159,6 +163,8 @@ export function NodeEditor({
         className="h-full w-full"
         edges={edges}
         interactive={interactive}
+        panOnDrag={panOnDrag}
+        selectionOnDrag={selectionOnDrag}
         nodes={highlightedNodes}
         showMinimap={showMinimap}
         topLeft={

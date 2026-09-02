@@ -36,6 +36,8 @@ export interface WorkflowCanvasProps {
   onEdgeClick?: (event: React.MouseEvent, edge: WorkflowEdge) => void;
   showMinimap?: boolean;
   interactive?: boolean;
+  panOnDrag?: boolean | number[];
+  selectionOnDrag?: boolean;
   topLeft?: React.ReactNode;
   topRight?: React.ReactNode;
   topCenter?: React.ReactNode;
