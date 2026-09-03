@@ -11,6 +11,8 @@ export const AppHeader = React.memo<AppHeaderProps>(({
   actions, 
   tabs, 
   defaultTab, 
+  activeTab,
+  value,
   onTabChange, 
   className,
   tabsPosition = 'center',
@@ -19,6 +21,28 @@ export const AppHeader = React.memo<AppHeaderProps>(({
   buttonSwitcherProps,
   chatToggleProps
 }) => {
+  const currentTab = activeTab ?? value;
+
+  const renderTabs = (extraClass?: string) => {
+    if (!tabs || tabs.length === 0) return null;
+    return (
+      <Tabs
+        value={currentTab}
+        defaultValue={currentTab !== undefined ? undefined : (defaultTab || tabs[0]?.value)}
+        onValueChange={onTabChange}
+        className={extraClass}
+      >
+        <TabsList>
+          {tabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+    );
+  };
+
   return (
     <header className={`flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-14 ${className || ""}`}>
       <div className="grid w-full grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center px-4 lg:px-6">
@@ -33,46 +57,16 @@ export const AppHeader = React.memo<AppHeaderProps>(({
               : title
           )}
           {chatToggleProps && <ChatToggleButton {...chatToggleProps} />}
-          {tabsPosition === 'left' && tabs && tabs.length > 0 && (
-            <Tabs defaultValue={defaultTab || tabs[0]?.value} onValueChange={onTabChange} className="ml-2">
-              <TabsList>
-                {tabs.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          )}
+          {tabsPosition === 'left' && renderTabs("ml-2")}
           {buttonSwitcherProps && <ButtonSwitcher {...buttonSwitcherProps} />}
         </div>
 
         <div className="justify-self-center">
-          {tabsPosition === 'center' && tabs && tabs.length > 0 && (
-            <Tabs defaultValue={defaultTab || tabs[0]?.value} onValueChange={onTabChange}>
-              <TabsList>
-                {tabs.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          )}
+          {tabsPosition === 'center' && renderTabs()}
         </div>
 
         <div className="flex min-w-0 items-center justify-end gap-2">
-          {tabsPosition === 'right' && tabs && tabs.length > 0 && (
-            <Tabs defaultValue={defaultTab || tabs[0]?.value} onValueChange={onTabChange}>
-              <TabsList>
-                {tabs.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value}>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          )}
+          {tabsPosition === 'right' && renderTabs()}
           {actions}
         </div>
       </div>

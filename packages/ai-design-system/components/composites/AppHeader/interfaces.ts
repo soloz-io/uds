@@ -12,6 +12,8 @@ export interface AppHeaderProps {
   actions?: React.ReactNode;
   tabs?: TabItem[];
   defaultTab?: string;
+  activeTab?: string;
+  value?: string;
   onTabChange?: (value: string) => void;
   tabsPosition?: 'left' | 'center' | 'right';
   className?: string;
