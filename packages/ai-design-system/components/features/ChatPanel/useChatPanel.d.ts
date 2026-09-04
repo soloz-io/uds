@@ -9,6 +9,7 @@
  */
 
 import type { RefinementMessage } from "./ChatPanel";
+import type { UserMessageAttachment } from "@/components/composites/UserMessage";
 import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { ActionRequest, ReviewConfig } from "@/components/composites/ApprovalCard";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
@@ -16,8 +17,19 @@ import type { FileDownloadResult } from "@/components/composites/FileTreeExplore
 import type { UseChatPanelOptions } from "./useChatPanel.mock";
 
 /**
+ * Generic submit-request shape for handleSubmit below — deliberately loose
+ * (not importing an app-specific attachment domain type here, since this
+ * package stays app-agnostic) but structurally compatible with a consuming
+ * app's own richer attachment type (e.g. Waypoint's MessageAttachment[]).
+ */
+export interface ChatSubmitInput {
+  text: string;
+  attachments?: UserMessageAttachment[];
+}
+
+/**
  * Return type for the chat panel hook
- * 
+ *
  * This interface defines what state and handlers the hook must provide
  * to integrate with the ChatPanel component.
  */
@@ -35,7 +47,7 @@ export interface UseChatPanelReturn {
   onStop?: () => void;
   
   /** Handle user submission of chat requests */
-  handleSubmit: (prompt: string) => Promise<void> | void;
+  handleSubmit: (input: ChatSubmitInput) => Promise<void> | void;
   
   /** Handle approval of all file changes */
   handleApprove: () => Promise<void> | void;

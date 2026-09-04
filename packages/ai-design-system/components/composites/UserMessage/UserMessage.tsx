@@ -9,6 +9,7 @@ import {
   MessageContent,
   MessageAvatar,
 } from "@/components/ai-elements/message"
+import { cn } from "@/lib/utils"
 
 /**
  * UserMessage Block
@@ -17,11 +18,56 @@ import {
  * Uses Message AI element with right-alignment.
  */
 
+/**
+ * Display-only attachment shape — deliberately loose (string `kind`/`type`,
+ * not an app-specific union) so this stays app-agnostic, mirroring
+ * ChatSubmitInput's own attachment shape on the submit side. `source.value`
+ * is used directly as an <img> src: it works whether it's a `data:` URI
+ * (optimistic pre-upload bubble) or a resolved https:// object-store URL
+ * (after persistence/reload) — no branching needed at render time.
+ */
+export interface UserMessageAttachment {
+  id?: string
+  kind: string
+  mime: string
+  filename?: string
+  source: { type: string; value: string }
+}
+
 export interface UserMessageData {
   id: string
   content: string
   avatarSrc?: string
   avatarName?: string
+  attachments?: UserMessageAttachment[]
+}
+
+function UserMessageAttachments({ attachments }: { attachments: UserMessageAttachment[] }) {
+  const images = attachments.filter((a) => a.mime.startsWith("image/"))
+  if (images.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap justify-end gap-2">
+      {images.map((a, i) => (
+        <a
+          key={a.id ?? `${a.filename ?? "attachment"}-${i}`}
+          href={a.source.value}
+          target="_blank"
+          rel="noreferrer"
+          className={cn(
+            "block size-20 shrink-0 overflow-hidden rounded-md border border-border",
+            "transition-opacity hover:opacity-90"
+          )}
+        >
+          <img
+            src={a.source.value}
+            alt={a.filename || "Attached image"}
+            className="size-full object-cover"
+          />
+        </a>
+      ))}
+    </div>
+  )
 }
 
 export interface UserMessageProps {
@@ -53,7 +99,14 @@ export const UserMessage = React.memo<UserMessageProps>(
               </AvatarFallback>
             </Avatar>
         )}
-        <MessageContent variant="contained">{message.content}</MessageContent>
+        <div className="flex flex-col items-end gap-2">
+          {message.attachments && message.attachments.length > 0 && (
+            <UserMessageAttachments attachments={message.attachments} />
+          )}
+          {message.content && (
+            <MessageContent variant="contained">{message.content}</MessageContent>
+          )}
+        </div>
       </Message>
     )
   }

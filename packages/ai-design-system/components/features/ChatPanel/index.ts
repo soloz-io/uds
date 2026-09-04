@@ -16,12 +16,13 @@
 
 export { ChatPanel } from "./ChatPanel";
 export type { ChatPanelProps, RefinementMessage } from "./ChatPanel";
+export type { UserMessageAttachment } from "@/components/composites/UserMessage";
 
 // HITL types (re-exported from ApprovalCard for consumer convenience)
 export type { ActionRequest, ReviewConfig } from "@/components/composites/ApprovalCard";
 
 // Hook contract definition (implement in your application)
-export type { UseChatPanelReturn } from "./useChatPanel.d";
+export type { UseChatPanelReturn, ChatSubmitInput } from "./useChatPanel.d";
 
 // Mock hook for testing and development
 export { useChatPanelMock as useMockChatPanel } from "./useChatPanel.mock";

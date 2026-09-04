@@ -11,6 +11,7 @@ import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval } from "@/components/composites/ApprovalCard";
 import type { FormEvent } from "react";
+import type { UserMessageAttachment } from "@/components/composites/UserMessage";
 import { SessionHeader } from "@/components/composites/SessionHeader";
 import type { ChatSessionInfo } from "@/components/composites/SessionHeader";
 import { exportMessagesToMarkdownFile, type ExportableMessage } from "@/utils/markdown-formatter";
@@ -41,6 +42,7 @@ export interface RefinementMessage {
   subAgents?: SubAgent[];
   isLoading?: boolean;
   checkpointId?: string;
+  attachments?: UserMessageAttachment[];
 }
 
 /**

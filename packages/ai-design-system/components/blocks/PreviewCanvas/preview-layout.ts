@@ -46,7 +46,8 @@ export const TRANSITION_NODE_SIZE = { width: 180, height: 52 };
  * same ELK `layered` engine the builder uses — but with correct per-node
  * dimensions for `devicePreview` vs `transition` nodes.
  *
- * Direction is RIGHT (left-to-right) to match the Bookgeek reference UX.
+ * Direction is RIGHT (left-to-right) to match the mobile-app-flow reference UX
+ * this canvas was modeled on.
  */
 export async function routesToPreviewCanvas(
   manifest: AppRouteManifest,

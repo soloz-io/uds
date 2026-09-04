@@ -12,7 +12,7 @@ import {
   CheckpointTrigger,
 } from "@/components/ai-elements/checkpoint"
 import type { ToolCall, SubAgent } from "@/components/composites"
-import { UserMessage } from "@/components/composites/UserMessage"
+import { UserMessage, type UserMessageAttachment } from "@/components/composites/UserMessage"
 import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
 import { OrchestratorMessage } from "@/components/composites/OrchestratorMessage"
 import { SystemMessage } from "@/components/composites/SystemMessage"
@@ -61,6 +61,7 @@ interface AIMessage {
   isLoading?: boolean;
   blocks?: AIMessageBlock[];
   checkpointId?: string;
+  attachments?: UserMessageAttachment[];
 }
 
 export interface AIConversationProps
@@ -293,6 +294,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                   content: contentStr,
                   avatarSrc: message.avatarSrc,
                   avatarName: message.avatarName,
+                  attachments: message.attachments,
                 }}
                 showAvatar={showAvatars}
               />

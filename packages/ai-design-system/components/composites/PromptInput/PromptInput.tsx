@@ -4,6 +4,8 @@ import * as React from "react";
 import type { ReactNode } from "react";
 import {
   PromptInput as AIPromptInput,
+  PromptInputAttachment,
+  PromptInputAttachments,
   PromptInputBody,
   PromptInputFooter,
   PromptInputSubmit,
@@ -12,6 +14,7 @@ import {
   PromptInputProvider,
   type PromptInputMessage,
   type PromptInputProps as AIPromptInputProps,
+  usePromptInputAttachments,
   usePromptInputController,
 } from "@/components/ai-elements/prompt-input";
 import type { FormEvent } from "react";
@@ -21,7 +24,7 @@ import { Icon } from "@/components/primitives/Icon";
 export interface PromptInputBlockProps
   extends Omit<
     AIPromptInputProps,
-    "accept" | "multiple" | "maxFiles" | "maxFileSize" | "globalDrop" | "syncHiddenInput" | "onSubmit" | "onChange"
+    "globalDrop" | "syncHiddenInput" | "onSubmit" | "onChange"
   > {
   disabled?: boolean;
   placeholder?: string;
@@ -46,6 +49,11 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     dialog,
     loading = false,
     onStop,
+    accept = "image/*",
+    multiple = true,
+    maxFiles,
+    maxFileSize,
+    onError,
     ...props
   }) => {
     const handleSubmit = React.useCallback(
@@ -80,8 +88,17 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     const isStopping = loading && Boolean(onStop);
 
     const promptInputContent = (
-      <AIPromptInput onSubmit={handleSubmit} {...props}>
+      <AIPromptInput
+        onSubmit={handleSubmit}
+        accept={accept}
+        multiple={multiple}
+        maxFiles={maxFiles}
+        maxFileSize={maxFileSize}
+        onError={onError}
+        {...props}
+      >
         <PromptInputBody>
+          <AttachmentPreviews />
           <PromptInputTextarea
             placeholder={placeholder}
             disabled={disabled}
@@ -90,9 +107,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         </PromptInputBody>
         <PromptInputFooter>
           <PromptInputTools>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" type="button" disabled={disabled || loading}>
-              <Icon name="plus" size="sm" />
-            </Button>
+            <AttachButton disabled={disabled || loading} />
           </PromptInputTools>
           <PromptInputSubmit
             disabled={disabled || (loading && !onStop)}
@@ -115,6 +130,36 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     return promptInputContent;
   }
 );
+
+/**
+ * The "+" toolbar button — opens the native file picker via the attachments
+ * context. Must render inside <AIPromptInput> (or a PromptInputProvider),
+ * since usePromptInputAttachments() reads that context.
+ */
+function AttachButton({ disabled }: { disabled?: boolean }) {
+  const attachments = usePromptInputAttachments();
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 rounded-full"
+      type="button"
+      disabled={disabled}
+      onClick={() => attachments.openFileDialog()}
+    >
+      <Icon name="plus" size="sm" />
+    </Button>
+  );
+}
+
+/** Renders a preview chip (thumbnail + remove) per attached file. */
+function AttachmentPreviews() {
+  return (
+    <PromptInputAttachments>
+      {(attachment) => <PromptInputAttachment data={attachment} />}
+    </PromptInputAttachments>
+  );
+}
 
 /**
  * Syncs a controlled external value into the PromptInput controller state so
