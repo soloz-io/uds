@@ -360,6 +360,50 @@ export declare function getLayoutedElements(nodes: any[], edges: any[]): Promise
 export declare function bmcToCanvas(bmc: CompiledBmc | null, message?: string): BmcCanvasView;
 export declare function addEdge(edgeParams: any, edges: any[]): any[];
 
+// ============================================================================
+// PROMPT INPUT CONTROLLER & PROVIDER EXPORTS
+// ============================================================================
+
+export interface AttachmentsContext {
+  files: Array<{
+    id: string;
+    url?: string;
+    mediaType?: string;
+    filename?: string;
+    [key: string]: any;
+  }>;
+  add: (files: File[] | FileList) => void;
+  remove: (id: string) => void;
+  clear: () => void;
+  openFileDialog: () => void;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
+}
+
+export interface TextInputContext {
+  value: string;
+  setInput: (v: string) => void;
+  clear: () => void;
+}
+
+export interface PromptInputControllerProps {
+  textInput: TextInputContext;
+  attachments: AttachmentsContext;
+  __registerFileInput: (
+    ref: React.RefObject<HTMLInputElement | null>,
+    open: () => void
+  ) => void;
+}
+
+export interface PromptInputProviderProps {
+  initialInput?: string;
+  children?: React.ReactNode;
+}
+
+export declare const PromptInputProvider: React.FC<PromptInputProviderProps>;
+export declare function usePromptInputController(): PromptInputControllerProps;
+export declare function useOptionalPromptInputController(): PromptInputControllerProps | null;
+export declare function usePromptInputAttachments(): AttachmentsContext;
+
 `;
 
   dtsContent += `// ============================================================================

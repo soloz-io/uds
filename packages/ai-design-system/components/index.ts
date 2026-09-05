@@ -8,8 +8,37 @@ export type * from './blocks';
 export type * from './features';
 
 // Composites (value exports not covered by export type *)
-export { ModeSwitcher, ApprovalCard, ProjectSwitcher, FormReportsDrawerForm, ChatToggleButton, SessionHeader, AppBreadcrumb } from './composites';
-export type { ApprovalCardProps, ActionRequest, ReviewConfig, ProjectSwitcherProps, Project, FormReportsDrawerFormProps, SessionHeaderProps, ChatSessionInfo, AppBreadcrumbProps, BreadcrumbItemData } from './composites';
+export {
+  ModeSwitcher,
+  ApprovalCard,
+  ProjectSwitcher,
+  FormReportsDrawerForm,
+  ChatToggleButton,
+  SessionHeader,
+  AppBreadcrumb,
+  PromptInput,
+  PromptInputProvider,
+  usePromptInputController,
+  usePromptInputAttachments,
+  useOptionalPromptInputController,
+} from './composites';
+export type {
+  ApprovalCardProps,
+  ActionRequest,
+  ReviewConfig,
+  ProjectSwitcherProps,
+  Project,
+  FormReportsDrawerFormProps,
+  SessionHeaderProps,
+  ChatSessionInfo,
+  AppBreadcrumbProps,
+  BreadcrumbItemData,
+  PromptInputBlockProps,
+  PromptInputControllerProps,
+  AttachmentsContext,
+  TextInputContext,
+  PromptInputProviderProps,
+} from './composites';
 export { WorkflowCanvas, getLayoutedElements, bmcToCanvas, SectionLayout, ExpoAppPreview } from './blocks';
 export type { SectionLayoutSection, ExpoAppPreviewProps } from './blocks';
 

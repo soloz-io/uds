@@ -269,8 +269,13 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     // Handle edit for HITL approval request
     const handleApprovalEdit = React.useCallback((editedArgs: Record<string, unknown>) => {
       if (activeApprovalRequest?.name === "ask_user" && editedArgs.answers) {
-        const answers = Array.isArray(editedArgs.answers) ? editedArgs.answers : [editedArgs.answers];
-        const text = answers.join(', ');
+        const rawAnswers = Array.isArray(editedArgs.answers)
+          ? editedArgs.answers
+          : [editedArgs.answers];
+        const validAnswers = rawAnswers
+          .map((a) => (Array.isArray(a) ? a.join(', ') : typeof a === 'string' ? a.trim() : ''))
+          .filter((a) => a.length > 0);
+        const text = validAnswers.length > 0 ? validAnswers.join(', ') : 'Skipped';
         const dummyEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
         onSubmit({ text, files: [] }, dummyEvent);
       } else {

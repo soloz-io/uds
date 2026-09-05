@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Icon } from "@/components/primitives/Icon";
 import { Input } from "@/components/primitives/Input";
 import { Textarea } from "@/components/primitives/Textarea";
@@ -108,6 +108,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string | string[]>>({});
     const [otherTexts, setOtherTexts] = useState<Record<number, string>>({});
     const [selectedOptionIndices, setSelectedOptionIndices] = useState<Record<number, number | null>>({});
+    const inputRef = useRef<HTMLInputElement | null>(null);
 
     if (actionRequest.args !== prevArgs) {
       setPrevArgs(actionRequest.args);
@@ -126,13 +127,13 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
           (Array.isArray(actionRequest.args.questions) && actionRequest.args.questions.length > 0)));
 
     // Parse questions
-    let questions: Question[] = [];
+    let rawQuestions: Question[] = [];
     if (actionRequest.args && Array.isArray(actionRequest.args.questions)) {
-      questions = actionRequest.args.questions as Question[];
+      rawQuestions = actionRequest.args.questions as Question[];
     } else if (actionRequest.args && actionRequest.args.questions && typeof actionRequest.args.questions === "object") {
-      questions = Object.values(actionRequest.args.questions) as Question[];
+      rawQuestions = Object.values(actionRequest.args.questions) as Question[];
     } else if (actionRequest.args && typeof actionRequest.args.question === "string") {
-      questions = [
+      rawQuestions = [
         {
           question: actionRequest.args.question,
           options: Array.isArray(actionRequest.args.options)
@@ -143,52 +144,101 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
       ];
     }
 
+    const questions: Question[] = rawQuestions.map((q) => ({
+      ...q,
+      options: (Array.isArray(q.options) ? q.options : [])
+        .map((opt) => (typeof opt === "string" ? opt.trim() : ""))
+        .filter(
+          (opt) =>
+            opt.length > 0 &&
+            opt.toLowerCase() !== "other" &&
+            opt.toLowerCase() !== "other (write your answer)"
+        ),
+    }));
+
     const currentQuestion = questions[currentQuestionIndex];
     const options = currentQuestion?.options || [];
     const isMultiSelect = currentQuestion?.is_multi_select || false;
     const allOptions = [...options, "Other (write your answer)"];
 
+    // Auto-focus input when there are no predefined options (pure free-form question)
+    useEffect(() => {
+      if (isQuestionAction && currentQuestion && options.length === 0) {
+        inputRef.current?.focus();
+      }
+    }, [currentQuestionIndex, isQuestionAction, options.length, currentQuestion]);
+
     // Render interactive question view
     if (isQuestionAction && currentQuestion) {
-      const handleContinue = () => {
-        const qIdx = currentQuestionIndex;
+      const isQuestionAnswered = (qIdx: number): boolean => {
+        const q = questions[qIdx];
+        if (!q) return false;
+        const qOptions = q.options || [];
+        const qIsMulti = q.is_multi_select || false;
         const selIdx = selectedOptionIndices[qIdx];
-        const hasOtherSelected = selIdx === options.length;
-        const hasRegularSelection = selIdx !== null && selIdx !== undefined && !hasOtherSelected;
-        const hasMultiSelectItems = isMultiSelect && Array.isArray(selectedAnswers[qIdx]) && (selectedAnswers[qIdx] as string[]).length > 0;
-        
-        const isApprovalType = actionRequest.args?.type === 'approval';
-        const isOtherEmpty = hasOtherSelected && !otherTexts[qIdx]?.trim();
-        const hasNoValidSelection = (!hasRegularSelection && !hasMultiSelectItems && !hasOtherSelected) || isOtherEmpty;
 
-        let answer: string | string[] = "Approved";
-
-        if (hasOtherSelected) {
-          answer = otherTexts[qIdx] || "Approved";
-        } else if (isMultiSelect) {
-          answer = (selectedAnswers[qIdx] as string[]).join(", ") || "Approved";
-        } else if (hasRegularSelection) {
-          answer = selectedAnswers[qIdx] as string || "Approved";
+        if (qIsMulti) {
+          const ans = selectedAnswers[qIdx];
+          return Array.isArray(ans) && ans.length > 0;
         }
 
-        if (!isApprovalType && hasNoValidSelection) return;
+        const isOther = selIdx === qOptions.length;
+        if (isOther) {
+          return !!otherTexts[qIdx]?.trim();
+        }
 
-        if (currentQuestionIndex === questions.length - 1) {
-          const finalAnswers = questions.map((q, idx) => {
-            if (idx === qIdx) return answer;
-            return selectedAnswers[idx] || "";
-          });
+        if (selIdx !== null && selIdx !== undefined && selIdx >= 0 && selIdx < qOptions.length) {
+          return true;
+        }
+
+        const ans = selectedAnswers[qIdx];
+        if (typeof ans === "string" && ans.trim().length > 0) {
+          return true;
+        }
+
+        return false;
+      };
+
+      const allQuestionsAnswered =
+        questions.length > 0 && questions.every((_, idx) => isQuestionAnswered(idx));
+
+      const isApprovalType = actionRequest.args?.type === 'approval';
+      const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+      const handleContinue = () => {
+        if (!isApprovalType && !allQuestionsAnswered) {
+          return;
+        }
+
+        const finalAnswers = questions.map((q, idx) => {
+          const qOptions = q.options || [];
+          const selIdx = selectedOptionIndices[idx];
+          const isOther = selIdx === qOptions.length;
+
+          if (isOther) {
+            return otherTexts[idx]?.trim() || "";
+          }
+          if (q.is_multi_select && Array.isArray(selectedAnswers[idx])) {
+            return (selectedAnswers[idx] as string[]).join(", ");
+          }
+          if (typeof selectedAnswers[idx] === "string") {
+            return (selectedAnswers[idx] as string).trim();
+          }
+          return "";
+        });
+
+        if (isApprovalType) {
+          onApprove();
+        } else {
           if (onEdit) onEdit({ ...actionRequest.args, answers: finalAnswers });
           else onApprove();
-        } else {
-          setSelectedAnswers((prev) => ({ ...prev, [qIdx]: answer }));
-          setCurrentQuestionIndex((prev) => prev + 1);
         }
       };
 
       const handleOptionSelect = (option: string, index: number, isOther: boolean) => {
         if (isOther) {
           setSelectedOptionIndices((prev) => ({ ...prev, [currentQuestionIndex]: index }));
+          inputRef.current?.focus();
         } else {
           if (isMultiSelect) {
             const current = (selectedAnswers[currentQuestionIndex] as string[]) || [];
@@ -278,11 +328,28 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                   </div>
 
                   {isOther ? (
-                    <div className="flex-grow min-w-0" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="flex-grow min-w-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOptionSelect(option, index, true);
+                      }}
+                    >
                       <input
+                        ref={inputRef}
                         type="text"
-                        placeholder="Other (write your answer)"
+                        placeholder={options.length > 0 ? "Other (write your answer)" : "Type your answer..."}
                         value={otherTexts[currentQuestionIndex] || ""}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (currentQuestionIndex < questions.length - 1) {
+                              setCurrentQuestionIndex((prev) => prev + 1);
+                            } else if (isApprovalType || allQuestionsAnswered) {
+                              handleContinue();
+                            }
+                          }
+                        }}
                         onChange={(e) => {
                           const val = e.target.value;
                           setOtherTexts((prev) => ({ ...prev, [currentQuestionIndex]: val }));
@@ -325,40 +392,33 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
             })}
           </div>
 
-          <ConfirmationActions>
-            {!hideSkipButton && (
-              <ConfirmationAction
-                variant="outline"
-                type="button"
-                onClick={() => {
-                  if (onReject) {
-                    onReject("Skipped question");
-                  }
-                }}
-              >
-                {skipButtonText}
-              </ConfirmationAction>
-            )}
-
-            <ConfirmationAction
-              type="button"
-              onClick={handleContinue}
-              disabled={isProcessing}
-              variant="default"
-            >
-              {currentQuestionIndex === questions.length - 1 ? (
-                <>
-                <Icon name="check" size="sm" className="mr-2" />
-                  {submitButtonText}
-                </>
-              ) : (
-                <>
-                  Next
-                  <Icon name="chevron-right" size="sm" className="ml-2" />
-                </>
+          {isLastQuestion && (
+            <ConfirmationActions>
+              {!hideSkipButton && (
+                <ConfirmationAction
+                  variant="outline"
+                  type="button"
+                  onClick={() => {
+                    if (onReject) {
+                      onReject("Skipped question");
+                    }
+                  }}
+                >
+                  {skipButtonText}
+                </ConfirmationAction>
               )}
-            </ConfirmationAction>
-          </ConfirmationActions>
+
+              <ConfirmationAction
+                type="button"
+                onClick={handleContinue}
+                disabled={isProcessing || (!isApprovalType && !allQuestionsAnswered)}
+                variant="default"
+              >
+                <Icon name="check" size="sm" className="mr-2" />
+                {submitButtonText}
+              </ConfirmationAction>
+            </ConfirmationActions>
+          )}
         </AIConfirmation>
       );
     }
@@ -455,7 +515,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
 
               <div className="mt-3 space-y-3">
                 {Object.entries(actionRequest.args)
-                  .filter(([_, value]) => typeof value === "string" || typeof value === "number" || typeof value === "boolean")
+                  .filter(([, value]) => typeof value === "string" || typeof value === "number" || typeof value === "boolean")
                   .map(([key, value]) => {
                     const strValue = formatValue(value);
                     const isMultiline = strValue.includes("\n");

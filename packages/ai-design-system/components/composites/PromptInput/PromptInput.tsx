@@ -16,6 +16,7 @@ import {
   type PromptInputProps as AIPromptInputProps,
   usePromptInputAttachments,
   usePromptInputController,
+  useOptionalPromptInputController,
 } from "@/components/ai-elements/prompt-input";
 import type { FormEvent } from "react";
 import { Button } from "@/components/primitives/Button";
@@ -56,6 +57,8 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     onError,
     ...props
   }) => {
+    const existingController = useOptionalPromptInputController();
+
     const handleSubmit = React.useCallback(
       (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => {
         if (disabled || (loading && onStop)) {
@@ -119,6 +122,14 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     );
 
     if (isControlled) {
+      if (existingController) {
+        return (
+          <>
+            <ExternalValueSync value={value} />
+            {promptInputContent}
+          </>
+        );
+      }
       return (
         <PromptInputProvider initialInput={value}>
           <ExternalValueSync value={value} />
@@ -155,7 +166,7 @@ function AttachButton({ disabled }: { disabled?: boolean }) {
 /** Renders a preview chip (thumbnail + remove) per attached file. */
 function AttachmentPreviews() {
   return (
-    <PromptInputAttachments>
+    <PromptInputAttachments className="w-full justify-start self-start">
       {(attachment) => <PromptInputAttachment data={attachment} />}
     </PromptInputAttachments>
   );

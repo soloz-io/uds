@@ -37,6 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { ChatStatus, FileUIPart } from "ai";
 import {
+  FileIcon,
   Loader2Icon,
   SendIcon,
   SquareIcon,
@@ -111,7 +112,7 @@ export const usePromptInputController = () => {
 };
 
 // Optional variants (do NOT throw). Useful for dual-mode components.
-const useOptionalPromptInputController = () =>
+export const useOptionalPromptInputController = () =>
   useContext(PromptInputController);
 
 export const useProviderAttachments = () => {
@@ -265,81 +266,81 @@ export function PromptInputAttachment({
     data.mediaType?.startsWith("image/") && data.url ? "image" : "file";
   const isImage = mediaType === "image";
 
-  const attachmentLabel = filename || (isImage ? "Image" : "Attachment");
+  // For non-image files, truncate filename to max 20 characters followed by '..'
+  const attachmentLabel = filename
+    ? filename.length > 20
+      ? `${filename.slice(0, 20)}..`
+      : filename
+    : isImage
+    ? "Image"
+    : "Attachment";
+
+  if (isImage) {
+    return (
+      <div
+        className={cn(
+          "group relative size-10 shrink-0 overflow-hidden rounded-md border border-border bg-muted transition-all",
+          className
+        )}
+        key={data.id}
+        title={filename || undefined}
+        {...props}
+      >
+        <img
+          alt={filename || "attachment"}
+          className="size-full object-cover"
+          src={data.url}
+        />
+        <Button
+          aria-label="Remove attachment"
+          className="absolute inset-0 size-full cursor-pointer rounded-none bg-black/40 p-0 text-white opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-black/60 [&>svg]:size-3.5"
+          onClick={(e) => {
+            e.stopPropagation();
+            attachments.remove(data.id);
+          }}
+          type="button"
+          variant="ghost"
+        >
+          <XIcon />
+          <span className="sr-only">Remove</span>
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <PromptInputHoverCard>
-      <HoverCardTrigger asChild>
-        <div
-          className={cn(
-            "group relative flex h-8 cursor-default select-none items-center gap-1.5 rounded-md border border-border px-1.5 font-medium text-sm transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-            className
-          )}
-          key={data.id}
-          {...props}
+    <div
+      className={cn(
+        "group relative flex h-8 cursor-default select-none items-center gap-1.5 rounded-md border border-border px-1.5 font-medium text-sm transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        className
+      )}
+      key={data.id}
+      title={filename || undefined}
+      {...props}
+    >
+      <div className="relative size-5 shrink-0">
+        <div className="absolute inset-0 flex size-5 items-center justify-center overflow-hidden rounded bg-background transition-opacity group-hover:opacity-0">
+          <div className="flex size-5 items-center justify-center text-muted-foreground">
+            <FileIcon className="size-3.5" />
+          </div>
+        </div>
+        <Button
+          aria-label="Remove attachment"
+          className="absolute inset-0 size-5 cursor-pointer rounded p-0 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 [&>svg]:size-2.5"
+          onClick={(e) => {
+            e.stopPropagation();
+            attachments.remove(data.id);
+          }}
+          type="button"
+          variant="ghost"
         >
-          <div className="relative size-5 shrink-0">
-            <div className="absolute inset-0 flex size-5 items-center justify-center overflow-hidden rounded bg-background transition-opacity group-hover:opacity-0">
-              {isImage ? (
-                <img
-                  alt={filename || "attachment"}
-                  className="size-5 object-cover"
-                  height={20}
-                  src={data.url}
-                  width={20}
-                />
-              ) : (
-                <div className="flex size-5 items-center justify-center text-muted-foreground">
-                  <div className="size-3" />
-                </div>
-              )}
-            </div>
-            <Button
-              aria-label="Remove attachment"
-              className="absolute inset-0 size-5 cursor-pointer rounded p-0 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 [&>svg]:size-2.5"
-              onClick={(e) => {
-                e.stopPropagation();
-                attachments.remove(data.id);
-              }}
-              type="button"
-              variant="ghost"
-            >
-              <XIcon />
-              <span className="sr-only">Remove</span>
-            </Button>
-          </div>
+          <XIcon />
+          <span className="sr-only">Remove</span>
+        </Button>
+      </div>
 
-          <span className="flex-1 truncate">{attachmentLabel}</span>
-        </div>
-      </HoverCardTrigger>
-      <PromptInputHoverCardContent className="w-auto p-2">
-        <div className="w-auto space-y-3">
-          {isImage && (
-            <div className="flex max-h-96 w-96 items-center justify-center overflow-hidden rounded-md border">
-              <img
-                alt={filename || "attachment preview"}
-                className="max-h-full max-w-full object-contain"
-                height={384}
-                src={data.url}
-                width={448}
-              />
-            </div>
-          )}
-          <div className="flex items-center gap-2.5">
-            <div className="min-w-0 flex-1 space-y-1 px-0.5">
-              <h4 className="truncate font-semibold text-sm leading-none">
-                {filename || (isImage ? "Image" : "Attachment")}
-              </h4>
-              {data.mediaType && (
-                <p className="truncate font-mono text-muted-foreground text-xs">
-                  {data.mediaType}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </PromptInputHoverCardContent>
-    </PromptInputHoverCard>
+      <span className="flex-1 truncate">{attachmentLabel}</span>
+    </div>
   );
 }
 
@@ -351,7 +352,9 @@ export type PromptInputAttachmentsProps = Omit<
 };
 
 export function PromptInputAttachments({
+  className,
   children,
+  ...props
 }: PromptInputAttachmentsProps) {
   const attachments = usePromptInputAttachments();
 
@@ -359,9 +362,19 @@ export function PromptInputAttachments({
     return null;
   }
 
-  return attachments.files.map((file) => (
-    <React.Fragment key={file.id}>{children(file)}</React.Fragment>
-  ));
+  return (
+    <div
+      className={cn(
+        "flex w-full flex-wrap items-center justify-start self-start gap-1.5 px-3 pt-2",
+        className
+      )}
+      {...props}
+    >
+      {attachments.files.map((file) => (
+        <React.Fragment key={file.id}>{children(file)}</React.Fragment>
+      ))}
+    </div>
+  );
 }
 
 export type PromptInputActionAddAttachmentsProps = ComponentProps<
@@ -674,7 +687,9 @@ export const PromptInput = ({
 
     // Convert blob URLs to data URLs asynchronously
     Promise.all(
-      files.map(async ({ id, ...item }) => {
+      files.map(async (file) => {
+        const item = { ...file };
+        delete (item as { id?: string }).id;
         if (item.url && item.url.startsWith("blob:")) {
           return {
             ...item,
@@ -706,7 +721,7 @@ export const PromptInput = ({
             controller.textInput.clear();
           }
         }
-      } catch (error) {
+      } catch {
         // Don't clear on error - user may want to retry
       }
     });
