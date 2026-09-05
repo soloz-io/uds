@@ -184,6 +184,31 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
             </Badge>
           </div>
         )}
+
+        {/* Canvas-owned transition triggers — deliberately rendered here,
+            as siblings of the (always pointer-events-none) app iframe
+            wrapper above, with pointer-events-auto explicitly set. A CSS
+            pointer-events-none on an ancestor does not disable an
+            auto-opting-back-in descendant, so these stay clickable even
+            though the live app underneath never receives a single real
+            tap in any view. */}
+        {data.transitions && data.transitions.length > 0 && (
+          <div className="pointer-events-auto absolute bottom-2 right-2 flex flex-col items-end gap-1">
+            {data.transitions.map((t) => (
+              <Button
+                key={t.id}
+                size="sm"
+                variant="secondary"
+                className="h-7 gap-1 px-2 text-xs shadow-md"
+                onClick={t.onTrigger}
+                title={t.label}
+              >
+                {t.label}
+                <Icon name="arrow-right" size="xs" />
+              </Button>
+            ))}
+          </div>
+        )}
       </div>
 
       {!data.hideControls && data.label && (

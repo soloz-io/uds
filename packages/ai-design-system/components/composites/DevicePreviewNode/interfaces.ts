@@ -92,6 +92,16 @@ export interface DevicePreviewNodeData {
   actionPorts?: DevicePreviewActionPort[]
   /** Hide floating per-node controls (used on multi-screen workflow canvas) */
   hideControls?: boolean
+  /**
+   * Canvas-owned transition triggers, rendered as small overlay buttons
+   * stacked at the bottom of the device screen. These are NOT part of the
+   * live app — the device screen itself stays non-interactive always (no
+   * real in-app navigation anywhere, in any view). Clicking one calls
+   * `onTrigger` directly; the consumer decides what that does (mark an
+   * edge animated, switch which route a single device shows, etc.) — this
+   * component only renders the buttons and forwards the click.
+   */
+  transitions?: Array<{ id: string; label: string; onTrigger: () => void }>
   [key: string]: unknown
 }
 
