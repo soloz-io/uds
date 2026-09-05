@@ -65,6 +65,9 @@ export interface NodeEditorProps {
 
   /** Consumer-provided overlay rendered in the canvas top-center (e.g. a device-preview toolbar). */
   topCenter?: React.ReactNode;
+
+  /** Forwarded to WorkflowCanvas — change this value to trigger a fitView(). */
+  fitViewSignal?: string | number;
 }
 
 function statusToGlow(status: string): HighlightStatus | null {
@@ -109,6 +112,7 @@ export function NodeEditor({
   nodeStatuses,
   nodeActions,
   topCenter,
+  fitViewSignal,
 }: NodeEditorProps) {
   const highlightedNodes = useMemo(
     () => {
@@ -167,6 +171,7 @@ export function NodeEditor({
         selectionOnDrag={selectionOnDrag}
         nodes={highlightedNodes}
         showMinimap={showMinimap}
+        fitViewSignal={fitViewSignal}
         topLeft={
           showTopLeftToolbar ? (
             <WorkflowToolbar

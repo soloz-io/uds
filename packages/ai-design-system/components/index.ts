@@ -62,6 +62,5 @@ export type {
   DevicePreviewNodeType,
   DeviceScreenshotRequest,
   DevicePreviewToolbarProps,
-  DevicePreviewViewMode,
   DevicePreviewRoute,
 } from './composites';

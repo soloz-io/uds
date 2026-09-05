@@ -7,24 +7,13 @@ import { Badge } from "@/components/primitives/Badge";
 import { Button } from "@/components/primitives/Button";
 import { Icon } from "@/components/primitives/Icon";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/primitives/Select";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/primitives/Tooltip";
 import { cn } from "@/lib/utils";
-import {
-  DEVICE_PRESETS,
-  getPreset,
-  type DevicePreviewNodeData,
-} from "./interfaces";
+import { getPreset, type DevicePreviewNodeData } from "./interfaces";
 
 type DevicePreviewNodeProps = NodeProps & {
   data?: DevicePreviewNodeData;
@@ -40,10 +29,10 @@ type DevicePreviewNodeProps = NodeProps & {
  * `data.registerIframe` so consumers can rasterize it (e.g. html-to-image).
  *
  * ## Controls
- * - Device preset switcher (curated `DEVICE_PRESETS` table — Expo exposes no
- *   device-dimension catalog, so presets are hardcoded like Storybook).
  * - Screenshot button — emits `onTakeScreenshot({ route, iframe })`.
  * - Reload button — remounts the iframe (or defers to `data.onReload`).
+ * - No device-preset switcher here — that lives once, on the canvas
+ *   toolbar (`DevicePreviewToolbar`), not duplicated per node.
  *
  * ## Accessibility
  * - All icon buttons carry accessible names (tooltips + titles).
@@ -114,28 +103,14 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
         </div>
       )}
 
-      {/* Floating toolbar — rendered when controls not hidden */}
+      {/* Floating toolbar — rendered when controls not hidden.
+          No device-preset select here: the canvas toolbar
+          (DevicePreviewToolbar, rendered in the canvas panel slot) already
+          owns that choice, and having a second one on the node itself was
+          the same control twice. Screenshot/reload stay — those are
+          per-node actions with no equivalent up there. */}
       {!data.hideControls && (
-        <div className="pointer-events-auto flex items-center justify-between gap-2 px-1 pb-2">
-          <Select
-            value={data.presetId ?? preset.id}
-            onValueChange={data.onPresetChange}
-          >
-            <SelectTrigger
-              className="h-8 w-[150px] text-xs"
-              aria-label="Device preset"
-            >
-              <SelectValue placeholder="Device" />
-            </SelectTrigger>
-            <SelectContent>
-              {DEVICE_PRESETS.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
+        <div className="pointer-events-auto flex items-center justify-end gap-2 px-1 pb-2">
           <TooltipProvider delayDuration={150}>
             <Tooltip>
               <TooltipTrigger asChild>

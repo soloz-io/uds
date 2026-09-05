@@ -156,7 +156,7 @@ export type { DevicePreset, DevicePreviewNodeData, DevicePreviewNodeType, Device
 
 // DevicePreviewToolbar Composite
 export { DevicePreviewToolbar } from './DevicePreviewToolbar'
-export type { DevicePreviewToolbarProps, DevicePreviewViewMode, DevicePreviewRoute } from './DevicePreviewToolbar'
+export type { DevicePreviewToolbarProps, DevicePreviewRoute } from './DevicePreviewToolbar'
 
 // WorkflowToolbar Composite
 export { WorkflowToolbar, WorkflowToolbarActions } from './WorkflowToolbar'

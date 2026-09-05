@@ -1,18 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 import { DevicePreviewToolbar } from "./DevicePreviewToolbar";
-import type { DevicePreviewRoute, DevicePreviewViewMode } from "./interfaces";
+import type { DevicePreviewRoute } from "./interfaces";
 
 /**
  * DevicePreviewToolbar Composite Stories
  *
- * Center header for the device-preview canvas: view-mode group (Play, Single
- * Route, Interactive, All Routes), route selector and device-preset switcher.
+ * Center header for the device-preview canvas: route selector and
+ * device-preset switcher. No mode toggle — the device preview is always
+ * interactive; picking "All" from the route selector (added by the
+ * caller) shows every screen at once instead of one device.
  *
  * ## Usage Guidelines
  * ### Do's
  * - Place in the canvas `topCenter` panel slot
- * - Wire `onViewModeChange`/`onRouteChange`/`onDevicePresetChange` for interactivity
+ * - Wire `onRouteChange`/`onDevicePresetChange` for interactivity
  * ### Don'ts
  * - Don't render it above the canvas outside a ReactFlow panel (use `topCenter`)
  */
@@ -25,7 +27,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Center toolbar for the device-preview canvas: view modes, route selector and device preset switcher.",
+          "Center toolbar for the device-preview canvas: route selector and device preset switcher.",
       },
     },
   },
@@ -42,7 +44,6 @@ const ROUTES: DevicePreviewRoute[] = [
 
 export const Default: Story = {
   args: {
-    viewMode: "single",
     routes: ROUTES,
     activeRoute: "/login",
     devicePresetId: "iphone-16-pro",
@@ -50,17 +51,14 @@ export const Default: Story = {
 };
 
 /**
- * Interactive story — switch modes, routes and presets live.
+ * Interactive story — switch routes and presets live.
  */
 export const Interactive: Story = {
   render: () => {
-    const [viewMode, setViewMode] = useState<DevicePreviewViewMode>("single");
     const [route, setRoute] = useState("/login");
     const [presetId, setPresetId] = useState("iphone-16-pro");
     return (
       <DevicePreviewToolbar
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
         routes={ROUTES}
         activeRoute={route}
         onRouteChange={setRoute}
@@ -72,10 +70,10 @@ export const Interactive: Story = {
 };
 
 /**
- * Modes only — no route/preset selectors (e.g. Play mode entry point).
+ * Device preset only — no route selector (e.g. a single-screen app).
  */
-export const ModesOnly: Story = {
+export const PresetOnly: Story = {
   args: {
-    viewMode: "play",
+    devicePresetId: "iphone-16-pro",
   },
 };

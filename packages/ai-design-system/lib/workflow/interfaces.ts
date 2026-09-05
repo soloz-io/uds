@@ -41,5 +41,13 @@ export interface WorkflowCanvasProps {
   topLeft?: React.ReactNode;
   topRight?: React.ReactNode;
   topCenter?: React.ReactNode;
+  /** Change this value to trigger a fitView() (e.g. after switching to a
+   * layout with a different node count/extent, like the device-preview
+   * "All routes" grid) — any new value re-fits, `undefined` never fires.
+   * Not tied to `nodes`/`edges` themselves: those change on nearly every
+   * render (activeEdgeIds recompute, status updates, ...), so auto-fitting
+   * on every node-array change would fight the user's own pan/zoom
+   * constantly. This is opt-in per consumer instead. */
+  fitViewSignal?: string | number;
   className?: string;
 }

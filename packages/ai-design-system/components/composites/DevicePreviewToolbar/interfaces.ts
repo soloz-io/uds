@@ -1,15 +1,5 @@
 import type { DevicePreset } from "@/components/composites/DevicePreviewNode"
 
-/**
- * View modes for the device-preview canvas.
- *
- * - `play` — run the current route fullscreen-ish (single device, no chrome)
- * - `single` — single device showing one `?route=` screen
- * - `interactive` — single device, pointer events reach the app (tap-through)
- * - `grid` — all routes side-by-side, same app src with `?route=` per device
- */
-export type DevicePreviewViewMode = "play" | "single" | "interactive" | "grid";
-
 export interface DevicePreviewRoute {
   /** Route path, e.g. `/login`. */
   id: string
@@ -18,11 +8,10 @@ export interface DevicePreviewRoute {
 }
 
 export interface DevicePreviewToolbarProps {
-  /** Active view mode. */
-  viewMode: DevicePreviewViewMode
-  /** Called when the user switches view mode. */
-  onViewModeChange?: (mode: DevicePreviewViewMode) => void
-  /** Routes available for the single/grid modes. */
+  /** Routes available to view. Include an "All" entry (e.g.
+   * `{ id: ALL_ROUTES_ROUTE_ID, label: 'All' }`) to let the user pick the
+   * all-routes grid view from here — this component renders whatever it's
+   * given, it has no built-in notion of an "all routes" id. */
   routes?: DevicePreviewRoute[]
   /** Active route id. */
   activeRoute?: string

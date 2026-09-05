@@ -52,9 +52,34 @@ function WorkflowCanvasInner({
   topLeft,
   topRight,
   topCenter,
+  fitViewSignal,
   className,
 }: WorkflowCanvasProps) {
   const { fitView } = useReactFlow();
+
+  // Opt-in re-fit, e.g. after the device-preview toolbar's Route select
+  // switches to "All" and the node count/extent changes underneath the
+  // user. Deliberately keyed on `fitViewSignal` alone, not `nodes`/`edges`
+  // — those are new array references on nearly every render (activeEdgeIds
+  // toggling an edge's type, status polling, ...), so fitting view on
+  // every such change would override the user's own pan/zoom constantly.
+  useEffect(() => {
+    if (fitViewSignal === undefined) return;
+    // A plain synchronous call, and even a double-rAF, both raced xyflow's
+    // own internal node measurement — verified live in both cases: the
+    // resulting scale was far smaller than the two device-preview nodes'
+    // true combined width needed (computed against their real DOM rects:
+    // ~1.2 would tightly fit them, but fitView produced ~0.57 and one node
+    // still landed partly outside the pane). xyflow measures each node via
+    // ResizeObserver, which fires as a separate, unsynchronized callback —
+    // not guaranteed to have run even two animation frames after the nodes
+    // prop change lands. A short real-time delay is the standard, if
+    // inelegant, workaround for this exact class of race.
+    const timer = setTimeout(() => {
+      fitView({ padding: 0.2, duration: 300 });
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [fitViewSignal, fitView]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -125,9 +150,13 @@ function WorkflowCanvasInner({
           </Panel>
         )}
         {topCenter && (
+          // Rendered top-left, not top-center — the prop name is legacy
+          // (its one real consumer, the device-preview toolbar, moved to
+          // left alignment; nothing else uses this slot for content that
+          // actually wants centering).
           <Panel
             className="pointer-events-auto border-none bg-transparent p-0"
-            position="top-center"
+            position="top-left"
           >
             {topCenter}
           </Panel>
