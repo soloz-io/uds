@@ -36,28 +36,63 @@ export function WorkflowToolbarActions({
     <div className={cn("flex items-center gap-2", className)}>
       {actionGroups.map((group, groupIndex) => (
         <ButtonGroup key={groupIndex} orientation="horizontal">
-          {group.map((action) => (
-            <Button
-              key={action.id}
-              className="relative border hover:bg-black/5 disabled:opacity-100 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
-              disabled={action.disabled || action.loading}
-              onClick={action.onClick}
-              size="icon"
-              title={action.title}
-              variant="secondary"
-            >
-              {action.loading ? (
-                <Icon name="loader-2" size="sm" className="animate-spin" />
-              ) : typeof action.icon === 'string' ? (
-                <Icon name={action.icon} size="sm" />
-              ) : (
-                action.icon
-              )}
-              {action.indicator && !action.loading && (
-                <div className="absolute top-1.5 right-1.5 size-2 rounded-full bg-primary" />
-              )}
-            </Button>
-          ))}
+          {group.map((action) => {
+            const button = (
+              <Button
+                key={action.id}
+                className="relative border hover:bg-black/5 dark:hover:bg-white/5 disabled:[&>svg]:text-muted-foreground"
+                disabled={action.disabled || action.loading || action.switcher?.disabled}
+                onClick={action.onClick}
+                size="icon"
+                title={action.title}
+                variant="secondary"
+              >
+                {action.loading ? (
+                  <Icon name="loader-2" size="sm" className="animate-spin" />
+                ) : typeof action.icon === 'string' ? (
+                  <Icon name={action.icon} size="sm" />
+                ) : (
+                  action.icon
+                )}
+                {action.indicator && !action.loading && (
+                  <div className="absolute top-1.5 right-1.5 size-2 rounded-full bg-primary" />
+                )}
+              </Button>
+            );
+
+            if (action.switcher) {
+              const { switcher } = action;
+              return (
+                <DropdownMenu key={action.id}>
+                  <DropdownMenuTrigger asChild>
+                    {button}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {switcher.items.length === 0 ? (
+                      <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                        {switcher.placeholder ?? "No items"}
+                      </div>
+                    ) : (
+                      switcher.items.map((item) => (
+                        <DropdownMenuItem
+                          key={item.value}
+                          className="flex items-center justify-between gap-4 text-xs"
+                          onClick={() => switcher.onValueChange(item.value)}
+                        >
+                          <span>{item.label}</span>
+                          {item.value === switcher.value && (
+                            <Icon name="check" size="sm" className="ml-2" />
+                          )}
+                        </DropdownMenuItem>
+                      ))
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            }
+
+            return button;
+          })}
         </ButtonGroup>
       ))}
     </div>

@@ -93,13 +93,26 @@ export interface DevicePreviewNodeData {
   /** Hide floating per-node controls (used on multi-screen workflow canvas) */
   hideControls?: boolean
   /**
+   * Tells the live app running inside this iframe that it is one of several
+   * simultaneously-mounted, fixed-route tiles (the canvas's "All routes"
+   * grid), not the one interactive device. Appended to the iframe `src` as
+   * `&frozen=1` — see `effectiveSrc` below. The app itself (not this
+   * component) is what honors it: a real button press still fires the
+   * navigation-trigger message (so the canvas edge still animates), but the
+   * app suppresses the actual screen change, so the tile never drifts off
+   * the route it's labeled with. `interactive` must be true alongside this
+   * for the click to reach the button at all.
+   */
+  frozen?: boolean
+  /**
    * Canvas-owned transition triggers, rendered as small overlay buttons
-   * stacked at the bottom of the device screen. These are NOT part of the
-   * live app — the device screen itself stays non-interactive always (no
-   * real in-app navigation anywhere, in any view). Clicking one calls
-   * `onTrigger` directly; the consumer decides what that does (mark an
-   * edge animated, switch which route a single device shows, etc.) — this
-   * component only renders the buttons and forwards the click.
+   * stacked at the bottom of the device screen. Unused by the device-
+   * preview grid as of `frozen` above — a real in-app button, not a
+   * synthetic one, is what drives that view's edge animation now. Left
+   * in place as general capability for any other canvas that still wants
+   * a click target independent of what's running inside the iframe.
+   * Clicking one calls `onTrigger` directly; this component only renders
+   * the buttons and forwards the click, the consumer decides what it does.
    */
   transitions?: Array<{ id: string; label: string; onTrigger: () => void }>
   [key: string]: unknown

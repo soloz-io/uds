@@ -45,16 +45,20 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
 
   const effectiveSrc = useMemo(() => {
     if (!data?.src) return "";
-    if (!data?.route) return data.src;
+    if (!data?.route && !data?.frozen) return data.src;
     try {
       const url = new URL(data.src, typeof window !== "undefined" ? window.location.href : "http://localhost");
-      url.searchParams.set("route", data.route);
+      if (data.route) url.searchParams.set("route", data.route);
+      if (data.frozen) url.searchParams.set("frozen", "1");
       return url.toString();
     } catch {
+      const params: string[] = [];
+      if (data.route) params.push(`route=${encodeURIComponent(data.route)}`);
+      if (data.frozen) params.push("frozen=1");
       const sep = data.src.includes("?") ? "&" : "?";
-      return `${data.src}${sep}route=${encodeURIComponent(data.route)}`;
+      return `${data.src}${sep}${params.join("&")}`;
     }
-  }, [data?.src, data?.route]);
+  }, [data?.src, data?.route, data?.frozen]);
 
   if (!data) {
     return null;
@@ -217,12 +221,21 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
         </div>
       )}
 
-      {/* Standard target handles on all 4 edges */}
-      <Handle id="target-left" position={Position.Left} type="target" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-      <Handle id="target" position={Position.Left} type="target" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-      <Handle id="target-top" position={Position.Top} type="target" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-      <Handle id="target-right" position={Position.Right} type="target" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-      <Handle id="target-bottom" position={Position.Bottom} type="target" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
+      {/*
+        Standard target handles on all 4 edges — meant to be invisible except
+        on hover. The `!` prefix on both opacity utilities is load-bearing,
+        not decorative: @xyflow/react ships its own `.react-flow__handle`
+        base style with an explicit opacity, which otherwise beats a plain
+        Tailwind utility class in the cascade and leaves these permanently
+        visible at every node's Top/Right/Bottom/Left, regardless of hover —
+        the exact defect that made an unrelated edge-anchoring bug look like
+        it had 4 legitimate connection points instead of none.
+      */}
+      <Handle id="target-left" position={Position.Left} type="target" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
+      <Handle id="target" position={Position.Left} type="target" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
+      <Handle id="target-top" position={Position.Top} type="target" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
+      <Handle id="target-right" position={Position.Right} type="target" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
+      <Handle id="target-bottom" position={Position.Bottom} type="target" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
 
       {/* Dynamic element-anchored source handles */}
       {data.actionPorts && data.actionPorts.length > 0 &&
@@ -238,11 +251,11 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
         ))}
 
       {/* Standard source handles on all 4 edges */}
-      <Handle id="source-right" position={Position.Right} type="source" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-      <Handle id="source" position={Position.Right} type="source" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-      <Handle id="source-top" position={Position.Top} type="source" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-      <Handle id="source-bottom" position={Position.Bottom} type="source" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
-      <Handle id="source-left" position={Position.Left} type="source" className="opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
+      <Handle id="source-right" position={Position.Right} type="source" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
+      <Handle id="source" position={Position.Right} type="source" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
+      <Handle id="source-top" position={Position.Top} type="source" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
+      <Handle id="source-bottom" position={Position.Bottom} type="source" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
+      <Handle id="source-left" position={Position.Left} type="source" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
     </div>
   );
 });
