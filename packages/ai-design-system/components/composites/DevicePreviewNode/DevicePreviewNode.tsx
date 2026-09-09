@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, memo, useMemo, useRef, useState } from "react";
+import { Fragment, memo, useRef, useState } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { ExpoAppPreview } from "@/components/ai-elements/ExpoAppPreview";
 import { Badge } from "@/components/primitives/Badge";
@@ -43,22 +43,25 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
   const [reloadKey, setReloadKey] = useState(0);
   const registeredRef = useRef<HTMLIFrameElement | null>(null);
 
-  const effectiveSrc = useMemo(() => {
-    if (!data?.src) return "";
-    if (!data?.route && !data?.frozen) return data.src;
-    try {
-      const url = new URL(data.src, typeof window !== "undefined" ? window.location.href : "http://localhost");
-      if (data.route) url.searchParams.set("route", data.route);
-      if (data.frozen) url.searchParams.set("frozen", "1");
-      return url.toString();
-    } catch {
-      const params: string[] = [];
-      if (data.route) params.push(`route=${encodeURIComponent(data.route)}`);
-      if (data.frozen) params.push("frozen=1");
-      const sep = data.src.includes("?") ? "&" : "?";
-      return `${data.src}${sep}${params.join("&")}`;
-    }
-  }, [data?.src, data?.route, data?.frozen]);
+  /**
+   * The URL the iframe loads — the app's base, and nothing about routing.
+   *
+   * `?route=` and `?frozen=1` used to be appended here, from the days when
+   * the app read its own query string to decide which screen to show and
+   * whether to suppress navigation. Neither is true any more:
+   *
+   * - Routing is file-based. The screen is selected by PATH, and the canvas
+   *   navigates the iframe itself once it has loaded. A `route` query param
+   *   was not merely ignored, it was misleading — it appeared in the URL of
+   *   an "Unmatched Route" page and read like the cause.
+   * - Suppression happens in the canvas, at the capture phase, before a press
+   *   reaches the app at all. The app is not asked to cooperate.
+   *
+   * Keeping `src` untouched also matters mechanically: the canvas drives
+   * routing through the iframe's history, and a src it rewrites underneath
+   * that would fight it.
+   */
+  const effectiveSrc = data?.src ?? "";
 
   if (!data) {
     return null;

@@ -38,7 +38,7 @@ export const ExpoAppPreview = React.memo<ExpoAppPreviewProps>(
     // means for them. The specific cause still comes through in `error`
     // underneath, and the case that used to dominate here — no sandbox — is
     // now handled by the Wake screen before this component is ever rendered.
-    errorLabel = "This app could not be shown",
+    errorLabel = "Nothing to preview",
     onLoad,
     onError,
     onMessage,
