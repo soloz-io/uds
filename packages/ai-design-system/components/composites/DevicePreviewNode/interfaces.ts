@@ -84,6 +84,25 @@ export interface DevicePreviewNodeData {
   interactive?: boolean
   /** Show a loading overlay while true (e.g. building). */
   loading?: boolean
+  /**
+   * Metro is rebuilding the bundle right now, or its last rebuild failed.
+   *
+   * Distinct from `loading`, which means the CANVAS is fetching this node's
+   * own metadata. This one is about the app inside the iframe: the coding
+   * agent writes a feature one file at a time, and between the first write
+   * and the last the app genuinely does not compile — App.tsx importing a
+   * screen that does not exist yet. Without a signal the node just renders
+   * that half-state, which reads as a crash rather than as work in
+   * progress.
+   *
+   * Deliberately a light indicator, not a blocking overlay: the previous
+   * frame stays readable underneath, so the user keeps their context while
+   * the rebuild lands. `bundleError` picks the failed styling over the
+   * in-flight one.
+   */
+  building?: boolean
+  /** The last rebuild failed (vs. merely being in flight). Requires `building`. */
+  bundleError?: boolean
   /** Show an empty-state overlay when true (e.g. no build deployed yet). */
   isEmpty?: boolean
   /** Show an error overlay with this message. */

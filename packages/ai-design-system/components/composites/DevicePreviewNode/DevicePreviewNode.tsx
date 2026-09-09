@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useRef, useState } from "react";
+import { Fragment, memo, useMemo, useRef, useState } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { ExpoAppPreview } from "@/components/ai-elements/ExpoAppPreview";
 import { Badge } from "@/components/primitives/Badge";
@@ -189,6 +189,29 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
           </div>
         )}
 
+        {/* Bundle-rebuild indicator.
+            Deliberately a small top-right badge and NOT a blocking overlay:
+            while the agent writes a feature file by file the app underneath
+            may be mid-crash, and the useful thing is to say "this is a build
+            in progress, not a broken app" while leaving the previous frame
+            readable. A full-screen scrim would hide the very context the
+            user is trying to keep. */}
+        {data.building && (
+          <div className="pointer-events-none absolute right-2 top-2 z-10">
+            <Badge
+              variant={data.bundleError ? "destructive" : "secondary"}
+              className="gap-1 text-xs shadow-md"
+            >
+              <Icon
+                name={data.bundleError ? "warning" : "loader-2"}
+                size="xs"
+                className={data.bundleError ? undefined : "animate-spin"}
+              />
+              {data.bundleError ? "Build failed" : "Building"}
+            </Badge>
+          </div>
+        )}
+
         {/* Canvas-owned transition triggers — deliberately rendered here,
             as siblings of the (always pointer-events-none) app iframe
             wrapper above, with pointer-events-auto explicitly set. A CSS
@@ -237,17 +260,41 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
       <Handle id="target-right" position={Position.Right} type="target" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
       <Handle id="target-bottom" position={Position.Bottom} type="target" className="!opacity-0 group-hover:!opacity-100 transition-opacity duration-150" />
 
-      {/* Dynamic element-anchored source handles */}
+      {/* Dynamic element-anchored handles — a SOURCE and a TARGET per port,
+          sharing the port's id and its measured offset.
+
+          The target half is what makes a flow read button → button. Without
+          it an incoming edge has only the generic target handles to dock to,
+          and xyflow picks the first one declared (target-left, vertically
+          centred), so every arrow arrived at the middle of the device no
+          matter where the control it led to actually sat. An edge naming
+          `targetHandle: <portId>` now lands at exactly the same height its
+          matching source handle leaves from.
+
+          Both are rendered for every port because a port is a control, and a
+          control is both somewhere a journey leaves from and somewhere the
+          previous journey arrives at. They never collide: xyflow resolves a
+          handle by id AND type, and an edge supplies each separately. */}
       {data.actionPorts && data.actionPorts.length > 0 &&
         data.actionPorts.map((port) => (
-          <Handle
-            key={port.id}
-            id={port.id}
-            type="source"
-            position={Position.Right}
-            style={{ top: (data.hideControls ? 6 : 40) + port.top * scale }}
-            className="!h-2.5 !w-2.5 !bg-blue-600 !border-2 !border-white shadow-sm"
-          />
+          <Fragment key={port.id}>
+            <Handle
+              id={port.id}
+              type="source"
+              position={Position.Right}
+              style={{ top: (data.hideControls ? 6 : 40) + port.top * scale }}
+              className="!h-2.5 !w-2.5 !bg-blue-600 !border-2 !border-white shadow-sm"
+            />
+            <Handle
+              id={port.id}
+              type="target"
+              position={Position.Left}
+              style={{ top: (data.hideControls ? 6 : 40) + port.top * scale }}
+              // Invisible: the arrowhead marks the arrival point, and a second
+              // dot opposite every button reads as UI the user can act on.
+              className="!h-2.5 !w-2.5 !opacity-0"
+            />
+          </Fragment>
         ))}
 
       {/* Standard source handles on all 4 edges */}

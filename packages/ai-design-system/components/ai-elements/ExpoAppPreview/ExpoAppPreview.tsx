@@ -29,11 +29,16 @@ export const ExpoAppPreview = React.memo<ExpoAppPreviewProps>(
     sandbox = "allow-scripts allow-same-origin allow-forms allow-popups",
     allow,
     loading = false,
-    loadingLabel = "Loading app…",
+    loadingLabel = "Loading your app…",
     isEmpty = false,
-    emptyLabel = "No preview available",
+    emptyLabel = "Nothing to preview yet",
     error = null,
-    errorLabel = "Preview unavailable",
+    // Addressed to the person using the app, not to whoever is debugging it.
+    // "Preview unavailable" described the system's state; this says what it
+    // means for them. The specific cause still comes through in `error`
+    // underneath, and the case that used to dominate here — no sandbox — is
+    // now handled by the Wake screen before this component is ever rendered.
+    errorLabel = "This app could not be shown",
     onLoad,
     onError,
     onMessage,
