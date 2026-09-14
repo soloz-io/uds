@@ -54,6 +54,10 @@ export { cn } from '@/lib/utils';
 export { ButtonSwitcher } from './composites';
 export type { ButtonSwitcherProps, ButtonSwitcherItem } from './composites';
 
+// Canvas agent-presence pin (registered as the `agentAnnotation` node type)
+export { AgentAnnotation } from './composites';
+export type { AgentAnnotationNodeData, AgentAnnotationStatus } from './composites';
+
 // Device preview composites (canvas + toolbar)
 export { DevicePreviewNode, DEVICE_PRESETS, DEFAULT_PRESET_ID, getPreset, DevicePreviewToolbar } from './composites';
 export type {

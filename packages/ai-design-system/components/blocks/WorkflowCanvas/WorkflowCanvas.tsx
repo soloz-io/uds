@@ -6,6 +6,8 @@ import {
   type Connection,
   type Node,
   useReactFlow,
+  useStoreApi,
+  useUpdateNodeInternals,
 } from "@xyflow/react";
 import { useCallback, useEffect } from "react";
 import { Canvas } from "@/components/ai-elements/canvas";
@@ -18,8 +20,25 @@ import { TransitionNode } from "@/components/composites/TransitionNode";
 import { TriggerNode } from "@/components/composites/TriggerNode";
 import { SpatialContainerNode } from "@/components/composites/SpatialContainerNode";
 import { DevicePreviewNode } from "@/components/composites/DevicePreviewNode";
+import { AgentAnnotation } from "@/components/composites/AgentAnnotation";
 import type { WorkflowCanvasProps, WorkflowEdge } from "@/lib/workflow/interfaces";
 import "@xyflow/react/dist/style.css";
+
+// Bounded retry for node measurement — see the effect in WorkflowCanvasInner.
+//
+// ~30s, which sounds long and is not. The loop stops the instant every node
+// reports handleBounds, so in the ordinary case it ends after one pass; the cap
+// only bounds the pathological case where a node never appears at all.
+//
+// It was 3s, and that was too short for the case this exists to fix. The grid's
+// device nodes each carry an iframe, and on a cold sandbox they are not in the
+// DOM until Metro has served a bundle. `useUpdateNodeInternals` silently drops
+// every id it cannot resolve, so a window that closes before the iframes mount
+// spends all its attempts on nothing and gives up — leaving exactly the blank
+// canvas of edgeless nodes it was added to prevent. Verified live: all five
+// nodes resolvable, all five still `handleBounds: NULL`.
+const MEASURE_RETRY_MS = 250;
+const MEASURE_MAX_ATTEMPTS = 120;
 
 const edgeTypes = {
   straight: Edge.Strict,
@@ -33,6 +52,7 @@ const nodeTypes = {
   trigger: TriggerNode,
   spatialContainer: SpatialContainerNode,
   devicePreview: DevicePreviewNode,
+  agentAnnotation: AgentAnnotation,
 };
 
 function WorkflowCanvasInner({
@@ -56,6 +76,67 @@ function WorkflowCanvasInner({
   className,
 }: WorkflowCanvasProps) {
   const { fitView } = useReactFlow();
+  const updateNodeInternals = useUpdateNodeInternals();
+  const store = useStoreApi();
+
+  /**
+   * Force xyflow to measure the nodes it is showing.
+   *
+   * xyflow will not draw an edge until BOTH endpoints have `handleBounds` —
+   * the measured position of each handle within its node — and those come from
+   * one place only: the per-node ResizeObserver. Publishing `initialWidth` /
+   * `initialHeight` (which the preview nodes do) satisfies the separate
+   * `nodeHasDimensions` check that controls VISIBILITY, and does nothing for
+   * `handleBounds`. The two are easy to conflate and fail very differently.
+   *
+   * When that observer does not deliver — it fires as an unsynchronized
+   * callback (see the fitView effect below, which works around the same race),
+   * and reports nothing for a node that is re-created but never changes size —
+   * the result is not a missing node. It is a canvas of perfectly normal nodes
+   * with EVERY edge silently absent: `edgeLookup` holds them all, each with
+   * valid endpoints and handle ids, and not one is rendered. Observed live with
+   * all five nodes at `measured: {}` and `handleBounds: null` while their DOM
+   * elements had real size, and xyflow logged no warning.
+   *
+   * Keyed on the node ids rather than the `nodes` array, which is a new
+   * reference on nearly every render.
+   *
+   * RETRIED, not fired once, because the request is silently dropped when it
+   * is early. `useUpdateNodeInternals` resolves each id through
+   * `domNode.querySelector('.react-flow__node[data-id=...]')` and keeps only
+   * the ones it finds — a node that has not mounted yet is skipped with no
+   * error and no retry, and since the id list has not changed, the effect
+   * never runs again. One shot at 60ms worked for the single-device view and
+   * missed the grid every time, where five nodes carrying iframes mount later.
+   * So it repeats until the store actually reports `handleBounds`, and stops
+   * the moment it does.
+   */
+  const nodeIdSignature = nodes.map((n) => n.id).join("|");
+  useEffect(() => {
+    if (!nodeIdSignature) return;
+    const ids = nodeIdSignature.split("|");
+    let attempts = 0;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const measured = () => {
+      const lookup = store.getState().nodeLookup;
+      return ids.every((id) => !!lookup.get(id)?.internals?.handleBounds);
+    };
+
+    const pass = () => {
+      updateNodeInternals(ids);
+      attempts += 1;
+      // `updateNodeInternals` defers its own work to a rAF, so the result is
+      // only readable on a later tick — hence check on the next timer rather
+      // than immediately after the call.
+      timer = setTimeout(() => {
+        if (!measured() && attempts < MEASURE_MAX_ATTEMPTS) pass();
+      }, MEASURE_RETRY_MS);
+    };
+
+    timer = setTimeout(pass, 60);
+    return () => clearTimeout(timer);
+  }, [nodeIdSignature, updateNodeInternals, store]);
 
   // Opt-in re-fit, e.g. after the device-preview toolbar's Route select
   // switches to "All" and the node count/extent changes underneath the

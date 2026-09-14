@@ -5,13 +5,15 @@ import type { TransitionNodeData } from "@/components/composites/TransitionNode"
 import type { TriggerNodeData } from "@/components/composites/TriggerNode";
 import type { SpatialContainerNodeData } from "@/components/composites/SpatialContainerNode";
 import type { DevicePreviewNodeData } from "@/components/composites/DevicePreviewNode";
+import type { AgentAnnotationNodeData } from "@/components/composites/AgentAnnotation";
 
 export type WorkflowNodeData =
   | StateNodeData
   | TransitionNodeData
   | TriggerNodeData
   | SpatialContainerNodeData
-  | DevicePreviewNodeData;
+  | DevicePreviewNodeData
+  | AgentAnnotationNodeData;
 export type WorkflowNode = Node<WorkflowNodeData>;
 
 export interface WorkflowEdge {

@@ -6,11 +6,6 @@ import {
   ConversationScrollButton,
   type ConversationProps,
 } from "@/components/ai-elements/conversation"
-import {
-  Checkpoint,
-  CheckpointIcon,
-  CheckpointTrigger,
-} from "@/components/ai-elements/checkpoint"
 import type { ToolCall, SubAgent } from "@/components/composites"
 import { UserMessage, type UserMessageAttachment } from "@/components/composites/UserMessage"
 import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
@@ -295,8 +290,10 @@ export const AIConversation = React.memo<AIConversationProps>(
                   avatarSrc: message.avatarSrc,
                   avatarName: message.avatarName,
                   attachments: message.attachments,
+                  checkpointId: message.checkpointId,
                 }}
                 showAvatar={showAvatars}
+                onRestore={onRestoreCheckpoint}
               />
             )
           }
@@ -408,18 +405,6 @@ export const AIConversation = React.memo<AIConversationProps>(
                     </ReasoningDisplay>
                   )}
                 </OrchestratorMessage>
-                {message.checkpointId && onRestoreCheckpoint && !message.isLoading && !hasReasoning && (
-                  <Checkpoint>
-                    <CheckpointIcon />
-                    <CheckpointTrigger
-                      onClick={() =>
-                        onRestoreCheckpoint(message.id, message.checkpointId!)
-                      }
-                    >
-                      Restore checkpoint
-                    </CheckpointTrigger>
-                  </Checkpoint>
-                )}
               </React.Fragment>
             )
           }
@@ -437,18 +422,6 @@ export const AIConversation = React.memo<AIConversationProps>(
                 }}
                 isNested={false}
               />
-              {message.checkpointId && onRestoreCheckpoint && !message.isLoading && (
-                <Checkpoint>
-                  <CheckpointIcon />
-                  <CheckpointTrigger
-                    onClick={() =>
-                      onRestoreCheckpoint(message.id, message.checkpointId!)
-                    }
-                  >
-                    Restore checkpoint
-                  </CheckpointTrigger>
-                </Checkpoint>
-              )}
             </React.Fragment>
           )
         }),

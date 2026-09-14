@@ -268,7 +268,6 @@ export const WithCheckpointRestore: Story = {
         content: 'React is a JavaScript library for building user interfaces. It was developed by Facebook and is now maintained by Meta and a community of developers.',
         avatarSrc: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
         avatarName: 'Coordinator',
-        checkpointId: 'cp-step-1',
       },
       {
         id: '3',
@@ -277,6 +276,9 @@ export const WithCheckpointRestore: Story = {
         content: 'How does component state work?',
         avatarSrc: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
         avatarName: 'User',
+        // Rewinds to the state before this question was asked. The first user
+        // message deliberately carries none — there is nothing before it.
+        checkpointId: 'cp-step-1',
       },
       {
         id: '4',
@@ -285,6 +287,14 @@ export const WithCheckpointRestore: Story = {
         content: 'State in React represents values that can change over time and trigger component re-renders when updated.',
         avatarSrc: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
         avatarName: 'Coordinator',
+      },
+      {
+        id: '5',
+        type: 'human',
+        role: 'user',
+        content: 'Show me an example.',
+        avatarSrc: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+        avatarName: 'User',
         checkpointId: 'cp-step-2',
       },
     ],

@@ -40,6 +40,17 @@ export interface UserMessageData {
   avatarSrc?: string
   avatarName?: string
   attachments?: UserMessageAttachment[]
+  /**
+   * Set when a saved workspace snapshot sits immediately before this request.
+   * Using the control undoes the request — it and everything it produced are
+   * removed, and the text returns to the prompt input to be sent again.
+   *
+   * It belongs on the request, not on the answer: "take me back to here" is
+   * something a person means about what they asked for, and offering it under
+   * an assistant reply asks them to work out which reply corresponds to which
+   * of their own messages.
+   */
+  checkpointId?: string
 }
 
 function UserMessageAttachments({ attachments }: { attachments: UserMessageAttachment[] }) {
@@ -79,15 +90,22 @@ export interface UserMessageProps {
    * Whether to show avatar
    */
   showAvatar?: boolean
+  /**
+   * Rewind to this message's checkpoint. The control renders only when both
+   * this and `message.checkpointId` are present.
+   */
+  onRestore?: (messageId: string, checkpointId: string) => void
 }
 
 /**
  * UserMessage component - displays user messages with right alignment
  */
 export const UserMessage = React.memo<UserMessageProps>(
-  ({ message, showAvatar = true }) => {
+  ({ message, showAvatar = true, onRestore }) => {
+    const canRestore = Boolean(message.checkpointId && onRestore)
+
     return (
-      <Message from="user">
+      <Message from="user" className="group">
         {showAvatar && (message.avatarSrc
           ? <MessageAvatar
               src={message.avatarSrc}
@@ -103,9 +121,32 @@ export const UserMessage = React.memo<UserMessageProps>(
           {message.attachments && message.attachments.length > 0 && (
             <UserMessageAttachments attachments={message.attachments} />
           )}
-          {message.content && (
-            <MessageContent variant="contained">{message.content}</MessageContent>
-          )}
+          <div className="flex items-center gap-1">
+            {/* Left of the bubble, so it sits on the inside edge of a
+                right-aligned message instead of pushing into the margin.
+                Revealed on hover or keyboard focus: rewinding is destructive
+                and uncommon, so it should be reachable without being a
+                standing invitation on every message. */}
+            {canRestore && (
+              <button
+                type="button"
+                aria-label="Go back to the version saved here"
+                title="Go back to the version saved here"
+                onClick={() => onRestore!(message.id, message.checkpointId!)}
+                className={cn(
+                  "shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity",
+                  "hover:bg-accent hover:text-foreground",
+                  "focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2",
+                  "focus-visible:ring-ring group-hover:opacity-100"
+                )}
+              >
+                <Icon name="undo-2" size="sm" aria-hidden />
+              </button>
+            )}
+            {message.content && (
+              <MessageContent variant="contained">{message.content}</MessageContent>
+            )}
+          </div>
         </div>
       </Message>
     )

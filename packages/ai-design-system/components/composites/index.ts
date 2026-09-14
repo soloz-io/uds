@@ -24,6 +24,10 @@ export type { AgentIndicatorProps, SubAgent } from './AgentIndicator'
 export { UserMessage } from './UserMessage'
 export type { UserMessageProps, UserMessageData } from './UserMessage'
 
+// AgentAnnotation Composite (canvas node type)
+export { AgentAnnotation } from './AgentAnnotation'
+export type { AgentAnnotationNodeData, AgentAnnotationStatus } from './AgentAnnotation'
+
 // SpecialistMessage Block
 export { SpecialistMessage } from './SpecialistMessage'
 export type { SpecialistMessageProps, SpecialistMessageData } from './SpecialistMessage'
