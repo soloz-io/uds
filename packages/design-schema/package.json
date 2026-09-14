@@ -92,7 +92,8 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/soloz-io/design-schema.git"
+    "url": "https://github.com/soloz-io/uds.git",
+    "directory": "packages/design-schema"
   },
   "dependencies": {
     "ui-schema-contracts": "^0.1.1",

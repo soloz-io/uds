@@ -4,6 +4,11 @@
   "private": false,
   "type": "module",
   "description": "Shared UI schema contracts for UDS packages",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soloz-io/uds.git",
+    "directory": "packages/ui-schema-contracts"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -29,7 +29,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bizmatters/ai-design-system.git"
+    "url": "https://github.com/soloz-io/uds.git",
+    "directory": "packages/ai-design-system"
   },
   "keywords": [
     "react",
