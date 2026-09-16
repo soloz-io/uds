@@ -56,6 +56,7 @@ interface AIMessage {
   isLoading?: boolean;
   blocks?: AIMessageBlock[];
   checkpointId?: string;
+  restoreLabel?: string;
   attachments?: UserMessageAttachment[];
 }
 
@@ -98,6 +99,17 @@ export interface AIConversationProps
    * Callback fired when user restores a conversation checkpoint
    */
   onRestoreCheckpoint?: (messageId: string, checkpointId: string) => void
+  /**
+   * Save the workspace as it stands after an orchestrator reply.
+   *
+   * Paired with `onRestoreCheckpoint`: undo sits on what the user asked for,
+   * save sits on what the agent produced. Omit it and no reply offers to save.
+   */
+  onSaveWorkspace?: () => void
+  /** True when the current version is already kept — every Save reads as saved. */
+  isCurrentVersionSaved?: boolean
+  /** A save is in flight — the control says so and refuses a second one. */
+  isSavingWorkspace?: boolean
 }
 
 /**
@@ -113,6 +125,9 @@ export const AIConversation = React.memo<AIConversationProps>(
     onToolAction,
     renderSystemMessage,
     onRestoreCheckpoint,
+    onSaveWorkspace,
+    isCurrentVersionSaved,
+    isSavingWorkspace,
     ...conversationProps
   }) => {
     const isEmpty = React.useMemo(
@@ -242,6 +257,7 @@ export const AIConversation = React.memo<AIConversationProps>(
               subAgents: msg.subAgents ? [...msg.subAgents] : undefined,
               blocks: msg.blocks ? [...msg.blocks] : undefined,
               checkpointId: msg.checkpointId,
+              restoreLabel: msg.restoreLabel,
             };
             result.push(currentGroup);
           }
@@ -256,6 +272,27 @@ export const AIConversation = React.memo<AIConversationProps>(
       }
       return result;
     }, [messages]);
+
+  /**
+   * The last orchestrator reply, and the ONLY one that may offer to save.
+   *
+   * Saving anchors to the most recent request, so it captures the workspace as
+   * it is NOW — not as it was when some earlier reply was written. Offering the
+   * control on every reply implies each one saves its own moment, which is
+   * false and unrecoverable once acted on: the user would believe they had kept
+   * a point they never kept.
+   *
+   * `isCurrentVersionSaved` is likewise one fact about the workspace, not a
+   * property of each message. Rendered on every reply it read as "all of these
+   * are saved"; it belongs on the single reply the save would come from.
+   */
+  const lastReplyIndex = React.useMemo(() => {
+    for (let i = groupedMessages.length - 1; i >= 0; i--) {
+      const m = groupedMessages[i]
+      if (m.role === "orchestrator" || m.role === "assistant" || (!m.role && m.type === "ai")) return i
+    }
+    return -1
+  }, [groupedMessages])
 
     const renderedMessages = React.useMemo(
       () =>
@@ -291,6 +328,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                   avatarName: message.avatarName,
                   attachments: message.attachments,
                   checkpointId: message.checkpointId,
+                  restoreLabel: message.restoreLabel,
                 }}
                 showAvatar={showAvatars}
                 onRestore={onRestoreCheckpoint}
@@ -335,6 +373,16 @@ export const AIConversation = React.memo<AIConversationProps>(
                     isLoading: message.isLoading && !hasReasoning,
                   }}
                   showAvatar={showAvatars && hasDisplayContent}
+                  // Only on a settled reply with something to read: a save
+                  // offered beside a streaming or empty message would anchor a
+                  // snapshot to a turn that has not produced anything yet.
+                  onSave={
+                    index === lastReplyIndex && hasDisplayContent && !isStreaming
+                      ? onSaveWorkspace
+                      : undefined
+                  }
+                  isSaved={index === lastReplyIndex && isCurrentVersionSaved}
+                  isSaving={index === lastReplyIndex && isSavingWorkspace}
                 >
                   {/* Render reasoning-section for hidden tool results and subagents */}
                   {hasReasoning && (
@@ -425,7 +473,7 @@ export const AIConversation = React.memo<AIConversationProps>(
             </React.Fragment>
           )
         }),
-      [groupedMessages, showAvatars, onToolAction, onRestoreCheckpoint]
+      [groupedMessages, showAvatars, onToolAction, onRestoreCheckpoint, onSaveWorkspace, isCurrentVersionSaved, isSavingWorkspace, lastReplyIndex]
     )
 
     return (

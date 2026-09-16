@@ -42,6 +42,7 @@ export interface RefinementMessage {
   subAgents?: SubAgent[];
   isLoading?: boolean;
   checkpointId?: string;
+  restoreLabel?: string;
   attachments?: UserMessageAttachment[];
 }
 
@@ -159,6 +160,12 @@ export interface ChatPanelProps {
    * Callback fired when user restores a conversation checkpoint
    */
   onRestoreCheckpoint?: (messageId: string, checkpointId: string) => void;
+  /** Save the workspace from an orchestrator reply — paired with onRestoreCheckpoint. */
+  onSaveWorkspace?: () => void;
+  /** True when the current version is already kept. */
+  isCurrentVersionSaved?: boolean;
+  /** A save is in flight — the control says so and refuses a second one. */
+  isSavingWorkspace?: boolean;
 }
 
 /**
@@ -192,6 +199,9 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onDownloadSession,
     renderSystemMessage,
     onRestoreCheckpoint,
+    onSaveWorkspace,
+    isCurrentVersionSaved,
+    isSavingWorkspace,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -361,6 +371,9 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           onToolAction={onToolAction}
           renderSystemMessage={renderSystemMessage}
           onRestoreCheckpoint={onRestoreCheckpoint}
+          onSaveWorkspace={onSaveWorkspace}
+          isCurrentVersionSaved={isCurrentVersionSaved}
+          isSavingWorkspace={isSavingWorkspace}
           className="flex-1 min-h-0"
         />
         <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-card via-card to-transparent pt-6">

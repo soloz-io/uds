@@ -62,6 +62,14 @@ export function WorkflowToolbarActions({
 
             if (action.switcher) {
               const { switcher } = action;
+              // `undefined` means the caller does not use this and keeps the old
+              // selection-follows-tick behaviour. `null` means the caller DOES
+              // use it and is saying none of the items is current — which must
+              // mark nothing, not fall back to the selection. Collapsing those
+              // two with `??` reintroduces the exact bug: a defaulted picker
+              // always has a `value`, so the tick would come straight back.
+              const tickValue =
+                switcher.currentValue !== undefined ? switcher.currentValue : switcher.value;
               return (
                 <DropdownMenu key={action.id}>
                   <DropdownMenuTrigger asChild>
@@ -80,7 +88,21 @@ export function WorkflowToolbarActions({
                           onClick={() => switcher.onValueChange(item.value)}
                         >
                           <span>{item.label}</span>
-                          {item.value === switcher.value && (
+                          {/* The check states a FACT, not a cursor position.
+                              `currentValue` is the item that is actually true —
+                              for a snapshot picker, the one matching the
+                              workspace on screen. `undefined` means the caller
+                              does not use this and the check follows the
+                              selection, as it always did; `null` means the
+                              caller uses it and NOTHING is current, so nothing
+                              is marked.
+
+                              It used to mark `switcher.value`, the highlighted
+                              row, which for a defaulted picker is always set —
+                              so a tick appeared beside the newest snapshot even
+                              with unsaved work, contradicting the Save button
+                              next to it. */}
+                          {item.value === tickValue && (
                             <Icon name="check" size="sm" className="ml-2" />
                           )}
                         </DropdownMenuItem>

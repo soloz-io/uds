@@ -41,9 +41,10 @@ export interface UserMessageData {
   avatarName?: string
   attachments?: UserMessageAttachment[]
   /**
-   * Set when a saved workspace snapshot sits immediately before this request.
-   * Using the control undoes the request — it and everything it produced are
-   * removed, and the text returns to the prompt input to be sent again.
+   * Set when this request's own turn was saved AND an earlier restore point
+   * exists to go back to. Using the control undoes the request — it and
+   * everything it produced are removed, and the text returns to the prompt
+   * input to be sent again.
    *
    * It belongs on the request, not on the answer: "take me back to here" is
    * something a person means about what they asked for, and offering it under
@@ -51,6 +52,16 @@ export interface UserMessageData {
    * of their own messages.
    */
   checkpointId?: string
+  /**
+   * What using the control will actually do, named rather than implied: which
+   * saved version it returns to, and how many requests that removes.
+   *
+   * A restore cuts back to the previous snapshot, so turns between this one and
+   * that point go too — they were never saved and have no snapshot of their own
+   * to stop at. That is not guessable from the control's position, so it is
+   * stated before the click rather than discovered after it.
+   */
+  restoreLabel?: string
 }
 
 function UserMessageAttachments({ attachments }: { attachments: UserMessageAttachment[] }) {
@@ -93,6 +104,12 @@ export interface UserMessageProps {
   /**
    * Rewind to this message's checkpoint. The control renders only when both
    * this and `message.checkpointId` are present.
+   *
+   * The checkpoint it carries is the restore point BEFORE this request, not the
+   * snapshot saved on this turn's own reply. That snapshot captured the
+   * workspace once the request had already run, so restoring it would undo
+   * nothing; the state to come back to is the one the request was made from.
+   * `message.restoreLabel` names it, because the control's position cannot.
    */
   onRestore?: (messageId: string, checkpointId: string) => void
 }
@@ -103,6 +120,10 @@ export interface UserMessageProps {
 export const UserMessage = React.memo<UserMessageProps>(
   ({ message, showAvatar = true, onRestore }) => {
     const canRestore = Boolean(message.checkpointId && onRestore)
+    // The generic wording is a fallback, not the intended text: without a label
+    // the control cannot say which version it returns to or how much it removes.
+    const restoreLabel =
+      message.restoreLabel ?? "Undo this request and go back to the last saved version"
 
     return (
       <Message from="user" className="group">
@@ -124,18 +145,24 @@ export const UserMessage = React.memo<UserMessageProps>(
           <div className="flex items-center gap-1">
             {/* Left of the bubble, so it sits on the inside edge of a
                 right-aligned message instead of pushing into the margin.
-                Revealed on hover or keyboard focus: rewinding is destructive
-                and uncommon, so it should be reachable without being a
-                standing invitation on every message. */}
+
+                Visible at rest, dimmed, and full strength on hover or keyboard
+                focus. It marks the requests that CAN be undone, which is a
+                sparse and non-obvious set — only turns that were saved and have
+                an earlier restore point to return to. Hiding it until hover made
+                that set undiscoverable: the page showed nothing on any message,
+                so a save appeared to have produced no control at all and the
+                only way to find one was to sweep the pointer down the
+                conversation. */}
             {canRestore && (
               <button
                 type="button"
-                aria-label="Go back to the version saved here"
-                title="Go back to the version saved here"
+                aria-label={restoreLabel}
+                title={restoreLabel}
                 onClick={() => onRestore!(message.id, message.checkpointId!)}
                 className={cn(
-                  "shrink-0 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity",
-                  "hover:bg-accent hover:text-foreground",
+                  "shrink-0 rounded-md p-1 text-muted-foreground opacity-40 transition-opacity",
+                  "hover:bg-accent hover:text-foreground hover:opacity-100",
                   "focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2",
                   "focus-visible:ring-ring group-hover:opacity-100"
                 )}
