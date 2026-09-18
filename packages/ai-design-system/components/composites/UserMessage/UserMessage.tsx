@@ -138,11 +138,11 @@ export const UserMessage = React.memo<UserMessageProps>(
               </AvatarFallback>
             </Avatar>
         )}
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end gap-2 flex-1 min-w-0">
           {message.attachments && message.attachments.length > 0 && (
             <UserMessageAttachments attachments={message.attachments} />
           )}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 max-w-[80%]">
             {/* Left of the bubble, so it sits on the inside edge of a
                 right-aligned message instead of pushing into the margin.
 
@@ -171,7 +171,7 @@ export const UserMessage = React.memo<UserMessageProps>(
               </button>
             )}
             {message.content && (
-              <MessageContent variant="contained">{message.content}</MessageContent>
+              <MessageContent variant="contained" className="max-w-full">{message.content}</MessageContent>
             )}
           </div>
         </div>
