@@ -273,3 +273,66 @@ export const ToggleDialog: Story = {
     },
   },
 };
+
+/**
+ * With Context Window
+ * Displays context token consumption, progress ring, breakdown, and estimated cost
+ */
+export const WithContextWindow: Story = {
+  args: {
+    placeholder: "Ask a question about the codebase...",
+    context: {
+      usedTokens: 42500,
+      maxTokens: 128000,
+      modelId: "gpt-4o",
+      usage: {
+        inputTokens: 38000,
+        outputTokens: 3500,
+        reasoningTokens: 1000,
+        cachedInputTokens: 15000,
+      },
+    },
+    onSubmit: (message) => {
+      console.log("Submitted:", message);
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Displays context window usage via the AI Elements Context compound component in the toolbar. Shows token usage percentage, circular progress, input/output/reasoning/cache breakdown, and estimated USD cost on hover.",
+      },
+    },
+  },
+};
+
+/**
+ * With Near-Limit Context Window
+ * Demonstrates high context utilization nearing the maximum context window
+ */
+export const WithNearLimitContext: Story = {
+  args: {
+    placeholder: "Ask a question with high context utilization...",
+    context: {
+      usedTokens: 118500,
+      maxTokens: 128000,
+      modelId: "gpt-4o",
+      usage: {
+        inputTokens: 112000,
+        outputTokens: 6500,
+      },
+    },
+    onSubmit: (message) => {
+      console.log("Submitted:", message);
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Demonstrates context window indicator when the model is near its token capacity (92.6% utilized).",
+      },
+    },
+  },
+};
+

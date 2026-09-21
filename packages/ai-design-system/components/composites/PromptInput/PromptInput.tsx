@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { ReactNode } from "react";
+import type { LanguageModelUsage } from "ai";
 import {
   PromptInput as AIPromptInput,
   PromptInputAttachment,
@@ -18,9 +19,28 @@ import {
   usePromptInputController,
   useOptionalPromptInputController,
 } from "@/components/ai-elements/prompt-input";
+import {
+  Context,
+  ContextTrigger,
+  ContextContent,
+  ContextContentHeader,
+  ContextContentBody,
+  ContextContentFooter,
+  ContextInputUsage,
+  ContextOutputUsage,
+  ContextReasoningUsage,
+  ContextCacheUsage,
+} from "@/components/ai-elements/context";
 import type { FormEvent } from "react";
 import { Button } from "@/components/primitives/Button";
 import { Icon } from "@/components/primitives/Icon";
+
+export interface PromptInputContextProps {
+  usedTokens: number;
+  maxTokens: number;
+  usage?: LanguageModelUsage;
+  modelId?: string;
+}
 
 export interface PromptInputBlockProps
   extends Omit<
@@ -38,6 +58,8 @@ export interface PromptInputBlockProps
   dialog?: ReactNode;
   loading?: boolean;
   onStop?: () => void;
+  context?: PromptInputContextProps | ReactNode;
+  tools?: ReactNode;
 }
 
 export const PromptInput = React.memo<PromptInputBlockProps>(
@@ -50,6 +72,8 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     dialog,
     loading = false,
     onStop,
+    context,
+    tools,
     accept = "image/*",
     multiple = true,
     maxFiles,
@@ -111,6 +135,13 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         <PromptInputFooter>
           <PromptInputTools>
             <AttachButton disabled={disabled || loading} />
+            {tools}
+            {context ? (
+              <PromptInputContextIndicator
+                context={context}
+                disabled={disabled || loading}
+              />
+            ) : null}
           </PromptInputTools>
           <PromptInputSubmit
             disabled={disabled || (loading && !onStop)}
@@ -185,6 +216,52 @@ function ExternalValueSync({ value }: { value?: string }) {
     }
   }, [value, controller]);
   return null;
+}
+
+/**
+ * Renders the context window usage indicator.
+ * Supports either a PromptInputContextProps object (auto-rendered using Context compound elements)
+ * or a custom ReactNode.
+ */
+function PromptInputContextIndicator({
+  context,
+  disabled,
+}: {
+  context: PromptInputContextProps | ReactNode;
+  disabled?: boolean;
+}) {
+  if (React.isValidElement(context)) {
+    return context;
+  }
+
+  const ctx = context as PromptInputContextProps;
+  if (!ctx || typeof ctx.usedTokens !== "number" || typeof ctx.maxTokens !== "number") {
+    return null;
+  }
+
+  return (
+    <Context
+      usedTokens={ctx.usedTokens}
+      maxTokens={ctx.maxTokens}
+      usage={ctx.usage}
+      modelId={ctx.modelId}
+    >
+      <ContextTrigger
+        className="h-8 px-2 text-xs font-normal gap-1.5"
+        disabled={disabled}
+      />
+      <ContextContent>
+        <ContextContentHeader />
+        <ContextContentBody className="space-y-1.5">
+          <ContextInputUsage />
+          <ContextOutputUsage />
+          <ContextReasoningUsage />
+          <ContextCacheUsage />
+        </ContextContentBody>
+        {ctx.modelId && <ContextContentFooter />}
+      </ContextContent>
+    </Context>
+  );
 }
 
 PromptInput.displayName = "PromptInput";

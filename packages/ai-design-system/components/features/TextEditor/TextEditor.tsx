@@ -44,6 +44,7 @@ import type { Annotation, User } from '@/types/ai-editor/annotations'
 import type { DocumentFile, DocumentWithAnnotations } from '@/types/ai-editor/editor'
 import { StreamingMarkdown } from '@/components/composites/StreamingMarkdown'
 import { MediaPreview, isMediaFile } from '@/components/composites/MediaPreview'
+import { WorkspaceEmptyState } from '@/components/composites/WorkspaceEmptyState'
 
 /**
  * Props for TextEditor feature component - Single document mode (backward compatible)
@@ -78,6 +79,24 @@ export interface TextEditorSingleProps {
 }
 
 /**
+ * Workspace state for the TextEditor — controls the "not running" empty state.
+ */
+export interface TextEditorWorkspaceProps {
+  /**
+   * Current workspace status.
+   * - `'not-running'`: Shows an empty state with an optional wake button.
+   * - `'running'`: Normal document rendering (default behaviour when omitted).
+   */
+  status: 'not-running' | 'running'
+  /** Label shown in the empty state body. Defaults to "This session's workspace is not running." */
+  label?: string
+  /** Callback to wake/start the workspace. When provided, renders a "Start workspace" button. */
+  onWake?: () => void
+  /** When true, the wake button shows a loading state ("Starting…"). */
+  isWaking?: boolean
+}
+
+/**
  * Props for TextEditor feature component - Multi-tab mode
  */
 export interface TextEditorMultiTabProps {
@@ -103,6 +122,12 @@ export interface TextEditorMultiTabProps {
   hideTabBar?: boolean
   /** Callback when download all button is clicked in the file tree header */
   onDownloadAllFiles?: () => Promise<FileDownloadResult | undefined>
+  /**
+   * Workspace state. When `status` is `'not-running'` and the documents array is
+   * empty, TextEditor renders an empty state with an optional wake button instead
+   * of the normal editor UI.
+   */
+  workspace?: TextEditorWorkspaceProps
 }
 
 /**
@@ -366,11 +391,27 @@ export const TextEditor = React.memo<TextEditorProps>(
     /**
      * Multi-tab mode
      */
-    const { hideTabBar, onDownloadAllFiles } = props as TextEditorMultiTabProps
+    const { hideTabBar, onDownloadAllFiles, workspace } = props as TextEditorMultiTabProps
 
     let editorPane: React.ReactNode
 
-    if (!currentDocument) {
+    // Workspace not-running empty state: shown when there are no documents and
+    // the caller signals that the workspace pod is stopped.
+    const showWorkspaceEmptyState =
+      !currentDocument &&
+      (props as TextEditorMultiTabProps).documents?.length === 0 &&
+      workspace?.status === 'not-running'
+
+    if (showWorkspaceEmptyState) {
+      editorPane = (
+        <WorkspaceEmptyState
+          label={workspace?.label}
+          onWake={workspace?.onWake}
+          isWaking={workspace?.isWaking}
+          className="text-editor"
+        />
+      )
+    } else if (!currentDocument) {
       editorPane = (
         <div className="text-editor flex flex-col h-full w-full">
           {!hideTabBar && (

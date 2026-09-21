@@ -404,6 +404,29 @@ export declare function usePromptInputController(): PromptInputControllerProps;
 export declare function useOptionalPromptInputController(): PromptInputControllerProps | null;
 export declare function usePromptInputAttachments(): AttachmentsContext;
 
+// ============================================================================
+// CONTEXT WINDOW (AI-ELEMENTS) EXPORTS
+// ============================================================================
+
+export interface ContextProps {
+  usedTokens: number;
+  maxTokens: number;
+  usage?: any;
+  modelId?: string;
+  [key: string]: any;
+}
+
+export declare const Context: React.FC<ContextProps>;
+export declare const ContextTrigger: React.FC<any>;
+export declare const ContextContent: React.FC<any>;
+export declare const ContextContentHeader: React.FC<any>;
+export declare const ContextContentBody: React.FC<any>;
+export declare const ContextContentFooter: React.FC<any>;
+export declare const ContextInputUsage: React.FC<any>;
+export declare const ContextOutputUsage: React.FC<any>;
+export declare const ContextReasoningUsage: React.FC<any>;
+export declare const ContextCacheUsage: React.FC<any>;
+
 `;
 
   dtsContent += `// ============================================================================

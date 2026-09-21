@@ -21,6 +21,16 @@ export {
   usePromptInputController,
   usePromptInputAttachments,
   useOptionalPromptInputController,
+  Context,
+  ContextTrigger,
+  ContextContent,
+  ContextContentHeader,
+  ContextContentBody,
+  ContextContentFooter,
+  ContextInputUsage,
+  ContextOutputUsage,
+  ContextReasoningUsage,
+  ContextCacheUsage,
 } from './composites';
 export type {
   ApprovalCardProps,
@@ -34,10 +44,21 @@ export type {
   AppBreadcrumbProps,
   BreadcrumbItemData,
   PromptInputBlockProps,
+  PromptInputContextProps,
   PromptInputControllerProps,
   AttachmentsContext,
   TextInputContext,
   PromptInputProviderProps,
+  ContextProps,
+  ContextTriggerProps,
+  ContextContentProps,
+  ContextContentHeaderProps,
+  ContextContentBodyProps,
+  ContextContentFooterProps,
+  ContextInputUsageProps,
+  ContextOutputUsageProps,
+  ContextReasoningUsageProps,
+  ContextCacheUsageProps,
 } from './composites';
 export { WorkflowCanvas, getLayoutedElements, bmcToCanvas, SectionLayout, ExpoAppPreview } from './blocks';
 export type { SectionLayoutSection, ExpoAppPreviewProps } from './blocks';

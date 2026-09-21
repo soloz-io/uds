@@ -23,7 +23,7 @@ export type { NodeEditorProps } from "./NodeEditor";
 
 // TextEditor Feature
 export { TextEditor } from "./TextEditor";
-export type { TextEditorProps } from "./TextEditor";
+export type { TextEditorProps, TextEditorWorkspaceProps } from "./TextEditor";
 
 
 // DashboardFeature Feature

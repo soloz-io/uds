@@ -213,13 +213,34 @@ export {
   usePromptInputController,
   usePromptInputAttachments,
   useOptionalPromptInputController,
+  Context,
+  ContextTrigger,
+  ContextContent,
+  ContextContentHeader,
+  ContextContentBody,
+  ContextContentFooter,
+  ContextInputUsage,
+  ContextOutputUsage,
+  ContextReasoningUsage,
+  ContextCacheUsage,
 } from './PromptInput'
 export type {
   PromptInputBlockProps,
+  PromptInputContextProps,
   PromptInputControllerProps,
   AttachmentsContext,
   TextInputContext,
   PromptInputProviderProps,
+  ContextProps,
+  ContextTriggerProps,
+  ContextContentProps,
+  ContextContentHeaderProps,
+  ContextContentBodyProps,
+  ContextContentFooterProps,
+  ContextInputUsageProps,
+  ContextOutputUsageProps,
+  ContextReasoningUsageProps,
+  ContextCacheUsageProps,
 } from './PromptInput'
 
 // ChatToggleButton Composite
@@ -249,3 +270,7 @@ export type { AuthCardProps, AuthMode, SocialProvider } from './AuthCard'
 // MediaPreview Composite
 export { MediaPreview, isVideoFile, isAudioFile, isImageFile, isPdfFile, isMediaFile } from './MediaPreview'
 export type { MediaPreviewProps, MediaFileLike } from './MediaPreview'
+
+// WorkspaceEmptyState Composite
+export { WorkspaceEmptyState } from './WorkspaceEmptyState'
+export type { WorkspaceEmptyStateProps } from './WorkspaceEmptyState'

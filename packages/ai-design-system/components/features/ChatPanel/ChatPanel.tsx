@@ -3,7 +3,7 @@
 import * as React from "react";
 import { AIConversation } from "@/components/blocks/AIConversation";
 import { FileChangeQueue } from "@/components/blocks/FileChangeQueue";
-import { PromptInput } from "@/components/composites/PromptInput";
+import { PromptInput, type PromptInputContextProps } from "@/components/composites/PromptInput";
 import { ApprovalCard } from "@/components/composites/ApprovalCard";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 import type { SubAgent } from "@/components/composites/AgentIndicator";
@@ -166,6 +166,8 @@ export interface ChatPanelProps {
   isCurrentVersionSaved?: boolean;
   /** A save is in flight — the control says so and refuses a second one. */
   isSavingWorkspace?: boolean;
+  /** Context window usage configuration for the prompt input */
+  context?: PromptInputContextProps;
 }
 
 /**
@@ -202,6 +204,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onSaveWorkspace,
     isCurrentVersionSaved,
     isSavingWorkspace,
+    context,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -385,6 +388,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             onSubmit={onSubmit}
             loading={isAgentRunning}
             onStop={onStop}
+            context={context}
             className="rounded-2xl border border-neutral-600 bg-background shadow-sm overflow-hidden"
           />
         </div>

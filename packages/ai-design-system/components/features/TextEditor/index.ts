@@ -10,6 +10,7 @@ export type {
   TextEditorProps,
   TextEditorSingleProps,
   TextEditorMultiTabProps,
+  TextEditorWorkspaceProps,
 } from './TextEditor'
 
 export { useTextEditorMock, useAIMultiTabDocEditorMock } from './useTextEditor.mock'
