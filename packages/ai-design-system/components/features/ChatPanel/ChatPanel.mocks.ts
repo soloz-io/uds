@@ -10,6 +10,7 @@
 import type { RefinementMessage } from './ChatPanel'
 import type { FileChangeData } from '@/components/composites/FileQueue'
 import type { ActionRequest } from '@/components/composites/ApprovalCard'
+import type { TaskItem } from '@/components/composites/TaskQueue'
 
 /**
  * Sample conversation history for input state
@@ -224,3 +225,30 @@ export const sampleFileChanges: FileChangeData[] = [
     path: 'src/components/primitives/Button/button-accessibility.test.tsx',
   },
 ]
+
+export const sampleRunningTasks: TaskItem[] = [
+  {
+    id: 'task-1',
+    command: 'npm install',
+    status: 'running',
+  },
+]
+
+export const sampleMultipleTasks: TaskItem[] = [
+  {
+    id: 'task-1',
+    command: 'npm install',
+    status: 'running',
+  },
+  {
+    id: 'task-2',
+    command: 'npm run build',
+    status: 'queued',
+  },
+  {
+    id: 'task-3',
+    command: 'git push origin main',
+    status: 'queued',
+  },
+]
+

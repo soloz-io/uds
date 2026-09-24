@@ -4,7 +4,9 @@ import * as React from "react";
 import { AIConversation } from "@/components/blocks/AIConversation";
 import { FileChangeQueue } from "@/components/blocks/FileChangeQueue";
 import { PromptInput, type PromptInputContextProps } from "@/components/composites/PromptInput";
+import { TaskQueue, type TaskItem } from "@/components/composites/TaskQueue";
 import { ApprovalCard } from "@/components/composites/ApprovalCard";
+import { cn } from "@/lib/utils";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 import type { SubAgent } from "@/components/composites/AgentIndicator";
 import type { FileChangeData } from "@/components/composites/FileQueue";
@@ -168,6 +170,30 @@ export interface ChatPanelProps {
   isSavingWorkspace?: boolean;
   /** Context window usage configuration for the prompt input */
   context?: PromptInputContextProps;
+  /**
+   * Background tasks or jobs currently running or queued
+   */
+  tasks?: TaskItem[];
+  /**
+   * Handler when a task is stopped
+   */
+  onTaskStop?: (taskId: string) => void;
+  /**
+   * Handler when a queued task is cancelled
+   */
+  onTaskCancel?: (taskId: string) => void;
+  /**
+   * Handler when a failed task is retried
+   */
+  onTaskRetry?: (taskId: string) => void;
+  /**
+   * Handler to stop all tasks
+   */
+  onTaskStopAll?: () => void;
+  /**
+   * Handler when a task item is clicked (e.g. to inspect terminal output or logs)
+   */
+  onTaskClick?: (task: TaskItem) => void;
 }
 
 /**
@@ -205,6 +231,12 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     isCurrentVersionSaved,
     isSavingWorkspace,
     context,
+    tasks = [],
+    onTaskStop,
+    onTaskCancel,
+    onTaskRetry,
+    onTaskStopAll,
+    onTaskClick,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -379,7 +411,18 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           isSavingWorkspace={isSavingWorkspace}
           className="flex-1 min-h-0"
         />
-        <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-card via-card to-transparent pt-6">
+        <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-card via-card to-transparent pt-6 flex flex-col">
+          {tasks.length > 0 && !dialog && (
+            <TaskQueue
+              tasks={tasks}
+              variant="docked"
+              onStop={onTaskStop}
+              onCancel={onTaskCancel}
+              onRetry={onTaskRetry}
+              onStopAll={onTaskStopAll}
+              onTaskClick={onTaskClick}
+            />
+          )}
           <PromptInput
             dialog={dialog}
             placeholder={placeholder}
@@ -389,7 +432,12 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             loading={isAgentRunning}
             onStop={onStop}
             context={context}
-            className="rounded-2xl border border-neutral-600 bg-background shadow-sm overflow-hidden"
+            className={cn(
+              "border border-neutral-600 bg-background shadow-sm overflow-hidden",
+              tasks.length > 0 && !dialog
+                ? "rounded-t-none rounded-b-2xl border-t-0"
+                : "rounded-2xl"
+            )}
           />
         </div>
       </div>

@@ -8,6 +8,8 @@ import {
   sampleFileChanges,
   approvalQuestionRequest,
   approvalMultiQuestionRequest,
+  sampleRunningTasks,
+  sampleMultipleTasks,
 } from "./ChatPanel.mocks";
 import * as React from "react";
 
@@ -214,3 +216,60 @@ export const WithStateManagement: Story = {
     },
   },
 };
+
+/**
+ * With Running Task — Recreates 2.1-jobs.png bottom panel with TaskQueue docked flush above PromptInput.
+ */
+export const WithRunningTask: Story = {
+  args: {
+    messages: inputStateMessages,
+    tasks: sampleRunningTasks,
+    placeholder: "Ask anything, @ to mention, / for actions",
+    onSubmit: (message: PromptInputMessage) => {
+      console.log("Submitted:", message);
+    },
+    onTaskStop: (id: string) => {
+      console.log(`Stopped task ${id}`);
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "ChatPanel displaying an active background running task (npm install) docked directly above PromptInput, reproducing the antigravity inspiration from 2.1-jobs.png.",
+      },
+    },
+  },
+};
+
+/**
+ * With Multiple Tasks — Running task and queued tasks docked above PromptInput.
+ */
+export const WithMultipleTasks: Story = {
+  args: {
+    messages: inputStateMessages,
+    tasks: sampleMultipleTasks,
+    placeholder: "Ask anything, @ to mention, / for actions",
+    onSubmit: (message: PromptInputMessage) => {
+      console.log("Submitted:", message);
+    },
+    onTaskStop: (id: string) => {
+      console.log(`Stopped task ${id}`);
+    },
+    onTaskCancel: (id: string) => {
+      console.log(`Cancelled task ${id}`);
+    },
+    onTaskStopAll: () => {
+      console.log("Stopped all tasks");
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "ChatPanel displaying multiple running and queued tasks docked directly above PromptInput.",
+      },
+    },
+  },
+};
+

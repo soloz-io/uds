@@ -2,9 +2,7 @@ import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { TaskQueue } from "./TaskQueue";
 import type { TaskItem } from "./interfaces";
-import { PromptInput } from "@/components/composites/PromptInput";
 import { Button } from "@/components/primitives/Button";
-import { Icon } from "@/components/primitives/Icon";
 
 const meta: Meta<typeof TaskQueue> = {
   title: "Composites/TaskQueue",
@@ -90,41 +88,6 @@ export const MultipleTasks: Story = {
   },
 };
 
-/**
- * Docked with PromptInput — Exact recreation of the full antigravity bottom panel
- * seen in 2.1-jobs.png. Shows TaskQueue flush atop PromptInput.
- */
-export const DockedWithPromptInput: Story = {
-  render: () => {
-    return (
-      <div className="max-w-2xl mx-auto w-full p-4 flex flex-col">
-        <TaskQueue
-          tasks={singleRunningTask}
-          variant="docked"
-          onStop={(id) => console.log(`Stopped task ${id}`)}
-        />
-        <PromptInput
-          placeholder="Ask anything, @ to mention, / for actions"
-          onSubmit={(message) => console.log("Submitted:", message)}
-          tools={
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-xs font-normal gap-1 hover:text-foreground"
-                type="button"
-              >
-                <span>Gemini 3.8 Flash High</span>
-                <Icon name="chevron-down" size="xs" />
-              </Button>
-            </div>
-          }
-          className="rounded-t-none rounded-b-2xl border-t-0 border border-neutral-600 bg-background shadow-sm"
-        />
-      </div>
-    );
-  },
-};
 
 /**
  * Collapsed state — Collapsed header showing the summary count and chevron.
