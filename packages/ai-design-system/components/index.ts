@@ -31,6 +31,7 @@ export {
   ContextOutputUsage,
   ContextReasoningUsage,
   ContextCacheUsage,
+  TaskQueue,
 } from './composites';
 export type {
   ApprovalCardProps,
@@ -59,6 +60,9 @@ export type {
   ContextOutputUsageProps,
   ContextReasoningUsageProps,
   ContextCacheUsageProps,
+  TaskQueueProps,
+  TaskItem,
+  TaskStatus,
 } from './composites';
 export { WorkflowCanvas, getLayoutedElements, bmcToCanvas, SectionLayout, ExpoAppPreview } from './blocks';
 export type { SectionLayoutSection, ExpoAppPreviewProps } from './blocks';

@@ -45,6 +45,10 @@ export type { SystemMessageProps, SystemMessageData } from './SystemMessage'
 export { FileQueue, FileStatusBadge } from './FileQueue'
 export type { FileQueueProps, FileChangeData, FileStatusBadgeProps, FileStatus } from './FileQueue'
 
+// TaskQueue Composite
+export { TaskQueue } from './TaskQueue'
+export type { TaskQueueProps, TaskItem, TaskStatus } from './TaskQueue'
+
 // FilePreviewDialog Composite
 export { FilePreviewDialog } from './FilePreviewDialog'
 export type { FilePreviewDialogProps } from './FilePreviewDialog'

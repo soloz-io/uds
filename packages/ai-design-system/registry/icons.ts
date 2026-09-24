@@ -518,6 +518,22 @@ export const defaultIcons: Record<string, IconDefinition> = {
       { type: 'line', attrs: { x1: '9', y1: '15', x2: '15', y2: '9' } },
     ],
   },
+  'circle-stop': {
+    name: 'circle-stop',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'circle', attrs: { cx: '12', cy: '12', r: '10' } },
+      { type: 'rect', attrs: { x: '9', y: '9', width: '6', height: '6', rx: '1' } },
+    ],
+  },
+  'stop-circle': {
+    name: 'stop-circle',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'circle', attrs: { cx: '12', cy: '12', r: '10' } },
+      { type: 'rect', attrs: { x: '9', y: '9', width: '6', height: '6', rx: '1' } },
+    ],
+  },
   'clock': {
     name: 'clock',
     viewBox: '0 0 24 24',
