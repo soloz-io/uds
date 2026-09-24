@@ -31,7 +31,13 @@ export interface ProjectSwitcherProps {
 }
 
 export const ProjectSwitcher = React.memo<ProjectSwitcherProps>(
-  ({ projects, selectedProjectId, onSelectProject, onCreateProject, className }) => {
+  ({
+    projects = [],
+    selectedProjectId,
+    onSelectProject = () => {},
+    onCreateProject = () => {},
+    className,
+  }) => {
     const [open, setOpen] = React.useState(false)
 
     const selectedProject = projects.find((p) => String(p.id) === String(selectedProjectId))
