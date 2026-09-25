@@ -194,6 +194,11 @@ export interface ChatPanelProps {
    * Handler when a task item is clicked (e.g. to inspect terminal output or logs)
    */
   onTaskClick?: (task: TaskItem) => void;
+  /**
+   * Whether to enable the voice-note microphone button in prompt
+   * @default true
+   */
+  enableSpeech?: boolean;
 }
 
 /**
@@ -237,6 +242,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onTaskRetry,
     onTaskStopAll,
     onTaskClick,
+    enableSpeech = true,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -432,6 +438,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             loading={isAgentRunning}
             onStop={onStop}
             context={context}
+            enableSpeech={enableSpeech}
             className={cn(
               "border border-neutral-600 bg-background shadow-sm overflow-hidden",
               tasks.length > 0 && !dialog

@@ -439,6 +439,35 @@ export const defaultIcons: Record<string, IconDefinition> = {
       { type: 'path', attrs: { d: 'm16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551' } },
     ],
   },
+  'mic': {
+    name: 'mic',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z' } },
+      { type: 'path', attrs: { d: 'M19 10v2a7 7 0 0 1-14 0v-2' } },
+      { type: 'line', attrs: { x1: '12', x2: '12', y1: '19', y2: '22' } },
+    ],
+  },
+  'mic-off': {
+    name: 'mic-off',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'line', attrs: { x1: '2', x2: '22', y1: '2', y2: '22' } },
+      { type: 'path', attrs: { d: 'M18.89 13.23A7.12 7.12 0 0 0 19 12v-2' } },
+      { type: 'path', attrs: { d: 'M5 10v2a7 7 0 0 0 12 5' } },
+      { type: 'path', attrs: { d: 'M15 9.34V5a3 3 0 0 0-5.68-1.33' } },
+      { type: 'path', attrs: { d: 'M9 9v3a3 3 0 0 0 5.12 2.12' } },
+      { type: 'line', attrs: { x1: '12', x2: '12', y1: '19', y2: '22' } },
+    ],
+  },
+  'corner-down-left': {
+    name: 'corner-down-left',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'polyline', attrs: { points: '9 10 4 15 9 20' } },
+      { type: 'path', attrs: { d: 'M20 4v7a4 4 0 0 1-4 4H4' } },
+    ],
+  },
   'brain': {
     name: 'brain',
     viewBox: '0 0 24 24',

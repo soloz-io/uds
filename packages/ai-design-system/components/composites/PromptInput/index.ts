@@ -1,6 +1,9 @@
 export { PromptInput } from "./PromptInput";
 export type { PromptInputBlockProps, PromptInputContextProps } from "./PromptInput";
 
+export { SpeechInput } from "@/components/ai-elements/speech-input";
+export type { SpeechInputProps } from "@/components/ai-elements/speech-input";
+
 export {
   PromptInputProvider,
   usePromptInputController,

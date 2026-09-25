@@ -32,8 +32,10 @@ export {
   ContextReasoningUsage,
   ContextCacheUsage,
   TaskQueue,
+  SpeechInput,
 } from './composites';
 export type {
+  SpeechInputProps,
   ApprovalCardProps,
   ActionRequest,
   ReviewConfig,

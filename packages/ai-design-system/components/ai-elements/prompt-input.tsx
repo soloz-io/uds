@@ -39,6 +39,7 @@ import type { ChatStatus, FileUIPart } from "ai";
 import {
   FileIcon,
   Loader2Icon,
+  MusicIcon,
   SendIcon,
   SquareIcon,
   XIcon,
@@ -248,6 +249,13 @@ export const usePromptInputAttachments = () => {
   return context;
 };
 
+/** Optional variant of usePromptInputAttachments (does NOT throw). */
+export const useOptionalPromptInputAttachments = (): AttachmentsContext | null => {
+  const provider = useOptionalProviderAttachments();
+  const local = useContext(LocalAttachmentsContext);
+  return provider ?? local;
+};
+
 export type PromptInputAttachmentProps = HTMLAttributes<HTMLDivElement> & {
   data: FileUIPart & { id: string };
   className?: string;
@@ -265,6 +273,7 @@ export function PromptInputAttachment({
   const mediaType =
     data.mediaType?.startsWith("image/") && data.url ? "image" : "file";
   const isImage = mediaType === "image";
+  const isAudio = data.mediaType?.startsWith("audio/") ?? false;
 
   // For non-image files, truncate filename to max 20 characters followed by '..'
   const attachmentLabel = filename
@@ -273,6 +282,8 @@ export function PromptInputAttachment({
       : filename
     : isImage
     ? "Image"
+    : isAudio
+    ? "Voice note"
     : "Attachment";
 
   if (isImage) {
@@ -321,7 +332,7 @@ export function PromptInputAttachment({
       <div className="relative size-5 shrink-0">
         <div className="absolute inset-0 flex size-5 items-center justify-center overflow-hidden rounded bg-background transition-opacity group-hover:opacity-0">
           <div className="flex size-5 items-center justify-center text-muted-foreground">
-            <FileIcon className="size-3.5" />
+            {isAudio ? <MusicIcon className="size-3.5" /> : <FileIcon className="size-3.5" />}
           </div>
         </div>
         <Button
@@ -473,11 +484,16 @@ export const PromptInput = ({
       if (!accept || accept.trim() === "") {
         return true;
       }
-      if (accept.includes("image/*")) {
-        return f.type.startsWith("image/");
-      }
-      // NOTE: keep simple; expand as needed
-      return true;
+      // Comma-separated tokens: "image/*", "audio/webm", ".txt", "*".
+      return accept.split(",").some((raw) => {
+        const token = raw.trim();
+        if (!token) return false;
+        if (token === "*" || token === "*/*") return true;
+        if (token.endsWith("/*")) return f.type.startsWith(token.slice(0, -1));
+        if (token.startsWith("."))
+          return f.name.toLowerCase().endsWith(token.toLowerCase());
+        return f.type === token;
+      });
     },
     [accept]
   );
@@ -628,15 +644,26 @@ export const PromptInput = ({
     };
   }, [add, globalDrop]);
 
+  // Latest-ref for the local file list. The unmount cleanup below must NOT
+  // list `files` in its deps: that runs the cleanup after EVERY files change,
+  // revoking the previous list's blob URLs while they are still live — and
+  // submit does `fetch(blobUrl)`, so adding a second attachment (e.g. image
+  // + voice note) made the first file's conversion throw "TypeError: Failed
+  // to fetch" and the message was never submitted. Revoke only on unmount.
+  const filesRef = useRef(files);
+  useEffect(() => {
+    filesRef.current = files;
+  }, [files]);
+
   useEffect(
     () => () => {
       if (!usingProvider) {
-        for (const f of files) {
+        for (const f of filesRef.current) {
           if (f.url) URL.revokeObjectURL(f.url);
         }
       }
     },
-    [usingProvider, files]
+    [usingProvider]
   );
 
   const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {

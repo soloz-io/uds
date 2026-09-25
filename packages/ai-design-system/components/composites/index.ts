@@ -227,9 +227,11 @@ export {
   ContextOutputUsage,
   ContextReasoningUsage,
   ContextCacheUsage,
+  SpeechInput,
 } from './PromptInput'
 export type {
   PromptInputBlockProps,
+  SpeechInputProps,
   PromptInputContextProps,
   PromptInputControllerProps,
   AttachmentsContext,

@@ -31,9 +31,11 @@ import {
   ContextReasoningUsage,
   ContextCacheUsage,
 } from "@/components/ai-elements/context";
+import { SpeechInput, type SpeechInputProps } from "@/components/ai-elements/speech-input";
 import type { FormEvent } from "react";
 import { Button } from "@/components/primitives/Button";
 import { Icon } from "@/components/primitives/Icon";
+import { cn } from "@/lib/utils";
 
 export interface PromptInputContextProps {
   usedTokens: number;
@@ -60,6 +62,9 @@ export interface PromptInputBlockProps
   onStop?: () => void;
   context?: PromptInputContextProps | ReactNode;
   tools?: ReactNode;
+  enableSpeech?: boolean;
+  speechProps?: SpeechInputProps;
+  attachIcon?: "paperclip" | "plus";
 }
 
 export const PromptInput = React.memo<PromptInputBlockProps>(
@@ -74,7 +79,10 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     onStop,
     context,
     tools,
-    accept = "image/*",
+    enableSpeech = true,
+    speechProps,
+    attachIcon = "paperclip",
+    accept = "image/*,audio/*",
     multiple = true,
     maxFiles,
     maxFileSize,
@@ -134,7 +142,13 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         </PromptInputBody>
         <PromptInputFooter>
           <PromptInputTools>
-            <AttachButton disabled={disabled || loading} />
+            <AttachButton disabled={disabled || loading} icon={attachIcon} />
+            {enableSpeech && (
+              <SpeechInput
+                disabled={disabled || loading}
+                {...speechProps}
+              />
+            )}
             {tools}
             {context ? (
               <PromptInputContextIndicator
@@ -147,7 +161,13 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
             disabled={disabled || (loading && !onStop)}
             status={loading ? (onStop ? "streaming" : "submitted") : undefined}
             onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
-          />
+            className={cn(
+              "rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors",
+              isStopping && "bg-transparent hover:bg-accent"
+            )}
+          >
+            {loading ? undefined : <Icon name="corner-down-left" size="sm" />}
+          </PromptInputSubmit>
         </PromptInputFooter>
       </AIPromptInput>
     );
@@ -174,25 +194,34 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
 );
 
 /**
- * The "+" toolbar button — opens the native file picker via the attachments
+ * The attach toolbar button — opens the native file picker via the attachments
  * context. Must render inside <AIPromptInput> (or a PromptInputProvider),
  * since usePromptInputAttachments() reads that context.
  */
-function AttachButton({ disabled }: { disabled?: boolean }) {
+function AttachButton({
+  disabled,
+  icon = "paperclip",
+}: {
+  disabled?: boolean;
+  icon?: "paperclip" | "plus";
+}) {
   const attachments = usePromptInputAttachments();
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="h-8 w-8 rounded-full"
+      className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground transition-colors"
       type="button"
       disabled={disabled}
       onClick={() => attachments.openFileDialog()}
+      aria-label="Attach files"
+      title="Attach files"
     >
-      <Icon name="plus" size="sm" />
+      <Icon name={icon} size="sm" />
     </Button>
   );
 }
+
 
 /** Renders a preview chip (thumbnail + remove) per attached file. */
 function AttachmentPreviews() {

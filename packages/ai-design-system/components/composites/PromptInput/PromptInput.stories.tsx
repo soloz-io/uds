@@ -336,3 +336,29 @@ export const WithNearLimitContext: Story = {
   },
 };
 
+/**
+ * With Speech Input
+ * Matches the design with paperclip attachment, speech-input mic, and blue enter button.
+ */
+export const WithSpeechInput: Story = {
+  args: {
+    placeholder: "What would you like to know?",
+    enableSpeech: true,
+    attachIcon: "paperclip",
+    onSubmit: (message) => {
+      console.log("Submitted:", message);
+      alert(`Submitted: ${message.text}`);
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "PromptInput featuring file attachment (paperclip), voice-note SpeechInput (microphone, 5s max), and blue enter return button.",
+      },
+    },
+  },
+};
+
+
+

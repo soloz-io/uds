@@ -24,6 +24,51 @@ export interface SystemMessageProps {
   renderContent?: (content: string) => React.ReactNode
 }
 
+/**
+ * Renders the player/viewer for a known url + mediaType (video, audio,
+ * image), or null when the pair matches none of them. Shared by
+ * SystemMessage (job notifications) and UserMessage (chat attachments) so
+ * in-chat media rendering lives in one place — an audio voice note gets the
+ * same `<audio controls>` player wherever it appears.
+ */
+export function renderMediaOutput(
+  url: string,
+  mediaType?: string,
+  title?: string
+): React.ReactNode {
+  if (mediaType?.startsWith('audio/')) {
+    return (
+      <div className="flex flex-col items-center gap-2 w-full">
+        {title && <span className="text-xs text-muted-foreground">{title}</span>}
+        <audio controls className="w-full min-w-[240px] max-w-[360px] h-8">
+          <source src={url} type={mediaType} />
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+    )
+  }
+  if (mediaType?.startsWith('video/')) {
+    return (
+      <div className="flex flex-col items-center gap-2">
+        {title && <span className="text-xs text-muted-foreground">{title}</span>}
+        <video controls className="w-full max-w-[360px] rounded-md shadow-sm">
+          <source src={url} type={mediaType} />
+          Your browser does not support the video element.
+        </video>
+      </div>
+    )
+  }
+  if (mediaType?.startsWith('image/')) {
+    return (
+      <div className="flex flex-col items-center gap-2">
+        {title && <span className="text-xs text-muted-foreground">{title}</span>}
+        <img src={url} alt={title || 'Image output'} className="max-w-[360px] rounded-md shadow-sm" />
+      </div>
+    )
+  }
+  return null
+}
+
 function parseSystemMessageContent(content: string): React.ReactNode {
   try {
     const parsed = JSON.parse(content)
@@ -33,36 +78,8 @@ function parseSystemMessageContent(content: string): React.ReactNode {
       const title = typeof parsed.title === 'string' ? parsed.title : typeof parsed.message === 'string' ? parsed.message : undefined
 
       if (url) {
-        if (mediaType?.startsWith('video/') || /\.(mp4|webm|mov)(\?.*)?$/i.test(url)) {
-          return (
-            <div className="flex flex-col items-center gap-2">
-              {title && <span className="text-xs text-muted-foreground">{title}</span>}
-              <video controls className="w-full max-w-[360px] rounded-md shadow-sm">
-                <source src={url} type={mediaType || 'video/mp4'} />
-                Your browser does not support the video element.
-              </video>
-            </div>
-          )
-        }
-        if (mediaType?.startsWith('audio/') || /\.(wav|mp3|ogg|m4a)(\?.*)?$/i.test(url)) {
-          return (
-            <div className="flex flex-col items-center gap-2">
-              {title && <span className="text-xs text-muted-foreground">{title}</span>}
-              <audio controls className="w-full max-w-[360px] h-8">
-                <source src={url} type={mediaType || 'audio/wav'} />
-                Your browser does not support the audio element.
-              </audio>
-            </div>
-          )
-        }
-        if (mediaType?.startsWith('image/') || /\.(png|jpg|jpeg|webp|gif)(\?.*)?$/i.test(url)) {
-          return (
-            <div className="flex flex-col items-center gap-2">
-              {title && <span className="text-xs text-muted-foreground">{title}</span>}
-              <img src={url} alt={title || 'Image output'} className="max-w-[360px] rounded-md shadow-sm" />
-            </div>
-          )
-        }
+        const media = renderMediaOutput(url, mediaType, title)
+        if (media) return media
       }
       if (title) return <span>{title}</span>
     }

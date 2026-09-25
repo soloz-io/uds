@@ -252,3 +252,52 @@ export const sampleMultipleTasks: TaskItem[] = [
   },
 ]
 
+/** Self-contained sample image (indigo square + amber circle) as an SVG data URI. */
+export const SAMPLE_IMAGE_DATA_URI =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect width='80' height='80' fill='%234f46e5'/%3E%3Ccircle cx='40' cy='40' r='24' fill='%23f59e0b'/%3E%3C/svg%3E"
+
+/** 50 ms of silence as a playable WAV (valid RIFF/WAVE header + zeroed PCM). */
+export const SILENT_WAV_DATA_URI =
+  'data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YSADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=='
+
+/**
+ * Conversation containing a user message with BOTH an image and a voice-note
+ * attachment — exercises the full UserMessageAttachments render path
+ * (image thumbnail + playable <audio controls>) inside a real ChatPanel.
+ */
+export const attachmentStateMessages: RefinementMessage[] = [
+  {
+    id: 'a1',
+    type: 'human',
+    role: 'user',
+    content: 'Here is the screenshot and the voice note about the bug',
+    avatarSrc:
+      'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'User',
+    attachments: [
+      {
+        kind: 'image',
+        mime: 'image/svg+xml',
+        filename: 'screenshot.svg',
+        source: { type: 'data', value: SAMPLE_IMAGE_DATA_URI },
+      },
+      {
+        kind: 'audio',
+        mime: 'audio/wav',
+        filename: 'voice-note.wav',
+        source: { type: 'data', value: SILENT_WAV_DATA_URI },
+      },
+    ],
+  },
+  {
+    id: 'a2',
+    type: 'ai',
+    role: 'orchestrator',
+    content:
+      'Got both — the screenshot and the voice note are attached to your message above.',
+    avatarSrc:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+    avatarName: 'Coordinator',
+  },
+]
+

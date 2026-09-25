@@ -9,6 +9,7 @@ import {
   MessageContent,
   MessageAvatar,
 } from "@/components/ai-elements/message"
+import { renderMediaOutput } from "@/components/composites/SystemMessage"
 import { cn } from "@/lib/utils"
 
 /**
@@ -66,7 +67,8 @@ export interface UserMessageData {
 
 function UserMessageAttachments({ attachments }: { attachments: UserMessageAttachment[] }) {
   const images = attachments.filter((a) => a.mime.startsWith("image/"))
-  if (images.length === 0) return null
+  const audio = attachments.filter((a) => a.mime.startsWith("audio/"))
+  if (images.length === 0 && audio.length === 0) return null
 
   return (
     <div className="flex flex-wrap justify-end gap-2">
@@ -87,6 +89,18 @@ function UserMessageAttachments({ attachments }: { attachments: UserMessageAttac
             className="size-full object-cover"
           />
         </a>
+      ))}
+      {/* Voice notes: the same `<audio controls>` player SystemMessage uses
+          for job notifications — `source.value` works as src for both the
+          optimistic data: URI and the resolved object-store URL, so no
+          branching on source type at render time. */}
+      {audio.map((a, i) => (
+        <div
+          key={a.id ?? `${a.filename ?? "voice-note"}-${i}`}
+          className="shrink-0 rounded-md border border-border p-1.5 w-[280px] sm:w-[320px] max-w-full"
+        >
+          {renderMediaOutput(a.source.value, a.mime)}
+        </div>
       ))}
     </div>
   )

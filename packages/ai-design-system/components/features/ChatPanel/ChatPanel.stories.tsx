@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ChatPanel } from "./ChatPanel";
+import { ChatPanel, type RefinementMessage } from "./ChatPanel";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
+import type { UserMessageAttachment } from "@/components/composites/UserMessage";
 import { useChatPanelMock } from "./useChatPanel.mock";
 import {
   inputStateMessages,
   reviewStateMessages,
+  attachmentStateMessages,
   sampleFileChanges,
   approvalQuestionRequest,
   approvalMultiQuestionRequest,
@@ -272,4 +274,141 @@ export const WithMultipleTasks: Story = {
     },
   },
 };
+
+/**
+ * With Speech Input — PromptInput featuring SpeechInput (5-second voice note) and file attachment.
+ * Matches the latest design system PromptInput specification.
+ */
+export const WithSpeechInput: Story = {
+  args: {
+    messages: inputStateMessages,
+    placeholder: "What would you like to know?",
+    enableSpeech: true,
+    onSubmit: (message: PromptInputMessage) => {
+      console.log("Submitted:", message);
+      alert(`Submitted: ${message.text}`);
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "ChatPanel with PromptInput featuring a 5-second voice-note SpeechInput, file attachment picker, and submit button matching the new UI layout.",
+      },
+    },
+  },
+};
+
+/**
+ * With Speech Input and Active Tasks — Shows docked TaskQueue flush atop the updated PromptInput with SpeechInput.
+ */
+export const WithSpeechInputAndTasks: Story = {
+  args: {
+    messages: inputStateMessages,
+    tasks: sampleRunningTasks,
+    placeholder: "What would you like to know?",
+    enableSpeech: true,
+    onSubmit: (message: PromptInputMessage) => {
+      console.log("Submitted:", message);
+      alert(`Submitted: ${message.text}`);
+    },
+    onTaskStop: (id: string) => {
+      console.log(`Stopped task ${id}`);
+    },
+    onTaskCancel: (id: string) => {
+      console.log(`Cancelled task ${id}`);
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Docked TaskQueue flush atop the PromptInput with voice speech input and file attachment.",
+      },
+    },
+  },
+};
+
+/**
+ * With Image and Audio Attachments — proves both attachment kinds render
+ * inline on a user message inside a real ChatPanel:
+ *
+ * 1. Seeded message: an image thumbnail (size-20) plus a playable
+ *    <audio controls> voice note rendered by UserMessageAttachments.
+ * 2. Live round-trip: attach an image via the paperclip or record a 5s
+ *    voice note via the mic, submit, and the just-sent message renders the
+ *    same way (submitted files are mapped to UserMessage attachments
+ *    exactly as each app's toMessageAttachments does).
+ */
+export const WithImageAndAudioAttachments: Story = {
+  render: () => {
+    const [messages, setMessages] = React.useState<RefinementMessage[]>(
+      attachmentStateMessages
+    );
+
+    const onSubmit = (message: PromptInputMessage) => {
+      const files = message.files ?? [];
+      const attachments: UserMessageAttachment[] = files.map((file) => ({
+        id: file.id,
+        kind: file.mediaType?.startsWith("audio/") ? "audio" : "image",
+        mime: file.mediaType ?? "application/octet-stream",
+        filename: file.filename,
+        source: {
+          type: file.url?.startsWith("data:") ? "data" : "url",
+          value: file.url ?? "",
+        },
+      }));
+      const now = Date.now();
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `local-${now}`,
+          type: "human",
+          role: "user",
+          content: message.text || "(no text)",
+          avatarSrc:
+            "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face",
+          avatarName: "User",
+          ...(attachments.length ? { attachments } : {}),
+        },
+      ]);
+      window.setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `local-reply-${now}`,
+            type: "ai",
+            role: "orchestrator",
+            content: files.length
+              ? `Received ${files.length} attachment(s): ${files
+                  .map((file) => file.filename ?? file.mediaType ?? "file")
+                  .join(", ")}. Images and voice notes render inline on your message.`
+              : "Received — attach an image or record a voice note to see both render inline.",
+            avatarSrc:
+              "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face",
+            avatarName: "Coordinator",
+          },
+        ]);
+      }, 500);
+    };
+
+    return (
+      <ChatPanel
+        messages={messages}
+        enableSpeech
+        placeholder="Attach an image or record a 5s voice note, then send..."
+        onSubmit={onSubmit}
+      />
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "ChatPanel proving image AND audio attachments render on user messages: a seeded message with an image thumbnail and a playable audio player, plus a live round-trip — paperclip/voice-note → submit → both kinds render on the just-sent message.",
+      },
+    },
+  },
+};
+
 
