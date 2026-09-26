@@ -33,8 +33,11 @@ export {
   ContextCacheUsage,
   TaskQueue,
   SpeechInput,
+  StoriesBar,
 } from './composites';
 export type {
+  StoriesBarProps,
+  StoryItem,
   SpeechInputProps,
   ApprovalCardProps,
   ActionRequest,

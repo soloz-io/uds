@@ -199,6 +199,11 @@ export interface ChatPanelProps {
    * @default true
    */
   enableSpeech?: boolean;
+  /**
+   * Whether to display the session header at the top of the chat panel.
+   * @default true
+   */
+  showHeader?: boolean;
 }
 
 /**
@@ -243,6 +248,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onTaskStopAll,
     onTaskClick,
     enableSpeech = true,
+    showHeader = true,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -397,14 +403,16 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     return (
       <div className={`relative flex h-full flex-col ${className || ""}`}>
         {/* Chat Session Header */}
-        <SessionHeader
-          sessions={sessions}
-          activeSessionId={activeSessionId}
-          onNewSession={onNewSession}
-          onCloseSession={onCloseSession}
-          onSelectSession={onSelectSession}
-          onDownloadSession={onDownloadSession || (async () => exportMessagesToMarkdownFile(messages as ExportableMessage[]))}
-        />
+        {showHeader && (
+          <SessionHeader
+            sessions={sessions}
+            activeSessionId={activeSessionId}
+            onNewSession={onNewSession}
+            onCloseSession={onCloseSession}
+            onSelectSession={onSelectSession}
+            onDownloadSession={onDownloadSession || (async () => exportMessagesToMarkdownFile(messages as ExportableMessage[]))}
+          />
+        )}
 
         <AIConversation
           messages={messages}

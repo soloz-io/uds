@@ -722,6 +722,16 @@ export const defaultIcons: Record<string, IconDefinition> = {
       { type: 'path', attrs: { d: 'm21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21' } },
     ],
   },
+  'clapperboard': {
+    name: 'clapperboard',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z' } },
+      { type: 'path', attrs: { d: 'm6.2 5.3 3.1 3.9' } },
+      { type: 'path', attrs: { d: 'm12.4 3.4 3.1 4' } },
+      { type: 'path', attrs: { d: 'M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z' } },
+    ],
+  },
 };
 
 /**
