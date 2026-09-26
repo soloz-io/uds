@@ -31,20 +31,17 @@ function getStoryStatusStyle(status?: StoryItem["status"]) {
     case "generating":
       return {
         iconColor: "text-amber-500",
-        ringClass: "ring-2 ring-amber-500 animate-pulse",
         badgeBg: "bg-amber-500",
       };
     case "ready":
       return {
         iconColor: "text-emerald-500",
-        ringClass: "ring-1 ring-emerald-500/70 group-hover:ring-emerald-500",
         badgeBg: "bg-emerald-500",
       };
     case "draft":
     default:
       return {
         iconColor: "text-muted-foreground",
-        ringClass: "ring-1 ring-border group-hover:ring-primary/60",
         badgeBg: "bg-muted-foreground",
       };
   }
@@ -55,11 +52,11 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
     return (
       <div
         ref={ref}
-        className={cn("w-full border-b shrink-0", className)}
+        className={cn("w-full border-b border-border bg-background shrink-0", className)}
         data-testid="stories-bar"
         {...props}
       >
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth">
+        <div className="flex items-center gap-2.5 px-3 py-1.5 overflow-x-auto no-scrollbar scroll-smooth">
           {stories.map((story) => {
             const isActive = story.id === activeStoryId;
             const isGenerating = story.status === "generating";
@@ -77,13 +74,13 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
               >
                 <div
                   className={cn(
-                    "relative w-12 h-12 shrink-0 aspect-square rounded-full transition-transform group-hover:scale-105",
+                    "relative w-9 h-9 shrink-0 aspect-square rounded-full transition-transform group-hover:scale-105",
                     isActive
-                      ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                      : statusStyle.ringClass
+                      ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
+                      : "ring-1 ring-border/60"
                   )}
                 >
-                  <div className="w-full h-full rounded-full flex items-center justify-center border shadow-sm overflow-hidden select-none">
+                  <div className="w-full h-full rounded-full flex items-center justify-center border border-border/50 bg-muted/40 shadow-xs overflow-hidden select-none">
                     {story.thumbnailUrl ? (
                       <img
                         src={story.thumbnailUrl}
@@ -93,20 +90,20 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
                     ) : (
                       <Icon
                         name={iconName}
-                        className={cn("w-5 h-5 transition-colors", statusStyle.iconColor)}
+                        className={cn("w-4 h-4 transition-colors", statusStyle.iconColor)}
                       />
                     )}
                   </div>
 
                   {isGenerating ? (
-                    <span className="absolute bottom-0 right-0 flex h-2.5 w-2.5">
+                    <span className="absolute bottom-0 right-0 flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
                     </span>
                   ) : (
                     <span
                       className={cn(
-                        "absolute bottom-0 right-0 inline-flex rounded-full h-2.5 w-2.5 ring-2 ring-background",
+                        "absolute bottom-0 right-0 inline-flex rounded-full h-2 w-2 ring-1.5 ring-background",
                         statusStyle.badgeBg
                       )}
                     />
@@ -115,7 +112,7 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
 
                 <span
                   className={cn(
-                    "text-xs truncate max-w-[58px] text-center",
+                    "text-[10px] leading-tight truncate max-w-[56px] text-center",
                     isActive
                       ? "font-semibold text-foreground"
                       : "text-muted-foreground group-hover:text-foreground"
