@@ -72,15 +72,15 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
                 data-testid={`btn-story-${story.id}`}
                 aria-label={`Open story: ${story.title}`}
               >
-                <div
-                  className={cn(
-                    "relative w-9 h-9 shrink-0 aspect-square rounded-full transition-transform group-hover:scale-105",
-                    isActive
-                      ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
-                      : "ring-1 ring-border/60"
-                  )}
-                >
-                  <div className="w-full h-full rounded-full flex items-center justify-center border border-border/50 bg-muted/40 shadow-xs overflow-hidden select-none">
+                <div className="relative w-9 h-9 shrink-0 aspect-square rounded-full transition-transform group-hover:scale-105">
+                  <div
+                    className={cn(
+                      "w-full h-full rounded-full flex items-center justify-center border transition-colors overflow-hidden select-none",
+                      isActive
+                        ? "border-primary bg-muted/60"
+                        : "border-border/50 bg-muted/40"
+                    )}
+                  >
                     {story.thumbnailUrl ? (
                       <img
                         src={story.thumbnailUrl}
