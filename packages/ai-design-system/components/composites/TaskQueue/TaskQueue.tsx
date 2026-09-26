@@ -201,8 +201,11 @@ export const TaskQueue = React.memo<TaskQueueProps>(
                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
                         {getStatusIcon(task.status)}
 
-                        <QueueItemContent className="font-mono text-sm text-foreground select-all">
-                          {task.command || task.title}
+                        <QueueItemContent
+                          className="font-mono text-sm text-foreground select-all"
+                          title={task.runId ? `Run ID: ${task.runId}` : undefined}
+                        >
+                          {task.title || task.command}
                         </QueueItemContent>
 
                         {task.duration && (
@@ -219,7 +222,7 @@ export const TaskQueue = React.memo<TaskQueueProps>(
                               e.stopPropagation();
                               onStop(task.id);
                             }}
-                            aria-label={`Stop ${task.command || task.title}`}
+                            aria-label={`Stop ${task.title || task.command}`}
                             title="Stop task"
                             className="size-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 opacity-100 group-hover:opacity-100"
                           >
@@ -233,7 +236,7 @@ export const TaskQueue = React.memo<TaskQueueProps>(
                               e.stopPropagation();
                               onCancel(task.id);
                             }}
-                            aria-label={`Cancel ${task.command || task.title}`}
+                            aria-label={`Cancel ${task.title || task.command}`}
                             title="Cancel task"
                             className="size-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 opacity-100 group-hover:opacity-100"
                           >
@@ -247,7 +250,7 @@ export const TaskQueue = React.memo<TaskQueueProps>(
                               e.stopPropagation();
                               onRetry(task.id);
                             }}
-                            aria-label={`Retry ${task.command || task.title}`}
+                            aria-label={`Retry ${task.title || task.command}`}
                             title="Retry task"
                             className="size-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 opacity-100 group-hover:opacity-100"
                           >

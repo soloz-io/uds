@@ -35,6 +35,10 @@ export interface TaskItem {
    * Optional error message if the task failed
    */
   error?: string;
+  /**
+   * Optional underlying run/job identifier (e.g. for tooltip/diagnostics)
+   */
+  runId?: string;
 }
 
 export interface TaskQueueProps {
