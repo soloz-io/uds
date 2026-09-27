@@ -16,6 +16,7 @@ const meta = {
   args: {
     onBack: fn(),
     onClose: fn(),
+    onSubmit: fn(),
     onPublish: fn(),
     onSceneChange: fn(),
   },

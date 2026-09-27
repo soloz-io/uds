@@ -1,8 +1,11 @@
 "use client";
 
 import * as React from "react";
+import type { FormEvent } from "react";
 import { Button } from "@/components/primitives/Button";
 import { Icon } from "@/components/primitives/Icon";
+import { PromptInput } from "@/components/composites/PromptInput";
+import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { cn } from "@/lib/utils";
 
 export interface SceneItem {
@@ -18,7 +21,7 @@ export interface SceneItem {
   [key: string]: unknown;
 }
 
-export interface ScenePlayerProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ScenePlayerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onSubmit"> {
   scenes: SceneItem[];
   title?: string;
   avatarInitials?: string;
@@ -27,7 +30,17 @@ export interface ScenePlayerProps extends React.HTMLAttributes<HTMLDivElement> {
   isMuted?: boolean;
   onBack?: () => void;
   onClose?: () => void;
-  onPublish?: (currentScene: SceneItem) => void;
+  placeholder?: string;
+  promptValue?: string;
+  onPromptValueChange?: (value: string) => void;
+  onSubmit?: (
+    message: PromptInputMessage,
+    event: FormEvent<HTMLFormElement>
+  ) => void | Promise<void>;
+  loading?: boolean;
+  onStop?: () => void;
+  enableSpeech?: boolean;
+  onPublish?: (currentScene: SceneItem, text?: string) => void;
   publishPlaceholder?: string;
   onSceneChange?: (sceneIndex: number, scene: SceneItem) => void;
 }
@@ -43,8 +56,15 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       isMuted: initialMuted = false,
       onBack,
       onClose,
+      placeholder,
+      promptValue,
+      onPromptValueChange,
+      onSubmit,
+      loading = false,
+      onStop,
+      enableSpeech = true,
       onPublish,
-      publishPlaceholder = "Ready to publish...",
+      publishPlaceholder = "Ask a question or provide instructions...",
       onSceneChange,
       className,
       ...props
@@ -64,6 +84,19 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
     const videoRef = React.useRef<HTMLVideoElement | null>(null);
 
     const activeScene = scenes[currentSceneIndex] || scenes[0];
+
+    const handlePromptSubmit = React.useCallback(
+      (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => {
+        if (onSubmit) {
+          onSubmit(message, event);
+          return;
+        }
+        if (onPublish) {
+          onPublish(activeScene, message.text);
+        }
+      },
+      [onSubmit, onPublish, activeScene]
+    );
 
     const handlePrev = React.useCallback(() => {
       if (!scenes.length) return;
@@ -269,21 +302,18 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           </div>
         </div>
 
-        {/* Bottom Action Bar */}
-        <div className="flex items-center gap-3 px-4 py-3.5 bg-black z-20 shrink-0">
-          <div className="flex-1 h-11 rounded-full bg-white/15 border border-white/25 px-4 flex items-center text-sm text-white/65 select-none truncate">
-            {publishPlaceholder}
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            data-testid="btn-publish-scene"
-            aria-label="Publish scene"
-            onClick={() => onPublish?.(activeScene)}
-            className="w-11 h-11 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shrink-0 p-0 shadow-md cursor-pointer transition-transform active:scale-95"
-          >
-            <Icon name="send" className="w-4 h-4 text-white" />
-          </Button>
+        {/* Bottom PromptInput Composite from Design System */}
+        <div className="p-3 bg-gradient-to-t from-black via-black/90 to-transparent pt-4 z-20 shrink-0">
+          <PromptInput
+            placeholder={placeholder || publishPlaceholder}
+            value={promptValue}
+            onChange={onPromptValueChange}
+            onSubmit={handlePromptSubmit}
+            loading={loading}
+            onStop={onStop}
+            enableSpeech={enableSpeech}
+            className="border border-border bg-background shadow-md overflow-hidden rounded-2xl"
+          />
         </div>
       </div>
     );
