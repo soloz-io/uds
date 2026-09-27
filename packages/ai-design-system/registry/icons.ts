@@ -257,6 +257,14 @@ export const defaultIcons: Record<string, IconDefinition> = {
     viewBox: '0 0 24 24',
     path: 'M8 5v14l11-7z',
   },
+  'pause': {
+    name: 'pause',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'rect', attrs: { x: '14', y: '4', width: '4', height: '16', rx: '1' } },
+      { type: 'rect', attrs: { x: '6', y: '4', width: '4', height: '16', rx: '1' } },
+    ],
+  },
   'file-text': {
     name: 'file-text',
     viewBox: '0 0 24 24',

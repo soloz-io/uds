@@ -19,6 +19,8 @@ const meta = {
     onSubmit: fn(),
     onPublish: fn(),
     onSceneChange: fn(),
+    onPlayingChange: fn(),
+    onDownload: fn(),
   },
 } satisfies Meta<typeof ScenePlayer>;
 

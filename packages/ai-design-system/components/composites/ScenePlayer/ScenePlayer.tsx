@@ -28,6 +28,11 @@ export interface ScenePlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   avatarColor?: string;
   initialSceneIndex?: number;
   isMuted?: boolean;
+  isPlaying?: boolean;
+  onPlayingChange?: (isPlaying: boolean) => void;
+  videoUrl?: string;
+  downloadUrl?: string;
+  onDownload?: () => void;
   onBack?: () => void;
   onClose?: () => void;
   placeholder?: string;
@@ -54,6 +59,11 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       avatarColor = "bg-indigo-600",
       initialSceneIndex = 0,
       isMuted: initialMuted = false,
+      isPlaying: isPlayingProp,
+      onPlayingChange,
+      videoUrl,
+      downloadUrl,
+      onDownload,
       onBack,
       onClose,
       placeholder,
@@ -79,6 +89,22 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       }
       return 0;
     });
+
+    const [isPlayingState, setIsPlayingState] = React.useState<boolean>(isPlayingProp ?? true);
+    const isPlaying = isPlayingProp !== undefined ? isPlayingProp : isPlayingState;
+
+    const setIsPlaying = React.useCallback(
+      (value: boolean | ((prev: boolean) => boolean)) => {
+        const nextVal = typeof value === "function" ? value(isPlaying) : value;
+        setIsPlayingState(nextVal);
+        onPlayingChange?.(nextVal);
+      },
+      [isPlaying, onPlayingChange]
+    );
+
+    const togglePlay = React.useCallback(() => {
+      setIsPlaying((prev) => !prev);
+    }, [setIsPlaying]);
 
     const [isMuted, setIsMuted] = React.useState<boolean>(initialMuted);
     const videoRef = React.useRef<HTMLVideoElement | null>(null);
@@ -117,41 +143,91 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
     }, [scenes, onSceneChange]);
 
     const handleSceneEnded = React.useCallback(() => {
-      if (!scenes.length) return;
+      if (!scenes.length || !isPlaying) return;
       setCurrentSceneIndex((prev) => {
         const nextIdx = prev < scenes.length - 1 ? prev + 1 : 0;
         onSceneChange?.(nextIdx, scenes[nextIdx]);
         return nextIdx;
       });
-    }, [scenes, onSceneChange]);
+    }, [scenes, onSceneChange, isPlaying]);
 
-    // Autoplay & mute handling
+    const handleDownload = React.useCallback(async () => {
+      if (onDownload) {
+        onDownload();
+        return;
+      }
+      const targetUrl = downloadUrl || videoUrl || activeScene?.scene_clip_url;
+      if (!targetUrl) return;
+
+      try {
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error("Fetch failed");
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = targetUrl.split("/").pop()?.split("?")[0] || "video.mp4";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      } catch {
+        const link = document.createElement("a");
+        link.href = targetUrl;
+        link.download = targetUrl.split("/").pop()?.split("?")[0] || "video.mp4";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }, [onDownload, downloadUrl, videoUrl, activeScene?.scene_clip_url]);
+
+    // Playback & mute synchronization
     React.useEffect(() => {
       const video = videoRef.current;
       if (!video) return;
 
       video.muted = isMuted;
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          if (!isMuted) {
-            video.muted = true;
-            setIsMuted(true);
-            video.play().catch(() => {});
-          }
-        });
-      }
-    }, [activeScene?.scene_clip_url, isMuted]);
 
-    // Keyboard navigation
+      if (isPlaying) {
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            if (!isMuted) {
+              video.muted = true;
+              setIsMuted(true);
+              video.play().catch(() => {});
+            }
+          });
+        }
+      } else {
+        video.pause();
+      }
+    }, [activeScene?.scene_clip_url, isMuted, isPlaying]);
+
+    // Keyboard navigation & playback controls
     React.useEffect(() => {
       const handleKeyDown = (e: KeyboardEvent) => {
+        const target = e.target as HTMLElement | null;
+        if (
+          target &&
+          (target.tagName === "INPUT" ||
+            target.tagName === "TEXTAREA" ||
+            target.isContentEditable)
+        ) {
+          return;
+        }
+
         if (e.key === "ArrowLeft") {
           e.preventDefault();
           handlePrev();
-        } else if (e.key === "ArrowRight" || e.key === " ") {
+        } else if (e.key === "ArrowRight") {
           e.preventDefault();
           handleNext();
+        } else if (e.key === " " || e.key === "k" || e.key === "K") {
+          e.preventDefault();
+          togglePlay();
         } else if (e.key === "Escape") {
           e.preventDefault();
           handleBack?.();
@@ -163,7 +239,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
 
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [handlePrev, handleNext, handleBack]);
+    }, [handlePrev, handleNext, handleBack, togglePlay]);
 
     if (!scenes || scenes.length === 0) {
       return (
@@ -236,14 +312,6 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
               </Button>
             )}
 
-            <div
-              className={cn(
-                "w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 ring-1.5 ring-white/80 overflow-hidden",
-                avatarColor
-              )}
-            >
-              {avatarInitials}
-            </div>
             <div className="flex flex-col min-w-0 justify-center">
               <span className="font-bold text-sm text-white truncate max-w-[200px]">
                 {title}
@@ -255,6 +323,18 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Play/Pause Toggle Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              data-testid="btn-toggle-play"
+              aria-label={isPlaying ? "Pause scene" : "Play scene"}
+              onClick={togglePlay}
+              className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
+            >
+              <Icon name={isPlaying ? "pause" : "play"} className="w-4 h-4" />
+            </Button>
+
             {/* Mute/Unmute Toggle Button */}
             <Button
               variant="ghost"
@@ -265,6 +345,18 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
               className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
             >
               <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
+            </Button>
+
+            {/* Download Video Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              data-testid="btn-download"
+              aria-label="Download video"
+              onClick={handleDownload}
+              className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
+            >
+              <Icon name="download" className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -303,7 +395,18 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
         </div>
 
         {/* Bottom PromptInput Composite from Design System */}
-        <div className="p-3 bg-gradient-to-t from-black via-black/90 to-transparent pt-4 z-20 shrink-0">
+        <div
+          className="p-3 bg-gradient-to-t from-black via-black/90 to-transparent pt-4 z-20 shrink-0"
+          onFocusCapture={() => {
+            setIsPlaying(false);
+          }}
+          onClickCapture={() => {
+            setIsPlaying(false);
+          }}
+          onTouchStartCapture={() => {
+            setIsPlaying(false);
+          }}
+        >
           <PromptInput
             placeholder={placeholder || publishPlaceholder}
             value={promptValue}
