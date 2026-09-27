@@ -3,7 +3,7 @@
 import * as React from "react";
 import { AIConversation } from "@/components/blocks/AIConversation";
 import { FileChangeQueue } from "@/components/blocks/FileChangeQueue";
-import { PromptInput, type PromptInputContextProps } from "@/components/composites/PromptInput";
+import { PromptInput, type PromptInputContextProps, type PromptInputVariant } from "@/components/composites/PromptInput";
 import { TaskQueue, type TaskItem } from "@/components/composites/TaskQueue";
 import { ApprovalCard } from "@/components/composites/ApprovalCard";
 import { cn } from "@/lib/utils";
@@ -195,6 +195,18 @@ export interface ChatPanelProps {
    */
   onTaskClick?: (task: TaskItem) => void;
   /**
+   * Layout variant for PromptInput:
+   * - "default": multi-line textarea with toolbar buttons below (attachment, mic)
+   * - "row" | "inline": single row where input box and send button are side-by-side without tools icons
+   * @default "default"
+   */
+  promptInputVariant?: PromptInputVariant;
+  /**
+   * Whether to enable the attachment button in prompt
+   * @default true for default variant, false for row variant
+   */
+  enableAttachments?: boolean;
+  /**
    * Whether to enable the voice-note microphone button in prompt
    * @default true
    */
@@ -268,6 +280,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onTaskRetry,
     onTaskStopAll,
     onTaskClick,
+    promptInputVariant = "default",
+    enableAttachments,
     enableSpeech = true,
     showHeader = true,
     sessionTitle,
@@ -465,6 +479,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             />
           )}
           <PromptInput
+            variant={promptInputVariant}
             dialog={dialog}
             placeholder={placeholder}
             value={promptValue}
@@ -474,6 +489,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             onStop={onStop}
             context={context}
             enableSpeech={enableSpeech}
+            enableAttachments={enableAttachments}
             className={cn(
               "border border-neutral-600 bg-background shadow-sm overflow-hidden",
               tasks.length > 0 && !dialog

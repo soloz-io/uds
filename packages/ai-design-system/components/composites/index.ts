@@ -231,6 +231,7 @@ export {
 } from './PromptInput'
 export type {
   PromptInputBlockProps,
+  PromptInputVariant,
   SpeechInputProps,
   PromptInputContextProps,
   PromptInputControllerProps,

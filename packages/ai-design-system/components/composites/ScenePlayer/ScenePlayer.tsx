@@ -4,7 +4,7 @@ import * as React from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/primitives/Button";
 import { Icon } from "@/components/primitives/Icon";
-import { PromptInput } from "@/components/composites/PromptInput";
+import { PromptInput, type PromptInputVariant } from "@/components/composites/PromptInput";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { cn } from "@/lib/utils";
 
@@ -45,6 +45,8 @@ export interface ScenePlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   loading?: boolean;
   onStop?: () => void;
   enableSpeech?: boolean;
+  enableAttachments?: boolean;
+  promptInputVariant?: PromptInputVariant;
   onPublish?: (currentScene: SceneItem, text?: string) => void;
   publishPlaceholder?: string;
   onSceneChange?: (sceneIndex: number, scene: SceneItem) => void;
@@ -72,7 +74,9 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       onSubmit,
       loading = false,
       onStop,
-      enableSpeech = true,
+      enableSpeech = false,
+      enableAttachments = false,
+      promptInputVariant = "row",
       onPublish,
       publishPlaceholder = "Ask a question or provide instructions...",
       onSceneChange,
@@ -408,6 +412,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           }}
         >
           <PromptInput
+            variant={promptInputVariant}
             placeholder={placeholder || publishPlaceholder}
             value={promptValue}
             onChange={onPromptValueChange}
@@ -415,6 +420,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
             loading={loading}
             onStop={onStop}
             enableSpeech={enableSpeech}
+            enableAttachments={enableAttachments}
             className="border border-border bg-background shadow-md overflow-hidden rounded-2xl"
           />
         </div>

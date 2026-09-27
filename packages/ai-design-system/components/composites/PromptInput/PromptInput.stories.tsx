@@ -360,5 +360,28 @@ export const WithSpeechInput: Story = {
   },
 };
 
+/**
+ * Row / Inline Variant
+ * Single row where the input box and send button are side-by-side, without tools icons.
+ */
+export const RowVariant: Story = {
+  args: {
+    variant: "row",
+    placeholder: "Ask a question or provide instructions...",
+    onSubmit: (message) => {
+      console.log("Submitted in row mode:", message);
+      alert(`Submitted: ${message.text}`);
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Compact single-row PromptInput variant where input box and send button are in the same line without toolbar tool icons (attachments, speech mic, etc.).",
+      },
+    },
+  },
+};
+
 
 

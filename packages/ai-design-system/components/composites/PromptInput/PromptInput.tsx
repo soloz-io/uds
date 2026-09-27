@@ -44,11 +44,14 @@ export interface PromptInputContextProps {
   modelId?: string;
 }
 
+export type PromptInputVariant = "default" | "row" | "inline";
+
 export interface PromptInputBlockProps
   extends Omit<
     AIPromptInputProps,
     "globalDrop" | "syncHiddenInput" | "onSubmit" | "onChange"
   > {
+  variant?: PromptInputVariant;
   disabled?: boolean;
   placeholder?: string;
   value?: string;
@@ -62,6 +65,7 @@ export interface PromptInputBlockProps
   onStop?: () => void;
   context?: PromptInputContextProps | ReactNode;
   tools?: ReactNode;
+  enableAttachments?: boolean;
   enableSpeech?: boolean;
   speechProps?: SpeechInputProps;
   attachIcon?: "paperclip" | "plus";
@@ -69,6 +73,7 @@ export interface PromptInputBlockProps
 
 export const PromptInput = React.memo<PromptInputBlockProps>(
   ({
+    variant = "default",
     disabled = false,
     placeholder,
     value,
@@ -79,7 +84,8 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     onStop,
     context,
     tools,
-    enableSpeech = true,
+    enableAttachments,
+    enableSpeech,
     speechProps,
     attachIcon = "paperclip",
     accept = "image/*,audio/*",
@@ -89,6 +95,10 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     onError,
     ...props
   }) => {
+    const isRowVariant = variant === "row" || variant === "inline";
+    const showAttachments = enableAttachments ?? !isRowVariant;
+    const showSpeech = enableSpeech ?? !isRowVariant;
+
     const existingController = useOptionalPromptInputController();
 
     const handleSubmit = React.useCallback(
@@ -122,7 +132,40 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
 
     const isStopping = loading && Boolean(onStop);
 
-    const promptInputContent = (
+    const promptInputContent = isRowVariant ? (
+      <AIPromptInput
+        onSubmit={handleSubmit}
+        accept={accept}
+        multiple={multiple}
+        maxFiles={maxFiles}
+        maxFileSize={maxFileSize}
+        onError={onError}
+        {...props}
+      >
+        <PromptInputBody className="contents">
+          {showAttachments && <AttachmentPreviews />}
+          <PromptInputTextarea
+            placeholder={placeholder}
+            disabled={disabled}
+            onChange={isControlled ? handleControlledChange : undefined}
+            className="min-h-9 py-2 px-3 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content"
+          />
+        </PromptInputBody>
+        <div className="pr-1.5 shrink-0 flex items-center self-center">
+          <PromptInputSubmit
+            disabled={disabled || (loading && !onStop)}
+            status={loading ? (onStop ? "streaming" : "submitted") : undefined}
+            onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
+            className={cn(
+              "h-8 w-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors shrink-0 p-0 flex items-center justify-center cursor-pointer",
+              isStopping && "bg-transparent hover:bg-accent"
+            )}
+          >
+            {loading ? undefined : <Icon name="corner-down-left" size="sm" />}
+          </PromptInputSubmit>
+        </div>
+      </AIPromptInput>
+    ) : (
       <AIPromptInput
         onSubmit={handleSubmit}
         accept={accept}
@@ -142,8 +185,10 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         </PromptInputBody>
         <PromptInputFooter>
           <PromptInputTools>
-            <AttachButton disabled={disabled || loading} icon={attachIcon} />
-            {enableSpeech && (
+            {showAttachments && (
+              <AttachButton disabled={disabled || loading} icon={attachIcon} />
+            )}
+            {showSpeech && (
               <SpeechInput
                 disabled={disabled || loading}
                 {...speechProps}

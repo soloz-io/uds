@@ -53,6 +53,7 @@ export type {
   AppBreadcrumbProps,
   BreadcrumbItemData,
   PromptInputBlockProps,
+  PromptInputVariant,
   PromptInputContextProps,
   PromptInputControllerProps,
   AttachmentsContext,
