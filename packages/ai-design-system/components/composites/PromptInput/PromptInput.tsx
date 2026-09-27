@@ -35,6 +35,7 @@ import { SpeechInput, type SpeechInputProps } from "@/components/ai-elements/spe
 import type { FormEvent } from "react";
 import { Button } from "@/components/primitives/Button";
 import { Icon } from "@/components/primitives/Icon";
+import { InputGroupAddon } from "@/components/primitives/InputGroup";
 import { cn } from "@/lib/utils";
 
 export interface PromptInputContextProps {
@@ -93,6 +94,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     maxFiles,
     maxFileSize,
     onError,
+    className,
     ...props
   }) => {
     const isRowVariant = variant === "row" || variant === "inline";
@@ -140,30 +142,34 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         maxFiles={maxFiles}
         maxFileSize={maxFileSize}
         onError={onError}
+        className={cn(
+          "[&>[data-slot=input-group]]:rounded-2xl",
+          className?.includes("border") &&
+            "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
+          className
+        )}
         {...props}
       >
-        <PromptInputBody className="contents">
-          {showAttachments && <AttachmentPreviews />}
-          <PromptInputTextarea
-            placeholder={placeholder}
-            disabled={disabled}
-            onChange={isControlled ? handleControlledChange : undefined}
-            className="min-h-9 py-2 px-3 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content"
-          />
-        </PromptInputBody>
-        <div className="pr-1.5 shrink-0 flex items-center self-center">
+        {showAttachments && <AttachmentPreviews />}
+        <PromptInputTextarea
+          placeholder={placeholder}
+          disabled={disabled}
+          onChange={isControlled ? handleControlledChange : undefined}
+          className="min-h-9 py-2 px-3 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content"
+        />
+        <InputGroupAddon align="inline-end" className="self-end pb-1 pr-1.5 shrink-0">
           <PromptInputSubmit
             disabled={disabled || (loading && !onStop)}
             status={loading ? (onStop ? "streaming" : "submitted") : undefined}
             onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
             className={cn(
-              "h-8 w-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors shrink-0 p-0 flex items-center justify-center cursor-pointer",
+              "rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors",
               isStopping && "bg-transparent hover:bg-accent"
             )}
           >
             {loading ? undefined : <Icon name="corner-down-left" size="sm" />}
           </PromptInputSubmit>
-        </div>
+        </InputGroupAddon>
       </AIPromptInput>
     ) : (
       <AIPromptInput
@@ -173,6 +179,11 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         maxFiles={maxFiles}
         maxFileSize={maxFileSize}
         onError={onError}
+        className={cn(
+          className?.includes("border") &&
+            "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
+          className
+        )}
         {...props}
       >
         <PromptInputBody>
