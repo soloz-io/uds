@@ -34,10 +34,13 @@ export {
   TaskQueue,
   SpeechInput,
   StoriesBar,
+  ScenePlayer,
 } from './composites';
 export type {
   StoriesBarProps,
   StoryItem,
+  ScenePlayerProps,
+  SceneItem,
   SpeechInputProps,
   ApprovalCardProps,
   ActionRequest,
