@@ -411,4 +411,26 @@ export const WithImageAndAudioAttachments: Story = {
   },
 };
 
+/**
+ * Sheet Presentation - Floating bottom-sheet modal overlay
+ */
+export const SheetPresentation: Story = {
+  args: {
+    variant: "sheet",
+    messages: inputStateMessages,
+    sessionTitle: "Video Generation Session",
+    placeholder: "Ask a question or describe a task...",
+    onSubmit: (msg: PromptInputMessage) => console.log("Submitted:", msg),
+    onClose: () => alert("Close sheet triggered"),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Floating bottom-sheet panel presentation with frosted backdrop blur overlay, elevated surface, and grab handle.",
+      },
+    },
+  },
+};
+
 

@@ -49,6 +49,8 @@ function getStoryStatusStyle(status?: StoryItem["status"]) {
 
 export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
   ({ stories, activeStoryId, onStoryClick, defaultIcon = "clapperboard", className, ...props }, ref) => {
+    const hasActiveStory = Boolean(activeStoryId);
+
     return (
       <div
         ref={ref}
@@ -68,16 +70,19 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
                 key={story.id}
                 variant="ghost"
                 onClick={() => onStoryClick(story)}
-                className="flex flex-col items-center gap-1 h-auto p-0 hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg cursor-pointer group shrink-0"
+                className={cn(
+                  "flex flex-col items-center gap-1 h-auto p-0 hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg cursor-pointer group shrink-0 transition-all duration-200",
+                  hasActiveStory && (isActive ? "opacity-100 scale-105" : "opacity-35 hover:opacity-60")
+                )}
                 data-testid={`btn-story-${story.id}`}
                 aria-label={`Open story: ${story.title}`}
               >
                 <div className="relative w-9 h-9 shrink-0 aspect-square rounded-full transition-transform group-hover:scale-105">
                   <div
                     className={cn(
-                      "w-full h-full rounded-full flex items-center justify-center border transition-colors overflow-hidden select-none",
+                      "w-full h-full rounded-full flex items-center justify-center border transition-all overflow-hidden select-none",
                       isActive
-                        ? "border-primary bg-muted/60"
+                        ? "border-primary bg-muted/60 ring-2 ring-primary/60 shadow-lg shadow-primary/40"
                         : "border-border/50 bg-muted/40"
                     )}
                   >

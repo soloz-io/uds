@@ -213,6 +213,18 @@ export interface ChatPanelProps {
    * @default true
    */
   showSessionActions?: boolean;
+  /**
+   * Presentation variant for ChatPanel:
+   * - "default": standard full flex-1 panel (default)
+   * - "sheet": elevated floating bottom-sheet panel with frosted backdrop blur overlay,
+   *   rounded surface, shadow, grab handle, and dismiss backdrop click.
+   * @default "default"
+   */
+  variant?: "default" | "sheet";
+  /**
+   * Callback fired when clicking the backdrop overlay or dismissing the sheet (when variant="sheet")
+   */
+  onClose?: () => void;
 }
 
 /**
@@ -260,6 +272,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     showHeader = true,
     sessionTitle,
     showSessionActions = true,
+    variant = "default",
+    onClose,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -411,8 +425,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
       );
     }, [loading, messages]);
 
-    return (
-      <div className={`relative flex h-full flex-col ${className || ""}`}>
+    const chatContent = (
+      <div className={cn("relative flex h-full flex-col", variant !== "sheet" && className)}>
         {/* Chat Session Header */}
         {showHeader && (
           <SessionHeader
@@ -470,6 +484,40 @@ export const ChatPanel = React.memo<ChatPanelProps>(
         </div>
       </div>
     );
+
+    if (variant === "sheet") {
+      return (
+        <div
+          className="absolute inset-0 z-50 flex flex-col justify-end backdrop-blur-md bg-black/60"
+          data-testid="story-chat-head-overlay"
+        >
+          <div
+            className="absolute inset-0 cursor-pointer"
+            onClick={onClose}
+            data-testid="story-chat-head-backdrop"
+            aria-label="Close sheet"
+          />
+          <div
+            className={cn(
+              "relative z-10 flex flex-col bg-card rounded-2xl border border-border shadow-2xl h-[85%] mx-4 mb-4 overflow-hidden",
+              className
+            )}
+            data-testid="story-chat-head-popup"
+          >
+            <div
+              className="w-9 h-1 rounded-full bg-muted-foreground/30 mx-auto mt-2.5 mb-1 shrink-0"
+              data-testid="story-sheet-handle"
+              aria-hidden="true"
+            />
+            <div className="flex-1 flex flex-col min-h-0">
+              {chatContent}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return chatContent;
   }
 );
 
