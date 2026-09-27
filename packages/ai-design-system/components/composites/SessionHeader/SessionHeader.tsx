@@ -20,12 +20,14 @@ import type { FileDownloadResult } from '@/components/composites/FileTreeExplore
 
 
 export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  title?: string;
   sessions?: ChatSessionInfo[];
   activeSessionId?: string | null;
   onNewSession?: () => void;
   onCloseSession?: (id: string) => void;
   onSelectSession?: (id: string) => void;
   onDownloadSession?: () => Promise<FileDownloadResult | undefined>;
+  showActions?: boolean;
 }
 
 /**
@@ -35,7 +37,7 @@ export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
  * and a dropdown history of past sessions.
  */
 export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps>(
-  ({ sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, className, ...props }, ref) => {
+  ({ title, sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, showActions = true, className, ...props }, ref) => {
     const activeSession = sessions?.find(s => s.id === activeSessionId);
     const downloadRef = React.useRef<HTMLAnchorElement>(null);
 
@@ -53,6 +55,10 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
       URL.revokeObjectURL(url);
     }, [onDownloadSession]);
 
+    const displayTitle = title || (activeSessionId 
+      ? (activeSession?.title || 'Untitled Session')
+      : 'New Session');
+
     return (
       <div 
         ref={ref}
@@ -61,48 +67,48 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
       >
         <div className="flex items-center space-x-2 overflow-hidden">
           <span className="text-sm font-medium truncate">
-            {activeSessionId 
-              ? (activeSession?.title || 'Untitled Session')
-              : 'New Session'}
+            {displayTitle}
           </span>
         </div>
-        <div className="flex items-center space-x-1 flex-none">
-          {onDownloadSession && (
-            <Button variant="ghost" size="icon" onClick={handleDownloadClick} className="h-8 w-8" title="Download Chat History">
-              <Icon name="download" className="h-4 w-4" />
-            </Button>
-          )}
-          <Button variant="ghost" size="icon" onClick={onNewSession} className="h-8 w-8" title="New Session">
-            <Icon name="plus" className="h-4 w-4" />
-          </Button>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Icon name="clock" className="h-4 w-4" />
+        {showActions && (
+          <div className="flex items-center space-x-1 flex-none">
+            {onDownloadSession && (
+              <Button variant="ghost" size="icon" onClick={handleDownloadClick} className="h-8 w-8" title="Download Chat History">
+                <Icon name="download" className="h-4 w-4" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 max-h-80 overflow-y-auto">
-              <DropdownMenuLabel>Chat History</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {sessions && sessions.length > 0 ? (
-                sessions.map((session) => (
-                  <DropdownMenuItem 
-                    key={session.id}
-                    onClick={() => onSelectSession?.(session.id)}
-                    className="flex flex-col items-start py-2 cursor-pointer"
-                  >
-                    <span className="text-sm font-medium truncate w-full">{session.title || 'Untitled Session'}</span>
-                    <span className="text-xs text-muted-foreground">{new Date(session.created_at).toLocaleString()}</span>
-                  </DropdownMenuItem>
-                ))
-              ) : (
-                <div className="p-4 text-sm text-center text-muted-foreground">No previous sessions</div>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <a ref={downloadRef} style={{ display: 'none' }} />
-        </div>
+            )}
+            <Button variant="ghost" size="icon" onClick={onNewSession} className="h-8 w-8" title="New Session">
+              <Icon name="plus" className="h-4 w-4" />
+            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Icon name="clock" className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 max-h-80 overflow-y-auto">
+                <DropdownMenuLabel>Chat History</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {sessions && sessions.length > 0 ? (
+                  sessions.map((session) => (
+                    <DropdownMenuItem 
+                      key={session.id}
+                      onClick={() => onSelectSession?.(session.id)}
+                      className="flex flex-col items-start py-2 cursor-pointer"
+                    >
+                      <span className="text-sm font-medium truncate w-full">{session.title || 'Untitled Session'}</span>
+                      <span className="text-xs text-muted-foreground">{new Date(session.created_at).toLocaleString()}</span>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <div className="p-4 text-sm text-center text-muted-foreground">No previous sessions</div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <a ref={downloadRef} style={{ display: 'none' }} />
+          </div>
+        )}
       </div>
     );
   }

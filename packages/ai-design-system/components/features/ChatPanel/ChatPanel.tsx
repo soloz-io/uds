@@ -204,6 +204,15 @@ export interface ChatPanelProps {
    * @default true
    */
   showHeader?: boolean;
+  /**
+   * Title override for the session header
+   */
+  sessionTitle?: string;
+  /**
+   * Whether to show action buttons in the session header
+   * @default true
+   */
+  showSessionActions?: boolean;
 }
 
 /**
@@ -249,6 +258,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onTaskClick,
     enableSpeech = true,
     showHeader = true,
+    sessionTitle,
+    showSessionActions = true,
   }) => {
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
@@ -405,6 +416,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
         {/* Chat Session Header */}
         {showHeader && (
           <SessionHeader
+            title={sessionTitle}
+            showActions={showSessionActions}
             sessions={sessions}
             activeSessionId={activeSessionId}
             onNewSession={onNewSession}
