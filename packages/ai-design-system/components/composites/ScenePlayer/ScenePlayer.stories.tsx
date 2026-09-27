@@ -14,6 +14,7 @@ const meta = {
   tags: ["autodocs"],
   parameters: { layout: "fullscreen" },
   args: {
+    onBack: fn(),
     onClose: fn(),
     onPublish: fn(),
     onSceneChange: fn(),

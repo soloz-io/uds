@@ -25,6 +25,7 @@ export interface ScenePlayerProps extends React.HTMLAttributes<HTMLDivElement> {
   avatarColor?: string;
   initialSceneIndex?: number;
   isMuted?: boolean;
+  onBack?: () => void;
   onClose?: () => void;
   onPublish?: (currentScene: SceneItem) => void;
   publishPlaceholder?: string;
@@ -40,6 +41,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       avatarColor = "bg-indigo-600",
       initialSceneIndex = 0,
       isMuted: initialMuted = false,
+      onBack,
       onClose,
       onPublish,
       publishPlaceholder = "Ready to publish...",
@@ -49,6 +51,8 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
     },
     ref
   ) => {
+    const handleBack = onBack || onClose;
+
     const [currentSceneIndex, setCurrentSceneIndex] = React.useState<number>(() => {
       if (initialSceneIndex >= 0 && initialSceneIndex < scenes.length) {
         return initialSceneIndex;
@@ -117,7 +121,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           handleNext();
         } else if (e.key === "Escape") {
           e.preventDefault();
-          onClose?.();
+          handleBack?.();
         } else if (e.key === "m" || e.key === "M") {
           e.preventDefault();
           setIsMuted((prev) => !prev);
@@ -126,7 +130,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
 
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [handlePrev, handleNext, onClose]);
+    }, [handlePrev, handleNext, handleBack]);
 
     if (!scenes || scenes.length === 0) {
       return (
@@ -137,14 +141,14 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           {...props}
         >
           <p className="text-white/70 text-sm">No scenes available</p>
-          {onClose && (
+          {handleBack && (
             <Button
               variant="ghost"
-              onClick={onClose}
+              onClick={handleBack}
               className="mt-4 text-white hover:bg-white/20"
-              data-testid="btn-close"
+              data-testid="btn-back"
             >
-              Close
+              Back
             </Button>
           )}
         </div>
@@ -183,8 +187,22 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
         </div>
 
         {/* Story Header Overlay */}
-        <div className="flex items-center justify-between px-4 py-2.5 z-20 shrink-0">
-          <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center justify-between px-3 py-2.5 z-20 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            {/* Back Button */}
+            {handleBack && (
+              <Button
+                variant="ghost"
+                size="icon"
+                data-testid="btn-back"
+                aria-label="Back"
+                onClick={handleBack}
+                className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer shrink-0"
+              >
+                <Icon name="arrow-left" className="w-5 h-5 text-white" />
+              </Button>
+            )}
+
             <div
               className={cn(
                 "w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm text-white shrink-0 ring-1.5 ring-white/80 overflow-hidden",
@@ -215,20 +233,6 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
             >
               <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
             </Button>
-
-            {/* Close Button */}
-            {onClose && (
-              <Button
-                variant="ghost"
-                size="icon"
-                data-testid="btn-close"
-                aria-label="Close scenes view"
-                onClick={onClose}
-                className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
-              >
-                <Icon name="x" className="w-4 h-4" />
-              </Button>
-            )}
           </div>
         </div>
 
