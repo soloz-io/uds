@@ -36,8 +36,13 @@ export {
   StoriesBar,
   StoryPlayer,
   ScenePlayer,
+  AccountDialog,
+  AccountButton,
 } from './composites';
 export type {
+  AccountDialogProps,
+  AccountButtonProps,
+  AccountUser,
   StoriesBarProps,
   StoryItem,
   StoryPlayerProps,

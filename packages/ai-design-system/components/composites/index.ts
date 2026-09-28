@@ -290,3 +290,8 @@ export type { StoriesBarProps, StoryItem } from './StoriesBar'
 export { StoryPlayer, ScenePlayer } from './StoryPlayer'
 export type { StoryPlayerProps, ScenePlayerProps, StorySegment, SceneItem } from './StoryPlayer'
 
+// AccountDialog Composite
+export { AccountDialog, AccountButton } from './AccountDialog'
+export type { AccountDialogProps, AccountButtonProps, AccountUser } from './AccountDialog'
+
+
