@@ -94,6 +94,26 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       return 0;
     });
 
+    // Dual-video buffer for gapless playback between scenes:
+    // One slot actively plays the current scene, while the other slot preloads the next scene in the background.
+    const [activeSlot, setActiveSlot] = React.useState<0 | 1>(0);
+    const [slot0Index, setSlot0Index] = React.useState<number>(() => {
+      if (initialSceneIndex >= 0 && initialSceneIndex < scenes.length) {
+        return initialSceneIndex;
+      }
+      return 0;
+    });
+    const [slot1Index, setSlot1Index] = React.useState<number>(() => {
+      if (scenes.length > 1) {
+        const init = initialSceneIndex >= 0 && initialSceneIndex < scenes.length ? initialSceneIndex : 0;
+        return (init + 1) % scenes.length;
+      }
+      return 0;
+    });
+
+    const videoRef0 = React.useRef<HTMLVideoElement | null>(null);
+    const videoRef1 = React.useRef<HTMLVideoElement | null>(null);
+
     const [isPlayingState, setIsPlayingState] = React.useState<boolean>(isPlayingProp ?? true);
     const isPlaying = isPlayingProp !== undefined ? isPlayingProp : isPlayingState;
 
@@ -111,9 +131,45 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
     }, [setIsPlaying]);
 
     const [isMuted, setIsMuted] = React.useState<boolean>(initialMuted);
-    const videoRef = React.useRef<HTMLVideoElement | null>(null);
 
     const activeScene = scenes[currentSceneIndex] || scenes[0];
+
+    const goToScene = React.useCallback(
+      (targetIdx: number) => {
+        if (!scenes.length) return;
+        const clampedIdx = (targetIdx + scenes.length) % scenes.length;
+        onSceneChange?.(clampedIdx, scenes[clampedIdx]);
+        setCurrentSceneIndex(clampedIdx);
+
+        if (scenes.length <= 1) {
+          setSlot0Index(clampedIdx);
+          const v0 = videoRef0.current;
+          if (v0) {
+            v0.currentTime = 0;
+            if (isPlaying) v0.play().catch(() => {});
+          }
+          return;
+        }
+
+        const nextActiveSlot: 0 | 1 = activeSlot === 0 ? 1 : 0;
+        const targetVideo = nextActiveSlot === 0 ? videoRef0.current : videoRef1.current;
+        if (targetVideo) {
+          targetVideo.currentTime = 0;
+        }
+        const sceneAfterTarget = (clampedIdx + 1) % scenes.length;
+
+        if (nextActiveSlot === 0) {
+          setSlot0Index(clampedIdx);
+          setSlot1Index(sceneAfterTarget);
+        } else {
+          setSlot1Index(clampedIdx);
+          setSlot0Index(sceneAfterTarget);
+        }
+
+        setActiveSlot(nextActiveSlot);
+      },
+      [scenes, activeSlot, isPlaying, onSceneChange]
+    );
 
     const handlePromptSubmit = React.useCallback(
       (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => {
@@ -130,30 +186,20 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
 
     const handlePrev = React.useCallback(() => {
       if (!scenes.length) return;
-      setCurrentSceneIndex((prev) => {
-        const nextIdx = prev > 0 ? prev - 1 : scenes.length - 1;
-        onSceneChange?.(nextIdx, scenes[nextIdx]);
-        return nextIdx;
-      });
-    }, [scenes, onSceneChange]);
+      const prevIdx = currentSceneIndex > 0 ? currentSceneIndex - 1 : scenes.length - 1;
+      goToScene(prevIdx);
+    }, [scenes.length, currentSceneIndex, goToScene]);
 
     const handleNext = React.useCallback(() => {
       if (!scenes.length) return;
-      setCurrentSceneIndex((prev) => {
-        const nextIdx = prev < scenes.length - 1 ? prev + 1 : 0;
-        onSceneChange?.(nextIdx, scenes[nextIdx]);
-        return nextIdx;
-      });
-    }, [scenes, onSceneChange]);
+      const nextIdx = currentSceneIndex < scenes.length - 1 ? currentSceneIndex + 1 : 0;
+      goToScene(nextIdx);
+    }, [scenes.length, currentSceneIndex, goToScene]);
 
     const handleSceneEnded = React.useCallback(() => {
       if (!scenes.length || !isPlaying) return;
-      setCurrentSceneIndex((prev) => {
-        const nextIdx = prev < scenes.length - 1 ? prev + 1 : 0;
-        onSceneChange?.(nextIdx, scenes[nextIdx]);
-        return nextIdx;
-      });
-    }, [scenes, onSceneChange, isPlaying]);
+      handleNext();
+    }, [scenes.length, isPlaying, handleNext]);
 
     const handleDownload = React.useCallback(async () => {
       if (onDownload) {
@@ -187,28 +233,48 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       }
     }, [onDownload, downloadUrl, videoUrl, activeScene?.scene_clip_url]);
 
-    // Playback & mute synchronization
+    // Playback & mute synchronization across dual slots
     React.useEffect(() => {
-      const video = videoRef.current;
-      if (!video) return;
+      const activeVideo = activeSlot === 0 ? videoRef0.current : videoRef1.current;
+      const idleVideo = activeSlot === 0 ? videoRef1.current : videoRef0.current;
 
-      video.muted = isMuted;
+      if (idleVideo) {
+        idleVideo.pause();
+        idleVideo.muted = true;
+      }
+
+      if (!activeVideo) return;
+
+      activeVideo.muted = isMuted;
 
       if (isPlaying) {
-        const playPromise = video.play();
+        if (activeVideo.ended) {
+          activeVideo.currentTime = 0;
+        }
+        const playPromise = activeVideo.play();
         if (playPromise !== undefined) {
           playPromise.catch(() => {
             if (!isMuted) {
-              video.muted = true;
+              activeVideo.muted = true;
               setIsMuted(true);
-              video.play().catch(() => {});
+              activeVideo.play().catch(() => {});
             }
           });
         }
       } else {
-        video.pause();
+        activeVideo.pause();
       }
-    }, [activeScene?.scene_clip_url, isMuted, isPlaying]);
+    }, [activeSlot, isPlaying, isMuted, slot0Index, slot1Index]);
+
+    React.useEffect(() => {
+      if (!scenes || scenes.length === 0) return;
+      if (currentSceneIndex >= scenes.length) {
+        setCurrentSceneIndex(0);
+        setSlot0Index(0);
+        setSlot1Index(scenes.length > 1 ? 1 : 0);
+        setActiveSlot(0);
+      }
+    }, [scenes, currentSceneIndex]);
 
     // Keyboard navigation & playback controls
     React.useEffect(() => {
@@ -367,20 +433,40 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
 
         {/* Main Scene Video Player Stage */}
         <div className="flex-1 relative flex items-center justify-center bg-black overflow-hidden min-h-0">
+          {/* Slot 0 Video */}
           <video
-            ref={videoRef}
-            key={activeScene?.scene_clip_url}
-            src={activeScene?.scene_clip_url}
-            autoPlay
+            ref={videoRef0}
+            src={scenes[slot0Index]?.scene_clip_url}
+            preload="auto"
             playsInline
-            loop={false}
-            muted={isMuted}
-            onEnded={handleSceneEnded}
-            className="w-full h-full object-contain bg-black"
+            muted={activeSlot === 0 ? isMuted : true}
+            onEnded={activeSlot === 0 ? handleSceneEnded : undefined}
+            data-testid="scene-video-0"
+            className={cn(
+              "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-150",
+              activeSlot === 0 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
+            )}
           />
 
+          {/* Slot 1 Video (preloads next scene in background for gapless playback) */}
+          {scenes.length > 1 && (
+            <video
+              ref={videoRef1}
+              src={scenes[slot1Index]?.scene_clip_url}
+              preload="auto"
+              playsInline
+              muted={activeSlot === 1 ? isMuted : true}
+              onEnded={activeSlot === 1 ? handleSceneEnded : undefined}
+              data-testid="scene-video-1"
+              className={cn(
+                "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-150",
+                activeSlot === 1 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
+              )}
+            />
+          )}
+
           {/* Invisible Interactive Tap Zones for Stepping Scenes */}
-          <div className="absolute inset-x-0 top-[60px] bottom-[70px] flex z-10">
+          <div className="absolute inset-x-0 top-[60px] bottom-[70px] flex z-20">
             <Button
               variant="ghost"
               data-testid="btn-prev-scene"
