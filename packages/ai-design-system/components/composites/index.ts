@@ -286,7 +286,7 @@ export type { WorkspaceEmptyStateProps } from './WorkspaceEmptyState'
 export { StoriesBar } from './StoriesBar'
 export type { StoriesBarProps, StoryItem } from './StoriesBar'
 
-// ScenePlayer Composite
-export { ScenePlayer } from './ScenePlayer'
-export type { ScenePlayerProps, SceneItem } from './ScenePlayer'
+// StoryPlayer Composite
+export { StoryPlayer, ScenePlayer } from './StoryPlayer'
+export type { StoryPlayerProps, ScenePlayerProps, StorySegment, SceneItem } from './StoryPlayer'
 

@@ -34,11 +34,14 @@ export {
   TaskQueue,
   SpeechInput,
   StoriesBar,
+  StoryPlayer,
   ScenePlayer,
 } from './composites';
 export type {
   StoriesBarProps,
   StoryItem,
+  StoryPlayerProps,
+  StorySegment,
   ScenePlayerProps,
   SceneItem,
   SpeechInputProps,

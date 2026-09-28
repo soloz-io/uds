@@ -1,2 +1,8 @@
-export { ScenePlayer } from "./ScenePlayer";
-export type { ScenePlayerProps, SceneItem } from "./ScenePlayer";
+export { StoryPlayer, ScenePlayer } from "@/components/composites/StoryPlayer";
+export type {
+  StoryPlayerProps,
+  ScenePlayerProps,
+  StorySegment,
+  StoryItem,
+  SceneItem,
+} from "@/components/composites/StoryPlayer";

@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ScenePlayer, type SceneItem } from "./ScenePlayer";
+import { StoryPlayer, type StorySegment } from "./StoryPlayer";
 import { fn } from "@storybook/test";
 
 /**
- * ScenePlayer Composite Stories
+ * StoryPlayer Composite Stories
  *
- * Full-screen segmented video player for scene-by-scene review with progress tracks,
- * mute toggle, step zones, and publish action.
+ * Full-screen segmented video player for story-by-story review with progress tracks,
+ * mute toggle, step zones, and prompt action.
  */
 const meta = {
-  title: "Composites/ScenePlayer",
-  component: ScenePlayer,
+  title: "Composites/StoryPlayer",
+  component: StoryPlayer,
   tags: ["autodocs"],
   parameters: { layout: "fullscreen" },
   args: {
@@ -18,68 +18,69 @@ const meta = {
     onClose: fn(),
     onSubmit: fn(),
     onPublish: fn(),
+    onStoryChange: fn(),
     onSceneChange: fn(),
     onPlayingChange: fn(),
     onDownload: fn(),
   },
-} satisfies Meta<typeof ScenePlayer>;
+} satisfies Meta<typeof StoryPlayer>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mockScenes: SceneItem[] = [
+const mockStories: StorySegment[] = [
   {
     id: "001",
-    sceneNumber: 1,
-    totalScenes: 3,
+    segmentNumber: 1,
+    totalSegments: 3,
     start_sec: 0,
     duration_sec: 1.6,
-    templateId: "grid2_compare_visual",
-    caption: "iOS apps used to mean one",
-    scene_clip_url:
+    caption: "iOS apps used to mean one thing",
+    clip_url:
       "https://hel1.your-objectstorage.com/waypoint-s3-dev/01M32NJZHXKCX1CQKVEVA49SJT/playground-1790017380397-6ffe0ec0/artifacts/scenes/scene001/clip.mp4",
   },
   {
     id: "002",
-    sceneNumber: 2,
-    totalScenes: 3,
+    segmentNumber: 2,
+    totalSegments: 3,
     start_sec: 1.6,
     duration_sec: 1.5,
-    templateId: "full_visual_loop",
-    caption: "thing you needed a Mac. And nobody",
-    scene_clip_url:
+    caption: "You needed a Mac",
+    clip_url:
       "https://hel1.your-objectstorage.com/waypoint-s3-dev/01M32NJZHXKCX1CQKVEVA49SJT/playground-1790017380397-6ffe0ec0/artifacts/scenes/scene002/clip.mp4",
   },
   {
     id: "003",
-    sceneNumber: 3,
-    totalScenes: 3,
+    segmentNumber: 3,
+    totalSegments: 3,
     start_sec: 3.1,
     duration_sec: 1.5,
-    templateId: "full_talking_head",
-    caption: "told the AI, every AI",
-    scene_clip_url:
+    caption: "And nobody told the AI",
+    clip_url:
       "https://hel1.your-objectstorage.com/waypoint-s3-dev/01M32NJZHXKCX1CQKVEVA49SJT/playground-1790017380397-6ffe0ec0/artifacts/scenes/scene003/clip.mp4",
   },
 ];
 
-/**
- * Default usage with multiple scenes
- */
 export const Default: Story = {
   args: {
-    scenes: mockScenes,
-    title: "Devin for iOS",
-    avatarInitials: "D",
+    stories: mockStories,
+    title: "Building iOS App on Devin",
+    isPlaying: true,
   },
 };
 
-/**
- * Empty scenes fallback
- */
-export const EmptyState: Story = {
+export const Paused: Story = {
   args: {
-    scenes: [],
-    title: "No Scenes",
+    stories: mockStories,
+    title: "Building iOS App on Devin",
+    isPlaying: false,
+  },
+};
+
+export const Muted: Story = {
+  args: {
+    stories: mockStories,
+    title: "Building iOS App on Devin",
+    initialMuted: true,
   },
 };

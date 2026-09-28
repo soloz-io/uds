@@ -8,28 +8,39 @@ import { PromptInput, type PromptInputVariant } from "@/components/composites/Pr
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { cn } from "@/lib/utils";
 
-export interface SceneItem {
-  id: string;
+export interface StorySegment {
+  id?: string;
   sceneNumber?: number;
+  storyNumber?: number;
+  segmentNumber?: number;
   totalScenes?: number;
+  totalStories?: number;
+  totalSegments?: number;
   start_sec?: number;
   duration_sec?: number;
   templateId?: string;
   caption?: string;
-  scene_clip_url: string;
+  clip_url?: string;
+  story_clip_url?: string;
+  scene_clip_url?: string;
+  video_url?: string;
   scene_audio_clip_url?: string;
   [key: string]: unknown;
 }
 
-export interface ScenePlayerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onSubmit"> {
-  scenes: SceneItem[];
+export type StoryItem = StorySegment;
+export type SceneItem = StorySegment;
+
+export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onSubmit"> {
+  stories?: StorySegment[];
+  scenes?: StorySegment[];
+  segments?: StorySegment[];
   title?: string;
-  avatarInitials?: string;
-  avatarColor?: string;
+  initialStoryIndex?: number;
   initialSceneIndex?: number;
-  isMuted?: boolean;
   isPlaying?: boolean;
   onPlayingChange?: (isPlaying: boolean) => void;
+  initialMuted?: boolean;
   videoUrl?: string;
   downloadUrl?: string;
   onDownload?: () => void;
@@ -38,31 +49,37 @@ export interface ScenePlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   placeholder?: string;
   promptValue?: string;
   onPromptValueChange?: (value: string) => void;
-  onSubmit?: (
-    message: PromptInputMessage,
-    event: FormEvent<HTMLFormElement>
-  ) => void | Promise<void>;
+  onSubmit?: (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => void;
   loading?: boolean;
   onStop?: () => void;
   enableSpeech?: boolean;
   enableAttachments?: boolean;
   promptInputVariant?: PromptInputVariant;
-  onPublish?: (currentScene: SceneItem, text?: string) => void;
+  onPublish?: (currentStory: StorySegment, text?: string) => void;
   publishPlaceholder?: string;
-  onSceneChange?: (sceneIndex: number, scene: SceneItem) => void;
+  onStoryChange?: (storyIndex: number, story: StorySegment) => void;
+  onSceneChange?: (sceneIndex: number, scene: StorySegment) => void;
 }
 
-export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
+export type ScenePlayerProps = StoryPlayerProps;
+
+function getClipUrl(item?: StorySegment): string | undefined {
+  if (!item) return undefined;
+  return item.clip_url || item.scene_clip_url || item.story_clip_url || item.video_url;
+}
+
+export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
   (
     {
-      scenes = [],
-      title = "Devin for iOS",
-      avatarInitials = "D",
-      avatarColor = "bg-indigo-600",
+      stories,
+      scenes,
+      segments,
+      title = "Story Player",
+      initialStoryIndex,
       initialSceneIndex = 0,
-      isMuted: initialMuted = false,
       isPlaying: isPlayingProp,
       onPlayingChange,
+      initialMuted = false,
       videoUrl,
       downloadUrl,
       onDownload,
@@ -79,6 +96,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       promptInputVariant = "row",
       onPublish,
       publishPlaceholder = "Ask a question or provide instructions...",
+      onStoryChange,
       onSceneChange,
       className,
       ...props
@@ -86,27 +104,32 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
     ref
   ) => {
     const handleBack = onBack || onClose;
+    const items = React.useMemo(
+      () => stories || scenes || segments || [],
+      [stories, scenes, segments]
+    );
+    const startingIndex = initialStoryIndex ?? initialSceneIndex ?? 0;
 
-    const [currentSceneIndex, setCurrentSceneIndex] = React.useState<number>(() => {
-      if (initialSceneIndex >= 0 && initialSceneIndex < scenes.length) {
-        return initialSceneIndex;
+    const [currentStoryIndex, setCurrentStoryIndex] = React.useState<number>(() => {
+      if (startingIndex >= 0 && startingIndex < items.length) {
+        return startingIndex;
       }
       return 0;
     });
 
-    // Dual-video buffer for gapless playback between scenes:
-    // One slot actively plays the current scene, while the other slot preloads the next scene in the background.
+    // Dual-video buffer for gapless playback between story segments:
+    // One slot actively plays the current story segment, while the other slot preloads the upcoming segment in the background.
     const [activeSlot, setActiveSlot] = React.useState<0 | 1>(0);
     const [slot0Index, setSlot0Index] = React.useState<number>(() => {
-      if (initialSceneIndex >= 0 && initialSceneIndex < scenes.length) {
-        return initialSceneIndex;
+      if (startingIndex >= 0 && startingIndex < items.length) {
+        return startingIndex;
       }
       return 0;
     });
     const [slot1Index, setSlot1Index] = React.useState<number>(() => {
-      if (scenes.length > 1) {
-        const init = initialSceneIndex >= 0 && initialSceneIndex < scenes.length ? initialSceneIndex : 0;
-        return (init + 1) % scenes.length;
+      if (items.length > 1) {
+        const init = startingIndex >= 0 && startingIndex < items.length ? startingIndex : 0;
+        return (init + 1) % items.length;
       }
       return 0;
     });
@@ -142,17 +165,18 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       });
     }, []);
 
-    const activeScene = scenes[currentSceneIndex] || scenes[0];
+    const activeStory = items[currentStoryIndex] || items[0];
 
-    const goToScene = React.useCallback(
+    const goToStory = React.useCallback(
       (targetIdx: number) => {
-        if (!scenes.length) return;
-        const clampedIdx = (targetIdx + scenes.length) % scenes.length;
-        onSceneChange?.(clampedIdx, scenes[clampedIdx]);
-        setCurrentSceneIndex(clampedIdx);
+        if (!items.length) return;
+        const clampedIdx = (targetIdx + items.length) % items.length;
+        onStoryChange?.(clampedIdx, items[clampedIdx]);
+        onSceneChange?.(clampedIdx, items[clampedIdx]);
+        setCurrentStoryIndex(clampedIdx);
         isTransitioningRef.current = false;
 
-        if (scenes.length <= 1) {
+        if (items.length <= 1) {
           setSlot0Index(clampedIdx);
           const v0 = videoRef0.current;
           if (v0) {
@@ -173,7 +197,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
         const nextActiveSlot: 0 | 1 = activeSlot === 0 ? 1 : 0;
         const nextVideo = nextActiveSlot === 0 ? videoRef0.current : videoRef1.current;
         const currentVideo = activeSlot === 0 ? videoRef0.current : videoRef1.current;
-        const sceneAfterTarget = (clampedIdx + 1) % scenes.length;
+        const segmentAfterTarget = (clampedIdx + 1) % items.length;
 
         // 1. Immediately start next video synchronously (0ms transition gap)
         if (nextVideo) {
@@ -194,18 +218,18 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           currentVideo.pause();
         }
 
-        // 3. Swap slots and prepare idle slot to preload upcoming scene
+        // 3. Swap slots and prepare idle slot to preload upcoming segment
         if (nextActiveSlot === 0) {
           setSlot0Index(clampedIdx);
-          setSlot1Index(sceneAfterTarget);
+          setSlot1Index(segmentAfterTarget);
         } else {
           setSlot1Index(clampedIdx);
-          setSlot0Index(sceneAfterTarget);
+          setSlot0Index(segmentAfterTarget);
         }
 
         setActiveSlot(nextActiveSlot);
       },
-      [scenes, activeSlot, isPlaying, isMuted, onSceneChange]
+      [items, activeSlot, isPlaying, isMuted, onStoryChange, onSceneChange]
     );
 
     const handlePromptSubmit = React.useCallback(
@@ -215,41 +239,41 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           return;
         }
         if (onPublish) {
-          onPublish(activeScene, message.text);
+          onPublish(activeStory, message.text);
         }
       },
-      [onSubmit, onPublish, activeScene]
+      [onSubmit, onPublish, activeStory]
     );
 
     const handlePrev = React.useCallback(() => {
-      if (!scenes.length) return;
-      const prevIdx = currentSceneIndex > 0 ? currentSceneIndex - 1 : scenes.length - 1;
-      goToScene(prevIdx);
-    }, [scenes.length, currentSceneIndex, goToScene]);
+      if (!items.length) return;
+      const prevIdx = currentStoryIndex > 0 ? currentStoryIndex - 1 : items.length - 1;
+      goToStory(prevIdx);
+    }, [items.length, currentStoryIndex, goToStory]);
 
     const handleNext = React.useCallback(() => {
-      if (!scenes.length) return;
-      const nextIdx = currentSceneIndex < scenes.length - 1 ? currentSceneIndex + 1 : 0;
-      goToScene(nextIdx);
-    }, [scenes.length, currentSceneIndex, goToScene]);
+      if (!items.length) return;
+      const nextIdx = currentStoryIndex < items.length - 1 ? currentStoryIndex + 1 : 0;
+      goToStory(nextIdx);
+    }, [items.length, currentStoryIndex, goToStory]);
 
-    const handleSceneEnded = React.useCallback(() => {
-      if (!scenes.length || !isPlaying || isTransitioningRef.current) return;
+    const handleStoryEnded = React.useCallback(() => {
+      if (!items.length || !isPlaying || isTransitioningRef.current) return;
       isTransitioningRef.current = true;
       handleNext();
-    }, [scenes.length, isPlaying, handleNext]);
+    }, [items.length, isPlaying, handleNext]);
 
     const handleTimeUpdate = React.useCallback(
       (e: React.SyntheticEvent<HTMLVideoElement>) => {
         const video = e.currentTarget;
-        if (!scenes.length || !isPlaying || isTransitioningRef.current) return;
-        // Trigger next scene 60ms before end so decoder starts seamlessly with zero gap
+        if (!items.length || !isPlaying || isTransitioningRef.current) return;
+        // Trigger next segment 60ms before end so decoder starts seamlessly with zero gap
         if (video.duration > 0.1 && video.currentTime >= video.duration - 0.06) {
           isTransitioningRef.current = true;
           handleNext();
         }
       },
-      [scenes.length, isPlaying, handleNext]
+      [items.length, isPlaying, handleNext]
     );
 
     const handleDownload = React.useCallback(async () => {
@@ -257,7 +281,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
         onDownload();
         return;
       }
-      const targetUrl = downloadUrl || videoUrl || activeScene?.scene_clip_url;
+      const targetUrl = downloadUrl || videoUrl || getClipUrl(activeStory);
       if (!targetUrl) return;
 
       try {
@@ -282,7 +306,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
         link.click();
         document.body.removeChild(link);
       }
-    }, [onDownload, downloadUrl, videoUrl, activeScene?.scene_clip_url]);
+    }, [onDownload, downloadUrl, videoUrl, activeStory]);
 
     // Playback & mute synchronization across dual slots
     React.useEffect(() => {
@@ -315,12 +339,12 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       }
     }, [activeSlot, isPlaying, isMuted]);
 
-    // Ensure idle video element actively loads and buffers upcoming scene
+    // Ensure idle video element actively loads and buffers upcoming segment
     React.useEffect(() => {
-      if (scenes.length <= 1) return;
+      if (items.length <= 1) return;
       const idleVideo = activeSlot === 0 ? videoRef1.current : videoRef0.current;
       const idleIndex = activeSlot === 0 ? slot1Index : slot0Index;
-      const idleUrl = scenes[idleIndex]?.scene_clip_url;
+      const idleUrl = getClipUrl(items[idleIndex]);
 
       if (idleVideo && idleUrl) {
         if (idleVideo.src !== idleUrl) {
@@ -329,18 +353,18 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
         idleVideo.preload = "auto";
         idleVideo.load();
       }
-    }, [activeSlot, slot0Index, slot1Index, scenes]);
+    }, [activeSlot, slot0Index, slot1Index, items]);
 
     // Prefetch upcoming clips into browser HTTP cache
     React.useEffect(() => {
-      if (!scenes || scenes.length <= 2) return;
+      if (!items || items.length <= 2) return;
       const toPrefetch = [
-        (currentSceneIndex + 2) % scenes.length,
-        (currentSceneIndex + 3) % scenes.length,
+        (currentStoryIndex + 2) % items.length,
+        (currentStoryIndex + 3) % items.length,
       ];
 
       toPrefetch.forEach((idx) => {
-        const url = scenes[idx]?.scene_clip_url;
+        const url = getClipUrl(items[idx]);
         if (url) {
           const link = document.createElement("link");
           link.rel = "prefetch";
@@ -351,17 +375,17 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           }, 15000);
         }
       });
-    }, [currentSceneIndex, scenes]);
+    }, [currentStoryIndex, items]);
 
     React.useEffect(() => {
-      if (!scenes || scenes.length === 0) return;
-      if (currentSceneIndex >= scenes.length) {
-        setCurrentSceneIndex(0);
+      if (!items || items.length === 0) return;
+      if (currentStoryIndex >= items.length) {
+        setCurrentStoryIndex(0);
         setSlot0Index(0);
-        setSlot1Index(scenes.length > 1 ? 1 : 0);
+        setSlot1Index(items.length > 1 ? 1 : 0);
         setActiveSlot(0);
       }
-    }, [scenes, currentSceneIndex]);
+    }, [items, currentStoryIndex]);
 
     // Keyboard navigation & playback controls
     React.useEffect(() => {
@@ -396,17 +420,17 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
 
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [handlePrev, handleNext, handleBack, togglePlay]);
+    }, [handlePrev, handleNext, handleBack, togglePlay, toggleMute]);
 
-    if (!scenes || scenes.length === 0) {
+    if (!items || items.length === 0) {
       return (
         <div
           ref={ref}
           className={cn("flex flex-col items-center justify-center w-full h-full bg-black text-white p-6", className)}
-          data-testid="screen-scenes"
+          data-testid="story-player"
           {...props}
         >
-          <p className="text-white/70 text-sm">No scenes available</p>
+          <p className="text-white/70 text-sm">No stories available</p>
           {handleBack && (
             <Button
               variant="ghost"
@@ -421,6 +445,12 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       );
     }
 
+    const currentLabel =
+      activeStory?.sceneNumber ??
+      activeStory?.storyNumber ??
+      activeStory?.segmentNumber ??
+      currentStoryIndex + 1;
+
     return (
       <div
         ref={ref}
@@ -428,17 +458,17 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           "flex flex-col w-full h-full min-h-full bg-black text-white relative select-none overflow-hidden",
           className
         )}
-        data-testid="screen-scenes"
+        data-testid="story-player"
         {...props}
       >
         {/* Top Segmented Progress Bar */}
         <div className="flex items-center gap-[3px] px-2 pt-3 pb-1.5 z-20 shrink-0">
-          {scenes.map((scene, idx) => {
-            const isCompleted = idx < currentSceneIndex;
-            const isCurrent = idx === currentSceneIndex;
+          {items.map((item, idx) => {
+            const isCompleted = idx < currentStoryIndex;
+            const isCurrent = idx === currentStoryIndex;
             return (
               <div
-                key={scene.id || `scene-${idx}`}
+                key={item.id || `story-segment-${idx}`}
                 className="flex-1 h-[2.5px] rounded-[2px] bg-white/35 overflow-hidden"
               >
                 <div
@@ -474,7 +504,9 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
                 {title}
               </span>
               <span className="text-xs text-white/75 truncate">
-                Scene {activeScene?.sceneNumber ?? currentSceneIndex + 1} of {scenes.length}
+                {typeof currentLabel === "number"
+                  ? `Segment ${currentLabel} of ${items.length}`
+                  : `${currentLabel} of ${items.length}`}
               </span>
             </div>
           </div>
@@ -485,7 +517,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
               variant="ghost"
               size="icon"
               data-testid="btn-toggle-play"
-              aria-label={isPlaying ? "Pause scene" : "Play scene"}
+              aria-label={isPlaying ? "Pause story" : "Play story"}
               onClick={togglePlay}
               className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
             >
@@ -523,13 +555,13 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           {/* Slot 0 Video */}
           <video
             ref={videoRef0}
-            src={scenes[slot0Index]?.scene_clip_url}
+            src={getClipUrl(items[slot0Index])}
             preload="auto"
             playsInline
             muted={isMuted}
-            onEnded={activeSlot === 0 ? handleSceneEnded : undefined}
+            onEnded={activeSlot === 0 ? handleStoryEnded : undefined}
             onTimeUpdate={activeSlot === 0 ? handleTimeUpdate : undefined}
-            data-testid="scene-video-0"
+            data-testid="story-video-0"
             className={cn(
               "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-75",
               activeSlot === 0 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
@@ -537,16 +569,16 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           />
 
           {/* Slot 1 Video (preloads next scene in background for gapless playback) */}
-          {scenes.length > 1 && (
+          {items.length > 1 && (
             <video
               ref={videoRef1}
-              src={scenes[slot1Index]?.scene_clip_url}
+              src={getClipUrl(items[slot1Index])}
               preload="auto"
               playsInline
               muted={isMuted}
-              onEnded={activeSlot === 1 ? handleSceneEnded : undefined}
+              onEnded={activeSlot === 1 ? handleStoryEnded : undefined}
               onTimeUpdate={activeSlot === 1 ? handleTimeUpdate : undefined}
-              data-testid="scene-video-1"
+              data-testid="story-video-1"
               className={cn(
                 "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-75",
                 activeSlot === 1 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
@@ -554,19 +586,19 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
             />
           )}
 
-          {/* Invisible Interactive Tap Zones for Stepping Scenes */}
+          {/* Invisible Interactive Tap Zones for Stepping Stories */}
           <div className="absolute inset-x-0 top-[60px] bottom-[70px] flex z-20">
             <Button
               variant="ghost"
-              data-testid="btn-prev-scene"
-              aria-label="Previous scene"
+              data-testid="btn-prev-story"
+              aria-label="Previous story"
               onClick={handlePrev}
               className="flex-1 h-full cursor-pointer bg-transparent hover:bg-transparent p-0 rounded-none border-none focus-visible:ring-0 focus-visible:outline-none"
             />
             <Button
               variant="ghost"
-              data-testid="btn-next-scene"
-              aria-label="Next scene"
+              data-testid="btn-next-story"
+              aria-label="Next story"
               onClick={handleNext}
               className="flex-1 h-full cursor-pointer bg-transparent hover:bg-transparent p-0 rounded-none border-none focus-visible:ring-0 focus-visible:outline-none"
             />
@@ -604,4 +636,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
   }
 );
 
-ScenePlayer.displayName = "ScenePlayer";
+StoryPlayer.displayName = "StoryPlayer";
+
+// Backwards-compatible aliases
+export const ScenePlayer = StoryPlayer;
