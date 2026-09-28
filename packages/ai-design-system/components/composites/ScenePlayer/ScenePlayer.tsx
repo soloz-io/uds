@@ -113,6 +113,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
 
     const videoRef0 = React.useRef<HTMLVideoElement | null>(null);
     const videoRef1 = React.useRef<HTMLVideoElement | null>(null);
+    const isTransitioningRef = React.useRef<boolean>(false);
 
     const [isPlayingState, setIsPlayingState] = React.useState<boolean>(isPlayingProp ?? true);
     const isPlaying = isPlayingProp !== undefined ? isPlayingProp : isPlayingState;
@@ -132,6 +133,15 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
 
     const [isMuted, setIsMuted] = React.useState<boolean>(initialMuted);
 
+    const toggleMute = React.useCallback(() => {
+      setIsMuted((prev) => {
+        const next = !prev;
+        if (videoRef0.current) videoRef0.current.muted = next;
+        if (videoRef1.current) videoRef1.current.muted = next;
+        return next;
+      });
+    }, []);
+
     const activeScene = scenes[currentSceneIndex] || scenes[0];
 
     const goToScene = React.useCallback(
@@ -140,24 +150,51 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
         const clampedIdx = (targetIdx + scenes.length) % scenes.length;
         onSceneChange?.(clampedIdx, scenes[clampedIdx]);
         setCurrentSceneIndex(clampedIdx);
+        isTransitioningRef.current = false;
 
         if (scenes.length <= 1) {
           setSlot0Index(clampedIdx);
           const v0 = videoRef0.current;
           if (v0) {
             v0.currentTime = 0;
-            if (isPlaying) v0.play().catch(() => {});
+            v0.muted = isMuted;
+            if (isPlaying) {
+              v0.play().catch((err) => {
+                if (err?.name === "NotAllowedError") {
+                  v0.muted = true;
+                  v0.play().catch(() => {});
+                }
+              });
+            }
           }
           return;
         }
 
         const nextActiveSlot: 0 | 1 = activeSlot === 0 ? 1 : 0;
-        const targetVideo = nextActiveSlot === 0 ? videoRef0.current : videoRef1.current;
-        if (targetVideo) {
-          targetVideo.currentTime = 0;
-        }
+        const nextVideo = nextActiveSlot === 0 ? videoRef0.current : videoRef1.current;
+        const currentVideo = activeSlot === 0 ? videoRef0.current : videoRef1.current;
         const sceneAfterTarget = (clampedIdx + 1) % scenes.length;
 
+        // 1. Immediately start next video synchronously (0ms transition gap)
+        if (nextVideo) {
+          nextVideo.currentTime = 0;
+          nextVideo.muted = isMuted;
+          if (isPlaying) {
+            nextVideo.play().catch((err) => {
+              if (err?.name === "NotAllowedError") {
+                nextVideo.muted = true;
+                nextVideo.play().catch(() => {});
+              }
+            });
+          }
+        }
+
+        // 2. Pause previous video
+        if (currentVideo) {
+          currentVideo.pause();
+        }
+
+        // 3. Swap slots and prepare idle slot to preload upcoming scene
         if (nextActiveSlot === 0) {
           setSlot0Index(clampedIdx);
           setSlot1Index(sceneAfterTarget);
@@ -168,7 +205,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
 
         setActiveSlot(nextActiveSlot);
       },
-      [scenes, activeSlot, isPlaying, onSceneChange]
+      [scenes, activeSlot, isPlaying, isMuted, onSceneChange]
     );
 
     const handlePromptSubmit = React.useCallback(
@@ -197,9 +234,23 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
     }, [scenes.length, currentSceneIndex, goToScene]);
 
     const handleSceneEnded = React.useCallback(() => {
-      if (!scenes.length || !isPlaying) return;
+      if (!scenes.length || !isPlaying || isTransitioningRef.current) return;
+      isTransitioningRef.current = true;
       handleNext();
     }, [scenes.length, isPlaying, handleNext]);
+
+    const handleTimeUpdate = React.useCallback(
+      (e: React.SyntheticEvent<HTMLVideoElement>) => {
+        const video = e.currentTarget;
+        if (!scenes.length || !isPlaying || isTransitioningRef.current) return;
+        // Trigger next scene 60ms before end so decoder starts seamlessly with zero gap
+        if (video.duration > 0.1 && video.currentTime >= video.duration - 0.06) {
+          isTransitioningRef.current = true;
+          handleNext();
+        }
+      },
+      [scenes.length, isPlaying, handleNext]
+    );
 
     const handleDownload = React.useCallback(async () => {
       if (onDownload) {
@@ -240,7 +291,6 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
 
       if (idleVideo) {
         idleVideo.pause();
-        idleVideo.muted = true;
       }
 
       if (!activeVideo) return;
@@ -253,10 +303,9 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
         }
         const playPromise = activeVideo.play();
         if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            if (!isMuted) {
+          playPromise.catch((err) => {
+            if (err?.name === "NotAllowedError") {
               activeVideo.muted = true;
-              setIsMuted(true);
               activeVideo.play().catch(() => {});
             }
           });
@@ -264,7 +313,45 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
       } else {
         activeVideo.pause();
       }
-    }, [activeSlot, isPlaying, isMuted, slot0Index, slot1Index]);
+    }, [activeSlot, isPlaying, isMuted]);
+
+    // Ensure idle video element actively loads and buffers upcoming scene
+    React.useEffect(() => {
+      if (scenes.length <= 1) return;
+      const idleVideo = activeSlot === 0 ? videoRef1.current : videoRef0.current;
+      const idleIndex = activeSlot === 0 ? slot1Index : slot0Index;
+      const idleUrl = scenes[idleIndex]?.scene_clip_url;
+
+      if (idleVideo && idleUrl) {
+        if (idleVideo.src !== idleUrl) {
+          idleVideo.src = idleUrl;
+        }
+        idleVideo.preload = "auto";
+        idleVideo.load();
+      }
+    }, [activeSlot, slot0Index, slot1Index, scenes]);
+
+    // Prefetch upcoming clips into browser HTTP cache
+    React.useEffect(() => {
+      if (!scenes || scenes.length <= 2) return;
+      const toPrefetch = [
+        (currentSceneIndex + 2) % scenes.length,
+        (currentSceneIndex + 3) % scenes.length,
+      ];
+
+      toPrefetch.forEach((idx) => {
+        const url = scenes[idx]?.scene_clip_url;
+        if (url) {
+          const link = document.createElement("link");
+          link.rel = "prefetch";
+          link.href = url;
+          document.head.appendChild(link);
+          setTimeout(() => {
+            if (link.parentNode) link.parentNode.removeChild(link);
+          }, 15000);
+        }
+      });
+    }, [currentSceneIndex, scenes]);
 
     React.useEffect(() => {
       if (!scenes || scenes.length === 0) return;
@@ -303,7 +390,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
           handleBack?.();
         } else if (e.key === "m" || e.key === "M") {
           e.preventDefault();
-          setIsMuted((prev) => !prev);
+          toggleMute();
         }
       };
 
@@ -411,7 +498,7 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
               size="icon"
               data-testid="btn-toggle-mute"
               aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-              onClick={() => setIsMuted((prev) => !prev)}
+              onClick={toggleMute}
               className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
             >
               <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
@@ -439,11 +526,12 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
             src={scenes[slot0Index]?.scene_clip_url}
             preload="auto"
             playsInline
-            muted={activeSlot === 0 ? isMuted : true}
+            muted={isMuted}
             onEnded={activeSlot === 0 ? handleSceneEnded : undefined}
+            onTimeUpdate={activeSlot === 0 ? handleTimeUpdate : undefined}
             data-testid="scene-video-0"
             className={cn(
-              "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-150",
+              "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-75",
               activeSlot === 0 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
             )}
           />
@@ -455,11 +543,12 @@ export const ScenePlayer = React.forwardRef<HTMLDivElement, ScenePlayerProps>(
               src={scenes[slot1Index]?.scene_clip_url}
               preload="auto"
               playsInline
-              muted={activeSlot === 1 ? isMuted : true}
+              muted={isMuted}
               onEnded={activeSlot === 1 ? handleSceneEnded : undefined}
+              onTimeUpdate={activeSlot === 1 ? handleTimeUpdate : undefined}
               data-testid="scene-video-1"
               className={cn(
-                "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-150",
+                "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-75",
                 activeSlot === 1 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
               )}
             />
