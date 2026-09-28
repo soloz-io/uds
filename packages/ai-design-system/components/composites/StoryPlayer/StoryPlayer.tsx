@@ -28,7 +28,6 @@ export interface StorySegment {
   [key: string]: unknown;
 }
 
-export type StoryItem = StorySegment;
 export type SceneItem = StorySegment;
 
 export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onSubmit"> {

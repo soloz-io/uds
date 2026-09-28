@@ -3,6 +3,5 @@ export type {
   StoryPlayerProps,
   ScenePlayerProps,
   StorySegment,
-  StoryItem,
   SceneItem,
 } from "./StoryPlayer";
