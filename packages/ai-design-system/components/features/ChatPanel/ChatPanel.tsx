@@ -226,6 +226,16 @@ export interface ChatPanelProps {
    */
   showSessionActions?: boolean;
   /**
+   * Whether to show the new session (+) action in the session header
+   * @default true
+   */
+  showNewSession?: boolean;
+  /**
+   * Whether to show the download session action in the session header
+   * @default true
+   */
+  showDownloadSession?: boolean;
+  /**
    * Presentation variant for ChatPanel:
    * - "default": standard full flex-1 panel (default)
    * - "sheet": elevated floating bottom-sheet panel with frosted backdrop blur overlay,
@@ -286,6 +296,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     showHeader = true,
     sessionTitle,
     showSessionActions = true,
+    showNewSession = true,
+    showDownloadSession = true,
     variant = "default",
     onClose,
   }) => {
@@ -446,6 +458,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           <SessionHeader
             title={sessionTitle}
             showActions={showSessionActions}
+            showNewSession={showNewSession}
+            showDownloadSession={showDownloadSession}
             sessions={sessions}
             activeSessionId={activeSessionId}
             onNewSession={onNewSession}

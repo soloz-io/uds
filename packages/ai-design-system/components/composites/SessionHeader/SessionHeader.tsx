@@ -28,6 +28,8 @@ export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
   onSelectSession?: (id: string) => void;
   onDownloadSession?: () => Promise<FileDownloadResult | undefined>;
   showActions?: boolean;
+  showNewSession?: boolean;
+  showDownloadSession?: boolean;
 }
 
 /**
@@ -37,7 +39,7 @@ export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
  * and a dropdown history of past sessions.
  */
 export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps>(
-  ({ title, sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, showActions = true, className, ...props }, ref) => {
+  ({ title, sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, showActions = true, showNewSession = true, showDownloadSession = true, className, ...props }, ref) => {
     const activeSession = sessions?.find(s => s.id === activeSessionId);
     const downloadRef = React.useRef<HTMLAnchorElement>(null);
 
@@ -72,14 +74,16 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
         </div>
         {showActions && (
           <div className="flex items-center space-x-1 flex-none">
-            {onDownloadSession && (
+            {Boolean(onDownloadSession && showDownloadSession) && (
               <Button variant="ghost" size="icon" onClick={handleDownloadClick} className="h-8 w-8" title="Download Chat History">
                 <Icon name="download" className="h-4 w-4" />
               </Button>
             )}
-            <Button variant="ghost" size="icon" onClick={onNewSession} className="h-8 w-8" title="New Session">
-              <Icon name="plus" className="h-4 w-4" />
-            </Button>
+            {Boolean(onNewSession && showNewSession) && (
+              <Button variant="ghost" size="icon" onClick={onNewSession} className="h-8 w-8" title="New Session">
+                <Icon name="plus" className="h-4 w-4" />
+              </Button>
+            )}
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
