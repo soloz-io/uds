@@ -54,6 +54,7 @@ export type {
   ActionRequest,
   ReviewConfig,
   ProjectSwitcherProps,
+  ProjectSwitcherItem,
   Project,
   FormReportsDrawerFormProps,
   SessionHeaderProps,

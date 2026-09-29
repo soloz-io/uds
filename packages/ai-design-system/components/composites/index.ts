@@ -196,7 +196,7 @@ export type { EmptyStateProps } from './EmptyState'
 
 // ProjectSwitcher Composite
 export { ProjectSwitcher } from './ProjectSwitcher'
-export type { ProjectSwitcherProps, Project } from './ProjectSwitcher'
+export type { ProjectSwitcherProps, ProjectSwitcherItem, Project } from './ProjectSwitcher'
 
 // DashboardChart Composite
 export { DashboardChart } from './DashboardChart'
