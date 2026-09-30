@@ -7,7 +7,7 @@ import {
   type Node,
   useReactFlow,
 } from "@xyflow/react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Canvas } from "@/components/ai-elements/canvas";
 import { Connection as ConnectionLine } from "@/components/ai-elements/connection";
 import { Controls } from "@/components/ai-elements/controls";
@@ -58,6 +58,36 @@ function WorkflowCanvasInner({
   className,
 }: WorkflowCanvasProps) {
   const { fitView } = useReactFlow();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const wasZeroSizeRef = useRef<boolean>(true);
+
+  // Automatically fit view when the canvas container transitions from hidden (0x0)
+  // to visible (e.g. mobile Overview icon clicked or tab activated)
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        if (width > 0 && height > 0) {
+          if (wasZeroSizeRef.current) {
+            wasZeroSizeRef.current = false;
+            // Delay slightly so xyflow's internal node measurements can settle
+            const timer = setTimeout(() => {
+              fitView({ padding: 0.2, duration: 300 });
+            }, 60);
+            return () => clearTimeout(timer);
+          }
+        } else {
+          wasZeroSizeRef.current = true;
+        }
+      }
+    });
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [fitView]);
 
   // Opt-in re-fit, e.g. after the device-preview toolbar's Route select
   // switches to "All" and the node count/extent changes underneath the
@@ -67,20 +97,16 @@ function WorkflowCanvasInner({
   // every such change would override the user's own pan/zoom constantly.
   useEffect(() => {
     if (fitViewSignal === undefined) return;
-    // A plain synchronous call, and even a double-rAF, both raced xyflow's
-    // own internal node measurement — verified live in both cases: the
-    // resulting scale was far smaller than the two device-preview nodes'
-    // true combined width needed (computed against their real DOM rects:
-    // ~1.2 would tightly fit them, but fitView produced ~0.57 and one node
-    // still landed partly outside the pane). xyflow measures each node via
-    // ResizeObserver, which fires as a separate, unsynchronized callback —
-    // not guaranteed to have run even two animation frames after the nodes
-    // prop change lands. A short real-time delay is the standard, if
-    // inelegant, workaround for this exact class of race.
-    const timer = setTimeout(() => {
+    const timer1 = setTimeout(() => {
       fitView({ padding: 0.2, duration: 300 });
     }, 50);
-    return () => clearTimeout(timer);
+    const timer2 = setTimeout(() => {
+      fitView({ padding: 0.2, duration: 300 });
+    }, 200);
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
   }, [fitViewSignal, fitView]);
 
   useEffect(() => {
@@ -105,6 +131,7 @@ function WorkflowCanvasInner({
 
   return (
     <div
+      ref={containerRef}
       className={className}
       data-testid="workflow-canvas"
       style={{
