@@ -22,12 +22,20 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
     dragHandleColor = "border",
     className,
     padded = true,
+    mobileBehavior = "tabs",
+    activeSectionId,
+    onActiveSectionChange,
     ...props 
   }) => {
-    // Transform sections to include headers
+    // Transform sections to include headers and resolve labels
     const transformedSections = sections.map(section => ({
       ...section,
       resizable,
+      label:
+        section.label ||
+        section.title ||
+        (typeof section.header?.title === "string" ? section.header.title : undefined) ||
+        section.header?.tabs?.[0]?.label,
       content: (
         <div className="h-full min-h-0 flex flex-col overflow-hidden">
           {section.header && (
@@ -49,6 +57,9 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
         dragHandleColor={dragHandleColor}
         className={className}
         padded={padded}
+        mobileBehavior={mobileBehavior}
+        activeSectionId={activeSectionId}
+        onActiveSectionChange={onActiveSectionChange}
         {...props}
       />
     )

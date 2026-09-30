@@ -20,7 +20,6 @@ import {
 export interface ProjectSwitcherItem {
   id: string
   name: string
-  [key: string]: unknown
 }
 
 // Backwards compatibility alias

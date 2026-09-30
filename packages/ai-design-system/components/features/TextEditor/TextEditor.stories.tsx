@@ -69,6 +69,14 @@ export const Empty: Story = {
  * multiple documents. Uses mock hook for realistic interaction simulation.
  */
 export const WithStateManagement: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Multi-tab interactive mode with full state management. On desktop (>= 768px), displays a split view with the file explorer and document editor. On mobile (< 768px), the editor pane takes 100% width, and the file explorer is opened via a mobile Drawer triggered from the tab bar or files button.',
+      },
+    },
+  },
   render: () => {
     const mockState = useTextEditorMock({
       multiDoc: true,

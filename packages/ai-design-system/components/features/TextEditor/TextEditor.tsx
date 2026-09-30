@@ -36,12 +36,12 @@ import React, { useCallback, useMemo } from 'react'
 import { DocumentEditorWithComments } from '@/components/blocks/DocumentEditorWithComments'
 import { DocumentTabBar } from '@/components/composites/DocumentTabBar'
 import { AdjustableLayout } from '@/components/composites/AdjustableLayout'
-import { FileTreeExplorer } from '@/components/composites/FileTreeExplorer'
+import { FileTreeExplorer, FileTreeDrawer } from '@/components/composites/FileTreeExplorer'
 import type { FileDownloadResult, FileTreeNode } from '@/components/composites/FileTreeExplorer'
 import { cn } from '@/lib/utils'
 import type { JSONContent } from '@tiptap/core'
 import type { Annotation, User } from '@/types/ai-editor/annotations'
-import type { DocumentFile, DocumentWithAnnotations } from '@/types/ai-editor/editor'
+import type { DocumentWithAnnotations } from '@/types/ai-editor/editor'
 import { StreamingMarkdown } from '@/components/composites/StreamingMarkdown'
 import { MediaPreview, isMediaFile } from '@/components/composites/MediaPreview'
 import { WorkspaceEmptyState } from '@/components/composites/WorkspaceEmptyState'
@@ -128,6 +128,10 @@ export interface TextEditorMultiTabProps {
    * of the normal editor UI.
    */
   workspace?: TextEditorWorkspaceProps
+  /** Active section in mobile view ('explorer' or 'editor') */
+  mobileSection?: 'explorer' | 'editor'
+  /** Callback when mobile section changes */
+  onMobileSectionChange?: (section: 'explorer' | 'editor') => void
 }
 
 /**
@@ -172,6 +176,23 @@ function formatJson(text: string): string {
   } catch {
     return text
   }
+}
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768
+    }
+    return false
+  })
+
+  React.useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  return isMobile
 }
 
 /**
@@ -281,6 +302,33 @@ export const TextEditor = React.memo<TextEditorProps>(
 
     const handleTabSelect = isMultiTab ? (props as TextEditorMultiTabProps).onTabSelect : undefined
 
+    const isMobile = useIsMobile()
+    const [isDrawerOpenState, setIsDrawerOpenState] = React.useState(false)
+
+    const isDrawerOpen =
+      (isMultiTab && (props as TextEditorMultiTabProps).mobileSection === 'explorer') ||
+      isDrawerOpenState
+
+    const handleOpenChange = useCallback(
+      (open: boolean) => {
+        setIsDrawerOpenState(open)
+        if (isMultiTab) {
+          (props as TextEditorMultiTabProps).onMobileSectionChange?.(open ? 'explorer' : 'editor')
+        }
+      },
+      [isMultiTab, props]
+    )
+
+    const handleFileSelect = useCallback(
+      (path: string) => {
+        if (handleTabSelect) {
+          handleTabSelect(path)
+        }
+        handleOpenChange(false)
+      },
+      [handleTabSelect, handleOpenChange]
+    )
+
     const LinkComponent = useCallback((linkProps: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
       const { href, ...rest } = linkProps
       const isExternal = href?.startsWith('http://') || href?.startsWith('https://') || href?.startsWith('mailto:')
@@ -338,6 +386,7 @@ export const TextEditor = React.memo<TextEditorProps>(
           if (handleTabSelect) {
             handleTabSelect(targetId)
           }
+          handleOpenChange(false)
         }
       }
 
@@ -345,7 +394,7 @@ export const TextEditor = React.memo<TextEditorProps>(
         return <a href={href} target="_blank" rel="noopener noreferrer" {...rest} />
       }
       return <a href={href} onClick={handleClick} className="text-primary hover:underline cursor-pointer" {...rest} />
-    }, [handleTabSelect, isMultiTab, props.activeDocumentId, props.documents])
+    }, [handleOpenChange, handleTabSelect, isMultiTab, props.activeDocumentId, props.documents])
 
     const markdownComponents = useMemo(() => ({ a: LinkComponent }), [LinkComponent])
 
@@ -363,7 +412,7 @@ export const TextEditor = React.memo<TextEditorProps>(
           ? `\`\`\`${format}\n${format === 'json' ? formatJson(contentStr) : contentStr}\n\`\`\``
           : contentStr
         return (
-          <div className={cn('text-editor p-6 flex flex-col h-screen w-full flex-1', className)}>
+          <div className={cn('text-editor p-3 sm:p-6 flex flex-col h-full min-h-0 w-full flex-1 overflow-auto', className)}>
             <StreamingMarkdown mode="static" isAnimating={false} components={markdownComponents}>
               {content}
             </StreamingMarkdown>
@@ -371,7 +420,7 @@ export const TextEditor = React.memo<TextEditorProps>(
         )
       }
       return (
-        <div className={cn('text-editor flex flex-col h-screen w-full flex-1', className)}>
+        <div className={cn('text-editor flex flex-col h-full min-h-0 w-full flex-1', className)}>
           <DocumentEditorWithComments
             content={props.content}
             format={props.format}
@@ -382,7 +431,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             readOnly={mode === 'readonly'}
             onAnnotationAdd={handleAnnotationAdd}
             onAnnotationUpdate={handleAnnotationUpdate}
-            className={cn('text-editor p-6 h-full flex flex-col', className)}
+            className={cn('text-editor p-3 sm:p-6 h-full flex flex-col', className)}
           />
         </div>
       )
@@ -421,11 +470,22 @@ export const TextEditor = React.memo<TextEditorProps>(
               activeTabId={props.activeDocumentId}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
+              onToggleExplorer={() => handleOpenChange(true)}
             />
           )}
-          <div className="flex-1 flex items-center justify-center p-6 text-muted-foreground">
-            No documents selected
-          </div>
+          {hideTabBar && (
+            <DocumentTabBar
+              tabs={[]}
+              onToggleExplorer={() => handleOpenChange(true)}
+              className="md:hidden"
+            />
+          )}
+          <WorkspaceEmptyState
+            label="No documents selected"
+            actionLabel="Browse files"
+            onAction={() => handleOpenChange(true)}
+            actionClassName="md:hidden"
+          />
         </div>
       )
     } else if (isMediaFile(currentDocument.file)) {
@@ -438,6 +498,14 @@ export const TextEditor = React.memo<TextEditorProps>(
               activeTabId={props.activeDocumentId}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
+              onToggleExplorer={() => handleOpenChange(true)}
+            />
+          )}
+          {hideTabBar && (
+            <DocumentTabBar
+              tabs={[]}
+              onToggleExplorer={() => handleOpenChange(true)}
+              className="md:hidden"
             />
           )}
           <div className="flex-1 overflow-auto">
@@ -468,6 +536,14 @@ export const TextEditor = React.memo<TextEditorProps>(
               activeTabId={props.activeDocumentId}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
+              onToggleExplorer={() => handleOpenChange(true)}
+            />
+          )}
+          {hideTabBar && (
+            <DocumentTabBar
+              tabs={[]}
+              onToggleExplorer={() => handleOpenChange(true)}
+              className="md:hidden"
             />
           )}
           <div className="flex-1 overflow-auto">
@@ -476,7 +552,7 @@ export const TextEditor = React.memo<TextEditorProps>(
                 Loading document content...
               </div>
             ) : renderAsStreamdown ? (
-              <div className="p-6">
+              <div className="p-3 sm:p-6">
                 <StreamingMarkdown
                   mode="static"
                   isAnimating={false}
@@ -499,7 +575,7 @@ export const TextEditor = React.memo<TextEditorProps>(
                 readOnly={mode === 'readonly'}
                 onAnnotationAdd={handleAnnotationAdd}
                 onAnnotationUpdate={handleAnnotationUpdate}
-                className="text-editor p-6 min-h-full"
+                className="text-editor p-3 sm:p-6 min-h-full"
               />
             )}
           </div>
@@ -507,13 +583,35 @@ export const TextEditor = React.memo<TextEditorProps>(
       )
     }
 
+    const fileTreeDrawer = (
+      <FileTreeDrawer
+        open={isDrawerOpen}
+        onOpenChange={handleOpenChange}
+        tree={fileTreeNodes}
+        selectedPath={props.activeDocumentId}
+        onSelect={handleFileSelect}
+        onDownload={onDownloadAllFiles}
+      />
+    )
+
+    if (isMobile) {
+      return (
+        <div className={cn("text-editor flex-1 h-full min-h-0 w-full bg-background flex flex-col relative", className)}>
+          {editorPane}
+          {fileTreeDrawer}
+        </div>
+      )
+    }
+
     return (
       <AdjustableLayout
-        className={cn("flex-1 h-screen w-full bg-background", className)}
+        className={cn("flex-1 h-full min-h-0 w-full bg-background", className)}
         orientation="horizontal"
+        mobileBehavior="none"
         sections={[
           {
             id: 'explorer',
+            label: 'Files',
             defaultSize: 20,
             minSize: 15,
             maxSize: 30,
@@ -524,13 +622,14 @@ export const TextEditor = React.memo<TextEditorProps>(
                 headerClassName="border-b"
                 tree={fileTreeNodes}
                 selectedPath={props.activeDocumentId}
-                onSelect={props.onTabSelect}
+                onSelect={handleFileSelect}
                 onDownload={onDownloadAllFiles}
               />
             ),
           },
           {
             id: 'editor',
+            label: 'Editor',
             defaultSize: 80,
             minSize: 50,
             className: 'rounded-none border-0',

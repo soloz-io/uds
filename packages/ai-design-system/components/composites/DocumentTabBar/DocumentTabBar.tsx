@@ -45,6 +45,11 @@ export interface DocumentTabBarProps {
    * Additional CSS classes
    */
   className?: string
+
+  /**
+   * Callback to open/toggle the file explorer (e.g. mobile drawer)
+   */
+  onToggleExplorer?: () => void
 }
 
 /**
@@ -63,8 +68,8 @@ export interface DocumentTabBarProps {
  * - Dirty state indicator
  */
 export const DocumentTabBar = React.memo<DocumentTabBarProps>(
-  ({ tabs, activeTabId, onTabSelect, onTabClose, className }) => {
-    if (tabs.length === 0) {
+  ({ tabs, activeTabId, onTabSelect, onTabClose, onToggleExplorer, className }) => {
+    if (tabs.length === 0 && !onToggleExplorer) {
       return null
     }
 
@@ -76,12 +81,25 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
         )}
         data-slot="document-tab-bar"
       >
-        <ScrollArea className="flex-1">
-          <Tabs
-            value={activeTabId || tabs[0]?.id}
-            onValueChange={onTabSelect}
-            className="h-auto flex-1"
+        {onToggleExplorer && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onToggleExplorer}
+            className="h-10 w-10 shrink-0 rounded-none border-r border-border/50 text-muted-foreground hover:text-foreground md:hidden"
+            aria-label="Toggle file explorer"
+            title="Toggle file explorer"
           >
+            <Icon name="folder" size="xs" />
+          </Button>
+        )}
+        {tabs.length > 0 && (
+          <ScrollArea className="flex-1">
+            <Tabs
+              value={activeTabId || tabs[0]?.id}
+              onValueChange={onTabSelect}
+              className="h-auto flex-1"
+            >
             <TabsList className="h-10 rounded-none border-none bg-transparent p-0 w-full justify-start gap-0">
               {tabs.map((tab) => (
                 <div
@@ -93,13 +111,13 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                     className={cn(
                       'data-[state=inactive]:bg-muted/20 data-[state=inactive]:text-muted-foreground',
                       'rounded-none border-b-2 border-transparent data-[state=active]:border-primary',
-                      'px-3 py-2 text-sm font-medium whitespace-nowrap',
-                      'flex items-center gap-2 h-10',
+                      'px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium whitespace-nowrap',
+                      'flex items-center gap-1.5 sm:gap-2 h-10',
                       'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0',
                       'transition-colors'
                     )}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       {/* Dirty indicator */}
                       {tab.isDirty && (
                         <Icon
@@ -109,7 +127,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                         />
                       )}
                       {/* Tab name */}
-                      <span className="truncate max-w-[200px]">{tab.name}</span>
+                      <span className="truncate max-w-[120px] sm:max-w-[200px]">{tab.name}</span>
                     </div>
                   </TabsTrigger>
 
@@ -136,6 +154,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
             </TabsList>
           </Tabs>
         </ScrollArea>
+        )}
       </div>
     )
   }

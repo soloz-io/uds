@@ -13,6 +13,12 @@ export interface WorkspaceEmptyStateProps {
   isWaking?: boolean
   /** Additional CSS classes applied to the root container. */
   className?: string
+  /** Label for secondary or general action button */
+  actionLabel?: string
+  /** Callback for action button */
+  onAction?: () => void
+  /** Additional CSS classes for action button */
+  actionClassName?: string
 }
 
 /**
@@ -34,7 +40,7 @@ export interface WorkspaceEmptyStateProps {
  * ```
  */
 export const WorkspaceEmptyState = React.memo<WorkspaceEmptyStateProps>(
-  ({ label, onWake, isWaking, className }) => {
+  ({ label, onWake, isWaking, actionLabel, onAction, actionClassName, className }) => {
     return (
       <div
         className={`flex flex-col items-center justify-center gap-3 h-full w-full${className ? ` ${className}` : ''}`}
@@ -50,6 +56,16 @@ export const WorkspaceEmptyState = React.memo<WorkspaceEmptyStateProps>(
             disabled={isWaking}
           >
             {isWaking ? 'Starting…' : 'Start workspace'}
+          </Button>
+        )}
+        {onAction && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onAction}
+            className={actionClassName}
+          >
+            {actionLabel ?? 'Browse files'}
           </Button>
         )}
       </div>

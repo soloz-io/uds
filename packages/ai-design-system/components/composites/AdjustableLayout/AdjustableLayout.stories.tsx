@@ -95,10 +95,19 @@ export const Default: Story = {
  * Simple 2-panel layout with resizable divider.
  */
 export const TwoPanels: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Responsive 2-panel layout. On desktop viewports (>= 768px), panels sit side-by-side with a resizable divider. On mobile viewports (< 768px), panels adapt into an accessible tabbed segmented view giving full width and height to each panel.',
+      },
+    },
+  },
   render: () => {
     const sections: AdjustableLayoutSection[] = [
       {
         id: 'main',
+        label: 'Main Content',
         content: (
           <Card className="h-full">
             <CardHeader>
@@ -113,6 +122,7 @@ export const TwoPanels: Story = {
       },
       {
         id: 'sidebar',
+        label: 'Sidebar',
         content: (
           <Card className="h-full">
             <CardHeader>

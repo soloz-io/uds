@@ -294,4 +294,8 @@ export type { StoryPlayerProps, ScenePlayerProps, StorySegment, SceneItem } from
 export { AccountDialog, AccountButton } from './AccountDialog'
 export type { AccountDialogProps, AccountButtonProps, AccountUser } from './AccountDialog'
 
+// FileTreeExplorer Composite
+export { FileTreeExplorer, FileTreeDrawer } from './FileTreeExplorer'
+export type { FileTreeExplorerProps, FileTreeDrawerProps, FileTreeNode, FileDownloadResult } from './FileTreeExplorer'
+
 
