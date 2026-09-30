@@ -30,6 +30,15 @@ export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
   showActions?: boolean;
   showNewSession?: boolean;
   showDownloadSession?: boolean;
+  /**
+   * Handler to switch to editor/overview in mobile view
+   */
+  onOverview?: () => void;
+  /**
+   * Whether to show the overview button in the session header
+   * @default true
+   */
+  showOverview?: boolean;
 }
 
 /**
@@ -39,7 +48,7 @@ export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
  * and a dropdown history of past sessions.
  */
 export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps>(
-  ({ title, sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, showActions = true, showNewSession = true, showDownloadSession = true, className, ...props }, ref) => {
+  ({ title, sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, showActions = true, showNewSession = true, showDownloadSession = true, onOverview, showOverview = true, className, ...props }, ref) => {
     const activeSession = sessions?.find(s => s.id === activeSessionId);
     const downloadRef = React.useRef<HTMLAnchorElement>(null);
 
@@ -74,6 +83,17 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
         </div>
         {showActions && (
           <div className="flex items-center space-x-1 flex-none">
+            {Boolean(onOverview && showOverview !== false) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onOverview}
+                className="h-8 w-8 md:hidden"
+                aria-label="Overview"
+              >
+                <Icon name="overview" className="h-4 w-4" />
+              </Button>
+            )}
             {Boolean(onDownloadSession && showDownloadSession) && (
               <Button variant="ghost" size="icon" onClick={handleDownloadClick} className="h-8 w-8" title="Download Chat History">
                 <Icon name="download" className="h-4 w-4" />

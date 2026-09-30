@@ -32,6 +32,12 @@ export interface AdjustableLayoutProps extends React.ComponentPropsWithoutRef<"d
    */
   mobileBehavior?: "tabs" | "stack" | "none"
   /**
+   * Whether to hide the mobile tab bar when mobileBehavior is "tabs".
+   * Used when switching between panels is driven by internal controls (e.g. Overview / Show Chat).
+   * @default false
+   */
+  hideMobileTabs?: boolean
+  /**
    * Active section ID in mobile tabs mode (for controlled usage).
    */
   activeSectionId?: string
@@ -67,6 +73,7 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
     className,
     padded = false,
     mobileBehavior = "tabs",
+    hideMobileTabs = false,
     activeSectionId,
     onActiveSectionChange,
     ...props
@@ -384,12 +391,12 @@ export const AdjustableLayout = React.memo<AdjustableLayoutProps>(
           ref={containerRef}
           className={cn(
             "flex flex-col overflow-hidden h-full min-w-0 w-full",
-            padded && "p-2 sm:p-4 gap-2",
+            padded && (!hideMobileTabs ? "p-2 sm:p-4 gap-2" : "p-2 sm:p-4"),
             className
           )}
           {...props}
         >
-          {sections.length > 1 && (
+          {sections.length > 1 && !hideMobileTabs && (
             <div className="flex-none pb-1">
               <Tabs
                 value={currentActiveId}

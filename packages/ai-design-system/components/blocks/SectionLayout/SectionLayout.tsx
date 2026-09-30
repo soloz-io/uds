@@ -23,6 +23,7 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
     className,
     padded = true,
     mobileBehavior = "tabs",
+    hideMobileTabs = false,
     activeSectionId,
     onActiveSectionChange,
     ...props 
@@ -58,6 +59,7 @@ export const SectionLayout = React.memo<SectionLayoutProps>(
         className={className}
         padded={padded}
         mobileBehavior={mobileBehavior}
+        hideMobileTabs={hideMobileTabs}
         activeSectionId={activeSectionId}
         onActiveSectionChange={onActiveSectionChange}
         {...props}

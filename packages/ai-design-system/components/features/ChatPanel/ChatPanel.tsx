@@ -236,6 +236,15 @@ export interface ChatPanelProps {
    */
   showDownloadSession?: boolean;
   /**
+   * Handler to switch to editor/overview in mobile view
+   */
+  onOverview?: () => void;
+  /**
+   * Whether to show the overview button in the session header
+   * @default true
+   */
+  showOverview?: boolean;
+  /**
    * Presentation variant for ChatPanel:
    * - "default": standard full flex-1 panel (default)
    * - "sheet": elevated floating bottom-sheet panel with frosted backdrop blur overlay,
@@ -298,6 +307,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     showSessionActions = true,
     showNewSession = true,
     showDownloadSession = true,
+    onOverview,
+    showOverview = true,
     variant = "default",
     onClose,
   }) => {
@@ -460,6 +471,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             showActions={showSessionActions}
             showNewSession={showNewSession}
             showDownloadSession={showDownloadSession}
+            onOverview={onOverview}
+            showOverview={showOverview}
             sessions={sessions}
             activeSessionId={activeSessionId}
             onNewSession={onNewSession}

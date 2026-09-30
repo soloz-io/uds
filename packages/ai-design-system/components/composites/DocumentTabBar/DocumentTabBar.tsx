@@ -88,7 +88,6 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
             onClick={onToggleExplorer}
             className="h-10 w-10 shrink-0 rounded-none border-r border-border/50 text-muted-foreground hover:text-foreground md:hidden"
             aria-label="Toggle file explorer"
-            title="Toggle file explorer"
           >
             <Icon name="folder" size="xs" />
           </Button>

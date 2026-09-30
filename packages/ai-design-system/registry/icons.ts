@@ -270,6 +270,16 @@ export const defaultIcons: Record<string, IconDefinition> = {
     viewBox: '0 0 24 24',
     path: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8m8 4H8m8-8H8',
   },
+  'overview': {
+    name: 'overview',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'rect', attrs: { x: '3', y: '3', width: '18', height: '18', rx: '4' } },
+      { type: 'line', attrs: { x1: '7', y1: '8', x2: '17', y2: '8' } },
+      { type: 'line', attrs: { x1: '7', y1: '12', x2: '17', y2: '12' } },
+      { type: 'line', attrs: { x1: '7', y1: '16', x2: '12', y2: '16' } },
+    ],
+  },
   'message-square': {
     name: 'message-square',
     viewBox: '0 0 24 24',

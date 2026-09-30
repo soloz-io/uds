@@ -25,6 +25,7 @@ export interface SectionLayoutProps extends React.ComponentPropsWithoutRef<"div"
   dragHandleColor?: "primary" | "secondary" | "accent" | "border" | "muted";
   padded?: boolean;
   mobileBehavior?: "tabs" | "stack" | "none";
+  hideMobileTabs?: boolean;
   activeSectionId?: string;
   onActiveSectionChange?: (sectionId: string) => void;
 }
