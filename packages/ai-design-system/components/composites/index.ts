@@ -75,7 +75,7 @@ export type { ModeToggleProps } from './ModeToggle'
 
 // DocumentTabBar Composite
 export { DocumentTabBar } from './DocumentTabBar'
-export type { DocumentTabBarProps } from './DocumentTabBar'
+export type { DocumentTabBarProps, DocumentFile } from './DocumentTabBar'
 
 // DefaultSwitcher Composite
 export { DefaultSwitcher } from './DefaultSwitcher'
