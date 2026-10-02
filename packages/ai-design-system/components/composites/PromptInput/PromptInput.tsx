@@ -145,7 +145,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         className={cn(
           "[&>[data-slot=input-group]]:rounded-2xl",
           className?.includes("border") &&
-            "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
+          "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
           className
         )}
         {...props}
@@ -155,15 +155,15 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
           placeholder={placeholder}
           disabled={disabled}
           onChange={isControlled ? handleControlledChange : undefined}
-          className="min-h-9 py-2 px-3 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content"
+          className="min-h-12 py-3 pl-3 pr-2 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content"
         />
-        <InputGroupAddon align="inline-end" className="self-end pb-1 pr-1.5 shrink-0">
+        <InputGroupAddon align="inline-end" className="self-end pb-3 pr-3 pt-3 shrink-0 has-[>button]:mr-0 !mr-0">
           <PromptInputSubmit
             disabled={disabled || (loading && !onStop)}
             status={loading ? (onStop ? "streaming" : "submitted") : undefined}
             onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
             className={cn(
-              "rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors",
+              "rounded-lg text-white transition-colors",
               isStopping && "bg-transparent hover:bg-accent"
             )}
           >
@@ -181,7 +181,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         onError={onError}
         className={cn(
           className?.includes("border") &&
-            "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
+          "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
           className
         )}
         {...props}
@@ -218,7 +218,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
             status={loading ? (onStop ? "streaming" : "submitted") : undefined}
             onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
             className={cn(
-              "rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors",
+              "rounded-lg text-white transition-colors",
               isStopping && "bg-transparent hover:bg-accent"
             )}
           >

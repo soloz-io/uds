@@ -21,31 +21,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const mockStories: StoryItem[] = [
-  {
-    id: "story-1",
-    title: "Devin iOS",
-    status: "ready",
-  },
-  {
-    id: "story-2",
-    title: "Waypoint",
-    status: "ready",
-  },
-  {
-    id: "story-3",
-    title: "Design Sys",
-    status: "generating",
-  },
-  {
-    id: "story-4",
-    title: "Workspace",
-    status: "ready",
-  },
-  {
-    id: "story-5",
-    title: "ZeroOps",
-    status: "draft",
-  },
+  { id: "story-1", title: "Devin iOS", status: "ready", unread: true },
+  { id: "story-2", title: "Waypoint", status: "ready" },
+  { id: "story-3", title: "Design Sys", status: "working" },
+  { id: "story-4", title: "Workspace", status: "working", unread: true },
+  { id: "story-5", title: "Render", status: "failed", unread: true },
+  { id: "story-6", title: "ZeroOps", status: "stopped" },
 ];
 
 /**

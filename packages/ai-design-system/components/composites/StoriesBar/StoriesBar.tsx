@@ -13,7 +13,20 @@ export interface StoryItem {
   subtitle?: string;
   icon?: string;
   time?: string;
-  status?: "ready" | "generating" | "draft";
+  /**
+   * The video's state, drawn as the story's colour:
+   * - "failed": red — the video has stopped on an error
+   * - "ready": green — the finished video is available
+   * - "stopped": grey — not ready, and nothing is running to finish it
+   * - "working": orange — in progress
+   * "generating" and "draft" are the earlier names of "working" and "stopped".
+   */
+  status?: "failed" | "ready" | "stopped" | "working" | "generating" | "draft";
+  /**
+   * Whether the story holds a notification the user has not seen. Shown as the
+   * badge, on any status, and only then.
+   */
+  unread?: boolean;
   thumbnailUrl?: string;
   avatarColor?: string;
   avatarInitials?: string;
@@ -28,22 +41,17 @@ export interface StoriesBarProps extends React.HTMLAttributes<HTMLDivElement> {
 
 function getStoryStatusStyle(status?: StoryItem["status"]) {
   switch (status) {
-    case "generating":
-      return {
-        iconColor: "text-amber-500",
-        badgeBg: "bg-amber-500",
-      };
+    case "failed":
+      return { iconColor: "text-red-500", badgeBg: "bg-red-500" };
     case "ready":
-      return {
-        iconColor: "text-emerald-500",
-        badgeBg: "bg-emerald-500",
-      };
+      return { iconColor: "text-emerald-500", badgeBg: "bg-emerald-500" };
+    case "working":
+    case "generating":
+      return { iconColor: "text-amber-500", badgeBg: "bg-amber-500" };
+    case "stopped":
     case "draft":
     default:
-      return {
-        iconColor: "text-muted-foreground",
-        badgeBg: "bg-muted-foreground",
-      };
+      return { iconColor: "text-muted-foreground", badgeBg: "bg-muted-foreground" };
   }
 }
 
@@ -61,7 +69,6 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
         <div className="flex items-center gap-2.5 px-3 py-1.5 overflow-x-auto no-scrollbar scroll-smooth">
           {stories.map((story) => {
             const isActive = story.id === activeStoryId;
-            const isGenerating = story.status === "generating";
             const statusStyle = getStoryStatusStyle(story.status);
             const iconName = story.icon || defaultIcon;
 
@@ -100,17 +107,15 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
                     )}
                   </div>
 
-                  {isGenerating ? (
-                    <span className="absolute bottom-0 right-0 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-                    </span>
-                  ) : (
+                  {/* The badge: an unseen notification, on any status. */}
+                  {story.unread && (
                     <span
                       className={cn(
                         "absolute bottom-0 right-0 inline-flex rounded-full h-2 w-2 ring-1.5 ring-background",
                         statusStyle.badgeBg
                       )}
+                      data-testid={`story-badge-${story.id}`}
+                      aria-label="New notification"
                     />
                   )}
                 </div>
