@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Icon } from "@/components/primitives/Icon";
+import { Button } from "@/components/primitives/Button";
 import { Input } from "@/components/primitives/Input";
 import { Textarea } from "@/components/primitives/Textarea";
 import { Label } from "@/components/primitives/Label";
@@ -48,6 +49,12 @@ export interface ApprovalCardProps {
   state?: ToolUIState;
   approval?: ToolApproval;
   className?: string;
+  /**
+   * Opens the file a question is about (`args.file_path`). With it, the
+   * question shows the file's name as a link; without it, or when the question
+   * names no file, nothing is shown.
+   */
+  onOpenFile?: (path: string) => void;
 }
 
 function formatValue(value: unknown): string {
@@ -92,12 +99,19 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     state = "approval-requested",
     approval = {},
     className,
+    onOpenFile,
   }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [prevArgs, setPrevArgs] = useState(actionRequest.args);
     const [editedArgs, setEditedArgs] = useState<Record<string, unknown>>(() => actionRequest.args);
     const [rejectReason, setRejectReason] = useState("");
     const [showRejectInput, setShowRejectInput] = useState(false);
+
+    // The file the question is about, when the asker named one.
+    const questionFile =
+      typeof actionRequest.args?.file_path === "string" && actionRequest.args.file_path.trim()
+        ? actionRequest.args.file_path
+        : null;
 
     const hideSkipButton = (actionRequest.args?.hide_skip_button as boolean) ?? false;
     const submitButtonText = (actionRequest.args?.button_submit_text as string) || 'Continue';
@@ -267,29 +281,45 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                   <StreamingMarkdown controls={false}>
                     {currentQuestion.question}
                   </StreamingMarkdown>
+                  {questionFile && onOpenFile && (
+                    <Button
+                      type="button"
+                      variant="link"
+                      onClick={() => onOpenFile(questionFile)}
+                      className="mt-2 h-auto p-0 inline-flex max-w-full items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                      data-testid="approval-card-file-link"
+                    >
+                      <Icon name="file-text" className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">{questionFile.split("/").pop()}</span>
+                    </Button>
+                  )}
                 </div>
               </div>
               {questions.length > 1 && (
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0 font-normal">
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon-sm"
                     onClick={() => setCurrentQuestionIndex((prev) => Math.max(0, prev - 1))}
                     disabled={currentQuestionIndex === 0}
-                    className="hover:text-foreground disabled:opacity-30 p-0.5 transition-colors"
+                    className="h-6 w-6 p-0 hover:text-foreground disabled:opacity-30 transition-colors"
                   >
                     <Icon name="chevron-left" size="sm" />
-                  </button>
+                  </Button>
                   <span className="font-medium">{currentQuestionIndex + 1} of {questions.length}</span>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="icon-sm"
                     onClick={() =>
                       setCurrentQuestionIndex((prev) => Math.min(questions.length - 1, prev + 1))
                     }
                     disabled={currentQuestionIndex === questions.length - 1}
-                    className="hover:text-foreground disabled:opacity-30 p-0.5 transition-colors"
+                    className="h-6 w-6 p-0 hover:text-foreground disabled:opacity-30 transition-colors"
                   >
                     <Icon name="chevron-right" size="sm" />
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -301,8 +331,8 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
               const isOther = index === allOptions.length - 1;
               const isSelected = isMultiSelect
                 ? (selectedAnswers[currentQuestionIndex] as string[])?.includes(
-                    isOther ? otherTexts[currentQuestionIndex] || "" : option
-                  )
+                  isOther ? otherTexts[currentQuestionIndex] || "" : option
+                )
                 : selectedOptionIndices[currentQuestionIndex] === index;
 
               return (
@@ -500,7 +530,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                 }}
                 disabled={isProcessing}
               >
-                    <Icon name="check" size="sm" className="mr-2" />
+                <Icon name="check" size="sm" className="mr-2" />
                 Save & Approve
               </ConfirmationAction>
             </ConfirmationActions>
@@ -576,7 +606,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                     }}
                     disabled={isProcessing}
                   >
-                      <Icon name="x" size="sm" className="mr-2" />
+                    <Icon name="x" size="sm" className="mr-2" />
                     Confirm Rejection
                   </ConfirmationAction>
                 </>
@@ -589,7 +619,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                       onClick={() => setShowRejectInput(true)}
                       disabled={isProcessing}
                     >
-                    <Icon name="x" size="sm" className="mr-2" />
+                      <Icon name="x" size="sm" className="mr-2" />
                       {skipButtonText}
                     </ConfirmationAction>
                   )}
@@ -610,7 +640,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                     onClick={onApprove}
                     disabled={isProcessing}
                   >
-                  <Icon name="check" size="sm" className="mr-2" />
+                    <Icon name="check" size="sm" className="mr-2" />
                     {submitButtonText}
                   </ConfirmationAction>
                 </>

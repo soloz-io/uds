@@ -55,7 +55,7 @@ export const AccountButton = React.forwardRef<HTMLButtonElement, AccountButtonPr
         <div
           className={cn(
             "w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold select-none text-white",
-            avatarColor ? "" : "bg-emerald-700"
+            avatarColor ? "" : "bg-gradient-to-br from-teal-800 to-emerald-600"
           )}
           style={avatarColor ? { backgroundColor: avatarColor } : undefined}
         >
