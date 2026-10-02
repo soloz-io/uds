@@ -221,6 +221,17 @@ export interface ChatPanelProps {
    */
   sessionTitle?: string;
   /**
+   * What sessions are called in the header and the history list: their own
+   * title ("title", default) or the day they were created ("date", shown as
+   * "21 Aug 2025" in the reader's time zone).
+   * @default "title"
+   */
+  sessionTitleFormat?: 'title' | 'date';
+  /**
+   * IANA time zone for "date" session titles. Defaults to the reader's own.
+   */
+  sessionTimeZone?: string;
+  /**
    * Whether to show action buttons in the session header
    * @default true
    */
@@ -304,6 +315,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     enableSpeech = true,
     showHeader = true,
     sessionTitle,
+    sessionTitleFormat = 'title',
+    sessionTimeZone,
     showSessionActions = true,
     showNewSession = true,
     showDownloadSession = true,
@@ -468,6 +481,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
         {showHeader && (
           <SessionHeader
             title={sessionTitle}
+            titleFormat={sessionTitleFormat}
+            timeZone={sessionTimeZone}
             showActions={showSessionActions}
             showNewSession={showNewSession}
             showDownloadSession={showDownloadSession}

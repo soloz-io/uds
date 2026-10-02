@@ -17,10 +17,24 @@ export interface ChatSessionInfo {
 }
 
 import type { FileDownloadResult } from '@/components/composites/FileTreeExplorer';
+import { formatDayLabel } from '@/lib/date';
 
 
 export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
+  /**
+   * What a session is called.
+   * - "title": the session's own title (default).
+   * - "date": the day it was created, as "21 Aug 2025", in the reader's time
+   *   zone. For a surface that keeps one session per day, where the day is
+   *   what tells sessions apart and a first message is not.
+   * @default "title"
+   */
+  titleFormat?: 'title' | 'date';
+  /**
+   * IANA time zone for "date" titles. Defaults to the reader's own.
+   */
+  timeZone?: string;
   sessions?: ChatSessionInfo[];
   activeSessionId?: string | null;
   onNewSession?: () => void;
@@ -48,7 +62,7 @@ export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
  * and a dropdown history of past sessions.
  */
 export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps>(
-  ({ title, sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, showActions = true, showNewSession = true, showDownloadSession = true, onOverview, showOverview = true, className, ...props }, ref) => {
+  ({ title, titleFormat = 'title', timeZone, sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, showActions = true, showNewSession = true, showDownloadSession = true, onOverview, showOverview = true, className, ...props }, ref) => {
     const activeSession = sessions?.find(s => s.id === activeSessionId);
     const downloadRef = React.useRef<HTMLAnchorElement>(null);
 
@@ -66,9 +80,16 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
       URL.revokeObjectURL(url);
     }, [onDownloadSession]);
 
-    const displayTitle = title || (activeSessionId 
-      ? (activeSession?.title || 'Untitled Session')
-      : 'New Session');
+    const byDate = titleFormat === 'date';
+    const sessionLabel = (session: ChatSessionInfo | undefined): string => {
+      if (!byDate) return session?.title || 'Untitled Session';
+      // A session not yet in the list is the one being started now: today's.
+      return formatDayLabel(session?.created_at ?? new Date(), { timeZone }) || 'Untitled Session';
+    };
+
+    const displayTitle = title || (activeSessionId
+      ? sessionLabel(activeSession)
+      : byDate ? formatDayLabel(new Date(), { timeZone }) : 'New Session');
 
     return (
       <div 
@@ -121,8 +142,11 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
                       onClick={() => onSelectSession?.(session.id)}
                       className="flex flex-col items-start py-2 cursor-pointer"
                     >
-                      <span className="text-sm font-medium truncate w-full">{session.title || 'Untitled Session'}</span>
-                      <span className="text-xs text-muted-foreground">{new Date(session.created_at).toLocaleString()}</span>
+                      <span className="text-sm font-medium truncate w-full">{sessionLabel(session)}</span>
+                      {/* The date is the title in "date" mode; repeating it underneath says nothing. */}
+                      {!byDate && (
+                        <span className="text-xs text-muted-foreground">{new Date(session.created_at).toLocaleString()}</span>
+                      )}
                     </DropdownMenuItem>
                   ))
                 ) : (

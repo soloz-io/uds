@@ -342,7 +342,12 @@ import type { Node, Connection, EdgeChange, NodeChange, OnConnectStartParams } f
       const exportMatch = line.match(/^export\s+(?:type\s+)?\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/);
       if (exportMatch) {
         const fromPath = exportMatch[2];
-        if (!fromPath.startsWith('.')) {
+        // Only what a consumer can resolve: an installed package. A relative
+        // path or the `@/` alias points into this repo's own source, which the
+        // published package does not carry -- re-exporting from it gives the
+        // consumer a name with no declaration behind it. Those are declared by
+        // hand below (see UTILITIES).
+        if (!fromPath.startsWith('.') && !fromPath.startsWith('@/')) {
           dtsContent += line + '\n';
         }
       }
@@ -434,6 +439,20 @@ export declare const ContextCacheUsage: React.FC<any>;
 // ============================================================================
 
 export function cn(...inputs: any[]): string;
+
+// Calendar days in the reader's time zone (lib/date.ts)
+export interface DayOptions {
+  /** IANA time zone. Defaults to the reader's own. */
+  timeZone?: string;
+}
+/** The reader's time zone as their device reports it, e.g. "Asia/Kolkata". */
+export function userTimeZone(): string;
+/** "21 Aug 2025" for the day the instant falls on in the reader's time zone. */
+export function formatDayLabel(value: Date | string | number, options?: DayOptions): string;
+/** "2025-08-21" for the day the instant falls on in the reader's time zone. */
+export function dayKey(value: Date | string | number, options?: DayOptions): string;
+/** Whether two instants fall on the same calendar day for the reader. */
+export function isSameDay(a: Date | string | number, b: Date | string | number, options?: DayOptions): boolean;
 `;
 
   // Write the declaration file

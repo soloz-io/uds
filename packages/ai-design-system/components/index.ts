@@ -94,6 +94,9 @@ export type { ExternalToast, ToastT, ToasterProps } from 'sonner';
 
 // Utilities
 export { cn } from '@/lib/utils';
+// Calendar days in the reader's time zone
+export { formatDayLabel, dayKey, isSameDay, userTimeZone } from '@/lib/date';
+export type { DayOptions } from '@/lib/date';
 export { ButtonSwitcher } from './composites';
 export type { ButtonSwitcherProps, ButtonSwitcherItem } from './composites';
 
