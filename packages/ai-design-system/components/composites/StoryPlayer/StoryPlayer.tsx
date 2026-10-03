@@ -592,14 +592,14 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
               data-testid="btn-prev-story"
               aria-label="Previous story"
               onClick={handlePrev}
-              className="flex-1 h-full cursor-pointer bg-transparent hover:bg-transparent p-0 rounded-none border-none focus-visible:ring-0 focus-visible:outline-none"
+              className="flex-1 h-full cursor-pointer bg-transparent hover:!bg-transparent p-0 rounded-none border-none focus-visible:ring-0 focus-visible:outline-none"
             />
             <Button
               variant="ghost"
               data-testid="btn-next-story"
               aria-label="Next story"
               onClick={handleNext}
-              className="flex-1 h-full cursor-pointer bg-transparent hover:bg-transparent p-0 rounded-none border-none focus-visible:ring-0 focus-visible:outline-none"
+              className="flex-1 h-full cursor-pointer bg-transparent hover:!bg-transparent p-0 rounded-none border-none focus-visible:ring-0 focus-visible:outline-none"
             />
           </div>
         </div>
