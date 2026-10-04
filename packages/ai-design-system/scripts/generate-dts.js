@@ -361,6 +361,21 @@ import type { Node, Connection, EdgeChange, NodeChange, OnConnectStartParams } f
 
 export declare const SectionLayout: React.FC<SectionLayoutProps>;
 export declare const WorkflowCanvas: React.FC<WorkflowCanvasProps>;
+export declare const HeroSection: React.FC<HeroSectionProps>;
+export declare const SiteHeader: React.FC<SiteHeaderProps>;
+export declare const AnnouncementBanner: React.FC<AnnouncementBannerProps>;
+export declare const SolutionsLayout: React.FC<SolutionsLayoutProps>;
+
+export declare const NavigationMenu: any;
+export declare const NavigationMenuList: any;
+export declare const NavigationMenuItem: any;
+export declare const NavigationMenuContent: any;
+export declare const NavigationMenuTrigger: any;
+export declare const NavigationMenuLink: any;
+export declare const NavigationMenuIndicator: any;
+export declare const NavigationMenuViewport: any;
+export declare function navigationMenuTriggerStyle(): string;
+
 export declare function getLayoutedElements(nodes: any[], edges: any[]): Promise<{ nodes: any[]; edges: any[] }>;
 export declare function bmcToCanvas(bmc: CompiledBmc | null, message?: string): BmcCanvasView;
 export declare function addEdge(edgeParams: any, edges: any[]): any[];

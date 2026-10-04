@@ -39,3 +39,7 @@ export type { InboxPanelProps } from './InboxPanel'
 // EvalSessionDetailsPanel Block
 export { EvalSessionDetailsPanel, EvalTriggerButton } from './EvalSessionDetailsPanel'
 export type { EvalSessionDetailsPanelProps, EvalSessionDetails } from './EvalSessionDetailsPanel'
+
+// Generic Page Blocks
+export { HeroSection } from './HeroSection'
+export type { HeroSectionProps } from './HeroSection'

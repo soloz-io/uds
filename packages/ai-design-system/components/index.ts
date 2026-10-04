@@ -38,6 +38,9 @@ export {
   ScenePlayer,
   AccountDialog,
   AccountButton,
+  SiteHeader,
+  AnnouncementBanner,
+  SolutionsLayout,
 } from './composites';
 export type {
   AccountDialogProps,
@@ -82,8 +85,51 @@ export type {
   TaskItem,
   TaskStatus,
 } from './composites';
-export { WorkflowCanvas, getLayoutedElements, bmcToCanvas, SectionLayout, ExpoAppPreview } from './blocks';
-export type { SectionLayoutSection, ExpoAppPreviewProps } from './blocks';
+export type {
+  SiteHeaderProps,
+  NavItem,
+  NavDropdownItem,
+  AnnouncementBannerProps,
+  SolutionsLayoutProps,
+  SolutionTab,
+} from './composites';
+
+export {
+  WorkflowCanvas,
+  getLayoutedElements,
+  bmcToCanvas,
+  SectionLayout,
+  ExpoAppPreview,
+  HeroSection,
+} from './blocks';
+export type {
+  SectionLayoutSection,
+  ExpoAppPreviewProps,
+  HeroSectionProps,
+} from './blocks';
+
+// NavigationMenu and Primitives
+export {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuContent,
+  NavigationMenuTrigger,
+  NavigationMenuLink,
+  NavigationMenuIndicator,
+  NavigationMenuViewport,
+  navigationMenuTriggerStyle,
+} from './primitives/NavigationMenu';
+export type {
+  NavigationMenuProps,
+  NavigationMenuListProps,
+  NavigationMenuItemProps,
+  NavigationMenuContentProps,
+  NavigationMenuTriggerProps,
+  NavigationMenuLinkProps,
+  NavigationMenuIndicatorProps,
+  NavigationMenuViewportProps,
+} from './primitives/NavigationMenu';
 
 // External library re-exports
 export { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, addEdge } from '@xyflow/react';

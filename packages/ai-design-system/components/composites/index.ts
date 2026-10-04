@@ -298,4 +298,14 @@ export type { AccountDialogProps, AccountButtonProps, AccountUser } from './Acco
 export { FileTreeExplorer, FileTreeDrawer } from './FileTreeExplorer'
 export type { FileTreeExplorerProps, FileTreeDrawerProps, FileTreeNode, FileDownloadResult } from './FileTreeExplorer'
 
+// Generic Navigation & Layout Composites
+export { SiteHeader } from './SiteHeader'
+export type { SiteHeaderProps, NavItem, NavDropdownItem } from './SiteHeader'
+
+export { AnnouncementBanner } from './AnnouncementBanner'
+export type { AnnouncementBannerProps } from './AnnouncementBanner'
+
+export { SolutionsLayout } from './SolutionsLayout'
+export type { SolutionsLayoutProps, SolutionTab } from './SolutionsLayout'
+
 

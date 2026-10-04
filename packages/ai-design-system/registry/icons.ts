@@ -768,6 +768,26 @@ export const defaultIcons: Record<string, IconDefinition> = {
       { type: 'line', attrs: { x1: '16', x2: '22', y1: '9', y2: '15' } },
     ],
   },
+  'pie-chart': {
+    name: 'pie-chart',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M21.21 15.89A10 10 0 1 1 8 2.83' } },
+      { type: 'path', attrs: { d: 'M22 12A10 10 0 0 0 12 2v10z' } },
+    ],
+  },
+  'landmark': {
+    name: 'landmark',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'line', attrs: { x1: '3', x2: '21', y1: '22', y2: '22' } },
+      { type: 'line', attrs: { x1: '6', x2: '6', y1: '18', y2: '11' } },
+      { type: 'line', attrs: { x1: '10', x2: '10', y1: '18', y2: '11' } },
+      { type: 'line', attrs: { x1: '14', x2: '14', y1: '18', y2: '11' } },
+      { type: 'line', attrs: { x1: '18', x2: '18', y1: '18', y2: '11' } },
+      { type: 'polygon', attrs: { points: '12 2 20 7 4 7' } },
+    ],
+  },
 };
 
 /**
