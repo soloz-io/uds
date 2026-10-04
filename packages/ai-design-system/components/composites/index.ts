@@ -308,4 +308,18 @@ export type { AnnouncementBannerProps } from './AnnouncementBanner'
 export { SolutionsLayout } from './SolutionsLayout'
 export type { SolutionsLayoutProps, SolutionTab } from './SolutionsLayout'
 
+// SideSheet Composite
+export {
+  SideSheet,
+  SideSheetRoot,
+  SideSheetTrigger,
+  SideSheetClose,
+  SideSheetContent,
+  SideSheetHeader,
+  SideSheetFooter,
+  SideSheetTitle,
+  SideSheetDescription,
+} from './SideSheet'
+export type { SideSheetProps } from './SideSheet'
+
 

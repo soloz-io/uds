@@ -58,6 +58,11 @@ export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   publishPlaceholder?: string;
   onStoryChange?: (storyIndex: number, story: StorySegment) => void;
   onSceneChange?: (sceneIndex: number, scene: StorySegment) => void;
+  commentCount?: number;
+  onCommentClick?: () => void;
+  isCommentsOpen?: boolean;
+  showPromptInput?: boolean;
+  itemLabel?: string;
 }
 
 export type ScenePlayerProps = StoryPlayerProps;
@@ -97,6 +102,11 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       publishPlaceholder = "Ask a question or provide instructions...",
       onStoryChange,
       onSceneChange,
+      commentCount,
+      onCommentClick,
+      isCommentsOpen,
+      showPromptInput = true,
+      itemLabel,
       className,
       ...props
     },
@@ -115,6 +125,15 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       }
       return 0;
     });
+
+    const initialReportedRef = React.useRef(false);
+    React.useEffect(() => {
+      if (!initialReportedRef.current && items.length > 0 && items[currentStoryIndex]) {
+        initialReportedRef.current = true;
+        onStoryChange?.(currentStoryIndex, items[currentStoryIndex]);
+        onSceneChange?.(currentStoryIndex, items[currentStoryIndex]);
+      }
+    }, [items, currentStoryIndex, onStoryChange, onSceneChange]);
 
     // Dual-video buffer for gapless playback between story segments:
     // One slot actively plays the current story segment, while the other slot preloads the upcoming segment in the background.
@@ -148,6 +167,13 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       },
       [isPlaying, onPlayingChange]
     );
+
+    // Stop playback automatically when comments sidesheet is open
+    React.useEffect(() => {
+      if (isCommentsOpen) {
+        setIsPlaying(false);
+      }
+    }, [isCommentsOpen, setIsPlaying]);
 
     const togglePlay = React.useCallback(() => {
       setIsPlaying((prev) => !prev);
@@ -504,13 +530,38 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
               </span>
               <span className="text-xs text-white/75 truncate">
                 {typeof currentLabel === "number"
-                  ? `Segment ${currentLabel} of ${items.length}`
+                  ? `${itemLabel ?? (scenes ? "Frame" : "Segment")} ${currentLabel} of ${items.length}`
                   : `${currentLabel} of ${items.length}`}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Comments Toggle Button */}
+            {onCommentClick && (
+              <Button
+                variant="ghost"
+                size="icon"
+                data-testid="btn-toggle-comments"
+                aria-label="View comments"
+                onClick={onCommentClick}
+                className={cn(
+                  "h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer relative",
+                  isCommentsOpen && "bg-white/25 text-white ring-1 ring-white/40"
+                )}
+              >
+                <Icon name="message-square" className="w-4 h-4" />
+                {commentCount !== undefined && commentCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-primary text-primary-foreground leading-none shadow-sm"
+                    data-testid="badge-comment-count"
+                  >
+                    {commentCount}
+                  </span>
+                )}
+              </Button>
+            )}
+
             {/* Play/Pause Toggle Button */}
             <Button
               variant="ghost"
@@ -605,31 +656,33 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
         </div>
 
         {/* Bottom PromptInput Composite from Design System */}
-        <div
-          className="p-3 bg-gradient-to-t from-black via-black/90 to-transparent pt-4 z-20 shrink-0"
-          onFocusCapture={() => {
-            setIsPlaying(false);
-          }}
-          onClickCapture={() => {
-            setIsPlaying(false);
-          }}
-          onTouchStartCapture={() => {
-            setIsPlaying(false);
-          }}
-        >
-          <PromptInput
-            variant={promptInputVariant}
-            placeholder={placeholder || publishPlaceholder}
-            value={promptValue}
-            onChange={onPromptValueChange}
-            onSubmit={handlePromptSubmit}
-            loading={loading}
-            onStop={onStop}
-            enableSpeech={enableSpeech}
-            enableAttachments={enableAttachments}
-            className="border border-border bg-background shadow-md overflow-hidden rounded-2xl"
-          />
-        </div>
+        {showPromptInput && (
+          <div
+            className="p-3 bg-gradient-to-t from-black via-black/90 to-transparent pt-4 z-20 shrink-0"
+            onFocusCapture={() => {
+              setIsPlaying(false);
+            }}
+            onClickCapture={() => {
+              setIsPlaying(false);
+            }}
+            onTouchStartCapture={() => {
+              setIsPlaying(false);
+            }}
+          >
+            <PromptInput
+              variant={promptInputVariant}
+              placeholder={placeholder || publishPlaceholder}
+              value={promptValue}
+              onChange={onPromptValueChange}
+              onSubmit={handlePromptSubmit}
+              loading={loading}
+              onStop={onStop}
+              enableSpeech={enableSpeech}
+              enableAttachments={enableAttachments}
+              className="border border-border bg-background shadow-md overflow-hidden rounded-2xl"
+            />
+          </div>
+        )}
       </div>
     );
   }

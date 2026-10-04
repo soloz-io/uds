@@ -41,8 +41,18 @@ export {
   SiteHeader,
   AnnouncementBanner,
   SolutionsLayout,
+  SideSheet,
+  SideSheetRoot,
+  SideSheetTrigger,
+  SideSheetClose,
+  SideSheetContent,
+  SideSheetHeader,
+  SideSheetFooter,
+  SideSheetTitle,
+  SideSheetDescription,
 } from './composites';
 export type {
+  SideSheetProps,
   AccountDialogProps,
   AccountButtonProps,
   AccountUser,

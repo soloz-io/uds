@@ -22,6 +22,7 @@ const meta = {
     onSceneChange: fn(),
     onPlayingChange: fn(),
     onDownload: fn(),
+    onCommentClick: fn(),
   },
 } satisfies Meta<typeof StoryPlayer>;
 
@@ -66,6 +67,16 @@ export const Default: Story = {
     stories: mockStories,
     title: "Building iOS App on Devin",
     isPlaying: true,
+  },
+};
+
+export const WithComments: Story = {
+  args: {
+    stories: mockStories,
+    title: "Building iOS App on Devin",
+    isPlaying: false,
+    commentCount: 2,
+    isCommentsOpen: false,
   },
 };
 
