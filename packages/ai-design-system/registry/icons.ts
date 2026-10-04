@@ -60,6 +60,11 @@ export const defaultIcons: Record<string, IconDefinition> = {
     viewBox: '0 0 24 24',
     path: 'M5 12h14m-7-7 7 7-7 7',
   },
+  'arrow-up': {
+    name: 'arrow-up',
+    viewBox: '0 0 24 24',
+    path: 'M12 19V5m-7 7l7-7 7 7',
+  },
   
   // Action icons
   'plus': {

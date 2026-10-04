@@ -88,7 +88,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     enableAttachments,
     enableSpeech,
     speechProps,
-    attachIcon = "paperclip",
+    attachIcon = "plus",
     accept = "image/*,audio/*",
     multiple = true,
     maxFiles,
@@ -143,7 +143,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         maxFileSize={maxFileSize}
         onError={onError}
         className={cn(
-          "[&>[data-slot=input-group]]:rounded-2xl",
+          "[&>[data-slot=input-group]]:rounded-full",
           className?.includes("border") &&
           "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
           className
@@ -163,11 +163,11 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
             status={loading ? (onStop ? "streaming" : "submitted") : undefined}
             onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
             className={cn(
-              "rounded-lg text-white transition-colors",
+              "rounded-full bg-white text-black hover:bg-neutral-200 dark:bg-white dark:text-black dark:hover:bg-neutral-200 transition-colors",
               isStopping && "bg-transparent hover:bg-accent"
             )}
           >
-            {loading ? undefined : <Icon name="corner-down-left" size="sm" />}
+            {loading ? undefined : <Icon name="arrow-up" size="sm" />}
           </PromptInputSubmit>
         </InputGroupAddon>
       </AIPromptInput>
@@ -180,6 +180,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         maxFileSize={maxFileSize}
         onError={onError}
         className={cn(
+          "[&>[data-slot=input-group]]:rounded-3xl",
           className?.includes("border") &&
           "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
           className
@@ -192,6 +193,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
             placeholder={placeholder}
             disabled={disabled}
             onChange={isControlled ? handleControlledChange : undefined}
+            className="p-3 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content"
           />
         </PromptInputBody>
         <PromptInputFooter>
@@ -218,11 +220,11 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
             status={loading ? (onStop ? "streaming" : "submitted") : undefined}
             onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
             className={cn(
-              "rounded-lg text-white transition-colors",
+              "rounded-full bg-white text-black hover:bg-neutral-200 dark:bg-white dark:text-black dark:hover:bg-neutral-200 transition-colors",
               isStopping && "bg-transparent hover:bg-accent"
             )}
           >
-            {loading ? undefined : <Icon name="corner-down-left" size="sm" />}
+            {loading ? undefined : <Icon name="arrow-up" size="sm" />}
           </PromptInputSubmit>
         </PromptInputFooter>
       </AIPromptInput>
@@ -256,7 +258,7 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
  */
 function AttachButton({
   disabled,
-  icon = "paperclip",
+  icon = "plus",
 }: {
   disabled?: boolean;
   icon?: "paperclip" | "plus";
@@ -266,7 +268,7 @@ function AttachButton({
     <Button
       variant="ghost"
       size="icon"
-      className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+      className="h-8 w-8 rounded-full border border-border/40 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
       type="button"
       disabled={disabled}
       onClick={() => attachments.openFileDialog()}

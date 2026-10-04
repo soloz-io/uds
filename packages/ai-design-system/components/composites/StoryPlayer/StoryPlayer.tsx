@@ -97,7 +97,7 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       onStop,
       enableSpeech = false,
       enableAttachments = false,
-      promptInputVariant = "row",
+      promptInputVariant,
       onPublish,
       publishPlaceholder = "Ask a question or provide instructions...",
       onStoryChange,
@@ -679,7 +679,6 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
               onStop={onStop}
               enableSpeech={enableSpeech}
               enableAttachments={enableAttachments}
-              className="border border-border bg-background shadow-md overflow-hidden rounded-2xl"
             />
           </div>
         )}
