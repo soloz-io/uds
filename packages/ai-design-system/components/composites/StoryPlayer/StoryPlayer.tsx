@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/primitives/DropdownMenu";
 import { Icon } from "@/components/primitives/Icon";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/primitives/Tooltip";
 import {
   Select,
   SelectContent,
@@ -89,7 +90,17 @@ export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   activeVersion?: string;
   onUseVersion?: (versionId: string) => void;
   useVersionDisabled?: boolean;
+  /**
+   * How the piece plays: "video" plays `videoUrl` straight through, each segment
+   * a span of it (`start_sec`, `duration_sec`); "scenes" plays each segment's own
+   * clip in turn. The viewer switches with the icon in the story line.
+   * Uncontrolled when omitted, starting at "video".
+   */
+  playbackMode?: StoryPlaybackMode;
+  onPlaybackModeChange?: (mode: StoryPlaybackMode) => void;
 }
+
+export type StoryPlaybackMode = "video" | "scenes";
 
 export type ScenePlayerProps = StoryPlayerProps;
 
@@ -141,6 +152,8 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       activeVersion,
       onUseVersion,
       useVersionDisabled = false,
+      playbackMode: playbackModeProp,
+      onPlaybackModeChange,
       className,
       ...props
     },
@@ -190,6 +203,29 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
     const videoRef1 = React.useRef<HTMLVideoElement | null>(null);
     const isTransitioningRef = React.useRef<boolean>(false);
 
+    // ── Playback mode ─────────────────────────────────────────────────────
+    //
+    // "video": one stream, `videoUrl`, played straight through — no load between
+    // segments; the current segment and its progress are read from the playhead.
+    // "scenes": the dual-slot clip player above, one segment's clip at a time.
+    const [modeState, setModeState] = React.useState<StoryPlaybackMode>("video");
+    const mode = playbackModeProp ?? modeState;
+    const videoFullRef = React.useRef<HTMLVideoElement | null>(null);
+    const spans = React.useMemo(
+      () =>
+        items.map((item) => {
+          const start = Number(item.start_sec ?? 0);
+          return { start, end: start + Number(item.duration_sec ?? 0) };
+        }),
+      [items]
+    );
+    /** Where the playhead is within the current segment, 0..1 (video mode). */
+    const [segmentProgress, setSegmentProgress] = React.useState(0);
+    const currentIndexRef = React.useRef(currentStoryIndex);
+    currentIndexRef.current = currentStoryIndex;
+    /** Seconds into the current segment to resume at after a mode switch. */
+    const resumeOffsetRef = React.useRef<number | null>(null);
+
     const [isPlayingState, setIsPlayingState] = React.useState<boolean>(isPlayingProp ?? true);
     const isPlaying = isPlayingProp !== undefined ? isPlayingProp : isPlayingState;
 
@@ -220,6 +256,7 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
         const next = !prev;
         if (videoRef0.current) videoRef0.current.muted = next;
         if (videoRef1.current) videoRef1.current.muted = next;
+        if (videoFullRef.current) videoFullRef.current.muted = next;
         return next;
       });
     }, []);
@@ -230,6 +267,18 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       (targetIdx: number) => {
         if (!items.length) return;
         const clampedIdx = (targetIdx + items.length) % items.length;
+
+        // Video mode: a segment is a span of the one stream — seek to its start.
+        if (mode === "video") {
+          const video = videoFullRef.current;
+          if (video) video.currentTime = spans[clampedIdx]?.start ?? 0;
+          currentIndexRef.current = clampedIdx;
+          setCurrentStoryIndex(clampedIdx);
+          setSegmentProgress(0);
+          onStoryChange?.(clampedIdx, items[clampedIdx]);
+          onSceneChange?.(clampedIdx, items[clampedIdx]);
+          return;
+        }
         onStoryChange?.(clampedIdx, items[clampedIdx]);
         onSceneChange?.(clampedIdx, items[clampedIdx]);
         setCurrentStoryIndex(clampedIdx);
@@ -288,8 +337,62 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
 
         setActiveSlot(nextActiveSlot);
       },
-      [items, activeSlot, isPlaying, isMuted, onStoryChange, onSceneChange]
+      [items, activeSlot, isPlaying, isMuted, onStoryChange, onSceneChange, mode, spans]
     );
+
+    /** The segment the playhead is in: the last one starting at or before it. */
+    const segmentAt = React.useCallback(
+      (time: number) => {
+        let index = 0;
+        for (let i = 0; i < spans.length; i += 1) {
+          if (spans[i].start <= time + 0.001) index = i;
+        }
+        return index;
+      },
+      [spans]
+    );
+
+    /** Video mode: follow the playhead — the current segment, its progress, the change callbacks. */
+    const syncToPlayhead = React.useCallback(() => {
+      const video = videoFullRef.current;
+      if (!video || !spans.length) return;
+      const index = segmentAt(video.currentTime);
+      const { start, end } = spans[index];
+      setSegmentProgress(end > start ? Math.min(1, Math.max(0, (video.currentTime - start) / (end - start))) : 0);
+      if (index !== currentIndexRef.current) {
+        currentIndexRef.current = index;
+        setCurrentStoryIndex(index);
+        onStoryChange?.(index, items[index]);
+        onSceneChange?.(index, items[index]);
+      }
+    }, [spans, segmentAt, items, onStoryChange, onSceneChange]);
+
+    /** Video mode: once the stream is loaded, resume at the current segment (and offset). */
+    const handleFullLoaded = React.useCallback(() => {
+      const video = videoFullRef.current;
+      if (!video) return;
+      video.currentTime = (spans[currentIndexRef.current]?.start ?? 0) + (resumeOffsetRef.current ?? 0);
+      resumeOffsetRef.current = null;
+      syncToPlayhead();
+    }, [spans, syncToPlayhead]);
+
+    /** Switch modes, keeping the segment on screen and the time into it. */
+    const switchMode = React.useCallback(() => {
+      const index = currentIndexRef.current;
+      if (mode === "video") {
+        const video = videoFullRef.current;
+        resumeOffsetRef.current = video ? Math.max(0, video.currentTime - (spans[index]?.start ?? 0)) : 0;
+        setSlot0Index(index);
+        setSlot1Index(items.length > 1 ? (index + 1) % items.length : index);
+        setActiveSlot(0);
+      } else {
+        const clip = activeSlot === 0 ? videoRef0.current : videoRef1.current;
+        resumeOffsetRef.current = clip ? clip.currentTime : 0;
+      }
+      const next: StoryPlaybackMode = mode === "video" ? "scenes" : "video";
+      setModeState(next);
+      onPlaybackModeChange?.(next);
+    }, [mode, spans, items.length, activeSlot, onPlaybackModeChange]);
 
     const handlePromptSubmit = React.useCallback(
       (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => {
@@ -369,6 +472,7 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
 
     // Playback & mute synchronization across dual slots
     React.useEffect(() => {
+      if (mode !== "scenes") return;
       const activeVideo = activeSlot === 0 ? videoRef0.current : videoRef1.current;
       const idleVideo = activeSlot === 0 ? videoRef1.current : videoRef0.current;
 
@@ -396,7 +500,52 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       } else {
         activeVideo.pause();
       }
-    }, [activeSlot, isPlaying, isMuted]);
+    }, [activeSlot, isPlaying, isMuted, mode]);
+
+    // Scenes mode, just switched from video: resume the clip where the stream was.
+    React.useEffect(() => {
+      if (mode !== "scenes" || resumeOffsetRef.current === null) return;
+      const clip = activeSlot === 0 ? videoRef0.current : videoRef1.current;
+      if (!clip) return;
+      const offset = resumeOffsetRef.current;
+      const seek = () => {
+        clip.currentTime = offset;
+        resumeOffsetRef.current = null;
+      };
+      if (clip.readyState >= 1) seek();
+      else clip.addEventListener("loadedmetadata", seek, { once: true });
+    }, [mode, activeSlot]);
+
+    // Video mode: play, pause and mute follow the controls.
+    React.useEffect(() => {
+      if (mode !== "video") return;
+      const video = videoFullRef.current;
+      if (!video) return;
+      video.muted = isMuted;
+      if (isPlaying) {
+        video.play().catch((err) => {
+          if (err?.name === "NotAllowedError") {
+            video.muted = true;
+            video.play().catch(() => {});
+          }
+        });
+      } else {
+        video.pause();
+      }
+    }, [mode, isPlaying, isMuted, videoUrl]);
+
+    // Video mode: the progress bar follows the playhead every frame while
+    // playing; timeupdate alone fires a few times a second and steps it.
+    React.useEffect(() => {
+      if (mode !== "video" || !isPlaying) return;
+      let frame = 0;
+      const tick = () => {
+        syncToPlayhead();
+        frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(frame);
+    }, [mode, isPlaying, syncToPlayhead]);
 
     // The idle slot preloads the upcoming segment through its own <video src>,
     // which React owns: a changed src starts the browser loading it, with
@@ -501,20 +650,37 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
           {items.map((item, idx) => {
             const isCompleted = idx < currentStoryIndex;
             const isCurrent = idx === currentStoryIndex;
+            // Video mode fills the current segment with the playhead; scenes mode
+            // marks the segments reached.
+            const fill =
+              mode === "video"
+                ? isCompleted ? 1 : isCurrent ? segmentProgress : 0
+                : isCompleted || isCurrent ? 1 : 0;
             return (
               <div
                 key={item.id || `story-segment-${idx}`}
                 className="flex-1 h-[2.5px] rounded-[2px] bg-white/35 overflow-hidden"
+                data-testid={`story-progress-${idx}`}
               >
-                <div
-                  className={cn(
-                    "h-full w-full transition-all duration-150",
-                    isCompleted || isCurrent ? "bg-white" : "bg-transparent"
-                  )}
-                />
+                <div className="h-full bg-white" style={{ width: `${fill * 100}%` }} />
               </div>
             );
           })}
+          {/* The playback mode, switched from the story line itself */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={switchMode}
+                aria-label={mode === "video" ? "Play scene by scene" : "Play as one video"}
+                className="ml-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white/80 hover:bg-white/20 hover:text-white"
+                data-testid="btn-playback-mode"
+              >
+                <Icon name={mode === "video" ? "layers" : "film"} className="h-3.5 w-3.5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{mode === "video" ? "Play scene by scene" : "Play as one video"}</TooltipContent>
+          </Tooltip>
         </div>
 
         {/* Story Header Overlay */}
@@ -668,7 +834,35 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
 
         {/* Main Scene Video Player Stage */}
         <div className="flex-1 relative flex items-center justify-center bg-black overflow-hidden min-h-0">
-          {/* Slot 0 Video */}
+          {/* Video mode: the whole piece, the segments spans of it */}
+          {mode === "video" && (
+            videoUrl ? (
+              <video
+                ref={videoFullRef}
+                src={videoUrl}
+                preload="auto"
+                playsInline
+                muted={isMuted}
+                onLoadedMetadata={handleFullLoaded}
+                onSeeked={syncToPlayhead}
+                onTimeUpdate={syncToPlayhead}
+                onEnded={() => {
+                  goToStory(0);
+                  if (isPlaying) videoFullRef.current?.play().catch(() => {});
+                }}
+                data-testid="story-video-full"
+                className="w-full h-full object-contain bg-black absolute inset-0 z-10"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-3 z-10" role="status" data-testid="story-player-no-video">
+                <Icon name="loader-2" className="h-8 w-8 animate-spin text-white/80" />
+                <p className="text-white/70 text-sm">Loading video…</p>
+              </div>
+            )
+          )}
+
+          {/* Scenes mode: Slot 0 Video */}
+          {mode === "scenes" && (
           <video
             ref={videoRef0}
             src={getClipUrl(items[slot0Index])}
@@ -684,8 +878,10 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
             )}
           />
 
+          )}
+
           {/* Slot 1 Video (preloads next scene in background for gapless playback) */}
-          {items.length > 1 && (
+          {mode === "scenes" && items.length > 1 && (
             <video
               ref={videoRef1}
               src={getClipUrl(items[slot1Index])}

@@ -29,6 +29,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+/** The whole video (video mode); each segment below is a span of it, with its own clip (scenes mode). */
+const VIDEO_URL =
+  "https://hel1.your-objectstorage.com/waypoint-s3-dev/01M32NJZHXKCX1CQKVEVA49SJT/playground-1790017380397-6ffe0ec0/artifacts/video.mp4";
+
 const mockStories: StorySegment[] = [
   {
     id: "001",
@@ -65,6 +69,7 @@ const mockStories: StorySegment[] = [
 export const Default: Story = {
   args: {
     stories: mockStories,
+    videoUrl: VIDEO_URL,
     title: "Building iOS App on Devin",
     isPlaying: true,
   },
@@ -73,6 +78,7 @@ export const Default: Story = {
 export const WithComments: Story = {
   args: {
     stories: mockStories,
+    videoUrl: VIDEO_URL,
     title: "Building iOS App on Devin",
     isPlaying: false,
     commentCount: 2,
@@ -83,6 +89,7 @@ export const WithComments: Story = {
 export const Paused: Story = {
   args: {
     stories: mockStories,
+    videoUrl: VIDEO_URL,
     title: "Building iOS App on Devin",
     isPlaying: false,
   },
@@ -91,7 +98,17 @@ export const Paused: Story = {
 export const Muted: Story = {
   args: {
     stories: mockStories,
+    videoUrl: VIDEO_URL,
     title: "Building iOS App on Devin",
     initialMuted: true,
+  },
+};
+
+export const ScenesMode: Story = {
+  args: {
+    stories: mockStories,
+    videoUrl: VIDEO_URL,
+    title: "Building iOS App on Devin",
+    playbackMode: "scenes",
   },
 };

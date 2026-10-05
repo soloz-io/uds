@@ -37,9 +37,9 @@ export const WithStatuses: Story = {
         status: "completed",
         resultVersion: "v2",
         history: [
-          { status: "pending", at: ago(41), by: "user:u-9" },
-          { status: "in-progress", at: ago(40), by: "agent:motion-graphics" },
-          { status: "completed", at: ago(30), by: "agent:media-generator", version: "v2", note: "Headline recoloured." },
+          { status: "pending", at: ago(41), by: "User" },
+          { status: "in-progress", at: ago(40), by: "Agent" },
+          { status: "completed", at: ago(30), by: "Agent", version: "v2", note: "Headline recoloured." },
         ],
       },
       {
@@ -63,6 +63,27 @@ export const ApplyUnavailable: Story = {
     applyDisabledReason: "A new version is being made. You can send more changes once it is ready.",
     comments: [
       { id: "c-3", sceneLabel: "Scene 3", authorName: "Arun Subramanian", createdAt: ago(5), content: "Brighter background.", status: "in-progress" },
+    ],
+  },
+};
+
+export const GroupedByVersion: Story = {
+  args: {
+    open: true,
+    description: "4 comments across 4 scenes",
+    draftCount: 1,
+    comments: [
+      { id: "g-1", group: "Drafts", sceneLabel: "Scene 2", authorName: "Arun Subramanian", createdAt: ago(2), content: "Tighter crop.", status: "draft" },
+      { id: "g-2", group: "In progress", sceneLabel: "Scene 5", authorName: "Arun Subramanian", createdAt: ago(8), content: "Warmer light.", status: "in-progress" },
+      {
+        id: "g-3", group: "v4", sceneLabel: "Scene 3", authorName: "Arun Subramanian", createdAt: ago(40), content: "Make the first line bolder.",
+        status: "completed", resultVersion: "v4",
+        history: [
+          { status: "pending", at: ago(39), by: "User" },
+          { status: "completed", at: ago(30), by: "Agent", version: "v4", note: "The first line is bolder — in v4." },
+        ],
+      },
+      { id: "g-4", group: "v3", sceneLabel: "Scene 1", authorName: "Arun Subramanian", createdAt: ago(90), content: "Green glasses.", status: "completed", resultVersion: "v3" },
     ],
   },
 };

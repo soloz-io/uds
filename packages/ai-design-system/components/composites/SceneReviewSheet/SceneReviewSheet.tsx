@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Badge } from "@/components/primitives/Badge";
 import { Button } from "@/components/primitives/Button";
 import { Icon } from "@/components/primitives/Icon";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/primitives/Tooltip";
 import { SideSheet } from "@/components/composites/SideSheet";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,7 @@ export interface SceneCommentHistoryStep {
   status: SceneCommentStatus;
   /** ISO timestamp. */
   at: string;
-  /** Who moved it, e.g. "agent:motion-graphics". */
+  /** Who the reply is from, as shown, e.g. "Agent" or "User". */
   by?: string;
   note?: string;
   /** The version that holds the change, once completed. */
@@ -33,6 +33,12 @@ export interface SceneReviewComment {
   history?: SceneCommentHistoryStep[];
   /** The version that holds the change, once completed. */
   resultVersion?: string;
+  /**
+   * The section the comment is listed under, e.g. "v4" or "In progress".
+   * Comments are shown in the order given; each change of `group` starts a new
+   * section headed by it.
+   */
+  group?: string;
 }
 
 export interface SceneReviewSheetProps {
@@ -40,7 +46,7 @@ export interface SceneReviewSheetProps {
   onOpenChange: (open: boolean) => void;
   /** e.g. "5 comments across 3 scenes". */
   description?: React.ReactNode;
-  /** Every comment on the video, in scene order; each names its scene. */
+  /** Every comment on the video, in the order to show them; each names its scene, and may name its section (`group`). */
   comments: SceneReviewComment[];
   /** Removes a draft; drafts are the only comments the user can take back. */
   onRemoveDraft?: (id: string) => void;
@@ -55,8 +61,8 @@ export interface SceneReviewSheetProps {
 }
 
 /**
- * Each status as a neutral badge with its icon, coloured by the theme's status
- * tokens (success, warning, info), so every theme sets its own shades.
+ * Each status's icon and label, coloured by the theme's status tokens
+ * (success, warning, info), so every theme sets its own shades.
  */
 const STATUS_CONFIG: Record<SceneCommentStatus, { label: string; icon: string; colorClass: string; spin?: boolean }> = {
   draft: { label: "Draft", icon: "pencil", colorClass: "text-muted-foreground" },
@@ -65,20 +71,40 @@ const STATUS_CONFIG: Record<SceneCommentStatus, { label: string; icon: string; c
   completed: { label: "Completed", icon: "check-circle", colorClass: "text-success" },
 };
 
-function StatusBadge({ comment }: { comment: SceneReviewComment }) {
-  const config = STATUS_CONFIG[comment.status];
+/** "Completed in v2", "In progress": the status as words, for its tooltip and screen readers. */
+function statusLabel(status: SceneCommentStatus, version?: string): string {
+  const { label } = STATUS_CONFIG[status];
+  return status === "completed" && version ? `${label} in ${version}` : label;
+}
+
+/** A status as its icon alone; the label is its tooltip and accessible name. */
+function StatusIcon({
+  status,
+  version,
+  testId,
+  size = "sm",
+}: {
+  status: SceneCommentStatus;
+  version?: string;
+  testId?: string;
+  size?: "xs" | "sm";
+}) {
+  const config = STATUS_CONFIG[status];
+  const label = statusLabel(status, version);
   return (
-    <Badge
-      variant="secondary"
-      className="shrink-0 gap-1.5 rounded-full text-xs"
-      data-testid={`scene-comment-status-${comment.id}`}
-    >
-      <Icon name={config.icon} size="xs" className={cn(config.colorClass, config.spin && "animate-spin")} aria-hidden="true" />
-      <span className={config.colorClass}>
-        {config.label}
-        {comment.status === "completed" && comment.resultVersion ? ` · ${comment.resultVersion}` : ""}
-      </span>
-    </Badge>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span role="img" aria-label={label} className="inline-flex shrink-0" data-testid={testId}>
+          <Icon
+            name={config.icon}
+            size={size}
+            className={cn(config.colorClass, config.spin && "animate-spin")}
+            aria-hidden="true"
+          />
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -105,7 +131,7 @@ function CommentItem({
   comment: SceneReviewComment;
   onRemoveDraft?: (id: string) => void;
 }) {
-  const [showHistory, setShowHistory] = React.useState(false);
+  const [showReplies, setShowReplies] = React.useState(false);
   const history = comment.history ?? [];
   const canDelete = comment.status === "draft" && Boolean(onRemoveDraft);
 
@@ -123,47 +149,73 @@ function CommentItem({
           >
             {comment.sceneLabel ?? "Comment"}
           </span>
-          <StatusBadge comment={comment} />
+          <StatusIcon
+            status={comment.status}
+            version={comment.resultVersion}
+            testId={`scene-comment-status-${comment.id}`}
+          />
         </div>
 
         <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground/90">
           {comment.content}
         </p>
 
-        {/* Meta row: who and when, and the history toggle */}
+        {/* Meta row: who and when */}
         <div className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
           <span className="truncate">{comment.authorName}</span>
           <span aria-hidden>·</span>
           <time dateTime={comment.createdAt} title={comment.createdAt} className="shrink-0">
             {relativeTime(comment.createdAt)}
           </time>
-          {history.length > 0 && (
-            <>
-              <span aria-hidden>·</span>
-              <button
-                type="button"
-                className="shrink-0 underline-offset-2 hover:underline"
-                onClick={() => setShowHistory((v) => !v)}
-                data-testid={`btn-comment-history-${comment.id}`}
-              >
-                {showHistory ? "Hide history" : `History (${history.length})`}
-              </button>
-            </>
-          )}
         </div>
 
-        {showHistory && (
-          <ol className="mt-1 space-y-1 border-l border-border/60 pl-3" data-testid={`comment-history-${comment.id}`}>
+        {/* Replies: the steps taken on the comment, collapsed to a count until asked for */}
+        {history.length > 0 && (
+          <div className="mt-1 flex min-w-0 items-center gap-2 text-xs">
+            <button
+              type="button"
+              className="shrink-0 font-semibold text-primary underline-offset-2 hover:underline"
+              aria-expanded={showReplies}
+              onClick={() => setShowReplies((v) => !v)}
+              data-testid={`btn-comment-replies-${comment.id}`}
+            >
+              {showReplies
+                ? "Hide replies"
+                : `${history.length} ${history.length === 1 ? "reply" : "replies"}`}
+            </button>
+            {!showReplies && (
+              <span className="truncate text-muted-foreground">
+                Last reply {relativeTime(history[history.length - 1].at)}
+              </span>
+            )}
+          </div>
+        )}
+
+        {showReplies && (
+          <ol className="mt-1 space-y-2 border-l-2 border-border/60 pl-3" data-testid={`comment-replies-${comment.id}`}>
             {history.map((step, index) => (
-              <li key={`${step.status}-${step.at}-${index}`} className="text-xs text-muted-foreground">
-                <span className={cn("font-medium", STATUS_CONFIG[step.status].colorClass)}>{STATUS_CONFIG[step.status].label}</span>
-                {step.version ? ` · ${step.version}` : ""}
-                {step.by ? ` · ${step.by}` : ""}
-                {" · "}
-                <time dateTime={step.at} title={step.at}>
-                  {relativeTime(step.at)}
-                </time>
-                {step.note ? <span className="block text-foreground/70">{step.note}</span> : null}
+              <li key={`${step.status}-${step.at}-${index}`} className="flex flex-col gap-0.5 text-xs">
+                <div className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
+                  <span className="truncate font-medium text-foreground/80">{step.by ?? "Update"}</span>
+                  <StatusIcon status={step.status} version={step.version} size="xs" />
+                  {step.version ? <span className="shrink-0">{step.version}</span> : null}
+                  <span aria-hidden>·</span>
+                  <time dateTime={step.at} title={step.at} className="shrink-0">
+                    {relativeTime(step.at)}
+                  </time>
+                </div>
+                {/* The completed reply is the answer to the user: read as text, not as a muted note. */}
+                {step.note ? (
+                  <p
+                    className={cn(
+                      "whitespace-pre-wrap break-words",
+                      step.status === "completed" ? "text-sm leading-relaxed text-foreground" : "text-muted-foreground",
+                    )}
+                    data-testid={step.status === "completed" ? `comment-final-reply-${comment.id}` : undefined}
+                  >
+                    {step.note}
+                  </p>
+                ) : null}
               </li>
             ))}
           </ol>
@@ -243,8 +295,18 @@ export function SceneReviewSheet({
             </p>
           </div>
         ) : (
-          comments.map((comment) => (
-            <CommentItem key={comment.id} comment={comment} onRemoveDraft={onRemoveDraft} />
+          comments.map((comment, index) => (
+            <React.Fragment key={comment.id}>
+              {comment.group && comment.group !== comments[index - 1]?.group && (
+                <h3
+                  className="px-1 pt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground first:pt-0"
+                  data-testid={`scene-comment-group-${comment.group}`}
+                >
+                  {comment.group}
+                </h3>
+              )}
+              <CommentItem comment={comment} onRemoveDraft={onRemoveDraft} />
+            </React.Fragment>
           ))
         )}
       </div>
