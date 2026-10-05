@@ -11,7 +11,7 @@ import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 import type { SubAgent } from "@/components/composites/AgentIndicator";
 import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
-import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval } from "@/components/composites/ApprovalCard";
+import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval, QuestionOption } from "@/components/composites/ApprovalCard";
 import type { FormEvent } from "react";
 import type { UserMessageAttachment } from "@/components/composites/UserMessage";
 import { SessionHeader } from "@/components/composites/SessionHeader";
@@ -354,7 +354,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
       if (approvalRequest?.name === "ask_user" && approvalRequest.args.question) {
         return {
           question: approvalRequest.args.question as string,
-          options: approvalRequest.args.options as string[] | undefined,
+          options: approvalRequest.args.options as (string | QuestionOption)[] | undefined,
         };
       }
       return null;

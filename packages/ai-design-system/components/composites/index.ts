@@ -59,7 +59,8 @@ export type { ConfirmationProps } from './Confirmation'
 
 // ApprovalCard Composite
 export { ApprovalCard } from './ApprovalCard'
-export type { ApprovalCardProps, ActionRequest, ReviewConfig } from './ApprovalCard'
+export type { ApprovalCardProps, ActionRequest, ReviewConfig, QuestionOption, QuestionLayout, MediaOption, OptionMedia, MediaKind, MediaAspect } from './ApprovalCard'
+export { MediaOptionCarousel } from './ApprovalCard'
 
 // CommentBox Block
 export { CommentBox } from './CommentBox'

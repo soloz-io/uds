@@ -15,6 +15,7 @@ import {
   ConfirmationAction,
 } from "@/components/ai-elements/confirmation";
 import { StreamingMarkdown } from "@/components/composites/StreamingMarkdown";
+import { MediaOptionCarousel, type MediaOption, type OptionMedia } from "./MediaOptionCarousel";
 
 export interface ActionRequest {
   name: string;
@@ -82,11 +83,38 @@ function QuestionIcon({ className }: { className?: string }) {
   );
 }
 
+export interface QuestionOption {
+  label: string;
+  badge?: string | null;
+  description?: string | null;
+  media?: OptionMedia | null;
+}
+
+export type QuestionLayout = "list" | "carousel";
+
 interface Question {
   question: string;
-  options?: string[];
+  options?: (string | QuestionOption)[];
+  layout?: QuestionLayout;
   is_multi_select?: boolean;
 }
+
+/** A question with its options as labels (the answers) and as cards (what is shown). */
+interface ShownQuestion {
+  question: string;
+  options: string[];
+  cards: QuestionOption[];
+  layout: QuestionLayout;
+  is_multi_select?: boolean;
+}
+
+const asOption = (opt: unknown): QuestionOption =>
+  typeof opt === "string"
+    ? { label: opt.trim() }
+    : { ...(opt as QuestionOption), label: String((opt as QuestionOption)?.label ?? "").trim() };
+
+const isOtherLabel = (label: string) =>
+  label.toLowerCase() === "other" || label.toLowerCase() === "other (write your answer)";
 
 export const ApprovalCard = React.memo<ApprovalCardProps>(
   ({
@@ -151,29 +179,38 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
         {
           question: actionRequest.args.question,
           options: Array.isArray(actionRequest.args.options)
-            ? (actionRequest.args.options as string[])
+            ? (actionRequest.args.options as (string | QuestionOption)[])
             : [],
+          layout: actionRequest.args.layout as QuestionLayout | undefined,
           is_multi_select: !!actionRequest.args.is_multi_select,
         },
       ];
     }
 
-    const questions: Question[] = rawQuestions.map((q) => ({
-      ...q,
-      options: (Array.isArray(q.options) ? q.options : [])
-        .map((opt) => (typeof opt === "string" ? opt.trim() : ""))
-        .filter(
-          (opt) =>
-            opt.length > 0 &&
-            opt.toLowerCase() !== "other" &&
-            opt.toLowerCase() !== "other (write your answer)"
-        ),
-    }));
+    const questions: ShownQuestion[] = rawQuestions.map((q) => {
+      const layout: QuestionLayout = q.layout === "carousel" ? "carousel" : "list";
+      const cards = (Array.isArray(q.options) ? q.options : [])
+        .map(asOption)
+        .filter((opt) => opt.label.length > 0 && (layout === "carousel" || !isOtherLabel(opt.label)));
+      return {
+        question: q.question,
+        options: cards.map((c) => c.label),
+        cards,
+        layout,
+        is_multi_select: q.is_multi_select,
+      };
+    });
 
     const currentQuestion = questions[currentQuestionIndex];
     const options = currentQuestion?.options || [];
     const isMultiSelect = currentQuestion?.is_multi_select || false;
-    const allOptions = [...options, "Other (write your answer)"];
+    const isCarousel = currentQuestion?.layout === "carousel";
+    // A carousel is a choice among what is shown, so it has no free-text "Other".
+    const allOptions = isCarousel ? options : [...options, "Other (write your answer)"];
+    const carouselCards = isCarousel
+      ? currentQuestion.cards.filter((c): c is MediaOption => !!c.media)
+      : [];
+    const carouselBroken = isCarousel && (carouselCards.length === 0 || carouselCards.length !== currentQuestion.cards.length);
 
     // Auto-focus input when there are no predefined options (pure free-form question)
     useEffect(() => {
@@ -326,6 +363,25 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
           </ConfirmationTitle>
 
           {/* Options */}
+          {isCarousel ? (
+            carouselBroken ? (
+              <p className="mb-2 text-sm text-destructive" data-testid="approval-card-carousel-error">
+                This question can&apos;t be shown: every carousel option needs a preview.
+              </p>
+            ) : (
+              <MediaOptionCarousel
+                key={currentQuestionIndex}
+                className="mb-2"
+                options={carouselCards}
+                isSelected={(index) =>
+                  isMultiSelect
+                    ? ((selectedAnswers[currentQuestionIndex] as string[]) || []).includes(options[index])
+                    : selectedOptionIndices[currentQuestionIndex] === index
+                }
+                onSelect={(index) => handleOptionSelect(options[index], index, false)}
+              />
+            )
+          ) : (
           <div className="space-y-2.5 mb-2">
             {allOptions.map((option, index) => {
               const isOther = index === allOptions.length - 1;
@@ -421,6 +477,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
               );
             })}
           </div>
+          )}
 
           {isLastQuestion && (
             <ConfirmationActions>
@@ -441,7 +498,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
               <ConfirmationAction
                 type="button"
                 onClick={handleContinue}
-                disabled={isProcessing || (!isApprovalType && !allQuestionsAnswered)}
+                disabled={isProcessing || carouselBroken || (!isApprovalType && !allQuestionsAnswered)}
                 variant="default"
               >
                 <Icon name="check" size="sm" className="mr-2" />
