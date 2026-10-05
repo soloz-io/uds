@@ -96,6 +96,13 @@ export interface AIConversationProps
    */
   renderSystemMessage?: (content: string) => React.ReactNode
   /**
+   * Shows a user message as a notice: what it returns is rendered in the
+   * background-notice style, marked as the user's, instead of as a chat bubble.
+   * Undefined keeps the ordinary bubble. For requests an app sends in a
+   * structured form — the user-side counterpart of renderSystemMessage.
+   */
+  renderUserMessage?: (content: string) => React.ReactNode | undefined
+  /**
    * Callback fired when user restores a conversation checkpoint
    */
   onRestoreCheckpoint?: (messageId: string, checkpointId: string) => void
@@ -124,6 +131,7 @@ export const AIConversation = React.memo<AIConversationProps>(
     emptyState,
     onToolAction,
     renderSystemMessage,
+    renderUserMessage,
     onRestoreCheckpoint,
     onSaveWorkspace,
     isCurrentVersionSaved,
@@ -318,6 +326,19 @@ export const AIConversation = React.memo<AIConversationProps>(
           }
 
           if (message.role === "user") {
+            // A request the app recognises reads as a notice from the user,
+            // in the background-notice style, instead of a chat bubble.
+            const notice = renderUserMessage ? renderUserMessage(contentStr) : undefined
+            if (notice !== undefined && notice !== null) {
+              return (
+                <SystemMessage
+                  key={message.id}
+                  message={{ id: message.id, content: contentStr, avatarName: message.avatarName }}
+                  renderContent={() => notice}
+                  origin="user"
+                />
+              )
+            }
             return (
               <UserMessage
                 key={message.id}
@@ -473,7 +494,7 @@ export const AIConversation = React.memo<AIConversationProps>(
             </React.Fragment>
           )
         }),
-      [groupedMessages, showAvatars, onToolAction, onRestoreCheckpoint, onSaveWorkspace, isCurrentVersionSaved, isSavingWorkspace, lastReplyIndex]
+      [groupedMessages, showAvatars, onToolAction, onRestoreCheckpoint, onSaveWorkspace, isCurrentVersionSaved, isSavingWorkspace, lastReplyIndex, renderSystemMessage, renderUserMessage]
     )
 
     return (

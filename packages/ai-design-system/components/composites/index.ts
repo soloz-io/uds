@@ -231,7 +231,6 @@ export {
 } from './PromptInput'
 export type {
   PromptInputBlockProps,
-  PromptInputVariant,
   SpeechInputProps,
   PromptInputContextProps,
   PromptInputControllerProps,
@@ -321,5 +320,14 @@ export {
   SideSheetDescription,
 } from './SideSheet'
 export type { SideSheetProps } from './SideSheet'
+
+// SceneReviewSheet Composite
+export { SceneReviewSheet } from './SceneReviewSheet'
+export type {
+  SceneReviewSheetProps,
+  SceneReviewComment,
+  SceneCommentStatus,
+  SceneCommentHistoryStep,
+} from './SceneReviewSheet'
 
 

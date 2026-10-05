@@ -24,6 +24,7 @@ export type BadgeProps = React.ComponentProps<"span"> &
  *
  * Features:
  * - Multiple variants for different contexts (default, secondary, destructive, outline)
+ * - Status variants on the theme's status tokens: success, warning, info
  * - Flexible sizing and composition
  * - Dark mode support
  * - Can be rendered as a child element using asChild prop

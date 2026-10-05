@@ -3,8 +3,21 @@
 import * as React from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/primitives/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/primitives/DropdownMenu";
 import { Icon } from "@/components/primitives/Icon";
-import { PromptInput, type PromptInputVariant } from "@/components/composites/PromptInput";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/primitives/Select";
+import { PromptInput } from "@/components/composites/PromptInput";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +66,6 @@ export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   onStop?: () => void;
   enableSpeech?: boolean;
   enableAttachments?: boolean;
-  promptInputVariant?: PromptInputVariant;
   onPublish?: (currentStory: StorySegment, text?: string) => void;
   publishPlaceholder?: string;
   onStoryChange?: (storyIndex: number, story: StorySegment) => void;
@@ -62,7 +74,21 @@ export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   onCommentClick?: () => void;
   isCommentsOpen?: boolean;
   showPromptInput?: boolean;
+  /** Keeps the prompt visible but refuses sends, e.g. while a change is being made. */
+  promptDisabled?: boolean;
+  /** The segments are still being fetched: shows a loader instead of the empty state. */
+  isLoading?: boolean;
   itemLabel?: string;
+  /** Versions of the video the viewer can switch between, newest last. */
+  versions?: Array<{ id: string; label?: string }>;
+  /** The version playing (the one picked in the switcher). */
+  currentVersion?: string;
+  onVersionChange?: (versionId: string) => void;
+  versionDisabled?: boolean;
+  /** The version the video is set to; when another is playing, "Use" offers to switch to it. */
+  activeVersion?: string;
+  onUseVersion?: (versionId: string) => void;
+  useVersionDisabled?: boolean;
 }
 
 export type ScenePlayerProps = StoryPlayerProps;
@@ -97,7 +123,6 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       onStop,
       enableSpeech = false,
       enableAttachments = false,
-      promptInputVariant,
       onPublish,
       publishPlaceholder = "Ask a question or provide instructions...",
       onStoryChange,
@@ -106,7 +131,16 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       onCommentClick,
       isCommentsOpen,
       showPromptInput = true,
+      promptDisabled = false,
+      isLoading = false,
       itemLabel,
+      versions,
+      currentVersion,
+      onVersionChange,
+      versionDisabled = false,
+      activeVersion,
+      onUseVersion,
+      useVersionDisabled = false,
       className,
       ...props
     },
@@ -364,43 +398,12 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       }
     }, [activeSlot, isPlaying, isMuted]);
 
-    // Ensure idle video element actively loads and buffers upcoming segment
-    React.useEffect(() => {
-      if (items.length <= 1) return;
-      const idleVideo = activeSlot === 0 ? videoRef1.current : videoRef0.current;
-      const idleIndex = activeSlot === 0 ? slot1Index : slot0Index;
-      const idleUrl = getClipUrl(items[idleIndex]);
+    // The idle slot preloads the upcoming segment through its own <video src>,
+    // which React owns: a changed src starts the browser loading it, with
+    // preload="auto", and an unchanged one is left alone. Nothing further is
+    // fetched ahead — <link rel="prefetch"> downloads whole files that a <video>,
+    // reading by byte range, often cannot reuse, so clips were fetched twice.
 
-      if (idleVideo && idleUrl) {
-        if (idleVideo.src !== idleUrl) {
-          idleVideo.src = idleUrl;
-        }
-        idleVideo.preload = "auto";
-        idleVideo.load();
-      }
-    }, [activeSlot, slot0Index, slot1Index, items]);
-
-    // Prefetch upcoming clips into browser HTTP cache
-    React.useEffect(() => {
-      if (!items || items.length <= 2) return;
-      const toPrefetch = [
-        (currentStoryIndex + 2) % items.length,
-        (currentStoryIndex + 3) % items.length,
-      ];
-
-      toPrefetch.forEach((idx) => {
-        const url = getClipUrl(items[idx]);
-        if (url) {
-          const link = document.createElement("link");
-          link.rel = "prefetch";
-          link.href = url;
-          document.head.appendChild(link);
-          setTimeout(() => {
-            if (link.parentNode) link.parentNode.removeChild(link);
-          }, 15000);
-        }
-      });
-    }, [currentStoryIndex, items]);
 
     React.useEffect(() => {
       if (!items || items.length === 0) return;
@@ -455,7 +458,14 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
           data-testid="story-player"
           {...props}
         >
-          <p className="text-white/70 text-sm">No stories available</p>
+          {isLoading ? (
+            <div className="flex flex-col items-center gap-3" role="status" aria-live="polite" data-testid="story-player-loading">
+              <Icon name="loader-2" className="h-8 w-8 animate-spin text-white/80" />
+              <p className="text-white/70 text-sm">Loading video…</p>
+            </div>
+          ) : (
+            <p className="text-white/70 text-sm">No stories available</p>
+          )}
           {handleBack && (
             <Button
               variant="ghost"
@@ -530,13 +540,56 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
               </span>
               <span className="text-xs text-white/75 truncate">
                 {typeof currentLabel === "number"
-                  ? `${itemLabel ?? (scenes ? "Frame" : "Segment")} ${currentLabel} of ${items.length}`
+                  ? `${itemLabel ?? (scenes ? "Scene" : "Segment")} ${currentLabel} of ${items.length}`
                   : `${currentLabel} of ${items.length}`}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Version Switcher */}
+            {versions && versions.length > 0 && onVersionChange && (
+              <Select
+                value={currentVersion}
+                onValueChange={onVersionChange}
+                disabled={versionDisabled}
+              >
+                <SelectTrigger
+                  aria-label="Video version"
+                  data-testid="select-video-version"
+                  className="h-8 w-auto gap-1 rounded-full border-white/20 bg-black/40 px-3 text-xs text-white hover:bg-white/20"
+                >
+                  {/* The top bar shows just the id; the list keeps each version's full label. */}
+                  <SelectValue placeholder="Version">{currentVersion}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {versions.map((version) => (
+                    <SelectItem
+                      key={version.id}
+                      value={version.id}
+                      data-testid={`option-video-version-${version.id}`}
+                    >
+                      {version.label ?? version.id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {/* Use the version playing, when it is not the one the video is set to */}
+            {onUseVersion && currentVersion && activeVersion && currentVersion !== activeVersion && (
+              <Button
+                variant="ghost"
+                size="sm"
+                data-testid="btn-use-version"
+                disabled={useVersionDisabled}
+                onClick={() => onUseVersion(currentVersion)}
+                className="h-8 rounded-full bg-white/90 px-3 text-xs font-semibold text-black hover:bg-white"
+              >
+                Use {currentVersion}
+              </Button>
+            )}
+
             {/* Comments Toggle Button */}
             {onCommentClick && (
               <Button
@@ -562,41 +615,54 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
               </Button>
             )}
 
-            {/* Play/Pause Toggle Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              data-testid="btn-toggle-play"
-              aria-label={isPlaying ? "Pause story" : "Play story"}
-              onClick={togglePlay}
-              className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
-            >
-              <Icon name={isPlaying ? "pause" : "play"} className="w-4 h-4" />
-            </Button>
+            {/* Mute and download: buttons from md up; on mobile, in the more menu */}
+            <div className="hidden md:flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                data-testid="btn-toggle-mute"
+                aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+                onClick={toggleMute}
+                className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
+              >
+                <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
+              </Button>
 
-            {/* Mute/Unmute Toggle Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              data-testid="btn-toggle-mute"
-              aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-              onClick={toggleMute}
-              className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
-            >
-              <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                data-testid="btn-download"
+                aria-label="Download video"
+                onClick={handleDownload}
+                className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
+              >
+                <Icon name="download" className="w-4 h-4" />
+              </Button>
+            </div>
 
-            {/* Download Video Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              data-testid="btn-download"
-              aria-label="Download video"
-              onClick={handleDownload}
-              className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
-            >
-              <Icon name="download" className="w-4 h-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  data-testid="btn-more"
+                  aria-label="More options"
+                  className="md:hidden h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
+                >
+                  <Icon name="more-vertical" className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem data-testid="menu-toggle-mute" onSelect={toggleMute}>
+                  <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
+                  {isMuted ? "Unmute" : "Mute"}
+                </DropdownMenuItem>
+                <DropdownMenuItem data-testid="menu-download" onSelect={handleDownload}>
+                  <Icon name="download" className="w-4 h-4" />
+                  Download
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -636,13 +702,20 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
             />
           )}
 
-          {/* Invisible Interactive Tap Zones for Stepping Stories */}
+          {/* Invisible tap zones: left steps back, the middle plays and pauses, right steps on */}
           <div className="absolute inset-x-0 top-[60px] bottom-[70px] flex z-20">
             <Button
               variant="ghost"
               data-testid="btn-prev-story"
               aria-label="Previous story"
               onClick={handlePrev}
+              className="flex-1 h-full cursor-pointer bg-transparent hover:!bg-transparent p-0 rounded-none border-none focus-visible:ring-0 focus-visible:outline-none"
+            />
+            <Button
+              variant="ghost"
+              data-testid="btn-toggle-play"
+              aria-label={isPlaying ? "Pause story" : "Play story"}
+              onClick={togglePlay}
               className="flex-1 h-full cursor-pointer bg-transparent hover:!bg-transparent p-0 rounded-none border-none focus-visible:ring-0 focus-visible:outline-none"
             />
             <Button
@@ -670,7 +743,6 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
             }}
           >
             <PromptInput
-              variant={promptInputVariant}
               placeholder={placeholder || publishPlaceholder}
               value={promptValue}
               onChange={onPromptValueChange}
@@ -679,6 +751,7 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
               onStop={onStop}
               enableSpeech={enableSpeech}
               enableAttachments={enableAttachments}
+              disabled={promptDisabled}
             />
           </div>
         )}

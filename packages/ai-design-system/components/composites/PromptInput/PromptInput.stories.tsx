@@ -366,7 +366,6 @@ export const WithSpeechInput: Story = {
  */
 export const RowVariant: Story = {
   args: {
-    variant: "row",
     placeholder: "Ask a question or provide instructions...",
     onSubmit: (message) => {
       console.log("Submitted in row mode:", message);

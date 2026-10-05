@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { Icon } from "@/components/primitives/Icon"
 
 /**
  * SystemMessage composite
@@ -22,6 +23,12 @@ export interface SystemMessageProps {
    * (e.g., to detect media types and render audio players).
    */
   renderContent?: (content: string) => React.ReactNode
+  /**
+   * Where the notice came from. A background notice is the system's; a "user"
+   * notice is a request the user sent that the app shows as a notice rather than
+   * a chat bubble — marked so the two are never confused.
+   */
+  origin?: "system" | "user"
 }
 
 /**
@@ -90,7 +97,7 @@ function parseSystemMessageContent(content: string): React.ReactNode {
 }
 
 export const SystemMessage = React.memo<SystemMessageProps>(
-  ({ message, renderContent }) => {
+  ({ message, renderContent, origin = "system" }) => {
     if (!message.content || !message.content.trim()) {
       return null;
     }
@@ -104,11 +111,22 @@ export const SystemMessage = React.memo<SystemMessageProps>(
       <div className="flex w-full justify-center py-3">
         <div
           className={cn(
-            "flex items-center gap-2 rounded-lg px-4 py-2.5",
+            "flex gap-2 rounded-lg px-4 py-2.5",
             "bg-muted/60 text-muted-foreground text-sm",
-            "max-w-[85%]"
+            "max-w-[85%]",
+            origin === "user" ? "flex-col items-start border border-primary/25" : "items-center"
           )}
+          data-origin={origin}
         >
+          {origin === "user" && (
+            <span
+              className="flex items-center gap-1 text-xs font-medium text-primary"
+              data-testid="system-message-origin-user"
+            >
+              <Icon name="user" size="xs" aria-hidden="true" />
+              Your request
+            </span>
+          )}
           {contentNode}
         </div>
       </div>

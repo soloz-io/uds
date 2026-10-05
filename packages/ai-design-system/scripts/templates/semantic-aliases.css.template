@@ -19,6 +19,12 @@
     --accent: var(--color-theme-accent);
     --accent-foreground: var(--color-theme-accent-foreground);
     --destructive: var(--color-theme-destructive);
+    --success: var(--color-theme-success);
+    --success-foreground: var(--color-theme-success-foreground);
+    --warning: var(--color-theme-warning);
+    --warning-foreground: var(--color-theme-warning-foreground);
+    --info: var(--color-theme-info);
+    --info-foreground: var(--color-theme-info-foreground);
     --border: var(--color-theme-border);
     --input: var(--color-theme-input);
     --ring: var(--color-theme-ring);

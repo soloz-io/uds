@@ -3,7 +3,7 @@
 import * as React from "react";
 import { AIConversation } from "@/components/blocks/AIConversation";
 import { FileChangeQueue } from "@/components/blocks/FileChangeQueue";
-import { PromptInput, type PromptInputContextProps, type PromptInputVariant } from "@/components/composites/PromptInput";
+import { PromptInput, type PromptInputContextProps } from "@/components/composites/PromptInput";
 import { TaskQueue, type TaskItem } from "@/components/composites/TaskQueue";
 import { ApprovalCard } from "@/components/composites/ApprovalCard";
 import { cn } from "@/lib/utils";
@@ -160,6 +160,8 @@ export interface ChatPanelProps {
    * Receives the raw content string and returns a ReactNode.
    */
   renderSystemMessage?: (content: string) => React.ReactNode;
+  /** Shows a user message as a user-origin notice; undefined keeps the chat bubble. */
+  renderUserMessage?: (content: string) => React.ReactNode | undefined;
   /**
    * Callback fired when user restores a conversation checkpoint
    */
@@ -197,15 +199,8 @@ export interface ChatPanelProps {
    */
   onTaskClick?: (task: TaskItem) => void;
   /**
-   * Layout variant for PromptInput:
-   * - "default": multi-line textarea with toolbar buttons below (attachment, mic)
-   * - "row" | "inline": single row where input box and send button are side-by-side without tools icons
-   * @default "default"
-   */
-  promptInputVariant?: PromptInputVariant;
-  /**
    * Whether to enable the attachment button in prompt
-   * @default true for default variant, false for row variant
+   * @default true
    */
   enableAttachments?: boolean;
   /**
@@ -302,6 +297,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onSelectSession,
     onDownloadSession,
     renderSystemMessage,
+    renderUserMessage,
     onRestoreCheckpoint,
     onSaveWorkspace,
     isCurrentVersionSaved,
@@ -313,8 +309,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onTaskRetry,
     onTaskStopAll,
     onTaskClick,
-    promptInputVariant = "default",
-    enableAttachments,
+    enableAttachments = true,
     enableSpeech = true,
     showHeader = true,
     sessionTitle,
@@ -506,6 +501,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           showAvatars={true}
           onToolAction={onToolAction}
           renderSystemMessage={renderSystemMessage}
+          renderUserMessage={renderUserMessage}
           onRestoreCheckpoint={onRestoreCheckpoint}
           onSaveWorkspace={onSaveWorkspace}
           isCurrentVersionSaved={isCurrentVersionSaved}
@@ -525,7 +521,6 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             />
           )}
           <PromptInput
-            variant={promptInputVariant}
             dialog={dialog}
             placeholder={placeholder}
             value={promptValue}
@@ -540,7 +535,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
               "border border-neutral-600 bg-background shadow-sm overflow-hidden",
               tasks.length > 0 && !dialog
                 ? "rounded-t-none rounded-b-2xl border-t-0"
-                : "rounded-2xl"
+                : "rounded-full"
             )}
           />
         </div>

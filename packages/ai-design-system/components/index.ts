@@ -50,9 +50,14 @@ export {
   SideSheetFooter,
   SideSheetTitle,
   SideSheetDescription,
+  SceneReviewSheet,
 } from './composites';
 export type {
   SideSheetProps,
+  SceneReviewSheetProps,
+  SceneReviewComment,
+  SceneCommentStatus,
+  SceneCommentHistoryStep,
   AccountDialogProps,
   AccountButtonProps,
   AccountUser,
@@ -75,7 +80,6 @@ export type {
   AppBreadcrumbProps,
   BreadcrumbItemData,
   PromptInputBlockProps,
-  PromptInputVariant,
   PromptInputContextProps,
   PromptInputControllerProps,
   AttachmentsContext,

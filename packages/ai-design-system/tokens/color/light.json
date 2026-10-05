@@ -16,6 +16,12 @@
       "accent": { "$value": "oklch(0.97 0 0)", "$type": "color" },
       "accent-foreground": { "$value": "oklch(0.205 0 0)", "$type": "color" },
       "destructive": { "$value": "oklch(0.577 0.245 27.325)", "$type": "color" },
+      "success": { "$value": "oklch(0.627 0.194 149.214)", "$type": "color" },
+      "success-foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "warning": { "$value": "oklch(0.666 0.179 58.318)", "$type": "color" },
+      "warning-foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
+      "info": { "$value": "oklch(0.546 0.245 262.881)", "$type": "color" },
+      "info-foreground": { "$value": "oklch(0.985 0 0)", "$type": "color" },
       "border": { "$value": "oklch(0.922 0 0)", "$type": "color" },
       "input": { "$value": "oklch(0.922 0 0)", "$type": "color" },
       "ring": { "$value": "oklch(0.708 0 0)", "$type": "color" }

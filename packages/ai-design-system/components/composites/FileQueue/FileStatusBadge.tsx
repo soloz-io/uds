@@ -28,22 +28,22 @@ const statusConfig: Record<
   pending: {
     label: "Pending",
     icon: "loader-2",
-    colorClass: "text-yellow-600 dark:text-yellow-500",
+    colorClass: "text-warning",
   },
   modified: {
     label: "Modified",
     icon: "file-text",
-    colorClass: "text-blue-600 dark:text-blue-500",
+    colorClass: "text-info",
   },
   created: {
     label: "Created",
     icon: "plus",
-    colorClass: "text-green-600 dark:text-green-500",
+    colorClass: "text-success",
   },
   deleted: {
     label: "Deleted",
     icon: "x",
-    colorClass: "text-red-600 dark:text-red-500",
+    colorClass: "text-destructive",
   },
 };
 
