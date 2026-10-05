@@ -66,14 +66,38 @@ export interface PromptInputBlockProps
   attachIcon?: "paperclip" | "plus";
 }
 
-export const PromptInput = React.memo<PromptInputBlockProps>(
+export const PromptInput = React.memo<PromptInputBlockProps>((props) => {
+  const { dialog, value } = props;
+  const existingController = useOptionalPromptInputController();
+
+  if (dialog) {
+    return <>{dialog}</>;
+  }
+
+  if (existingController) {
+    return (
+      <>
+        <ExternalValueSync value={value} />
+        <PromptInputInner {...props} />
+      </>
+    );
+  }
+
+  return (
+    <PromptInputProvider initialInput={value ?? ""}>
+      <ExternalValueSync value={value} />
+      <PromptInputInner {...props} />
+    </PromptInputProvider>
+  );
+});
+
+const PromptInputInner = React.memo<PromptInputBlockProps>(
   ({
     disabled = false,
     placeholder,
     value,
     onChange,
     onSubmit,
-    dialog,
     loading = false,
     onStop,
     context,
@@ -93,7 +117,8 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
     const showAttachments = enableAttachments;
     const showSpeech = enableSpeech;
 
-    const existingController = useOptionalPromptInputController();
+    const attachments = usePromptInputAttachments();
+    const hasAttachments = showAttachments && attachments.files.length > 0;
 
     const handleSubmit = React.useCallback(
       (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => {
@@ -120,13 +145,24 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
       [onChange]
     );
 
-    if (dialog) {
-      return <>{dialog}</>;
-    }
-
     const isStopping = loading && Boolean(onStop);
 
-    const promptInputContent = (
+    // When attachments are present, replace any forced rounded-full with rounded-2xl
+    let resolvedClassName = className;
+    if (hasAttachments && resolvedClassName) {
+      resolvedClassName = resolvedClassName.replace(/\brounded-full\b/g, "rounded-2xl");
+    }
+
+    const formClassName = cn(
+      hasAttachments
+        ? "min-h-[96px] rounded-2xl [&>[data-slot=input-group]]:min-h-[96px] [&>[data-slot=input-group]]:rounded-2xl [&>[data-slot=input-group]]:flex-col [&>[data-slot=input-group]]:items-stretch"
+        : "min-h-[52px] [&>[data-slot=input-group]]:min-h-[52px] [&>[data-slot=input-group]]:rounded-full",
+      resolvedClassName?.includes("border") &&
+        "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
+      resolvedClassName
+    );
+
+    return (
       <AIPromptInput
         onSubmit={handleSubmit}
         accept={accept}
@@ -134,78 +170,105 @@ export const PromptInput = React.memo<PromptInputBlockProps>(
         maxFiles={maxFiles}
         maxFileSize={maxFileSize}
         onError={onError}
-        className={cn(
-          "min-h-[52px] [&>[data-slot=input-group]]:min-h-[52px] [&>[data-slot=input-group]]:rounded-full [&>[data-slot=input-group]:has([data-align=block-start])]:rounded-2xl",
-          className?.includes("border") &&
-          "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
-          className
-        )}
+        className={formClassName}
         {...props}
       >
-        {showAttachments && <AttachmentPreviews />}
-        {showAttachments && (
-          <InputGroupAddon align="inline-start" className="self-center flex items-center shrink-0 !pl-2.5 !ml-0 pr-1.5 py-0">
-            <AttachButton disabled={disabled || loading} icon={attachIcon} />
-          </InputGroupAddon>
-        )}
-        <PromptInputTextarea
-          placeholder={placeholder}
-          disabled={disabled}
-          onChange={isControlled ? handleControlledChange : undefined}
-          className={cn(
-            "min-h-[36px] py-2 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content self-center",
-            showAttachments ? "pl-1.5 pr-2" : "pl-6 pr-2"
-          )}
-        />
-        <InputGroupAddon align="inline-end" className="self-center flex items-center gap-1.5 shrink-0 !pr-2.5 !mr-0 py-0">
-          {tools}
-          {context ? (
-            <PromptInputContextIndicator
-              context={context}
-              disabled={disabled || loading}
+        {hasAttachments ? (
+          <>
+            <AttachmentPreviews />
+            <PromptInputTextarea
+              placeholder={placeholder}
+              disabled={disabled}
+              onChange={isControlled ? handleControlledChange : undefined}
+              className="w-full px-3.5 py-1.5 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content min-h-[40px] max-h-48"
             />
-          ) : null}
-          {showSpeech && (
-            <SpeechInput
-              disabled={disabled || loading}
-              {...speechProps}
-            />
-          )}
-          <PromptInputSubmit
-            disabled={disabled || (loading && !onStop)}
-            status={loading ? (onStop ? "streaming" : "submitted") : undefined}
-            onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
-            className={cn(
-              "h-8 w-8 rounded-full text-white transition-colors shrink-0 p-0 flex items-center justify-center",
-              isStopping && "bg-transparent hover:bg-accent"
+            <div
+              data-align="block-end"
+              className="w-full flex items-center justify-between px-2.5 pb-2 pt-1 border-0 bg-transparent"
+            >
+              <div className="flex items-center gap-1.5">
+                {showAttachments && (
+                  <AttachButton disabled={disabled || loading} icon={attachIcon} />
+                )}
+                {tools}
+                {context ? (
+                  <PromptInputContextIndicator
+                    context={context}
+                    disabled={disabled || loading}
+                  />
+                ) : null}
+              </div>
+              <div className="flex items-center gap-1.5">
+                {showSpeech && (
+                  <SpeechInput
+                    disabled={disabled || loading}
+                    {...speechProps}
+                  />
+                )}
+                <PromptInputSubmit
+                  disabled={disabled || (loading && !onStop)}
+                  status={loading ? (onStop ? "streaming" : "submitted") : undefined}
+                  onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
+                  className={cn(
+                    "h-8 w-8 rounded-full text-white transition-colors shrink-0 p-0 flex items-center justify-center",
+                    isStopping && "bg-transparent hover:bg-accent"
+                  )}
+                >
+                  {loading ? undefined : <Icon name="arrow-up" size="sm" />}
+                </PromptInputSubmit>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {showAttachments && (
+              <InputGroupAddon align="inline-start" className="self-center flex items-center shrink-0 !pl-2.5 !ml-0 pr-1.5 py-0">
+                <AttachButton disabled={disabled || loading} icon={attachIcon} />
+              </InputGroupAddon>
             )}
-          >
-            {loading ? undefined : <Icon name="arrow-up" size="sm" />}
-          </PromptInputSubmit>
-        </InputGroupAddon>
+            <PromptInputTextarea
+              placeholder={placeholder}
+              disabled={disabled}
+              onChange={isControlled ? handleControlledChange : undefined}
+              className={cn(
+                "min-h-[36px] py-2 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content self-center",
+                showAttachments ? "pl-1.5 pr-2" : "pl-6 pr-2"
+              )}
+            />
+            <InputGroupAddon align="inline-end" className="self-center flex items-center gap-1.5 shrink-0 !pr-2.5 !mr-0 py-0">
+              {tools}
+              {context ? (
+                <PromptInputContextIndicator
+                  context={context}
+                  disabled={disabled || loading}
+                />
+              ) : null}
+              {showSpeech && (
+                <SpeechInput
+                  disabled={disabled || loading}
+                  {...speechProps}
+                />
+              )}
+              <PromptInputSubmit
+                disabled={disabled || (loading && !onStop)}
+                status={loading ? (onStop ? "streaming" : "submitted") : undefined}
+                onClick={isStopping ? (e: React.MouseEvent) => { e.preventDefault(); onStop?.(); } : undefined}
+                className={cn(
+                  "h-8 w-8 rounded-full text-white transition-colors shrink-0 p-0 flex items-center justify-center",
+                  isStopping && "bg-transparent hover:bg-accent"
+                )}
+              >
+                {loading ? undefined : <Icon name="arrow-up" size="sm" />}
+              </PromptInputSubmit>
+            </InputGroupAddon>
+          </>
+        )}
       </AIPromptInput>
     );
-
-    if (isControlled) {
-      if (existingController) {
-        return (
-          <>
-            <ExternalValueSync value={value} />
-            {promptInputContent}
-          </>
-        );
-      }
-      return (
-        <PromptInputProvider initialInput={value}>
-          <ExternalValueSync value={value} />
-          {promptInputContent}
-        </PromptInputProvider>
-      );
-    }
-
-    return promptInputContent;
   }
 );
+
+PromptInputInner.displayName = "PromptInputInner";
 
 /**
  * The attach toolbar button — opens the native file picker via the attachments
@@ -242,8 +305,8 @@ function AttachmentPreviews() {
   const attachments = usePromptInputAttachments();
   if (!attachments.files.length) return null;
   return (
-    <InputGroupAddon align="block-start" className="w-full justify-start px-4 pt-3 pb-0 border-0 bg-transparent">
-      <PromptInputAttachments className="w-full justify-start self-start px-0 pt-0">
+    <InputGroupAddon align="block-start" className="w-full justify-start px-3.5 pt-3 pb-1 border-0 bg-transparent">
+      <PromptInputAttachments className="w-full justify-start self-start px-0 pt-0 gap-2">
         {(attachment) => <PromptInputAttachment data={attachment} />}
       </PromptInputAttachments>
     </InputGroupAddon>

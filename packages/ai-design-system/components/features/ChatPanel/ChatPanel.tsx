@@ -535,7 +535,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
               "border border-neutral-600 bg-background shadow-sm overflow-hidden",
               tasks.length > 0 && !dialog
                 ? "rounded-t-none rounded-b-2xl border-t-0"
-                : "rounded-full"
+                : "rounded-full has-[[data-align=block-start]]:rounded-2xl"
             )}
           />
         </div>
