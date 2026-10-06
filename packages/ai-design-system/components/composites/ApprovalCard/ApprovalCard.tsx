@@ -297,6 +297,10 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
               ? current.filter((o) => o !== option)
               : [...current, option];
             setSelectedAnswers((prev) => ({ ...prev, [currentQuestionIndex]: updated }));
+          } else if (selectedOptionIndices[currentQuestionIndex] === index) {
+            // Choosing the selected option again takes the choice back.
+            setSelectedOptionIndices((prev) => ({ ...prev, [currentQuestionIndex]: null }));
+            setSelectedAnswers((prev) => ({ ...prev, [currentQuestionIndex]: "" }));
           } else {
             setSelectedOptionIndices((prev) => ({ ...prev, [currentQuestionIndex]: index }));
             setSelectedAnswers((prev) => ({ ...prev, [currentQuestionIndex]: option }));

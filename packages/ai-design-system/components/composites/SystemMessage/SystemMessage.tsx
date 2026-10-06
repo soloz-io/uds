@@ -45,9 +45,9 @@ export function renderMediaOutput(
 ): React.ReactNode {
   if (mediaType?.startsWith('audio/')) {
     return (
-      <div className="flex flex-col items-center gap-2 w-full">
-        {title && <span className="text-xs text-muted-foreground">{title}</span>}
-        <audio controls className="w-full min-w-[240px] max-w-[360px] h-8">
+      <div className="flex flex-col items-start gap-2 w-full max-w-[360px]">
+        {title && <span className="text-xs text-muted-foreground break-words">{title}</span>}
+        <audio controls className="w-full max-w-full h-8">
           <source src={url} type={mediaType} />
           Your browser does not support the audio element.
         </audio>
@@ -56,9 +56,9 @@ export function renderMediaOutput(
   }
   if (mediaType?.startsWith('video/')) {
     return (
-      <div className="flex flex-col items-center gap-2">
-        {title && <span className="text-xs text-muted-foreground">{title}</span>}
-        <video controls className="w-full max-w-[360px] rounded-md shadow-sm">
+      <div className="flex flex-col items-start gap-2 w-full max-w-[360px]">
+        {title && <span className="text-xs text-muted-foreground break-words">{title}</span>}
+        <video controls playsInline className="w-full max-w-full rounded-lg shadow-sm">
           <source src={url} type={mediaType} />
           Your browser does not support the video element.
         </video>
@@ -67,9 +67,9 @@ export function renderMediaOutput(
   }
   if (mediaType?.startsWith('image/')) {
     return (
-      <div className="flex flex-col items-center gap-2">
-        {title && <span className="text-xs text-muted-foreground">{title}</span>}
-        <img src={url} alt={title || 'Image output'} className="max-w-[360px] rounded-md shadow-sm" />
+      <div className="flex flex-col items-start gap-2 w-full max-w-[360px]">
+        {title && <span className="text-xs text-muted-foreground break-words">{title}</span>}
+        <img src={url} alt={title || 'Image output'} className="w-full max-w-full rounded-lg object-contain shadow-sm" />
       </div>
     )
   }
@@ -111,10 +111,10 @@ export const SystemMessage = React.memo<SystemMessageProps>(
       <div className="flex w-full justify-center py-3">
         <div
           className={cn(
-            "flex gap-2 rounded-lg px-4 py-2.5",
-            "bg-muted/60 text-muted-foreground text-sm",
-            "max-w-[85%]",
-            origin === "user" ? "flex-col items-start border border-primary/25" : "items-center"
+            "flex flex-col gap-2 rounded-2xl px-4 py-3",
+            "bg-muted/80 text-foreground text-sm",
+            "max-w-[85%] w-fit overflow-hidden",
+            origin === "user" ? "items-start border border-primary/25" : "items-start"
           )}
           data-origin={origin}
         >
