@@ -3,6 +3,7 @@ import {
   Conversation,
   ConversationContent,
   ConversationEmptyState,
+  ConversationOlderMessages,
   ConversationScrollButton,
   type ConversationProps,
 } from "@/components/ai-elements/conversation"
@@ -103,6 +104,15 @@ export interface AIConversationProps
    */
   renderUserMessage?: (content: string) => React.ReactNode | undefined
   /**
+   * Older messages exist above the first one shown: scrolling to the top calls
+   * `onLoadOlder`, and the view stays in place as they arrive.
+   */
+  hasOlder?: boolean
+  /** A page of older messages is being loaded */
+  loadingOlder?: boolean
+  /** Load the page before the first message shown */
+  onLoadOlder?: () => void
+  /**
    * Callback fired when user restores a conversation checkpoint
    */
   onRestoreCheckpoint?: (messageId: string, checkpointId: string) => void
@@ -132,6 +142,9 @@ export const AIConversation = React.memo<AIConversationProps>(
     onToolAction,
     renderSystemMessage,
     renderUserMessage,
+    hasOlder = false,
+    loadingOlder = false,
+    onLoadOlder,
     onRestoreCheckpoint,
     onSaveWorkspace,
     isCurrentVersionSaved,
@@ -308,10 +321,8 @@ export const AIConversation = React.memo<AIConversationProps>(
           const contentStr = toMessageString(message.content)
 
           // Render based on role field
+          // Notices with nothing to show never reach here (conversation view).
           if (message.role === "system") {
-            if (!contentStr || !contentStr.trim()) {
-              return null;
-            }
             return (
               <SystemMessage
                 key={message.id}
@@ -361,12 +372,10 @@ export const AIConversation = React.memo<AIConversationProps>(
             // Extract sub-agents from the message
             const subAgents = message.subAgents || []
 
-            // Filter tool calls that aren't "task" type (those become sub-agents)
-            // Also completely hide "ask_user" and "ask_question" tools so they are ONLY rendered in the prompt input area
-            const allToolCalls =
-              message.toolCalls?.filter(
-                (tc) => tc.name !== "task" && tc.name !== "ask_user"
-              ) || []
+            // Which tool calls a message shows is decided before it reaches
+            // this component (waypoint-ui-streaming's conversation view): the
+            // question card's own call and specialist hand-offs are not here.
+            const allToolCalls = message.toolCalls || []
 
             // Split into reasoning tools (shown collapsed) and direct tools (shown normally)
             const reasoningCalls = allToolCalls.filter((tc) => tc.visibility === "reasoning")
@@ -500,6 +509,14 @@ export const AIConversation = React.memo<AIConversationProps>(
     return (
       <Conversation {...conversationProps}>
         <ConversationContent>
+          {onLoadOlder && (
+            <ConversationOlderMessages
+              hasOlder={hasOlder}
+              loading={loadingOlder}
+              onLoadOlder={onLoadOlder}
+              messageCount={messages.length}
+            />
+          )}
           {isEmpty ? (
             <ConversationEmptyState
               title={emptyStateTitle}

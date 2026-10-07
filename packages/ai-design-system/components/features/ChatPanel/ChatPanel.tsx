@@ -162,6 +162,12 @@ export interface ChatPanelProps {
   renderSystemMessage?: (content: string) => React.ReactNode;
   /** Shows a user message as a user-origin notice; undefined keeps the chat bubble. */
   renderUserMessage?: (content: string) => React.ReactNode | undefined;
+  /** Older messages exist above the first one shown (only the latest page is loaded). */
+  hasOlderMessages?: boolean;
+  /** A page of older messages is being loaded. */
+  loadingOlderMessages?: boolean;
+  /** Load the page before the first message shown; called when the top scrolls into view. */
+  onLoadOlderMessages?: () => void;
   /**
    * Callback fired when user restores a conversation checkpoint
    */
@@ -298,6 +304,9 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onDownloadSession,
     renderSystemMessage,
     renderUserMessage,
+    hasOlderMessages,
+    loadingOlderMessages,
+    onLoadOlderMessages,
     onRestoreCheckpoint,
     onSaveWorkspace,
     isCurrentVersionSaved,
@@ -502,6 +511,9 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           onToolAction={onToolAction}
           renderSystemMessage={renderSystemMessage}
           renderUserMessage={renderUserMessage}
+          hasOlder={hasOlderMessages}
+          loadingOlder={loadingOlderMessages}
+          onLoadOlder={onLoadOlderMessages}
           onRestoreCheckpoint={onRestoreCheckpoint}
           onSaveWorkspace={onSaveWorkspace}
           isCurrentVersionSaved={isCurrentVersionSaved}
