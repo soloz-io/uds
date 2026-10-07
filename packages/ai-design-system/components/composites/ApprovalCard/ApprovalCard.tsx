@@ -55,7 +55,6 @@ export interface ApprovalCardProps {
    * question shows the file's name as a link; without it, or when the question
    * names no file, nothing is shown.
    */
-  onOpenFile?: (path: string) => void;
 }
 
 function formatValue(value: unknown): string {
@@ -127,19 +126,12 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     state = "approval-requested",
     approval = {},
     className,
-    onOpenFile,
   }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [prevArgs, setPrevArgs] = useState(actionRequest.args);
     const [editedArgs, setEditedArgs] = useState<Record<string, unknown>>(() => actionRequest.args);
     const [rejectReason, setRejectReason] = useState("");
     const [showRejectInput, setShowRejectInput] = useState(false);
-
-    // The file the question is about, when the asker named one.
-    const questionFile =
-      typeof actionRequest.args?.file_path === "string" && actionRequest.args.file_path.trim()
-        ? actionRequest.args.file_path
-        : null;
 
     const hideSkipButton = (actionRequest.args?.hide_skip_button as boolean) ?? false;
     const submitButtonText = (actionRequest.args?.button_submit_text as string) || 'Continue';
@@ -322,18 +314,6 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                   <StreamingMarkdown controls={false}>
                     {currentQuestion.question}
                   </StreamingMarkdown>
-                  {questionFile && onOpenFile && (
-                    <Button
-                      type="button"
-                      variant="link"
-                      onClick={() => onOpenFile(questionFile)}
-                      className="mt-2 h-auto p-0 inline-flex max-w-full items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-                      data-testid="approval-card-file-link"
-                    >
-                      <Icon name="file-text" className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">{questionFile.split("/").pop()}</span>
-                    </Button>
-                  )}
                 </div>
               </div>
               {questions.length > 1 && (

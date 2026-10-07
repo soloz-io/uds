@@ -95,8 +95,6 @@ export interface ChatPanelProps {
    * Handler to edit HITL approval request arguments
    */
   onApprovalEdit?: (editedArgs: Record<string, unknown>) => void;
-  /** Opens the file a pending question is about (its `file_path`). The card shows the link only when this is given. */
-  onOpenFile?: (path: string) => void;
   /**
    * Processing state for HITL approval request
    */
@@ -287,7 +285,6 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onApprovalApprove,
     onApprovalReject,
     onApprovalEdit,
-    onOpenFile,
     isApprovalProcessing = false,
     loading = false,
     onStop,
@@ -453,7 +450,6 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             isProcessing={isApprovalProcessing}
             state={approvalCardState}
             approval={approvalCardApproval}
-            onOpenFile={onOpenFile}
           />
         </div>
       );

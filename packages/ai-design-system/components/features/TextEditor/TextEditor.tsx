@@ -378,9 +378,12 @@ export const TextEditor = React.memo<TextEditorProps>(
                 doc.file.name === targetId
               )
             })
-            if (matchedDoc) {
-              targetId = matchedDoc.file.id
-            }
+            // A link switches to a file only when its tab is open: files are
+            // opened from the file tree alone.
+            if (!matchedDoc) return
+            targetId = matchedDoc.file.id
+          } else {
+            return
           }
 
           if (handleTabSelect) {
