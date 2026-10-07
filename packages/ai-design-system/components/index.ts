@@ -41,6 +41,7 @@ export {
   SiteHeader,
   AnnouncementBanner,
   SolutionsLayout,
+  FeatureCard,
   SideSheet,
   SideSheetRoot,
   SideSheetTrigger,
@@ -106,6 +107,8 @@ export type {
   AnnouncementBannerProps,
   SolutionsLayoutProps,
   SolutionTab,
+  FeatureCardProps,
+  FeatureCardAction,
 } from './composites';
 
 export {
@@ -115,11 +118,13 @@ export {
   SectionLayout,
   ExpoAppPreview,
   HeroSection,
+  FeatureSection,
 } from './blocks';
 export type {
   SectionLayoutSection,
   ExpoAppPreviewProps,
   HeroSectionProps,
+  FeatureSectionProps,
 } from './blocks';
 
 // NavigationMenu and Primitives

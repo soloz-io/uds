@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Button } from "@/components/primitives/Button"
+import { FeatureCard } from "@/components/composites/FeatureCard"
 import { cn } from "@/lib/utils"
 import type { SolutionsLayoutProps } from "./interfaces"
 
@@ -91,39 +92,16 @@ export const SolutionsLayout = React.memo<SolutionsLayoutProps>(
           </div>
         )}
 
-        {/* 50/50 Split panel — plain div, no border */}
+        {/* 50/50 Split Card */}
         {activeTab && (
-          <div className="flex flex-col md:flex-row overflow-hidden rounded-3xl min-h-[460px] shadow-sm w-full bg-card/60">
-            {/* Left pane: text */}
-            <div className="flex flex-col justify-center gap-4 flex-1 p-8 md:p-12 bg-card/60">
-              {activeTab.category && (
-                <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
-                  {activeTab.category}
-                </div>
-              )}
-              <h2 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight text-foreground">
-                {activeTab.headline}
-              </h2>
-              <p className="text-sm md:text-base leading-relaxed text-muted-foreground max-w-md">
-                {activeTab.body}
-              </p>
-            </div>
-
-            {/* Right pane: image fills entirely */}
-            <div className="flex-1 bg-muted/40 overflow-hidden">
-              {activeTab.imageSrc ? (
-                <img
-                  src={activeTab.imageSrc}
-                  alt={activeTab.imageAlt || activeTab.label}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex items-center justify-center w-full h-full text-muted-foreground text-sm">
-                  Preview
-                </div>
-              )}
-            </div>
-          </div>
+          <FeatureCard
+            category={activeTab.category}
+            headline={activeTab.headline}
+            body={activeTab.body}
+            imageSrc={activeTab.imageSrc}
+            imageAlt={activeTab.imageAlt || activeTab.label}
+            mediaPosition="right"
+          />
         )}
 
         {/* Navigation footer: Previous / Next */}

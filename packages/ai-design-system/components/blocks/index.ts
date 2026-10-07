@@ -43,3 +43,7 @@ export type { EvalSessionDetailsPanelProps, EvalSessionDetails } from './EvalSes
 // Generic Page Blocks
 export { HeroSection } from './HeroSection'
 export type { HeroSectionProps } from './HeroSection'
+
+export { FeatureSection } from './FeatureSection'
+export type { FeatureSectionProps } from './FeatureSection'
+

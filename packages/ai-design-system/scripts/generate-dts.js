@@ -317,7 +317,11 @@ import type { Node, Connection, EdgeChange, NodeChange, OnConnectStartParams } f
     const components = extractComponents(filePath);
     for (const componentName of components) {
       const propsInterfaceName = `${componentName}Props`;
-      if (content.includes(`interface ${propsInterfaceName}`) || content.includes(`export interface ${propsInterfaceName}`)) {
+      if (
+        dtsContent.includes(`interface ${propsInterfaceName}`) ||
+        content.includes(`interface ${propsInterfaceName}`) ||
+        content.includes(`export interface ${propsInterfaceName}`)
+      ) {
         dtsContent += `export const ${componentName}: React.FC<${propsInterfaceName}>;\n`;
       } else {
         dtsContent += `export const ${componentName}: React.FC<any>;\n`;
@@ -343,7 +347,7 @@ import type { Node, Connection, EdgeChange, NodeChange, OnConnectStartParams } f
       if (exportMatch) {
         const fromPath = exportMatch[2];
         // Only what a consumer can resolve: an installed package. A relative
-        // path or the `@/` alias points into this repo's own source, which the
+        // path or the \`@/\` alias points into this repo's own source, which the
         // published package does not carry -- re-exporting from it gives the
         // consumer a name with no declaration behind it. Those are declared by
         // hand below (see UTILITIES).
@@ -362,6 +366,7 @@ import type { Node, Connection, EdgeChange, NodeChange, OnConnectStartParams } f
 export declare const SectionLayout: React.FC<SectionLayoutProps>;
 export declare const WorkflowCanvas: React.FC<WorkflowCanvasProps>;
 export declare const HeroSection: React.FC<HeroSectionProps>;
+export declare const FeatureSection: React.FC<FeatureSectionProps>;
 export declare const SiteHeader: React.FC<SiteHeaderProps>;
 export declare const AnnouncementBanner: React.FC<AnnouncementBannerProps>;
 export declare const SolutionsLayout: React.FC<SolutionsLayoutProps>;

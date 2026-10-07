@@ -308,6 +308,9 @@ export type { AnnouncementBannerProps } from './AnnouncementBanner'
 export { SolutionsLayout } from './SolutionsLayout'
 export type { SolutionsLayoutProps, SolutionTab } from './SolutionsLayout'
 
+export { FeatureCard } from './FeatureCard'
+export type { FeatureCardProps, FeatureCardAction } from './FeatureCard'
+
 // SideSheet Composite
 export {
   SideSheet,
