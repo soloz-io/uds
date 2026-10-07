@@ -52,8 +52,12 @@ export {
   SideSheetTitle,
   SideSheetDescription,
   SceneReviewSheet,
+  ShareDialog,
 } from './composites';
 export type {
+  ShareDialogProps,
+  ShareItem,
+  ExpiryDuration,
   SideSheetProps,
   SceneReviewSheetProps,
   SceneReviewComment,

@@ -334,4 +334,8 @@ export type {
   SceneCommentHistoryStep,
 } from './SceneReviewSheet'
 
+// ShareDialog Composite
+export { ShareDialog } from './ShareDialog'
+export type { ShareDialogProps, ShareItem, ExpiryDuration } from './ShareDialog'
+
 
