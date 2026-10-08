@@ -17,6 +17,11 @@
 export { ChatPanel } from "./ChatPanel";
 export type { ChatPanelProps, RefinementMessage } from "./ChatPanel";
 export type { UserMessageAttachment } from "@/components/composites/UserMessage";
+export type {
+  AttachmentAction,
+  AttachmentActionItem,
+  AttachmentActionGroup,
+} from "@/components/composites/PromptInput";
 
 // HITL types (re-exported from ApprovalCard for consumer convenience)
 export type { ActionRequest, ReviewConfig } from "@/components/composites/ApprovalCard";

@@ -22,7 +22,7 @@ export type { AgentIndicatorProps, SubAgent } from './AgentIndicator'
 
 // UserMessage Block
 export { UserMessage } from './UserMessage'
-export type { UserMessageProps, UserMessageData } from './UserMessage'
+export type { UserMessageProps, UserMessageData, UserMessageSelection } from './UserMessage'
 
 // AgentAnnotation Composite (canvas node type)
 export { AgentAnnotation } from './AgentAnnotation'
@@ -34,7 +34,7 @@ export type { SpecialistMessageProps, SpecialistMessageData } from './Specialist
 
 // OrchestratorMessage Block
 export { OrchestratorMessage } from './OrchestratorMessage'
-export type { OrchestratorMessageProps, OrchestratorMessageData } from './OrchestratorMessage'
+export type { OrchestratorMessageProps, OrchestratorMessageData, OrchestratorQuestionData, OrchestratorQuestionOption } from './OrchestratorMessage'
 
 // SystemMessage Block
 export { SystemMessage } from './SystemMessage'
@@ -248,6 +248,9 @@ export type {
   ContextOutputUsageProps,
   ContextReasoningUsageProps,
   ContextCacheUsageProps,
+  AttachmentActionItem,
+  AttachmentActionGroup,
+  AttachmentAction,
 } from './PromptInput'
 
 // ChatToggleButton Composite
@@ -337,5 +340,27 @@ export type {
 // ShareDialog Composite
 export { ShareDialog } from './ShareDialog'
 export type { ShareDialogProps, ShareItem, ExpiryDuration } from './ShareDialog'
+
+// ShowcaseGallery Composite
+export { ShowcaseGallery, ShowcaseCard } from './ShowcaseGallery'
+export type {
+  ShowcaseGalleryProps,
+  ShowcaseCardProps,
+  ShowcaseItem,
+} from './ShowcaseGallery'
+
+// ProcessSteps Composite
+export { ProcessSteps } from './ProcessSteps'
+export type { ProcessStepsProps, ProcessStepItem } from './ProcessSteps'
+
+// CtaBanner Composite
+export { CtaBanner } from './CtaBanner'
+export type { CtaBannerProps, CtaBannerAction } from './CtaBanner'
+
+// FaqSection Composite
+export { FaqSection } from './FaqSection'
+export type { FaqSectionProps, FaqItem } from './FaqSection'
+
+
 
 

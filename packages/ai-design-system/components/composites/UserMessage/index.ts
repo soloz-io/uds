@@ -5,4 +5,4 @@
  */
 export { UserMessage } from './UserMessage'
 
-export type { UserMessageProps, UserMessageData, UserMessageAttachment } from './UserMessage'
+export type { UserMessageProps, UserMessageData, UserMessageAttachment, UserMessageSelection } from './UserMessage'

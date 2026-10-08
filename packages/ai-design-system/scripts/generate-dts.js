@@ -381,6 +381,22 @@ export declare const NavigationMenuIndicator: any;
 export declare const NavigationMenuViewport: any;
 export declare function navigationMenuTriggerStyle(): string;
 
+export interface ButtonProps extends React.ComponentProps<"button"> {
+  asChild?: boolean;
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  size?: "default" | "sm" | "lg" | "icon";
+  [key: string]: any;
+}
+export declare const Button: React.ForwardRefExoticComponent<ButtonProps & React.RefAttributes<HTMLButtonElement>>;
+
+export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, "viewBox" | "children"> {
+  name: string;
+  size?: "xs" | "sm" | "default" | "lg" | "xl";
+  "aria-label"?: string;
+  [key: string]: any;
+}
+export declare const Icon: React.FC<IconProps>;
+
 export declare function getLayoutedElements(nodes: any[], edges: any[]): Promise<{ nodes: any[]; edges: any[] }>;
 export declare function bmcToCanvas(bmc: CompiledBmc | null, message?: string): BmcCanvasView;
 export declare function addEdge(edgeParams: any, edges: any[]): any[];
@@ -389,15 +405,66 @@ export declare function addEdge(edgeParams: any, edges: any[]): any[];
 // PROMPT INPUT CONTROLLER & PROVIDER EXPORTS
 // ============================================================================
 
+export interface AttachmentBadge {
+  label: string;
+  icon?: React.ReactNode;
+}
+
+export interface AttachmentItemData {
+  id?: string;
+  url?: string;
+  mediaType?: string;
+  filename?: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  icon?: React.ReactNode;
+  badge?: AttachmentBadge | string;
+  thumbnailUrl?: string;
+  [key: string]: any;
+}
+
+export interface PromptInputAttachmentFile {
+  id: string;
+  url?: string;
+  mediaType?: string;
+  filename?: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  icon?: React.ReactNode;
+  badge?: AttachmentBadge | string;
+  thumbnailUrl?: string;
+  [key: string]: any;
+}
+
+export interface AttachmentActionItem {
+  id: string;
+  label: string;
+  icon?: React.ReactNode;
+  disabled?: boolean;
+  shortcut?: string;
+  separator?: boolean;
+  children?: AttachmentActionItem[];
+  title?: string;
+  description?: string;
+  badge?: AttachmentBadge | string;
+  thumbnailUrl?: string;
+  onSelect?: (attachments: AttachmentsContext) => void;
+}
+
+export interface AttachmentActionGroup {
+  id?: string;
+  label?: string;
+  items: AttachmentActionItem[];
+}
+
+export type AttachmentAction = AttachmentActionItem | AttachmentActionGroup;
+
 export interface AttachmentsContext {
-  files: Array<{
-    id: string;
-    url?: string;
-    mediaType?: string;
-    filename?: string;
-    [key: string]: any;
-  }>;
+  files: PromptInputAttachmentFile[];
   add: (files: File[] | FileList) => void;
+  addAttachment?: (attachment: AttachmentItemData) => void;
   remove: (id: string) => void;
   clear: () => void;
   openFileDialog: () => void;
@@ -451,6 +518,12 @@ export declare const ContextInputUsage: React.FC<any>;
 export declare const ContextOutputUsage: React.FC<any>;
 export declare const ContextReasoningUsage: React.FC<any>;
 export declare const ContextCacheUsage: React.FC<any>;
+
+export interface DocumentWithAnnotations {
+  file: DocumentFile;
+  content: any;
+  annotations?: any[];
+}
 
 `;
 

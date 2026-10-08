@@ -1,6 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { PromptInput } from "./PromptInput";
-import { useState } from "react";
+import {
+  PromptInput,
+  PromptInputProvider,
+  usePromptInputAttachments,
+} from "./PromptInput";
+import { Icon } from "@/components/primitives/Icon";
+import { useState, useEffect } from "react";
 
 const meta: Meta<typeof PromptInput> = {
   title: "Composites/PromptInput",
@@ -382,5 +387,192 @@ export const RowVariant: Story = {
   },
 };
 
+/**
+ * With Grouped Attachment Actions
+ * Demonstrates hierarchical attachment menu with cascading submenus (e.g. Cloud drives, Local files, Integrations)
+ */
+export const WithGroupedAttachmentActions: Story = {
+  args: {
+    placeholder: "Ask something or attach a file from any source...",
+    enableAttachments: true,
+    attachIcon: "plus",
+    attachmentActions: [
+      {
+        id: "integrations",
+        label: "External integrations",
+        items: [
+          {
+            id: "figma",
+            label: "Add from Figma",
+            icon: <Icon name="file" size="sm" />,
+            onSelect: () => alert("Selected: Add from Figma"),
+          },
+          {
+            id: "onedrive",
+            label: "Add from OneDrive files",
+            icon: <Icon name="folder" size="sm" />,
+            children: [
+              {
+                id: "onedrive-recent",
+                label: "Recent files",
+                icon: <Icon name="file" size="sm" />,
+                onSelect: () => alert("Selected: OneDrive > Recent files"),
+              },
+              {
+                id: "onedrive-shared",
+                label: "Shared with me",
+                icon: <Icon name="folder" size="sm" />,
+                onSelect: () => alert("Selected: OneDrive > Shared with me"),
+              },
+            ],
+          },
+          {
+            id: "gdrive",
+            label: "Add from Google Drive files",
+            icon: <Icon name="folder" size="sm" />,
+            children: [
+              {
+                id: "gdrive-recent",
+                label: "Recent files",
+                icon: <Icon name="file" size="sm" />,
+                onSelect: () => alert("Selected: Google Drive > Recent files"),
+              },
+              {
+                id: "gdrive-my-drive",
+                label: "My Drive",
+                icon: <Icon name="folder" size="sm" />,
+                onSelect: () => alert("Selected: Google Drive > My Drive"),
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: "local",
+        label: "Storage",
+        items: [
+          {
+            id: "local-files",
+            label: "Local files",
+            icon: <Icon name="paperclip" size="sm" />,
+            onSelect: (attachments) => attachments.openFileDialog(),
+          },
+        ],
+      },
+    ],
+    onSubmit: (message) => {
+      console.log("Submitted:", message);
+      alert(`Submitted: ${message.text}`);
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Demonstrates PromptInput with multi-level cascading attachment actions menu for group selection across different storage sources.",
+      },
+    },
+  },
+};
 
+export const WithRichItemAttachments: Story = {
+  render: () => {
+    return (
+      <PromptInputProvider initialInput="">
+        <RichItemAttachmentsStoryDemo />
+      </PromptInputProvider>
+    );
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Demonstrates selected rich item chips in the PromptInput with hover thumbnail preview cards, matching financial-analysis and creative production workflows.",
+      },
+    },
+  },
+};
 
+function RichItemAttachmentsStoryDemo() {
+  const attachments = usePromptInputAttachments();
+
+  useEffect(() => {
+    attachments.addAttachment?.({
+      id: "financial-analysis",
+      label: "financial-analysis",
+      title: "Financial Analysis",
+      description:
+        "Research company financials, market prices, SEC filings, earnings calls, investor presentations, options, fore...",
+      icon: <Icon name="trending-up" size="xs" />,
+      badge: {
+        label: "Official",
+        icon: <Icon name="shield-check" size="xs" />,
+      },
+    });
+
+    attachments.addAttachment?.({
+      id: "nba-finals",
+      label: "NBA Finals Night Cinematic Video Concept",
+      title: "NBA Finals Night Cinematic Video Concept",
+      description:
+        "Cinematic highlight video concept for NBA Finals night coverage and social distribution.",
+      icon: "🏀",
+      badge: {
+        label: "Official",
+        icon: <Icon name="shield-check" size="xs" />,
+      },
+    });
+  }, []);
+
+  return (
+    <div className="w-full max-w-2xl">
+      <PromptInput
+        placeholder="Type a message or select an attachment action..."
+        attachmentActions={[
+          {
+            id: "marketing",
+            label: "Marketing",
+            children: [
+              {
+                id: "creative-production",
+                label: "Creative production",
+                icon: <Icon name="video" size="sm" />,
+                title: "Creative Production",
+                description:
+                  "Automate marketing creative production and video asset workflows, templates, and renderings.",
+                badge: {
+                  label: "Official",
+                  icon: <Icon name="shield-check" size="xs" />,
+                },
+                onSelect: (att) => {
+                  console.log("Creative production");
+                  att.addAttachment?.({
+                    id: "creative-production",
+                    label: "creative-production",
+                    title: "Creative Production",
+                    description:
+                      "Automate marketing creative production and video asset workflows, templates, and renderings.",
+                    icon: <Icon name="video" size="xs" />,
+                    badge: {
+                      label: "Official",
+                      icon: <Icon name="shield-check" size="xs" />,
+                    },
+                  });
+                },
+              },
+            ],
+          },
+          {
+            id: "upload-from-device",
+            label: "Upload from device",
+            icon: <Icon name="paperclip" size="sm" />,
+            onSelect: (att) => att.openFileDialog(),
+          },
+        ]}
+        onSubmit={(message) => {
+          console.log("Submitted message:", message);
+        }}
+      />
+    </div>
+  );
+}

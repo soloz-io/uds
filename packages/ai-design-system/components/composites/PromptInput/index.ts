@@ -1,5 +1,14 @@
 export { PromptInput } from "./PromptInput";
-export type { PromptInputBlockProps, PromptInputContextProps } from "./PromptInput";
+export type {
+  PromptInputBlockProps,
+  PromptInputContextProps,
+  AttachmentActionItem,
+  AttachmentActionGroup,
+  AttachmentAction,
+  AttachmentBadge,
+  AttachmentItemData,
+  PromptInputAttachmentFile,
+} from "./PromptInput";
 
 export { SpeechInput } from "@/components/ai-elements/speech-input";
 export type { SpeechInputProps } from "@/components/ai-elements/speech-input";

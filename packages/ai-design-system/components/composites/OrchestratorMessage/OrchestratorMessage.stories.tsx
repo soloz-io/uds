@@ -186,3 +186,25 @@ export const CompleteWorkflow: Story = {
     ),
   },
 }
+
+export const WithQuestion: Story = {
+  args: {
+    message: {
+      id: 'q-1',
+      content: '',
+      avatarSrc: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face',
+      avatarName: 'Coordinator',
+      question: {
+        label: 'QUESTION',
+        timestamp: '11:12',
+        question: 'Which is EnvHarness for you?',
+        options: [
+          "It's my own brand — the channel speaks for it",
+          "It's a subject the channel covers repeatedly",
+          "It's just this one video's topic",
+        ],
+      },
+    },
+    showAvatar: true,
+  },
+}

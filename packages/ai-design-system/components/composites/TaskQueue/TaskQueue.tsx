@@ -93,6 +93,7 @@ export const TaskQueue = React.memo<TaskQueueProps>(
     className,
     showEmpty = false,
     emptyMessage = "No tasks in queue",
+    showStop = true,
   }) => {
     const runningTasks = React.useMemo(
       () => tasks.filter((t) => t.status === "running"),
@@ -160,7 +161,7 @@ export const TaskQueue = React.memo<TaskQueueProps>(
               />
             </QueueSectionTrigger>
 
-            {runningTasks.length > 1 && onStopAll && (
+            {runningTasks.length > 1 && onStopAll && showStop && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -216,7 +217,7 @@ export const TaskQueue = React.memo<TaskQueueProps>(
                       </div>
 
                       <QueueItemActions>
-                        {task.status === "running" && onStop && (
+                        {task.status === "running" && onStop && (task.showStop ?? showStop) && (
                           <QueueItemAction
                             onClick={(e) => {
                               e.stopPropagation();

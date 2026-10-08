@@ -5,4 +5,4 @@
  */
 export { OrchestratorMessage } from './OrchestratorMessage'
 
-export type { OrchestratorMessageProps, OrchestratorMessageData } from './OrchestratorMessage'
+export type { OrchestratorMessageProps, OrchestratorMessageData, OrchestratorQuestionData, OrchestratorQuestionOption } from './OrchestratorMessage'

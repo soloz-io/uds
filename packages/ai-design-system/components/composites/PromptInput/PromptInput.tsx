@@ -12,6 +12,10 @@ import {
   PromptInputProvider,
   type PromptInputMessage,
   type PromptInputProps as AIPromptInputProps,
+  type AttachmentsContext,
+  type AttachmentBadge,
+  type AttachmentItemData,
+  type PromptInputAttachmentFile,
   usePromptInputAttachments,
   usePromptInputController,
   useOptionalPromptInputController,
@@ -33,7 +37,45 @@ import type { FormEvent } from "react";
 import { Button } from "@/components/primitives/Button";
 import { Icon } from "@/components/primitives/Icon";
 import { InputGroupAddon } from "@/components/primitives/InputGroup";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/primitives/DropdownMenu";
 import { cn } from "@/lib/utils";
+
+export interface AttachmentActionItem {
+  id: string;
+  label: string;
+  icon?: ReactNode;
+  disabled?: boolean;
+  shortcut?: string;
+  separator?: boolean;
+  children?: AttachmentActionItem[];
+  title?: string;
+  description?: string;
+  badge?: AttachmentBadge | string;
+  thumbnailUrl?: string;
+  onSelect?: (attachments: AttachmentsContext) => void;
+}
+
+export type { AttachmentBadge, AttachmentItemData, PromptInputAttachmentFile };
+
+export interface AttachmentActionGroup {
+  id?: string;
+  label?: string;
+  items: AttachmentActionItem[];
+}
+
+export type AttachmentAction = AttachmentActionItem | AttachmentActionGroup;
 
 export interface PromptInputContextProps {
   usedTokens: number;
@@ -50,8 +92,10 @@ export interface PromptInputBlockProps
   disabled?: boolean;
   placeholder?: string;
   value?: string;
+  helperText?: ReactNode;
+  multiline?: boolean;
   onChange?: (value: string) => void;
-  onSubmit: (
+  onSubmit?: (
     message: PromptInputMessage,
     event: FormEvent<HTMLFormElement>
   ) => void | Promise<void>;
@@ -64,6 +108,7 @@ export interface PromptInputBlockProps
   enableSpeech?: boolean;
   speechProps?: SpeechInputProps;
   attachIcon?: "paperclip" | "plus";
+  attachmentActions?: AttachmentAction[];
 }
 
 export const PromptInput = React.memo<PromptInputBlockProps>((props) => {
@@ -96,6 +141,8 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
     disabled = false,
     placeholder,
     value,
+    helperText,
+    multiline = false,
     onChange,
     onSubmit,
     loading = false,
@@ -106,6 +153,7 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
     enableSpeech = true,
     speechProps,
     attachIcon = "plus",
+    attachmentActions,
     accept = "image/*,audio/*",
     multiple = true,
     maxFiles,
@@ -119,6 +167,7 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
 
     const attachments = usePromptInputAttachments();
     const hasAttachments = showAttachments && attachments.files.length > 0;
+    const isMultiline = Boolean(multiline || helperText || hasAttachments);
 
     const handleSubmit = React.useCallback(
       (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => {
@@ -129,7 +178,7 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
           }
           return;
         }
-        onSubmit(message, event);
+        onSubmit?.(message, event);
       },
       [disabled, loading, onStop, onSubmit]
     );
@@ -147,15 +196,15 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
 
     const isStopping = loading && Boolean(onStop);
 
-    // When attachments are present, replace any forced rounded-full with rounded-2xl
+    // When multiline or attachments are present, replace any forced rounded-full with rounded-2xl
     let resolvedClassName = className;
-    if (hasAttachments && resolvedClassName) {
+    if (isMultiline && resolvedClassName) {
       resolvedClassName = resolvedClassName.replace(/\brounded-full\b/g, "rounded-2xl");
     }
 
     const formClassName = cn(
-      hasAttachments
-        ? "min-h-[96px] rounded-2xl [&>[data-slot=input-group]]:min-h-[96px] [&>[data-slot=input-group]]:rounded-2xl [&>[data-slot=input-group]]:flex-col [&>[data-slot=input-group]]:items-stretch"
+      isMultiline
+        ? "min-h-[96px] rounded-2xl md:rounded-3xl [&>[data-slot=input-group]]:min-h-[96px] [&>[data-slot=input-group]]:rounded-2xl md:[&>[data-slot=input-group]]:rounded-3xl [&>[data-slot=input-group]]:flex-col [&>[data-slot=input-group]]:items-stretch border border-border/60 bg-card/60 shadow-xs"
         : "min-h-[52px] [&>[data-slot=input-group]]:min-h-[52px] [&>[data-slot=input-group]]:rounded-full",
       resolvedClassName?.includes("border") &&
         "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
@@ -173,23 +222,29 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
         className={formClassName}
         {...props}
       >
-        {hasAttachments ? (
+        {isMultiline ? (
           <>
-            <AttachmentPreviews />
+            {hasAttachments && <AttachmentPreviews />}
             <PromptInputTextarea
               placeholder={placeholder}
               disabled={disabled}
               onChange={isControlled ? handleControlledChange : undefined}
-              className="w-full px-3.5 py-1.5 text-sm resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content min-h-[40px] max-h-48"
+              className="w-full px-4 pt-3.5 pb-2 text-sm md:text-base resize-none border-0 shadow-none focus-visible:ring-0 bg-transparent flex-1 field-sizing-content min-h-[52px] max-h-48"
             />
             <div
               data-align="block-end"
-              className="w-full flex items-center justify-between px-2.5 pb-2 pt-1 border-0 bg-transparent"
+              className="w-full flex items-center justify-between px-3.5 pb-2.5 pt-1 border-0 bg-transparent"
             >
-              <div className="flex items-center gap-1.5">
-                {showAttachments && (
-                  <AttachButton disabled={disabled || loading} icon={attachIcon} />
-                )}
+              <div className="flex items-center gap-2">
+                {helperText ? (
+                  <span className="text-xs text-muted-foreground font-normal">{helperText}</span>
+                ) : showAttachments ? (
+                  <AttachButton
+                    disabled={disabled || loading}
+                    icon={attachIcon}
+                    actions={attachmentActions}
+                  />
+                ) : null}
                 {tools}
                 {context ? (
                   <PromptInputContextIndicator
@@ -223,7 +278,11 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
           <>
             {showAttachments && (
               <InputGroupAddon align="inline-start" className="self-center flex items-center shrink-0 !pl-2.5 !ml-0 pr-1.5 py-0">
-                <AttachButton disabled={disabled || loading} icon={attachIcon} />
+                <AttachButton
+                  disabled={disabled || loading}
+                  icon={attachIcon}
+                  actions={attachmentActions}
+                />
               </InputGroupAddon>
             )}
             <PromptInputTextarea
@@ -270,32 +329,131 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
 
 PromptInputInner.displayName = "PromptInputInner";
 
+function isActionGroup(
+  action: AttachmentAction
+): action is AttachmentActionGroup {
+  return "items" in action && Array.isArray((action as AttachmentActionGroup).items);
+}
+
+function renderActionItem(
+  item: AttachmentActionItem,
+  attachments: AttachmentsContext
+) {
+  const hasChildren = Boolean(item.children && item.children.length > 0);
+
+  if (hasChildren) {
+    return (
+      <DropdownMenuSub key={item.id}>
+        <DropdownMenuSubTrigger
+          disabled={item.disabled}
+          className="flex items-center gap-2 cursor-pointer"
+        >
+          {item.icon && <span className="shrink-0 flex items-center justify-center size-4">{item.icon}</span>}
+          <span className="flex-1 truncate">{item.label}</span>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuSubContent className="min-w-[180px]">
+          {item.children!.map((child) => renderActionItem(child, attachments))}
+        </DropdownMenuSubContent>
+      </DropdownMenuSub>
+    );
+  }
+
+  return (
+    <React.Fragment key={item.id}>
+      <DropdownMenuItem
+        disabled={item.disabled}
+        onSelect={() => {
+          if (item.onSelect) {
+            item.onSelect(attachments);
+          } else if (item.title || item.description || item.badge || item.thumbnailUrl) {
+            attachments.addAttachment?.({
+              id: item.id,
+              label: item.label,
+              title: item.title,
+              description: item.description,
+              icon: item.icon,
+              badge: item.badge,
+              thumbnailUrl: item.thumbnailUrl,
+              url: `item://${item.id}`,
+            });
+          } else {
+            attachments.openFileDialog();
+          }
+        }}
+        className="flex items-center gap-2 cursor-pointer"
+      >
+        {item.icon && <span className="shrink-0 flex items-center justify-center size-4">{item.icon}</span>}
+        <span className="flex-1 truncate">{item.label}</span>
+        {item.shortcut && (
+          <DropdownMenuShortcut>{item.shortcut}</DropdownMenuShortcut>
+        )}
+      </DropdownMenuItem>
+      {item.separator && <DropdownMenuSeparator />}
+    </React.Fragment>
+  );
+}
+
 /**
- * The attach toolbar button — opens the native file picker via the attachments
- * context. Must render inside <AIPromptInput> (or a PromptInputProvider),
- * since usePromptInputAttachments() reads that context.
+ * The attach toolbar button — opens the native file picker or a cascading
+ * dropdown menu when `actions` are provided. Must render inside <AIPromptInput>
+ * (or a PromptInputProvider), since usePromptInputAttachments() reads that context.
  */
 function AttachButton({
   disabled,
   icon = "plus",
+  actions,
 }: {
   disabled?: boolean;
   icon?: "paperclip" | "plus";
+  actions?: AttachmentAction[];
 }) {
   const attachments = usePromptInputAttachments();
-  return (
+
+  const buttonTrigger = (
     <Button
       variant="ghost"
       size="icon"
       className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground transition-colors"
       type="button"
       disabled={disabled}
-      onClick={() => attachments.openFileDialog()}
+      onClick={!actions || actions.length === 0 ? () => attachments.openFileDialog() : undefined}
       aria-label="Attach files"
       title="Attach files"
     >
       <Icon name={icon} size="sm" />
     </Button>
+  );
+
+  if (!actions || actions.length === 0) {
+    return buttonTrigger;
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        {buttonTrigger}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side="top" className="min-w-[200px]">
+        {actions.map((action, idx) => {
+          if (isActionGroup(action)) {
+            return (
+              <React.Fragment key={action.id ?? action.label ?? `group-${idx}`}>
+                {idx > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuGroup>
+                  {action.label && (
+                    <DropdownMenuLabel>{action.label}</DropdownMenuLabel>
+                  )}
+                  {action.items.map((item) =>
+                    renderActionItem(item, attachments)
+                  )}
+                </DropdownMenuGroup>
+              </React.Fragment>
+            );
+          }
+          return renderActionItem(action, attachments);
+        })}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

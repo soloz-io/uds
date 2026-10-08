@@ -12,6 +12,7 @@ export type {
   TextEditorMultiTabProps,
   TextEditorWorkspaceProps,
 } from './TextEditor'
+export type { DocumentWithAnnotations } from '@/types/ai-editor/editor'
 
 export { useTextEditorMock, useAIMultiTabDocEditorMock } from './useTextEditor.mock'
 export type { UseTextEditorReturn, UseAIMultiTabDocEditorReturn } from './useTextEditor'

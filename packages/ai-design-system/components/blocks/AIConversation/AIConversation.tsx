@@ -8,9 +8,9 @@ import {
   type ConversationProps,
 } from "@/components/ai-elements/conversation"
 import type { ToolCall, SubAgent } from "@/components/composites"
-import { UserMessage, type UserMessageAttachment } from "@/components/composites/UserMessage"
+import { UserMessage, type UserMessageAttachment, type UserMessageSelection } from "@/components/composites/UserMessage"
 import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
-import { OrchestratorMessage } from "@/components/composites/OrchestratorMessage"
+import { OrchestratorMessage, type OrchestratorQuestionData } from "@/components/composites/OrchestratorMessage"
 import { SystemMessage } from "@/components/composites/SystemMessage"
 import { ToolCallDisplay } from "@/components/composites/ToolCallDisplay"
 import { ReasoningDisplay } from "@/components/composites/ReasoningDisplay"
@@ -59,6 +59,9 @@ interface AIMessage {
   checkpointId?: string;
   restoreLabel?: string;
   attachments?: UserMessageAttachment[];
+  timestamp?: string;
+  question?: OrchestratorQuestionData;
+  selection?: UserMessageSelection;
 }
 
 export interface AIConversationProps
@@ -176,7 +179,7 @@ export const AIConversation = React.memo<AIConversationProps>(
       let currentGroup: AIMessage | null = null;
 
       for (const msg of messages) {
-        if (msg.role === "orchestrator") {
+        if (msg.role === "orchestrator" && !msg.question) {
           const isFinalResponse =
             !msg.isLoading &&
             (!msg.toolCalls || msg.toolCalls.length === 0) &&
@@ -310,7 +313,7 @@ export const AIConversation = React.memo<AIConversationProps>(
   const lastReplyIndex = React.useMemo(() => {
     for (let i = groupedMessages.length - 1; i >= 0; i--) {
       const m = groupedMessages[i]
-      if (m.role === "orchestrator" || m.role === "assistant" || (!m.role && m.type === "ai")) return i
+      if (m.role === "orchestrator" || m.role === "assistant" || m.role === "question" || (!m.role && m.type === "ai")) return i
     }
     return -1
   }, [groupedMessages])
@@ -361,6 +364,7 @@ export const AIConversation = React.memo<AIConversationProps>(
                   attachments: message.attachments,
                   checkpointId: message.checkpointId,
                   restoreLabel: message.restoreLabel,
+                  selection: message.selection,
                 }}
                 showAvatar={showAvatars}
                 onRestore={onRestoreCheckpoint}
@@ -368,7 +372,7 @@ export const AIConversation = React.memo<AIConversationProps>(
             )
           }
 
-          if (message.role === "orchestrator" || message.role === "assistant" || (!message.role && message.type === "ai")) {
+          if (message.role === "orchestrator" || message.role === "assistant" || message.role === "question" || (!message.role && message.type === "ai")) {
             // Extract sub-agents from the message
             const subAgents = message.subAgents || []
 
@@ -384,9 +388,9 @@ export const AIConversation = React.memo<AIConversationProps>(
             const hasReasoning = reasoningCalls.length > 0 || subAgents.length > 0 || directToolCalls.length > 0 || (message.isLoading && contentStr.trim() !== "");
             const reasoningText = (hasReasoning && (!message.blocks || message.blocks.length === 0)) ? contentStr : undefined;
             const displayContentStr = hasReasoning ? "" : contentStr;
-            const hasDisplayContent = displayContentStr.trim() !== "";
+            const hasDisplayContent = displayContentStr.trim() !== "" || Boolean(message.question);
 
-            if (!hasDisplayContent && directToolCalls.length === 0 && reasoningCalls.length === 0 && subAgents.length === 0 && !message.isLoading && (!message.blocks || message.blocks.length === 0)) {
+            if (!hasDisplayContent && !message.question && directToolCalls.length === 0 && reasoningCalls.length === 0 && subAgents.length === 0 && !message.isLoading && (!message.blocks || message.blocks.length === 0)) {
               return null;
             }
 
@@ -401,6 +405,8 @@ export const AIConversation = React.memo<AIConversationProps>(
                     avatarSrc: message.avatarSrc,
                     avatarName: message.avatarName,
                     isLoading: message.isLoading && !hasReasoning,
+                    timestamp: message.timestamp,
+                    question: message.question,
                   }}
                   showAvatar={showAvatars && hasDisplayContent}
                   // Only on a settled reply with something to read: a save

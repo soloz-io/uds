@@ -120,6 +120,8 @@ export interface TextEditorMultiTabProps {
   fileTree?: FileTreeNode[]
   /** When true, hides the document tab bar — useful for single-file mode where the file tree provides navigation. */
   hideTabBar?: boolean
+  /** When true, hides the file tree explorer — useful when only document tabs are needed. */
+  hideFileTree?: boolean
   /** Callback when download all button is clicked in the file tree header */
   onDownloadAllFiles?: () => Promise<FileDownloadResult | undefined>
   /**
@@ -132,6 +134,8 @@ export interface TextEditorMultiTabProps {
   mobileSection?: 'explorer' | 'editor'
   /** Callback when mobile section changes */
   onMobileSectionChange?: (section: 'explorer' | 'editor') => void
+  /** Custom renderer for specific documents (e.g. preview, interactive canvases, custom views) */
+  renderDocument?: (doc: DocumentWithAnnotations) => React.ReactNode
 }
 
 /**
@@ -228,7 +232,9 @@ export const TextEditor = React.memo<TextEditorProps>(
     const currentDocument = useMemo(() => {
       if (isMultiTab && props.documents) {
         return (
-          props.documents.find((doc) => doc.file.id === props.activeDocumentId) || null
+          props.documents.find(
+            (doc) => doc.file.id === (props.activeDocumentId || props.documents[0]?.file.id)
+          ) || null
         )
       }
       return null
@@ -491,6 +497,34 @@ export const TextEditor = React.memo<TextEditorProps>(
           />
         </div>
       )
+    } else if (
+      (props as TextEditorMultiTabProps).renderDocument &&
+      (props as TextEditorMultiTabProps).renderDocument!(currentDocument)
+    ) {
+      editorPane = (
+        <div className="text-editor flex flex-col h-full w-full">
+          {!hideTabBar && (
+            <DocumentTabBar
+              className="w-full"
+              tabs={props.documents?.map((doc) => doc.file) || []}
+              activeTabId={props.activeDocumentId || props.documents?.[0]?.file.id}
+              onTabSelect={props.onTabSelect}
+              onTabClose={props.onTabClose}
+              onToggleExplorer={() => handleOpenChange(true)}
+            />
+          )}
+          {hideTabBar && (
+            <DocumentTabBar
+              tabs={[]}
+              onToggleExplorer={() => handleOpenChange(true)}
+              className="md:hidden"
+            />
+          )}
+          <div className="flex-1 min-h-0 relative overflow-hidden">
+            {(props as TextEditorMultiTabProps).renderDocument!(currentDocument)}
+          </div>
+        </div>
+      )
     } else if (isMediaFile(currentDocument.file)) {
       editorPane = (
         <div className="text-editor flex flex-col h-full w-full">
@@ -597,11 +631,13 @@ export const TextEditor = React.memo<TextEditorProps>(
       />
     )
 
-    if (isMobile) {
+    const hideFileTree = isMultiTab && Boolean((props as TextEditorMultiTabProps).hideFileTree)
+
+    if (isMobile || hideFileTree) {
       return (
         <div className={cn("text-editor flex-1 h-full min-h-0 w-full bg-background flex flex-col relative", className)}>
           {editorPane}
-          {fileTreeDrawer}
+          {!hideFileTree && fileTreeDrawer}
         </div>
       )
     }

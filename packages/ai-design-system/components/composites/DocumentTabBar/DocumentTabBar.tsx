@@ -16,6 +16,8 @@ export interface DocumentFile {
   isDirty?: boolean
   format?: string
   lastModified?: number
+  icon?: string
+  canClose?: boolean
 }
 
 /**
@@ -248,29 +250,38 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                                 aria-label="unsaved changes"
                               />
                             )}
+                            {tab.icon && (
+                              <Icon
+                                name={tab.icon}
+                                size="xs"
+                                className="text-muted-foreground shrink-0"
+                              />
+                            )}
                             {/* Tab name */}
                             <span className="truncate max-w-[120px] sm:max-w-[200px]">{tab.name}</span>
                           </div>
                         </TabsTrigger>
 
                         {/* Close button */}
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            onTabClose?.(tab.id)
-                          }}
-                          className={cn(
-                            'h-8 w-8 mr-0.5',
-                            'hover:bg-destructive/10 hover:text-destructive',
-                            'focus-visible:ring-2 focus-visible:ring-ring',
-                            'transition-colors'
-                          )}
-                          aria-label={`Close ${tab.name}`}
-                        >
-                          <Icon name="x" size="xs" />
-                        </Button>
+                        {onTabClose && tab.canClose !== false && (
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              onTabClose(tab.id)
+                            }}
+                            className={cn(
+                              'h-8 w-8 mr-0.5',
+                              'hover:bg-destructive/10 hover:text-destructive',
+                              'focus-visible:ring-2 focus-visible:ring-ring',
+                              'transition-colors'
+                            )}
+                            aria-label={`Close ${tab.name}`}
+                          >
+                            <Icon name="x" size="xs" />
+                          </Button>
+                        )}
                       </div>
                     ))}
                   </TabsList>

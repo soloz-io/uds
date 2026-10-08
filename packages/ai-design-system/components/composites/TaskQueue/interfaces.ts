@@ -39,6 +39,11 @@ export interface TaskItem {
    * Optional underlying run/job identifier (e.g. for tooltip/diagnostics)
    */
   runId?: string;
+  /**
+   * Whether to show the stop button for this task when running
+   * @default true
+   */
+  showStop?: boolean;
 }
 
 export interface TaskQueueProps {
@@ -104,4 +109,9 @@ export interface TaskQueueProps {
    * Custom message when there are no tasks and showEmpty is true
    */
   emptyMessage?: string;
+  /**
+   * Whether to show the stop button for running tasks and the "Stop all" button
+   * @default true
+   */
+  showStop?: boolean;
 }

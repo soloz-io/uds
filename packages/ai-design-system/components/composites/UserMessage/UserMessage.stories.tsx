@@ -83,3 +83,20 @@ export const WithVoiceNote: Story = {
     showAvatar: true,
   },
 }
+
+export const WithSelection: Story = {
+  args: {
+    message: {
+      id: '6',
+      content: 'so appid sub domain ... this is the public facing website.. dev.nutgraf.in (write-in)',
+      avatarSrc: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+      avatarName: 'User',
+      selection: {
+        question: 'What appId and public hostname should be configured for deploying nutgraf-im into the nutgraf tenant?',
+        answer: 'so appid sub domain ... this is the public facing website.. dev.nutgraf.in (write-in)',
+        count: 1,
+      },
+    },
+    showAvatar: true,
+  },
+}

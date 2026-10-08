@@ -433,4 +433,85 @@ export const SheetPresentation: Story = {
   },
 };
 
+/**
+ * With Grouped Attachments
+ * Demonstrates ChatPanel featuring the hierarchical group attachment menu
+ * (e.g. OneDrive, Google Drive, Figma, Local files).
+ */
+export const WithGroupedAttachments: Story = {
+  args: {
+    messages: inputStateMessages,
+    placeholder: "Type a prompt or choose an attachment source...",
+    enableAttachments: true,
+    attachmentActions: [
+      {
+        id: "integrations",
+        label: "Cloud integrations",
+        items: [
+          {
+            id: "figma",
+            label: "Add from Figma",
+            onSelect: () => alert("Selected: Add from Figma"),
+          },
+          {
+            id: "onedrive",
+            label: "Add from OneDrive files",
+            children: [
+              {
+                id: "onedrive-recent",
+                label: "Recent files",
+                onSelect: () => alert("Selected: OneDrive > Recent files"),
+              },
+              {
+                id: "onedrive-shared",
+                label: "Shared with me",
+                onSelect: () => alert("Selected: OneDrive > Shared with me"),
+              },
+            ],
+          },
+          {
+            id: "gdrive",
+            label: "Add from Google Drive files",
+            children: [
+              {
+                id: "gdrive-recent",
+                label: "Recent files",
+                onSelect: () => alert("Selected: Google Drive > Recent files"),
+              },
+              {
+                id: "gdrive-my-drive",
+                label: "My Drive",
+                onSelect: () => alert("Selected: Google Drive > My Drive"),
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: "local",
+        label: "Local storage",
+        items: [
+          {
+            id: "local-files",
+            label: "Local files",
+            onSelect: (attachments) => attachments.openFileDialog(),
+          },
+        ],
+      },
+    ],
+    onSubmit: (message: PromptInputMessage) => {
+      console.log("Submitted with attachment actions:", message);
+      alert(`Submitted: ${message.text}`);
+    },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "ChatPanel demonstrating hierarchical group selection for attachments in PromptInput across multiple cloud and local sources.",
+      },
+    },
+  },
+};
+
 

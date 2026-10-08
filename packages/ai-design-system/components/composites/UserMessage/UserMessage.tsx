@@ -12,6 +12,12 @@ import {
 import { renderMediaOutput } from "@/components/composites/SystemMessage"
 import { cn } from "@/lib/utils"
 
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/primitives/HoverCard"
+
 /**
  * UserMessage Block
  *
@@ -33,6 +39,22 @@ export interface UserMessageAttachment {
   mime: string
   filename?: string
   source: { type: string; value: string }
+  title?: string
+  description?: string
+  icon?: React.ReactNode
+  badge?: { label: string; icon?: React.ReactNode } | string
+  thumbnailUrl?: string
+}
+
+export interface UserMessageSelection {
+  /** The question prompt that was answered */
+  question: string
+  /** The user's selected option or write-in text */
+  answer?: string
+  /** Number of questions answered (defaults to 1) */
+  count?: number
+  /** Custom header label overriding "1 question" */
+  label?: string
 }
 
 export interface UserMessageData {
@@ -63,15 +85,101 @@ export interface UserMessageData {
    * stated before the click rather than discovered after it.
    */
   restoreLabel?: string
+  /**
+   * Answered question selection card display (e.g. from an ask_user / question response)
+   */
+  selection?: UserMessageSelection
 }
 
 function UserMessageAttachments({ attachments }: { attachments: UserMessageAttachment[] }) {
   const images = attachments.filter((a) => a.mime.startsWith("image/"))
   const audio = attachments.filter((a) => a.mime.startsWith("audio/"))
-  if (images.length === 0 && audio.length === 0) return null
+  const items = attachments.filter(
+    (a) =>
+      a.kind === "item" ||
+      a.mime === "application/x-item" ||
+      Boolean(a.title || a.description)
+  )
+  if (images.length === 0 && audio.length === 0 && items.length === 0) return null
 
   return (
     <div className="flex flex-wrap justify-end gap-2">
+      {items.map((item, i) => {
+        const itemIcon = item.icon ?? <Icon name="file" size="xs" />
+        const badgeLabel = typeof item.badge === "string" ? item.badge : item.badge?.label
+        const badgeIcon =
+          typeof item.badge === "object" && item.badge?.icon ? (
+            item.badge.icon
+          ) : (
+            <Icon name="shield-check" size="xs" />
+          )
+        const displayTitle = item.title || item.filename || "Item"
+
+        const chip = (
+          <div
+            key={item.id ?? `${displayTitle}-${i}`}
+            className="group relative inline-flex h-7 select-none items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary data-[state=open]:border-primary data-[state=open]:text-primary cursor-pointer"
+          >
+            <span className="shrink-0 flex items-center justify-center text-inherit">
+              {itemIcon}
+            </span>
+            <span className="truncate max-w-[200px]">{displayTitle}</span>
+          </div>
+        )
+
+        if (!item.description && !item.title && !item.badge && !item.thumbnailUrl) {
+          return chip
+        }
+
+        return (
+          <HoverCard key={item.id ?? `${displayTitle}-${i}`} openDelay={150} closeDelay={100}>
+            <HoverCardTrigger asChild>{chip}</HoverCardTrigger>
+            <HoverCardContent
+              side="top"
+              align="end"
+              sideOffset={8}
+              className="w-72 rounded-xl border border-border bg-popover p-3.5 shadow-xl text-popover-foreground text-left"
+            >
+              <div className="flex flex-col gap-2">
+                {item.thumbnailUrl && (
+                  <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
+                    <img
+                      src={item.thumbnailUrl}
+                      alt={displayTitle}
+                      className="size-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex items-start gap-2">
+                  {itemIcon && (
+                    <div className="size-5 shrink-0 text-foreground flex items-center justify-center pt-0.5">
+                      {itemIcon}
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                    <span className="text-sm font-semibold text-foreground tracking-tight">
+                      {displayTitle}
+                    </span>
+                  </div>
+                </div>
+                {item.description && (
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {item.description}
+                  </p>
+                )}
+                {badgeLabel && (
+                  <div className="pt-0.5 flex items-center">
+                    <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground border border-border/50">
+                      {badgeIcon}
+                      <span>{badgeLabel}</span>
+                    </span>
+                  </div>
+                )}
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+        )
+      })}
       {images.map((a, i) => (
         <a
           key={a.id ?? `${a.filename ?? "attachment"}-${i}`}
@@ -90,10 +198,6 @@ function UserMessageAttachments({ attachments }: { attachments: UserMessageAttac
           />
         </a>
       ))}
-      {/* Voice notes: the same `<audio controls>` player SystemMessage uses
-          for job notifications — `source.value` works as src for both the
-          optimistic data: URI and the resolved object-store URL, so no
-          branching on source type at render time. */}
       {audio.map((a, i) => (
         <div
           key={a.id ?? `${a.filename ?? "voice-note"}-${i}`}
@@ -184,8 +288,30 @@ export const UserMessage = React.memo<UserMessageProps>(
                 <Icon name="undo-2" size="sm" aria-hidden />
               </button>
             )}
-            {message.content && (
-              <MessageContent variant="contained" className="max-w-full">{message.content}</MessageContent>
+            {message.selection ? (
+              <div className="w-full max-w-lg rounded-xl border border-border/60 divide-y divide-border/60 overflow-hidden bg-card/20 text-left">
+                <div className="px-4 py-2.5">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <Icon name="message-square-question" size="sm" className="size-3.5 shrink-0" aria-hidden />
+                    <span>
+                      {message.selection.label ??
+                        `${message.selection.count ?? 1} ${(message.selection.count ?? 1) === 1 ? "question" : "questions"}`}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-xs sm:text-sm font-medium text-foreground">
+                    {message.selection.question}
+                  </div>
+                </div>
+                {(message.selection.answer || message.content) && (
+                  <div className="px-4 py-2.5 text-sm font-normal text-foreground flex items-center justify-between">
+                    <span className="truncate">{message.selection.answer || message.content}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              message.content && (
+                <MessageContent variant="contained" className="max-w-full">{message.content}</MessageContent>
+              )
             )}
           </div>
         </div>

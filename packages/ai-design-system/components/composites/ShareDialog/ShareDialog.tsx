@@ -39,6 +39,8 @@ export interface ShareItem {
 	createdAt: string;
 	expiresAt: string | null;
 	revokedAt: string | null;
+	token?: string;
+	url?: string;
 }
 
 export interface ShareDialogProps {
@@ -93,6 +95,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 	const [isRevoking, setIsRevoking] = React.useState(false);
 	const [copied, setCopied] = React.useState(false);
 	const [copyHint, setCopyHint] = React.useState<string | null>(null);
+	const [copiedShareId, setCopiedShareId] = React.useState<string | null>(null);
 	const urlInputRef = React.useRef<HTMLInputElement>(null);
 
 	const [prevInitialUrl, setPrevInitialUrl] = React.useState(initialUrl);
@@ -109,6 +112,7 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 			setCopied(false);
 			setCopyHint(null);
 			setShareToRevoke(null);
+			setCopiedShareId(null);
 		}
 		onOpenChange?.(nextOpen);
 	};
@@ -148,6 +152,30 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 			urlInputRef.current?.select();
 			setCopyHint("Press Ctrl/Cmd+C to copy");
 			toast.info("Press Ctrl/Cmd+C to copy");
+		}
+	};
+
+	const handleCopyShare = async (share: ShareItem) => {
+		const origin =
+			typeof window !== "undefined" && window.location?.origin
+				? window.location.origin
+				: "";
+		const shareUrl =
+			share.url ||
+			(share.token
+				? `${origin}/share/${share.token}`
+				: `${origin}/share/${share.id}`);
+		try {
+			if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+				await navigator.clipboard.writeText(shareUrl);
+				setCopiedShareId(share.id);
+				toast.success("Link copied");
+				setTimeout(() => setCopiedShareId(null), 2000);
+			} else {
+				toast.info("Could not copy link to clipboard");
+			}
+		} catch {
+			toast.error("Failed to copy link");
 		}
 	};
 
@@ -343,16 +371,34 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 											</div>
 
 											{status === "active" && (
-												<Button
-													type="button"
-													variant="ghost"
-													size="sm"
-													className="text-destructive hover:text-destructive hover:bg-destructive/10 text-xs h-7 px-2"
-													onClick={() => setShareToRevoke(share.id)}
-													data-testid={`share-revoke-btn-${share.id}`}
-												>
-													Revoke
-												</Button>
+												<div className="flex items-center gap-1 shrink-0">
+													<Button
+														type="button"
+														variant="ghost"
+														size="sm"
+														className="text-xs h-7 px-2 gap-1 text-muted-foreground hover:text-foreground"
+														onClick={() => void handleCopyShare(share)}
+														data-testid={`share-copy-btn-${share.id}`}
+														title="Copy share link"
+														aria-label="Copy share link"
+													>
+														<Icon
+															name={copiedShareId === share.id ? "check" : "copy"}
+															className="h-3.5 w-3.5"
+														/>
+														<span>{copiedShareId === share.id ? "Copied" : "Copy"}</span>
+													</Button>
+													<Button
+														type="button"
+														variant="ghost"
+														size="sm"
+														className="text-destructive hover:text-destructive hover:bg-destructive/10 text-xs h-7 px-2"
+														onClick={() => setShareToRevoke(share.id)}
+														data-testid={`share-revoke-btn-${share.id}`}
+													>
+														Revoke
+													</Button>
+												</div>
 											)}
 										</div>
 									);

@@ -41,6 +41,7 @@ import {
   Loader2Icon,
   MusicIcon,
   SendIcon,
+  ShieldCheckIcon,
   SquareIcon,
   XIcon,
 } from "lucide-react";
@@ -70,9 +71,38 @@ import {
 // Provider Context & Types
 // ============================================================================
 
+export type AttachmentBadge = {
+  label: string;
+  icon?: ReactNode;
+};
+
+export type AttachmentItemData = {
+  id?: string;
+  url?: string;
+  mediaType?: string;
+  filename?: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  icon?: ReactNode;
+  badge?: AttachmentBadge | string;
+  thumbnailUrl?: string;
+};
+
+export type PromptInputAttachmentFile = FileUIPart & {
+  id: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  icon?: ReactNode;
+  badge?: AttachmentBadge | string;
+  thumbnailUrl?: string;
+};
+
 export type AttachmentsContext = {
-  files: (FileUIPart & { id: string })[];
+  files: PromptInputAttachmentFile[];
   add: (files: File[] | FileList) => void;
+  addAttachment?: (attachment: AttachmentItemData) => void;
   remove: (id: string) => void;
   clear: () => void;
   openFileDialog: () => void;
@@ -146,9 +176,7 @@ export function PromptInputProvider({
   const clearInput = useCallback(() => setTextInput(""), []);
 
   // ----- attachments state (global when wrapped)
-  const [attachements, setAttachements] = useState<
-    (FileUIPart & { id: string })[]
-  >([]);
+  const [attachements, setAttachements] = useState<PromptInputAttachmentFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const openRef = useRef<() => void>(() => {});
 
@@ -168,6 +196,32 @@ export function PromptInputProvider({
       )
     );
   }, []);
+
+  const addAttachment = useCallback(
+    (attachment: AttachmentItemData) => {
+      const id = attachment.id || nanoid();
+      setAttachements((prev) =>
+        prev.concat({
+          id,
+          type: "file" as const,
+          url: attachment.url || `item://${id}`,
+          mediaType: attachment.mediaType || "application/x-item",
+          filename:
+            attachment.filename ||
+            attachment.label ||
+            attachment.title ||
+            "item",
+          label: attachment.label,
+          title: attachment.title,
+          description: attachment.description,
+          icon: attachment.icon,
+          badge: attachment.badge,
+          thumbnailUrl: attachment.thumbnailUrl,
+        })
+      );
+    },
+    []
+  );
 
   const remove = useCallback((id: string) => {
     setAttachements((prev) => {
@@ -192,12 +246,13 @@ export function PromptInputProvider({
     () => ({
       files: attachements,
       add,
+      addAttachment,
       remove,
       clear,
       openFileDialog,
       fileInputRef,
     }),
-    [attachements, add, remove, clear, openFileDialog]
+    [attachements, add, addAttachment, remove, clear, openFileDialog]
   );
 
   const __registerFileInput = useCallback(
@@ -257,7 +312,7 @@ export const useOptionalPromptInputAttachments = (): AttachmentsContext | null =
 };
 
 export type PromptInputAttachmentProps = HTMLAttributes<HTMLDivElement> & {
-  data: FileUIPart & { id: string };
+  data: PromptInputAttachmentFile;
   className?: string;
 };
 
@@ -275,18 +330,26 @@ export function PromptInputAttachment({
   const isImage = mediaType === "image";
   const isAudio = data.mediaType?.startsWith("audio/") ?? false;
 
-  // For non-image files, truncate filename to max 20 characters followed by '..'
-  const attachmentLabel = filename
-    ? filename.length > 20
-      ? `${filename.slice(0, 20)}..`
-      : filename
-    : isImage
-    ? "Image"
-    : isAudio
-    ? "Voice note"
-    : "Attachment";
+  const displayLabel =
+    data.label ||
+    data.title ||
+    (filename
+      ? filename.length > 20
+        ? `${filename.slice(0, 20)}..`
+        : filename
+      : isImage
+      ? "Image"
+      : isAudio
+      ? "Voice note"
+      : "Attachment");
+  const displayTitle = data.title || data.label || filename || "Attachment";
 
-  if (isImage) {
+  const hasRichPreview = Boolean(
+    data.description || data.title || data.badge || data.thumbnailUrl
+  );
+
+  // If standard image with no rich metadata, keep existing image preview box
+  if (isImage && !hasRichPreview) {
     return (
       <div
         className={cn(
@@ -319,39 +382,109 @@ export function PromptInputAttachment({
     );
   }
 
-  return (
+  // Resolve item icon
+  const itemIcon = data.icon ? (
+    typeof data.icon === "string" ? (
+      <span className="text-sm leading-none">{data.icon}</span>
+    ) : (
+      data.icon
+    )
+  ) : isAudio ? (
+    <MusicIcon className="size-3.5" />
+  ) : (
+    <FileIcon className="size-3.5" />
+  );
+
+  // Resolve badge
+  const badgeLabel =
+    typeof data.badge === "string" ? data.badge : data.badge?.label;
+  const badgeIcon =
+    typeof data.badge === "object" && data.badge?.icon ? (
+      data.badge.icon
+    ) : (
+      <ShieldCheckIcon className="size-3" />
+    );
+
+  const chip = (
     <div
       className={cn(
-        "group relative flex h-8 cursor-default select-none items-center gap-1.5 rounded-md border border-border px-1.5 font-medium text-sm transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        "group relative inline-flex h-7 cursor-pointer select-none items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary data-[state=open]:border-primary data-[state=open]:text-primary",
         className
       )}
       key={data.id}
-      title={filename || undefined}
+      title={displayTitle}
       {...props}
     >
-      <div className="relative size-5 shrink-0">
-        <div className="absolute inset-0 flex size-5 items-center justify-center overflow-hidden rounded bg-background transition-opacity group-hover:opacity-0">
-          <div className="flex size-5 items-center justify-center text-muted-foreground">
-            {isAudio ? <MusicIcon className="size-3.5" /> : <FileIcon className="size-3.5" />}
-          </div>
-        </div>
-        <Button
-          aria-label="Remove attachment"
-          className="absolute inset-0 size-5 cursor-pointer rounded p-0 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 [&>svg]:size-2.5"
-          onClick={(e) => {
-            e.stopPropagation();
-            attachments.remove(data.id);
-          }}
-          type="button"
-          variant="ghost"
-        >
-          <XIcon />
-          <span className="sr-only">Remove</span>
-        </Button>
-      </div>
-
-      <span className="flex-1 truncate">{attachmentLabel}</span>
+      <span className="shrink-0 flex items-center justify-center text-inherit">
+        {itemIcon}
+      </span>
+      <span className="truncate max-w-[200px]">{displayLabel}</span>
+      <button
+        aria-label="Remove attachment"
+        className="ml-0.5 rounded-sm p-0.5 text-muted-foreground opacity-60 hover:opacity-100 hover:text-foreground transition-opacity"
+        onClick={(e) => {
+          e.stopPropagation();
+          attachments.remove(data.id);
+        }}
+        type="button"
+      >
+        <XIcon className="size-3" />
+        <span className="sr-only">Remove</span>
+      </button>
     </div>
+  );
+
+  if (!hasRichPreview) {
+    return chip;
+  }
+
+  return (
+    <HoverCard openDelay={150} closeDelay={100}>
+      <HoverCardTrigger asChild>{chip}</HoverCardTrigger>
+      <HoverCardContent
+        side="top"
+        align="start"
+        sideOffset={8}
+        className="w-72 rounded-xl border border-border bg-popover p-3.5 shadow-xl text-popover-foreground"
+      >
+        <div className="flex flex-col gap-2">
+          {data.thumbnailUrl && (
+            <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
+              <img
+                src={data.thumbnailUrl}
+                alt={displayTitle}
+                className="size-full object-cover"
+              />
+            </div>
+          )}
+          <div className="flex items-start gap-2">
+            {itemIcon && (
+              <div className="size-5 shrink-0 text-foreground flex items-center justify-center pt-0.5">
+                {itemIcon}
+              </div>
+            )}
+            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+              <span className="text-sm font-semibold text-foreground tracking-tight">
+                {displayTitle}
+              </span>
+            </div>
+          </div>
+          {data.description && (
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {data.description}
+            </p>
+          )}
+          {badgeLabel && (
+            <div className="pt-0.5 flex items-center">
+              <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium bg-muted text-muted-foreground border border-border/50">
+                {badgeIcon}
+                <span>{badgeLabel}</span>
+              </span>
+            </div>
+          )}
+        </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
@@ -359,7 +492,7 @@ export type PromptInputAttachmentsProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   "children"
 > & {
-  children: (attachment: FileUIPart & { id: string }) => ReactNode;
+  children: (attachment: PromptInputAttachmentFile) => ReactNode;
 };
 
 export function PromptInputAttachments({
@@ -472,7 +605,7 @@ export const PromptInput = ({
   }, []);
 
   // ----- Local attachments (only used when no provider)
-  const [items, setItems] = useState<(FileUIPart & { id: string })[]>([]);
+  const [items, setItems] = useState<PromptInputAttachmentFile[]>([]);
   const files = usingProvider ? controller.attachments.files : items;
 
   const openFileDialogLocal = useCallback(() => {
@@ -549,9 +682,40 @@ export const PromptInput = ({
     [matchesAccept, maxFiles, maxFileSize, onError]
   );
 
+  const addAttachmentLocal = useCallback(
+    (attachment: AttachmentItemData) => {
+      const id = attachment.id || nanoid();
+      setItems((prev) =>
+        prev.concat({
+          id,
+          type: "file" as const,
+          url: attachment.url || `item://${id}`,
+          mediaType: attachment.mediaType || "application/x-item",
+          filename:
+            attachment.filename ||
+            attachment.label ||
+            attachment.title ||
+            "item",
+          label: attachment.label,
+          title: attachment.title,
+          description: attachment.description,
+          icon: attachment.icon,
+          badge: attachment.badge,
+          thumbnailUrl: attachment.thumbnailUrl,
+        })
+      );
+    },
+    []
+  );
+
   const add = usingProvider
     ? (files: File[] | FileList) => controller.attachments.add(files)
     : addLocal;
+
+  const addAttachment = usingProvider
+    ? (attachment: AttachmentItemData) =>
+        controller.attachments.addAttachment?.(attachment)
+    : addAttachmentLocal;
 
   const remove = usingProvider
     ? (id: string) => controller.attachments.remove(id)
@@ -687,12 +851,13 @@ export const PromptInput = ({
     () => ({
       files: files.map((item) => ({ ...item, id: item.id })),
       add,
+      addAttachment,
       remove,
       clear,
       openFileDialog,
       fileInputRef: inputRef,
     }),
-    [files, add, remove, clear, openFileDialog]
+    [files, add, addAttachment, remove, clear, openFileDialog]
   );
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (event) => {

@@ -3,7 +3,11 @@
 import * as React from "react";
 import { AIConversation } from "@/components/blocks/AIConversation";
 import { FileChangeQueue } from "@/components/blocks/FileChangeQueue";
-import { PromptInput, type PromptInputContextProps } from "@/components/composites/PromptInput";
+import {
+  PromptInput,
+  type PromptInputContextProps,
+  type AttachmentAction,
+} from "@/components/composites/PromptInput";
 import { TaskQueue, type TaskItem } from "@/components/composites/TaskQueue";
 import { ApprovalCard } from "@/components/composites/ApprovalCard";
 import { cn } from "@/lib/utils";
@@ -13,7 +17,8 @@ import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval, QuestionOption } from "@/components/composites/ApprovalCard";
 import type { FormEvent } from "react";
-import type { UserMessageAttachment } from "@/components/composites/UserMessage";
+import type { UserMessageAttachment, UserMessageSelection } from "@/components/composites/UserMessage";
+import type { OrchestratorQuestionData } from "@/components/composites/OrchestratorMessage";
 import { SessionHeader } from "@/components/composites/SessionHeader";
 import type { ChatSessionInfo } from "@/components/composites/SessionHeader";
 import { exportMessagesToMarkdownFile, type ExportableMessage } from "@/utils/markdown-formatter";
@@ -36,7 +41,7 @@ import type { FileDownloadResult } from "@/components/composites/FileTreeExplore
 export interface RefinementMessage {
   id: string;
   type: "human" | "ai";
-  role: "user" | "orchestrator" | "specialist" | "system";
+  role: "user" | "orchestrator" | "specialist" | "system" | "question";
   content: string;
   avatarSrc?: string;
   avatarName?: string;
@@ -46,6 +51,9 @@ export interface RefinementMessage {
   checkpointId?: string;
   restoreLabel?: string;
   attachments?: UserMessageAttachment[];
+  timestamp?: string;
+  question?: OrchestratorQuestionData;
+  selection?: UserMessageSelection;
 }
 
 /**
@@ -63,7 +71,7 @@ export interface ChatPanelProps {
   /**
    * Submit handler for user input
    */
-  onSubmit: (
+  onSubmit?: (
     message: PromptInputMessage,
     event: FormEvent<HTMLFormElement>
   ) => void;
@@ -208,6 +216,10 @@ export interface ChatPanelProps {
    */
   enableAttachments?: boolean;
   /**
+   * Optional custom/grouped attachment actions (e.g. OneDrive, Google Drive, Figma, Local files)
+   */
+  attachmentActions?: AttachmentAction[];
+  /**
    * Whether to enable the voice-note microphone button in prompt
    * @default true
    */
@@ -248,6 +260,15 @@ export interface ChatPanelProps {
    */
   showDownloadSession?: boolean;
   /**
+   * Handler to share the active session
+   */
+  onShare?: () => void;
+  /**
+   * Whether to show the share button in the session header
+   * @default true
+   */
+  showShare?: boolean;
+  /**
    * Handler to switch to editor/overview in mobile view
    */
   onOverview?: () => void;
@@ -268,6 +289,20 @@ export interface ChatPanelProps {
    * Callback fired when clicking the backdrop overlay or dismissing the sheet (when variant="sheet")
    */
   onClose?: () => void;
+  /**
+   * Whether the chat is in read-only mode (e.g. shared session replay)
+   * @default false
+   */
+  readOnly?: boolean;
+  /**
+   * Whether to display the prompt input at the bottom of the panel
+   * @default true
+   */
+  showPromptInput?: boolean;
+  /**
+   * Optional custom bottom slot (e.g. share replay dock) rendered in place of or alongside the prompt input
+   */
+  bottomSlot?: React.ReactNode;
 }
 
 /**
@@ -288,7 +323,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     isApprovalProcessing = false,
     loading = false,
     onStop,
-    placeholder = "Ask a question or describe a task...",
+    placeholder,
     promptValue,
     onPromptValueChange,
     className,
@@ -316,6 +351,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onTaskStopAll,
     onTaskClick,
     enableAttachments = true,
+    attachmentActions,
     enableSpeech = true,
     showHeader = true,
     sessionTitle,
@@ -324,11 +360,19 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     showSessionActions = true,
     showNewSession = true,
     showDownloadSession = true,
+    onShare,
+    showShare = true,
     onOverview,
     showOverview = true,
     variant = "default",
     onClose,
+    readOnly = false,
+    showPromptInput = true,
+    bottomSlot,
   }) => {
+    const effectivePlaceholder =
+      placeholder ??
+      (readOnly ? "This conversation is a view-only replay" : "Ask a question or describe a task...");
     // File change queue state
     const [fileChangeState, setFileChangeState] = React.useState<
       "approval-requested" | "approval-responded"
@@ -386,7 +430,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     const handleApprovalApprove = React.useCallback(() => {
       if (activeApprovalRequest?.name === "ask_user") {
         const dummyEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
-        onSubmit({ text: "Approved", files: [] }, dummyEvent);
+        onSubmit?.({ text: "Approved", files: [] }, dummyEvent);
       } else {
         onApprovalApprove?.();
       }
@@ -396,7 +440,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     const handleApprovalReject = React.useCallback((reason: string) => {
       if (activeApprovalRequest?.name === "ask_user") {
         const dummyEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
-        onSubmit({ text: "Skipped", files: [] }, dummyEvent);
+        onSubmit?.({ text: "Skipped", files: [] }, dummyEvent);
       } else {
         onApprovalReject?.(reason);
       }
@@ -413,7 +457,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           .filter((a) => a.length > 0);
         const text = validAnswers.length > 0 ? validAnswers.join(', ') : 'Skipped';
         const dummyEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
-        onSubmit({ text, files: [] }, dummyEvent);
+        onSubmit?.({ text, files: [] }, dummyEvent);
       } else {
         onApprovalEdit?.(editedArgs);
       }
@@ -490,6 +534,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             showActions={showSessionActions}
             showNewSession={showNewSession}
             showDownloadSession={showDownloadSession}
+            onShare={onShare}
+            showShare={showShare}
             onOverview={onOverview}
             showOverview={showOverview}
             sessions={sessions}
@@ -528,24 +574,30 @@ export const ChatPanel = React.memo<ChatPanelProps>(
               onTaskClick={onTaskClick}
             />
           )}
-          <PromptInput
-            dialog={dialog}
-            placeholder={placeholder}
-            value={promptValue}
-            onChange={onPromptValueChange}
-            onSubmit={onSubmit}
-            loading={isAgentRunning}
-            onStop={onStop}
-            context={context}
-            enableSpeech={enableSpeech}
-            enableAttachments={enableAttachments}
-            className={cn(
-              "border border-neutral-600 bg-background shadow-sm overflow-hidden",
-              tasks.length > 0 && !dialog
-                ? "rounded-t-none rounded-b-2xl border-t-0"
-                : "rounded-full has-[[data-align=block-start]]:rounded-2xl"
-            )}
-          />
+          {bottomSlot ? (
+            bottomSlot
+          ) : showPromptInput ? (
+            <PromptInput
+              dialog={dialog}
+              placeholder={effectivePlaceholder}
+              value={promptValue}
+              onChange={onPromptValueChange}
+              onSubmit={onSubmit || (() => {})}
+              loading={isAgentRunning}
+              disabled={readOnly}
+              onStop={onStop}
+              context={context}
+              enableSpeech={readOnly ? false : enableSpeech}
+              enableAttachments={readOnly ? false : enableAttachments}
+              attachmentActions={readOnly ? undefined : attachmentActions}
+              className={cn(
+                "border border-neutral-600 bg-background shadow-sm overflow-hidden",
+                tasks.length > 0 && !dialog
+                  ? "rounded-t-none rounded-b-2xl border-t-0"
+                  : "rounded-full has-[[data-align=block-start]]:rounded-2xl"
+              )}
+            />
+          ) : null}
         </div>
       </div>
     );

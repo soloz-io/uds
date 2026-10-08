@@ -20,12 +20,39 @@ import { cn } from "@/lib/utils"
  * Accepts children components (SpecialistMessage and ToolCallDisplay) for composition.
  */
 
+export interface OrchestratorQuestionOption {
+  id?: string
+  label: string
+  url?: string
+  description?: string
+  selected?: boolean
+}
+
+export interface OrchestratorQuestionData {
+  /** Label tag, defaults to "QUESTION" */
+  label?: string
+  /** Timestamp displayed on the right, e.g. "11:12" */
+  timestamp?: string
+  /** The question prompt to display */
+  question: string
+  /** List of selectable options */
+  options?: (string | OrchestratorQuestionOption)[]
+  /** Answered/selected option label (if settled) */
+  answer?: string
+  /** Callback when an option is clicked */
+  onSelectOption?: (option: string | OrchestratorQuestionOption) => void
+  /** Disabled state for options */
+  disabled?: boolean
+}
+
 export interface OrchestratorMessageData {
   id: string
   content: string
   avatarSrc?: string
   avatarName?: string
   isLoading?: boolean
+  timestamp?: string
+  question?: OrchestratorQuestionData
 }
 
 export interface OrchestratorMessageProps {
@@ -37,6 +64,10 @@ export interface OrchestratorMessageProps {
    * Whether to show avatar
    */
   showAvatar?: boolean
+  /**
+   * Optional question data override
+   */
+  question?: OrchestratorQuestionData
   /**
    * Save the workspace as it stands after this reply.
    *
@@ -64,7 +95,8 @@ export interface OrchestratorMessageProps {
  * OrchestratorMessage component - displays coordinator messages with nested specialists and tools
  */
 export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
-  ({ message, showAvatar = true, children, onSave, isSaved, isSaving }) => {
+  ({ message, showAvatar = true, question: questionProp, children, onSave, isSaved, isSaving }) => {
+    const question = questionProp ?? message.question
     const hasContent = React.useMemo(
       () => message.content && message.content.trim() !== "",
       [message.content]
@@ -94,6 +126,50 @@ export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
             <MessageContent variant="contained">
               <Response mode={message.isLoading ? "streaming" : "static"} isAnimating={!!message.isLoading}>{message.content}</Response>
             </MessageContent>
+          )}
+
+          {/* AI Question Card (media_1791439182453.png) */}
+          {question && (
+            <div className={cn("w-full text-left", hasContent && "mt-3")}>
+              <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                <span>{question.label ?? "QUESTION"}</span>
+                {question.timestamp && <span className="normal-case tracking-normal">{question.timestamp}</span>}
+              </div>
+              <div className="mt-2 text-sm sm:text-base font-semibold text-foreground">
+                {question.question}
+              </div>
+              {question.options && question.options.length > 0 && (
+                <div className="mt-3 rounded-xl border border-border/60 divide-y divide-border/60 overflow-hidden bg-card/20">
+                  {question.options.map((opt, i) => {
+                    const label = typeof opt === "string" ? opt : opt.label
+                    const url = typeof opt === "object" ? opt.url : undefined
+                    const isInteractive = Boolean(question.onSelectOption && !question.disabled)
+
+                    return (
+                      <div
+                        key={typeof opt === "object" && opt.id ? opt.id : `${label}-${i}`}
+                        onClick={isInteractive ? () => question.onSelectOption!(opt) : undefined}
+                        className={cn(
+                          "flex items-center justify-between px-4 py-3 text-sm font-normal text-foreground transition-colors",
+                          isInteractive && "cursor-pointer hover:bg-accent/40"
+                        )}
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          {url && (
+                            <img
+                              src={url}
+                              alt={label}
+                              className="size-8 rounded object-cover shrink-0"
+                            />
+                          )}
+                          <span className="truncate">{label}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Child components (specialists and tool calls) */}

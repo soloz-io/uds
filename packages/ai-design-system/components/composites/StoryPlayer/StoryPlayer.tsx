@@ -98,6 +98,21 @@ export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
    */
   playbackMode?: StoryPlaybackMode;
   onPlaybackModeChange?: (mode: StoryPlaybackMode) => void;
+  initialPlaybackMode?: StoryPlaybackMode;
+  playbackModeDisabled?: boolean;
+  playbackModeTooltips?: {
+    video?: string;
+    scenes?: string;
+    disabled?: string;
+  };
+  renderScene?: (props: {
+    index: number;
+    scene: StorySegment;
+    isPlaying: boolean;
+    isMuted?: boolean;
+    onEnded?: () => void;
+    onProgress?: (progress: number) => void;
+  }) => React.ReactNode;
 }
 
 export type StoryPlaybackMode = "video" | "scenes";
@@ -154,6 +169,10 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       useVersionDisabled = false,
       playbackMode: playbackModeProp,
       onPlaybackModeChange,
+      initialPlaybackMode,
+      playbackModeDisabled = false,
+      playbackModeTooltips,
+      renderScene,
       className,
       ...props
     },
@@ -208,8 +227,12 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
     // "video": one stream, `videoUrl`, played straight through — no load between
     // segments; the current segment and its progress are read from the playhead.
     // "scenes": the dual-slot clip player above, one segment's clip at a time.
-    const [modeState, setModeState] = React.useState<StoryPlaybackMode>("video");
+    const [modeState, setModeState] = React.useState<StoryPlaybackMode>(
+      initialPlaybackMode ?? (videoUrl ? "video" : "scenes")
+    );
     const mode = playbackModeProp ?? modeState;
+    const isModeDisabled = Boolean(playbackModeDisabled || !videoUrl);
+    const effectiveMode: StoryPlaybackMode = !videoUrl && renderScene ? "scenes" : mode;
     const videoFullRef = React.useRef<HTMLVideoElement | null>(null);
     const spans = React.useMemo(
       () =>
@@ -221,6 +244,12 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
     );
     /** Where the playhead is within the current segment, 0..1 (video mode). */
     const [segmentProgress, setSegmentProgress] = React.useState(0);
+    const [sceneProgress, setSceneProgress] = React.useState(0);
+
+    React.useEffect(() => {
+      setSceneProgress(0);
+    }, [currentStoryIndex]);
+
     const currentIndexRef = React.useRef(currentStoryIndex);
     currentIndexRef.current = currentStoryIndex;
     /** Seconds into the current segment to resume at after a mode switch. */
@@ -269,7 +298,7 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
         const clampedIdx = (targetIdx + items.length) % items.length;
 
         // Video mode: a segment is a span of the one stream — seek to its start.
-        if (mode === "video") {
+        if (effectiveMode === "video") {
           const video = videoFullRef.current;
           if (video) video.currentTime = spans[clampedIdx]?.start ?? 0;
           currentIndexRef.current = clampedIdx;
@@ -337,7 +366,7 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
 
         setActiveSlot(nextActiveSlot);
       },
-      [items, activeSlot, isPlaying, isMuted, onStoryChange, onSceneChange, mode, spans]
+      [items, activeSlot, isPlaying, isMuted, onStoryChange, onSceneChange, effectiveMode, spans]
     );
 
     /** The segment the playhead is in: the last one starting at or before it. */
@@ -378,8 +407,9 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
 
     /** Switch modes, keeping the segment on screen and the time into it. */
     const switchMode = React.useCallback(() => {
+      if (isModeDisabled) return;
       const index = currentIndexRef.current;
-      if (mode === "video") {
+      if (effectiveMode === "video") {
         const video = videoFullRef.current;
         resumeOffsetRef.current = video ? Math.max(0, video.currentTime - (spans[index]?.start ?? 0)) : 0;
         setSlot0Index(index);
@@ -389,10 +419,10 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
         const clip = activeSlot === 0 ? videoRef0.current : videoRef1.current;
         resumeOffsetRef.current = clip ? clip.currentTime : 0;
       }
-      const next: StoryPlaybackMode = mode === "video" ? "scenes" : "video";
+      const next: StoryPlaybackMode = effectiveMode === "video" ? "scenes" : "video";
       setModeState(next);
       onPlaybackModeChange?.(next);
-    }, [mode, spans, items.length, activeSlot, onPlaybackModeChange]);
+    }, [effectiveMode, isModeDisabled, spans, items.length, activeSlot, onPlaybackModeChange]);
 
     const handlePromptSubmit = React.useCallback(
       (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => {
@@ -651,11 +681,11 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
             const isCompleted = idx < currentStoryIndex;
             const isCurrent = idx === currentStoryIndex;
             // Video mode fills the current segment with the playhead; scenes mode
-            // marks the segments reached.
+            // marks the segments reached or tracks sceneProgress when custom renderScene is provided.
             const fill =
-              mode === "video"
+              effectiveMode === "video"
                 ? isCompleted ? 1 : isCurrent ? segmentProgress : 0
-                : isCompleted || isCurrent ? 1 : 0;
+                : isCompleted ? 1 : isCurrent ? (renderScene ? sceneProgress : 1) : 0;
             return (
               <div
                 key={item.id || `story-segment-${idx}`}
@@ -671,15 +701,33 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
             <TooltipTrigger asChild>
               <button
                 type="button"
-                onClick={switchMode}
-                aria-label={mode === "video" ? "Play scene by scene" : "Play as one video"}
-                className="ml-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white/80 hover:bg-white/20 hover:text-white"
+                onClick={isModeDisabled ? undefined : switchMode}
+                disabled={isModeDisabled}
+                aria-label={
+                  isModeDisabled
+                    ? (playbackModeTooltips?.disabled ?? "Full render video pending")
+                    : effectiveMode === "video"
+                      ? (playbackModeTooltips?.video ?? "Switch to live preview")
+                      : (playbackModeTooltips?.scenes ?? "Switch to full render video")
+                }
+                className={cn(
+                  "ml-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white/80 transition-opacity",
+                  isModeDisabled
+                    ? "opacity-35 cursor-not-allowed"
+                    : "hover:bg-white/20 hover:text-white cursor-pointer"
+                )}
                 data-testid="btn-playback-mode"
               >
-                <Icon name={mode === "video" ? "layers" : "film"} className="h-3.5 w-3.5" />
+                <Icon name={effectiveMode === "video" ? "layers" : "film"} className="h-3.5 w-3.5" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>{mode === "video" ? "Play scene by scene" : "Play as one video"}</TooltipContent>
+            <TooltipContent>
+              {isModeDisabled
+                ? (playbackModeTooltips?.disabled ?? "Full render video pending")
+                : effectiveMode === "video"
+                  ? (playbackModeTooltips?.video ?? "Switch to live preview")
+                  : (playbackModeTooltips?.scenes ?? "Switch to full render video")}
+            </TooltipContent>
           </Tooltip>
         </div>
 
@@ -835,7 +883,7 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
         {/* Main Scene Video Player Stage */}
         <div className="flex-1 relative flex items-center justify-center bg-black overflow-hidden min-h-0">
           {/* Video mode: the whole piece, the segments spans of it */}
-          {mode === "video" && (
+          {effectiveMode === "video" && (
             videoUrl ? (
               <video
                 ref={videoFullRef}
@@ -861,41 +909,58 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
             )
           )}
 
-          {/* Scenes mode: Slot 0 Video */}
-          {mode === "scenes" && (
-          <video
-            ref={videoRef0}
-            src={getClipUrl(items[slot0Index])}
-            preload="auto"
-            playsInline
-            muted={isMuted}
-            onEnded={activeSlot === 0 ? handleStoryEnded : undefined}
-            onTimeUpdate={activeSlot === 0 ? handleTimeUpdate : undefined}
-            data-testid="story-video-0"
-            className={cn(
-              "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-75",
-              activeSlot === 0 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
-            )}
-          />
+          {/* Scenes mode: Slot 0 Video or custom renderScene */}
+          {effectiveMode === "scenes" && (
+            renderScene ? (
+              <div
+                key={`custom-scene-${currentStoryIndex}`}
+                className="w-full h-full object-contain bg-black absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
+              >
+                {renderScene({
+                  index: currentStoryIndex,
+                  scene: activeStory,
+                  isPlaying,
+                  isMuted,
+                  onEnded: handleStoryEnded,
+                  onProgress: setSceneProgress,
+                })}
+              </div>
+            ) : (
+              <>
+                <video
+                  ref={videoRef0}
+                  src={getClipUrl(items[slot0Index])}
+                  preload="auto"
+                  playsInline
+                  muted={isMuted}
+                  onEnded={activeSlot === 0 ? handleStoryEnded : undefined}
+                  onTimeUpdate={activeSlot === 0 ? handleTimeUpdate : undefined}
+                  data-testid="story-video-0"
+                  className={cn(
+                    "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-75",
+                    activeSlot === 0 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
+                  )}
+                />
 
-          )}
-
-          {/* Slot 1 Video (preloads next scene in background for gapless playback) */}
-          {mode === "scenes" && items.length > 1 && (
-            <video
-              ref={videoRef1}
-              src={getClipUrl(items[slot1Index])}
-              preload="auto"
-              playsInline
-              muted={isMuted}
-              onEnded={activeSlot === 1 ? handleStoryEnded : undefined}
-              onTimeUpdate={activeSlot === 1 ? handleTimeUpdate : undefined}
-              data-testid="story-video-1"
-              className={cn(
-                "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-75",
-                activeSlot === 1 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
-              )}
-            />
+                {/* Slot 1 Video (preloads next scene in background for gapless playback) */}
+                {items.length > 1 && (
+                  <video
+                    ref={videoRef1}
+                    src={getClipUrl(items[slot1Index])}
+                    preload="auto"
+                    playsInline
+                    muted={isMuted}
+                    onEnded={activeSlot === 1 ? handleStoryEnded : undefined}
+                    onTimeUpdate={activeSlot === 1 ? handleTimeUpdate : undefined}
+                    data-testid="story-video-1"
+                    className={cn(
+                      "w-full h-full object-contain bg-black absolute inset-0 transition-opacity duration-75",
+                      activeSlot === 1 ? "opacity-100 z-10" : "opacity-0 pointer-events-none z-0"
+                    )}
+                  />
+                )}
+              </>
+            )
           )}
 
           {/* Invisible tap zones: left steps back, the middle plays and pauses, right steps on */}

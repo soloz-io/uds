@@ -42,6 +42,11 @@ export {
   AnnouncementBanner,
   SolutionsLayout,
   FeatureCard,
+  ShowcaseGallery,
+  ShowcaseCard,
+  ProcessSteps,
+  CtaBanner,
+  FaqSection,
   SideSheet,
   SideSheetRoot,
   SideSheetTrigger,
@@ -54,6 +59,7 @@ export {
   SceneReviewSheet,
   ShareDialog,
 } from './composites';
+export { Icon, Button } from './primitives';
 export type {
   ShareDialogProps,
   ShareItem,
@@ -90,6 +96,9 @@ export type {
   AttachmentsContext,
   TextInputContext,
   PromptInputProviderProps,
+  AttachmentAction,
+  AttachmentActionItem,
+  AttachmentActionGroup,
   ContextProps,
   ContextTriggerProps,
   ContextContentProps,
@@ -103,6 +112,9 @@ export type {
   TaskQueueProps,
   TaskItem,
   TaskStatus,
+  UserMessageSelection,
+  OrchestratorQuestionData,
+  OrchestratorQuestionOption,
 } from './composites';
 export type {
   SiteHeaderProps,
@@ -113,6 +125,15 @@ export type {
   SolutionTab,
   FeatureCardProps,
   FeatureCardAction,
+  ShowcaseGalleryProps,
+  ShowcaseCardProps,
+  ShowcaseItem,
+  ProcessStepsProps,
+  ProcessStepItem,
+  CtaBannerProps,
+  CtaBannerAction,
+  FaqSectionProps,
+  FaqItem,
 } from './composites';
 
 export {

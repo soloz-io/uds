@@ -41,9 +41,18 @@ export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
   onCloseSession?: (id: string) => void;
   onSelectSession?: (id: string) => void;
   onDownloadSession?: () => Promise<FileDownloadResult | undefined>;
+  /**
+   * Handler to share the active session
+   */
+  onShare?: () => void;
   showActions?: boolean;
   showNewSession?: boolean;
   showDownloadSession?: boolean;
+  /**
+   * Whether to show the share button in the session header
+   * @default true
+   */
+  showShare?: boolean;
   /**
    * Handler to switch to editor/overview in mobile view
    */
@@ -62,7 +71,7 @@ export interface SessionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
  * and a dropdown history of past sessions.
  */
 export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps>(
-  ({ title, titleFormat = 'title', timeZone, sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, showActions = true, showNewSession = true, showDownloadSession = true, onOverview, showOverview = true, className, ...props }, ref) => {
+  ({ title, titleFormat = 'title', timeZone, sessions, activeSessionId, onNewSession, onCloseSession, onSelectSession, onDownloadSession, onShare, showActions = true, showNewSession = true, showDownloadSession = true, showShare = true, onOverview, showOverview = true, className, ...props }, ref) => {
     const activeSession = sessions?.find(s => s.id === activeSessionId);
     const downloadRef = React.useRef<HTMLAnchorElement>(null);
 
@@ -113,6 +122,19 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
                 aria-label="Overview"
               >
                 <Icon name="overview" className="h-4 w-4" />
+              </Button>
+            )}
+            {Boolean(onShare && showShare !== false) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onShare}
+                className="h-8 w-8"
+                title="Share session"
+                aria-label="Share session"
+                data-testid="session-share-btn"
+              >
+                <Icon name="share" className="h-4 w-4" />
               </Button>
             )}
             {Boolean(onDownloadSession && showDownloadSession) && (
