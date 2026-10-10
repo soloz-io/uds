@@ -18,6 +18,9 @@ export * from './SectionLayout'
 export { ExpoAppPreview } from '@/components/ai-elements/ExpoAppPreview'
 export type { ExpoAppPreviewProps } from '@/components/ai-elements/ExpoAppPreview'
 
+export { WorkspaceEmptyState, SandboxWakePane } from '@/components/composites/WorkspaceEmptyState'
+export type { WorkspaceEmptyStateProps, SandboxWakePaneProps, WorkspaceWakeStatus } from '@/components/composites/WorkspaceEmptyState'
+
 export { WorkflowCanvas, getLayoutedElements } from './WorkflowCanvas'
 export type { WorkflowCanvasProps, WorkflowNode, WorkflowEdge, WorkflowNodeData } from './WorkflowCanvas'
 

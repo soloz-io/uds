@@ -58,9 +58,13 @@ export {
   SideSheetDescription,
   SceneReviewSheet,
   ShareDialog,
+  ConfirmDialog,
+  WorkspaceEmptyState,
+  SandboxWakePane,
 } from './composites';
 export { Icon, Button } from './primitives';
 export type {
+  ConfirmDialogProps,
   ShareDialogProps,
   ShareItem,
   ExpiryDuration,
@@ -134,6 +138,9 @@ export type {
   CtaBannerAction,
   FaqSectionProps,
   FaqItem,
+  WorkspaceEmptyStateProps,
+  SandboxWakePaneProps,
+  WorkspaceWakeStatus,
 } from './composites';
 
 export {

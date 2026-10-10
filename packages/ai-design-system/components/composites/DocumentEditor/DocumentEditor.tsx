@@ -23,6 +23,26 @@ import {
 import { applyAnnotationsToEditor } from '@/utils/editor-annotations'
 import type { DocumentEditorProps } from '@/types/ai-editor'
 
+type MarkdownStorage = {
+  markdown?: {
+    getMarkdown?: () => string
+  }
+}
+
+type EditorWithMarkdown = {
+  getMarkdown?: () => string
+  storage?: MarkdownStorage
+}
+
+const getEditorMarkdown = (ed: { getText: () => string; storage?: unknown }): string => {
+  const edWithMd = ed as unknown as EditorWithMarkdown
+  return (
+    edWithMd.getMarkdown?.() ??
+    edWithMd.storage?.markdown?.getMarkdown?.() ??
+    ed.getText()
+  )
+}
+
 export const DocumentEditor = React.memo<DocumentEditorProps>(
   ({
     content,
@@ -35,6 +55,7 @@ export const DocumentEditor = React.memo<DocumentEditorProps>(
     onAnnotationClick,
     onAnnotationHover,
     readOnly = true,
+    onContentUpdate,
     className,
   }) => {
     const editor = useEditor({
@@ -53,6 +74,14 @@ export const DocumentEditor = React.memo<DocumentEditorProps>(
       // Tell Tiptap what format the initial content is in
       contentType: format === 'markdown' ? 'markdown' : 'json',
       editable: !readOnly,
+      onUpdate: ({ editor: ed }) => {
+        if (format === 'markdown') {
+          const md = getEditorMarkdown(ed)
+          onContentUpdate?.(md)
+        } else {
+          onContentUpdate?.(ed.getJSON())
+        }
+      },
       editorProps: {
         attributes: {
           class: cn(
@@ -64,13 +93,22 @@ export const DocumentEditor = React.memo<DocumentEditorProps>(
       },
     })
 
-    // Update content when it changes
+    // Keep editor editable state in sync with readOnly prop
     useEffect(() => {
-      if (editor && content) {
+      if (editor) {
+        editor.setEditable(!readOnly)
+      }
+    }, [editor, readOnly])
+
+    // Update content when it changes externally
+    useEffect(() => {
+      if (editor && content !== undefined && content !== null) {
         // Handle markdown format
         if (format === 'markdown' && typeof content === 'string') {
-          // Use contentType option to tell Tiptap to parse as markdown
-          editor.commands.setContent(content, { contentType: 'markdown' })
+          const currentMd = getEditorMarkdown(editor)
+          if (currentMd !== content) {
+            editor.commands.setContent(content, { contentType: 'markdown' })
+          }
         } 
         // Handle JSON format
         else {

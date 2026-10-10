@@ -282,8 +282,8 @@ export { MediaPreview, isVideoFile, isAudioFile, isImageFile, isPdfFile, isMedia
 export type { MediaPreviewProps, MediaFileLike } from './MediaPreview'
 
 // WorkspaceEmptyState Composite
-export { WorkspaceEmptyState } from './WorkspaceEmptyState'
-export type { WorkspaceEmptyStateProps } from './WorkspaceEmptyState'
+export { WorkspaceEmptyState, SandboxWakePane } from './WorkspaceEmptyState'
+export type { WorkspaceEmptyStateProps, SandboxWakePaneProps, WorkspaceWakeStatus } from './WorkspaceEmptyState'
 
 // StoriesBar Composite
 export { StoriesBar } from './StoriesBar'
@@ -340,6 +340,10 @@ export type {
 // ShareDialog Composite
 export { ShareDialog } from './ShareDialog'
 export type { ShareDialogProps, ShareItem, ExpiryDuration } from './ShareDialog'
+
+// ConfirmDialog Composite
+export { ConfirmDialog } from './ConfirmDialog'
+export type { ConfirmDialogProps } from './ConfirmDialog'
 
 // ShowcaseGallery Composite
 export { ShowcaseGallery, ShowcaseCard } from './ShowcaseGallery'

@@ -41,6 +41,8 @@ export interface DocumentEditorWithCommentsProps {
   onAnnotationAdd?: (annotation: Annotation) => void
   /** Callback when annotation is updated (e.g., reply added) */
   onAnnotationUpdate?: (annotation: Annotation) => void
+  /** Callback when editor content updates */
+  onContentUpdate?: (content: JSONContent | string) => void
   /** Additional CSS classes */
   className?: string
 }
@@ -56,6 +58,7 @@ export const DocumentEditorWithComments = React.memo<DocumentEditorWithCommentsP
     readOnly = false,
     onAnnotationAdd,
     onAnnotationUpdate,
+    onContentUpdate,
     className,
   }) => {
     // Internal UI state
@@ -229,8 +232,9 @@ export const DocumentEditorWithComments = React.memo<DocumentEditorWithCommentsP
         onAnnotationClick: handleAnnotationClick,
         onAnnotationHover: handleAnnotationHover,
         readOnly,
+        onContentUpdate,
       }),
-      [content, format, annotations, selectedAnnotationId, hoveredAnnotationId, selectedRange, handleTextSelect, handleAnnotationClick, handleAnnotationHover, readOnly]
+      [content, format, annotations, selectedAnnotationId, hoveredAnnotationId, selectedRange, handleTextSelect, handleAnnotationClick, handleAnnotationHover, readOnly, onContentUpdate]
     )
 
     return (

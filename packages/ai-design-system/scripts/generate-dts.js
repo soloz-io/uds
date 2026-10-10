@@ -371,6 +371,27 @@ export declare const SiteHeader: React.FC<SiteHeaderProps>;
 export declare const AnnouncementBanner: React.FC<AnnouncementBannerProps>;
 export declare const SolutionsLayout: React.FC<SolutionsLayoutProps>;
 
+export type WorkspaceWakeStatus = 'idle' | 'waking' | 'starting' | 'error';
+
+export interface WorkspaceEmptyStateProps {
+  status?: WorkspaceWakeStatus;
+  detail?: 'ready' | 'installing' | 'not-ready' | 'supervision-failed' | 'unreachable' | string | null;
+  error?: string | null;
+  label?: string;
+  onWake?: () => void;
+  isWaking?: boolean;
+  wakeButtonText?: string;
+  buttonVariant?: 'amber' | 'outline' | 'default';
+  className?: string;
+  actionLabel?: string;
+  onAction?: () => void;
+  actionClassName?: string;
+}
+
+export declare const WorkspaceEmptyState: React.FC<WorkspaceEmptyStateProps>;
+export type SandboxWakePaneProps = WorkspaceEmptyStateProps;
+export declare const SandboxWakePane: React.FC<SandboxWakePaneProps>;
+
 export declare const NavigationMenu: any;
 export declare const NavigationMenuList: any;
 export declare const NavigationMenuItem: any;

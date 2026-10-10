@@ -59,6 +59,11 @@ export interface DocumentTabBarProps {
    * @default true
    */
   showScrollArrows?: boolean
+
+  /**
+   * Callback when new tab (+) button is clicked
+   */
+  onNewTab?: () => void
 }
 
 /**
@@ -88,6 +93,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
     onToggleExplorer,
     className,
     showScrollArrows = true,
+    onNewTab,
   }) => {
     const scrollContainerRef = useRef<HTMLDivElement>(null)
     const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -284,6 +290,27 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                         )}
                       </div>
                     ))}
+                    {onNewTab && (
+                      <div className="flex items-center shrink-0 px-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onNewTab()
+                          }}
+                          className={cn(
+                            'h-8 w-8 text-muted-foreground hover:text-foreground',
+                            'focus-visible:ring-2 focus-visible:ring-ring',
+                            'transition-colors'
+                          )}
+                          aria-label="New document"
+                          title="New document"
+                        >
+                          <Icon name="plus" size="xs" />
+                        </Button>
+                      </div>
+                    )}
                   </TabsList>
                 </Tabs>
               </ScrollArea>

@@ -5,7 +5,10 @@ import { fn } from "@storybook/test";
 /**
  * StoriesBar Composite Stories
  *
- * Displays circular story avatar bubbles with status indicators and titles.
+ * Displays circular story avatar bubbles. Every bubble is a story, with the channel
+ * session story pinned first (icon "sparkles").
+ * Status is communicated through the icon color (working=amber, ready=emerald, failed=red, stopped=muted).
+ * A badge dot appears ONLY when `unread` is true (the session expects user response/has unseen notification).
  */
 const meta = {
   title: "Composites/StoriesBar",
@@ -21,6 +24,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const mockStories: StoryItem[] = [
+  { id: "channel", title: "Channel", icon: "sparkles", status: "working" },
   { id: "story-1", title: "Devin iOS", status: "ready", unread: true },
   { id: "story-2", title: "Waypoint", status: "ready" },
   { id: "story-3", title: "Design Sys", status: "working" },
@@ -35,6 +39,16 @@ const mockStories: StoryItem[] = [
 export const Default: Story = {
   args: {
     activeStoryId: "story-1",
+    stories: mockStories,
+  },
+};
+
+/**
+ * Channel active (default state when channel chat is open)
+ */
+export const ChannelActive: Story = {
+  args: {
+    activeStoryId: null,
     stories: mockStories,
   },
 };

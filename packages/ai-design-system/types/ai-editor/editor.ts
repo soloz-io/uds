@@ -50,6 +50,8 @@ export interface DocumentEditorProps {
   onAnnotationHover?: (annotationId: string | null) => void
   /** Whether editor is read-only */
   readOnly?: boolean
+  /** Callback when editor content updates */
+  onContentUpdate?: (content: JSONContent | string) => void
   /** Additional CSS classes */
   className?: string
 }

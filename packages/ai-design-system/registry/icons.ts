@@ -832,6 +832,11 @@ export const defaultIcons: Record<string, IconDefinition> = {
       { type: 'path', attrs: { d: 'm9 12 2 2 4-4' } },
     ],
   },
+  'sparkles': {
+    name: 'sparkles',
+    viewBox: '0 0 24 24',
+    path: 'M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07',
+  },
 };
 
 /**

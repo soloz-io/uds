@@ -136,6 +136,8 @@ export interface TextEditorMultiTabProps {
   onMobileSectionChange?: (section: 'explorer' | 'editor') => void
   /** Custom renderer for specific documents (e.g. preview, interactive canvases, custom views) */
   renderDocument?: (doc: DocumentWithAnnotations) => React.ReactNode
+  /** Callback when new tab (+) button is clicked */
+  onNewTab?: () => void
 }
 
 /**
@@ -147,7 +149,7 @@ export type TextEditorProps = (TextEditorSingleProps | TextEditorMultiTabProps) 
   /** Editor mode: 'review' allows commenting, 'readonly' disables interactions */
   mode: 'review' | 'readonly'
   /** Callback when document content is updated */
-  onContentUpdate?: (content: JSONContent) => void
+  onContentUpdate?: (content: JSONContent | string) => void
   /** Callback when annotation is clicked */
   onAnnotationClick?: (annotation: Annotation) => void
   /** Callback when annotation is hovered */
@@ -222,6 +224,7 @@ export const TextEditor = React.memo<TextEditorProps>(
       className,
       onAnnotationAdd,
       onAnnotationUpdate,
+      onContentUpdate,
     } = props
 
     const isMultiTab = isMultiTabMode(props)
@@ -415,7 +418,7 @@ export const TextEditor = React.memo<TextEditorProps>(
       const isMarkdown = format === 'markdown' || format === 'md' || format === 'mdx'
       const isCode = !isMarkdown && typeof props.content === 'string'
 
-      if (isMarkdown || isCode) {
+      if (mode === 'readonly' && (isMarkdown || isCode)) {
         const contentStr = props.content as string
         const content = isCode
           ? `\`\`\`${format}\n${format === 'json' ? formatJson(contentStr) : contentStr}\n\`\`\``
@@ -438,6 +441,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             currentUserId={currentUser.id}
             currentUserName={currentUser.name}
             readOnly={mode === 'readonly'}
+            onContentUpdate={onContentUpdate}
             onAnnotationAdd={handleAnnotationAdd}
             onAnnotationUpdate={handleAnnotationUpdate}
             className={cn('text-editor p-3 sm:p-6 h-full flex flex-col', className)}
@@ -480,6 +484,7 @@ export const TextEditor = React.memo<TextEditorProps>(
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
               onToggleExplorer={() => handleOpenChange(true)}
+              onNewTab={(props as TextEditorMultiTabProps).onNewTab}
             />
           )}
           {hideTabBar && (
@@ -511,6 +516,7 @@ export const TextEditor = React.memo<TextEditorProps>(
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
               onToggleExplorer={() => handleOpenChange(true)}
+              onNewTab={(props as TextEditorMultiTabProps).onNewTab}
             />
           )}
           {hideTabBar && (
@@ -536,6 +542,7 @@ export const TextEditor = React.memo<TextEditorProps>(
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
               onToggleExplorer={() => handleOpenChange(true)}
+              onNewTab={(props as TextEditorMultiTabProps).onNewTab}
             />
           )}
           {hideTabBar && (
@@ -554,13 +561,14 @@ export const TextEditor = React.memo<TextEditorProps>(
       const format = currentDocument.file.format || 'markdown'
       const isMarkdownMulti = format === 'markdown' || format === 'md' || format === 'mdx'
       const isCodeMulti = !isMarkdownMulti && typeof currentDocument.content === 'string'
-      const renderAsStreamdown = isMarkdownMulti || isCodeMulti
-      const hasContent = typeof currentDocument.content === 'string' ? currentDocument.content.trim().length > 0 : !!currentDocument.content
+      const renderAsStreamdown = mode === 'readonly' && (isMarkdownMulti || isCodeMulti)
+      const isContentLoading = currentDocument.content === undefined || currentDocument.content === null
 
       console.log('[TextEditor:renderEditorPane]', {
         fileId: currentDocument.file.id,
         format,
-        hasContent,
+        mode,
+        isContentLoading,
         contentLength: typeof currentDocument.content === 'string' ? currentDocument.content.length : undefined
       })
 
@@ -574,6 +582,7 @@ export const TextEditor = React.memo<TextEditorProps>(
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
               onToggleExplorer={() => handleOpenChange(true)}
+              onNewTab={(props as TextEditorMultiTabProps).onNewTab}
             />
           )}
           {hideTabBar && (
@@ -584,7 +593,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             />
           )}
           <div className="flex-1 overflow-auto">
-            {!hasContent ? (
+            {isContentLoading ? (
               <div className="flex items-center justify-center p-8 text-muted-foreground animate-pulse">
                 Loading document content...
               </div>
@@ -610,6 +619,7 @@ export const TextEditor = React.memo<TextEditorProps>(
                 currentUserId={currentUser.id}
                 currentUserName={currentUser.name}
                 readOnly={mode === 'readonly'}
+                onContentUpdate={onContentUpdate}
                 onAnnotationAdd={handleAnnotationAdd}
                 onAnnotationUpdate={handleAnnotationUpdate}
                 className="text-editor p-3 sm:p-6 min-h-full"

@@ -300,6 +300,10 @@ export interface ChatPanelProps {
    */
   showPromptInput?: boolean;
   /**
+   * Optional custom top slot (e.g. conversations/stories bar) rendered below the session header and above messages
+   */
+  topSlot?: React.ReactNode;
+  /**
    * Optional custom bottom slot (e.g. share replay dock) rendered in place of or alongside the prompt input
    */
   bottomSlot?: React.ReactNode;
@@ -368,6 +372,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     onClose,
     readOnly = false,
     showPromptInput = true,
+    topSlot,
     bottomSlot,
   }) => {
     const effectivePlaceholder =
@@ -401,10 +406,13 @@ export const ChatPanel = React.memo<ChatPanelProps>(
 
     // Pending ask_user question extracted from approvalRequest args
     const pendingAskUser = React.useMemo(() => {
-      if (approvalRequest?.name === "ask_user" && approvalRequest.args.question) {
+      const isQuestion = approvalRequest?.name === "ask_user" || approvalRequest?.name === "ask_question";
+      if (isQuestion && (approvalRequest.args.question || approvalRequest.args.questions)) {
+        const question = (approvalRequest.args.question as string) ||
+          (Array.isArray(approvalRequest.args.questions) ? approvalRequest.args.questions[0]?.question : '');
         return {
-          question: approvalRequest.args.question as string,
-          options: approvalRequest.args.options as (string | QuestionOption)[] | undefined,
+          question: question as string,
+          options: (approvalRequest.args.options || (Array.isArray(approvalRequest.args.questions) ? approvalRequest.args.questions[0]?.options : undefined)) as (string | QuestionOption)[] | undefined,
         };
       }
       return null;
@@ -428,7 +436,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
 
     // Handle approve for HITL approval request
     const handleApprovalApprove = React.useCallback(() => {
-      if (activeApprovalRequest?.name === "ask_user") {
+      const isQuestion = activeApprovalRequest?.name === "ask_user" || activeApprovalRequest?.name === "ask_question";
+      if (isQuestion) {
         const dummyEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
         onSubmit?.({ text: "Approved", files: [] }, dummyEvent);
       } else {
@@ -438,7 +447,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
 
     // Handle reject for HITL approval request
     const handleApprovalReject = React.useCallback((reason: string) => {
-      if (activeApprovalRequest?.name === "ask_user") {
+      const isQuestion = activeApprovalRequest?.name === "ask_user" || activeApprovalRequest?.name === "ask_question";
+      if (isQuestion) {
         const dummyEvent = { preventDefault: () => { } } as React.FormEvent<HTMLFormElement>;
         onSubmit?.({ text: "Skipped", files: [] }, dummyEvent);
       } else {
@@ -448,7 +458,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
 
     // Handle edit for HITL approval request
     const handleApprovalEdit = React.useCallback((editedArgs: Record<string, unknown>) => {
-      if (activeApprovalRequest?.name === "ask_user" && editedArgs.answers) {
+      const isQuestion = activeApprovalRequest?.name === "ask_user" || activeApprovalRequest?.name === "ask_question";
+      if (isQuestion && editedArgs.answers) {
         const rawAnswers = Array.isArray(editedArgs.answers)
           ? editedArgs.answers
           : [editedArgs.answers];
@@ -546,6 +557,8 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             onDownloadSession={onDownloadSession || (async () => exportMessagesToMarkdownFile(messages as ExportableMessage[]))}
           />
         )}
+
+        {topSlot}
 
         <AIConversation
           messages={messages}
