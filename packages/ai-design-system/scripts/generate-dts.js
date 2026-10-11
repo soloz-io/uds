@@ -418,6 +418,20 @@ export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, "viewBox"
 }
 export declare const Icon: React.FC<IconProps>;
 
+export declare const THEMES: readonly ["light", "dark-neutral", "dark-green", "dark-violet"];
+export type Theme = (typeof THEMES)[number];
+export interface ThemeRoot {
+  classList: Pick<DOMTokenList, "add" | "remove">;
+  setAttribute(name: string, value: string): void;
+  removeAttribute(name: string): void;
+}
+export interface ThemeProviderProps {
+  theme: Theme;
+  children?: React.ReactNode;
+}
+export declare function applyTheme(root: ThemeRoot, theme: Theme): () => void;
+export declare const ThemeProvider: React.FC<ThemeProviderProps>;
+
 export declare function getLayoutedElements(nodes: any[], edges: any[]): Promise<{ nodes: any[]; edges: any[] }>;
 export declare function bmcToCanvas(bmc: CompiledBmc | null, message?: string): BmcCanvasView;
 export declare function addEdge(edgeParams: any, edges: any[]): any[];

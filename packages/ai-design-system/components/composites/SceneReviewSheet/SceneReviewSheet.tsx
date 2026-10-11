@@ -58,6 +58,8 @@ export interface SceneReviewSheetProps {
   /** Why sending is unavailable, e.g. while a version is being made. */
   applyDisabledReason?: string;
   className?: string;
+  /** Size on desktop (defaults to 'sm' matching standard shadcn sm:max-w-sm) */
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 /**
@@ -255,6 +257,7 @@ export function SceneReviewSheet({
   applyDisabled = false,
   applyDisabledReason,
   className,
+  size,
 }: SceneReviewSheetProps) {
   const canApply = Boolean(onApply) && draftCount > 0 && !applyDisabled;
 
@@ -285,6 +288,7 @@ export function SceneReviewSheet({
       description={description}
       footer={footer}
       className={className}
+      size={size}
     >
       <div className="space-y-3" data-testid="scene-comments-panel">
         {comments.length === 0 ? (

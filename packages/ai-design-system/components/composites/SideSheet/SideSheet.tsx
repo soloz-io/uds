@@ -60,7 +60,16 @@ export interface SideSheetProps {
   className?: string;
   /** Class name for the inner scrollable content area */
   contentClassName?: string;
+  /** Size on desktop (defaults to 'sm' matching standard shadcn sm:max-w-sm) */
+  size?: "sm" | "md" | "lg" | "xl";
 }
+
+const SIDE_SHEET_SIZES: Record<"sm" | "md" | "lg" | "xl", string> = {
+  sm: "sm:max-w-sm",
+  md: "sm:max-w-md",
+  lg: "sm:max-w-lg",
+  xl: "sm:max-w-xl",
+};
 
 /**
  * Reusable SideSheet composite component.
@@ -79,6 +88,7 @@ export const SideSheet = React.memo<SideSheetProps>(
     showCloseButton = false,
     className,
     contentClassName,
+    size = "sm",
   }) => {
     const isMobile = useIsMobile();
     const effectiveDirection = responsive && isMobile ? "bottom" : side;
@@ -86,6 +96,7 @@ export const SideSheet = React.memo<SideSheetProps>(
     const isTop = effectiveDirection === "top";
     const isRight = effectiveDirection === "right";
     const isLeft = effectiveDirection === "left";
+    const sizeClass = SIDE_SHEET_SIZES[size] || SIDE_SHEET_SIZES.sm;
 
     return (
       <Drawer
@@ -100,8 +111,8 @@ export const SideSheet = React.memo<SideSheetProps>(
             "flex flex-col p-0 focus:outline-none bg-background text-foreground shadow-2xl",
             isBottom && "h-[74vh] max-h-[75vh] w-full sm:max-w-2xl mx-auto rounded-t-2xl border-t border-x border-b-0 border-border data-[vaul-drawer-direction=bottom]:mt-0 data-[vaul-drawer-direction=bottom]:rounded-t-2xl",
             isTop && "h-[74vh] max-h-[75vh] w-full sm:max-w-2xl mx-auto rounded-b-2xl border-b border-x border-t-0 border-border data-[vaul-drawer-direction=top]:mb-0 data-[vaul-drawer-direction=top]:rounded-b-2xl",
-            isRight && "h-full w-full sm:max-w-md border-y-0 border-r-0 border-l border-border",
-            isLeft && "h-full w-full sm:max-w-md border-y-0 border-l-0 border-r border-border",
+            isRight && `h-full w-full ${sizeClass} border-y-0 border-r-0 border-l border-border`,
+            isLeft && `h-full w-full ${sizeClass} border-y-0 border-l-0 border-r border-border`,
             className
           )}
           style={{
