@@ -34,7 +34,7 @@ export interface SpecialistMessageData {
   content: string
   toolCalls?: ToolCall[]
   subAgents?: NestedSubAgent[]
-  status: "pending" | "active" | "completed" | "error" | "running" | "in_progress"
+  status: "pending" | "active" | "completed" | "error" | "running" | "in_progress" | "stopped"
   avatarSrc?: string
   avatarName?: string
   input?: string | Record<string, unknown>
@@ -105,6 +105,7 @@ export const SpecialistMessage = React.memo<SpecialistMessageProps>(
           title={message.name}
           type={`tool-${message.name}` as const}
           state={toolState}
+          showStatus={message.status !== "stopped"}
         />
 
         <ToolContent>

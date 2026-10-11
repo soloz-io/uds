@@ -20,7 +20,12 @@ export interface ToolCall {
   name: string
   args: Record<string, unknown>
   result?: string
-  status: "pending" | "completed" | "error" | "active" | "running" | "in_progress"
+  /**
+   * "stopped": the user stopped the turn while this call was in flight. It
+   * shows no status at all — not running, not done, not failed — and counts as
+   * finished, so the conversation stops showing work in progress.
+   */
+  status: "pending" | "completed" | "error" | "active" | "running" | "in_progress" | "stopped"
   visibility?: "visible" | "reasoning"
   uiVariant?: "default" | "link"
   linkText?: string
@@ -113,6 +118,7 @@ export const ToolCallDisplay = React.memo<ToolCallDisplayProps>(
           title={name}
           type={`tool-${name}` as const}
           state={toolState}
+          showStatus={status !== "stopped"}
         />
         <ToolContent>
           {Object.keys(args).length > 0 && (

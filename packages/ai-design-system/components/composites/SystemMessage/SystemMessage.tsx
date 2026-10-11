@@ -45,9 +45,9 @@ export function renderMediaOutput(
 ): React.ReactNode {
   if (mediaType?.startsWith('audio/')) {
     return (
-      <div className="flex flex-col items-start gap-2 w-full max-w-[360px]">
+      <div className="flex flex-col items-start gap-2 w-[320px] sm:w-[360px] max-w-full">
         {title && <span className="text-xs text-muted-foreground break-words">{title}</span>}
-        <audio controls className="w-full max-w-full h-8">
+        <audio controls className="w-full h-10 rounded-md">
           <source src={url} type={mediaType} />
           Your browser does not support the audio element.
         </audio>
@@ -56,7 +56,7 @@ export function renderMediaOutput(
   }
   if (mediaType?.startsWith('video/')) {
     return (
-      <div className="flex flex-col items-start gap-2 w-full max-w-[360px]">
+      <div className="flex flex-col items-start gap-2 w-[320px] sm:w-[360px] max-w-full">
         {title && <span className="text-xs text-muted-foreground break-words">{title}</span>}
         <video controls playsInline className="w-full max-w-full rounded-lg shadow-sm">
           <source src={url} type={mediaType} />
@@ -67,7 +67,7 @@ export function renderMediaOutput(
   }
   if (mediaType?.startsWith('image/')) {
     return (
-      <div className="flex flex-col items-start gap-2 w-full max-w-[360px]">
+      <div className="flex flex-col items-start gap-2 w-[320px] sm:w-[360px] max-w-full">
         {title && <span className="text-xs text-muted-foreground break-words">{title}</span>}
         <img src={url} alt={title || 'Image output'} className="w-full max-w-full rounded-lg object-contain shadow-sm" />
       </div>

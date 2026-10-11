@@ -51,6 +51,8 @@ export type ToolHeaderProps = {
   title?: string;
   type: ToolUIPart["type"];
   state: ToolUIPart["state"];
+  /** False hides the status badge — a step the user stopped shows none. */
+  showStatus?: boolean;
   className?: string;
 };
 
@@ -100,6 +102,7 @@ export const ToolHeader = ({
   title,
   type,
   state,
+  showStatus = true,
   ...props
 }: ToolHeaderProps) => (
   <CollapsibleTrigger
@@ -114,7 +117,7 @@ export const ToolHeader = ({
       <span className="font-medium text-sm">
         {title ?? type.split("-").slice(1).join("-")}
       </span>
-      {getStatusBadge(state)}
+      {showStatus && getStatusBadge(state)}
     </div>
     <ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
   </CollapsibleTrigger>

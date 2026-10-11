@@ -16,7 +16,8 @@ export interface SubAgent {
   subAgentName: string
   input: string | Record<string, unknown>
   output?: string | Record<string, unknown>
-  status: "pending" | "active" | "completed" | "error" | "running" | "in_progress"
+  /** "stopped": the user stopped the turn while this agent worked. Shows no status. */
+  status: "pending" | "active" | "completed" | "error" | "running" | "in_progress" | "stopped"
   subAgents?: SubAgent[]
 }
 
@@ -48,6 +49,8 @@ export const AgentIndicator = React.memo<AgentIndicatorProps>(
           return "❌"
         case "active":
           return "⚡"
+        case "stopped":
+          return null
         case "pending":
         default:
           return "⏳"
@@ -86,7 +89,7 @@ export const AgentIndicator = React.memo<AgentIndicatorProps>(
       >
         <div className="flex flex-col items-start gap-2 w-full">
           <div className="flex items-center gap-2">
-            <span className="text-sm">{getStatusIcon()}</span>
+            {getStatusIcon() && <span className="text-sm">{getStatusIcon()}</span>}
             <Badge variant={getStatusVariant()} className="text-xs">
               {subAgent.subAgentName}
             </Badge>
