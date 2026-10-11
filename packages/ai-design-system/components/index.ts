@@ -62,7 +62,7 @@ export {
   WorkspaceEmptyState,
   SandboxWakePane,
 } from './composites';
-export { Icon, Button } from './primitives';
+export { Icon, Button, ThemeProvider, THEMES, applyTheme } from './primitives';
 export type {
   ConfirmDialogProps,
   ShareDialogProps,

@@ -468,12 +468,14 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       [items.length, isPlaying, handleNext]
     );
 
+    const canDownload = Boolean(downloadUrl || videoUrl);
+
     const handleDownload = React.useCallback(async () => {
       if (onDownload) {
         onDownload();
         return;
       }
-      const targetUrl = downloadUrl || videoUrl || getClipUrl(activeStory);
+      const targetUrl = downloadUrl || videoUrl;
       if (!targetUrl) return;
 
       try {
@@ -842,16 +844,29 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
                 <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
               </Button>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                data-testid="btn-download"
-                aria-label="Download video"
-                onClick={handleDownload}
-                className="h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer"
-              >
-                <Icon name="download" className="w-4 h-4" />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    data-testid="btn-download"
+                    aria-label="Download video"
+                    disabled={!canDownload}
+                    onClick={canDownload ? handleDownload : undefined}
+                    className={cn(
+                      "h-8 w-8 rounded-full bg-black/40 text-white p-0 transition-opacity",
+                      canDownload
+                        ? "hover:bg-white/20 cursor-pointer"
+                        : "opacity-35 cursor-not-allowed hover:bg-black/40"
+                    )}
+                  >
+                    <Icon name="download" className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                {!canDownload && (
+                  <TooltipContent>Full render video pending</TooltipContent>
+                )}
+              </Tooltip>
             </div>
 
             <DropdownMenu>
@@ -871,7 +886,11 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
                   <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
                   {isMuted ? "Unmute" : "Mute"}
                 </DropdownMenuItem>
-                <DropdownMenuItem data-testid="menu-download" onSelect={handleDownload}>
+                <DropdownMenuItem
+                  data-testid="menu-download"
+                  disabled={!canDownload}
+                  onSelect={canDownload ? handleDownload : undefined}
+                >
                   <Icon name="download" className="w-4 h-4" />
                   Download
                 </DropdownMenuItem>

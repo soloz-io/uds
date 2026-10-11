@@ -202,12 +202,20 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
       resolvedClassName = resolvedClassName.replace(/\brounded-full\b/g, "rounded-2xl");
     }
 
+    const hasCustomRounded = Boolean(resolvedClassName && /\brounded-/.test(resolvedClassName));
+
     const formClassName = cn(
       isMultiline
-        ? "min-h-[96px] rounded-2xl md:rounded-3xl [&>[data-slot=input-group]]:min-h-[96px] [&>[data-slot=input-group]]:rounded-2xl md:[&>[data-slot=input-group]]:rounded-3xl [&>[data-slot=input-group]]:flex-col [&>[data-slot=input-group]]:items-stretch border border-border/60 bg-card/60 shadow-xs"
-        : "min-h-[52px] [&>[data-slot=input-group]]:min-h-[52px] [&>[data-slot=input-group]]:rounded-full",
+        ? cn(
+            "min-h-[96px] [&>[data-slot=input-group]]:min-h-[96px] [&>[data-slot=input-group]]:rounded-[inherit] [&>[data-slot=input-group]]:flex-col [&>[data-slot=input-group]]:items-stretch border border-border/60 bg-card/60 shadow-xs",
+            !hasCustomRounded && "rounded-2xl md:rounded-3xl"
+          )
+        : cn(
+            "min-h-[52px] [&>[data-slot=input-group]]:min-h-[52px] [&>[data-slot=input-group]]:rounded-[inherit]",
+            !hasCustomRounded && "rounded-full"
+          ),
       resolvedClassName?.includes("border") &&
-        "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none",
+        "[&>[data-slot=input-group]]:border-0 [&>[data-slot=input-group]]:bg-transparent [&>[data-slot=input-group]]:shadow-none has-[[data-slot=input-group-control]:focus-visible]:border-ring",
       resolvedClassName
     );
 
