@@ -32,6 +32,7 @@ import type { TaskQueueProps, TaskStatus } from "./interfaces";
 const getStatusIcon = (status: TaskStatus) => {
   switch (status) {
     case "running":
+    case "completed":
       return null;
     case "queued":
     case "pending":
@@ -40,14 +41,6 @@ const getStatusIcon = (status: TaskStatus) => {
           name="clock"
           size="sm"
           className="text-muted-foreground/60 flex-shrink-0"
-        />
-      );
-    case "completed":
-      return (
-        <Icon
-          name="check"
-          size="sm"
-          className="text-emerald-500 flex-shrink-0"
         />
       );
     case "failed":
@@ -240,6 +233,19 @@ export const TaskQueue = React.memo<TaskQueueProps>(
                               />
                             </span>
                           )
+                        )}
+
+                        {task.status === "completed" && (
+                          <span
+                            className="size-6 flex items-center justify-center text-emerald-500"
+                            aria-label={`Completed ${task.title || task.command}`}
+                          >
+                            <Icon
+                              name="check"
+                              size="sm"
+                              className="text-emerald-500"
+                            />
+                          </span>
                         )}
 
                         {(task.status === "queued" || task.status === "pending") && onCancel && (
