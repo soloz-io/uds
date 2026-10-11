@@ -32,8 +32,13 @@ import type { TaskQueueProps, TaskStatus } from "./interfaces";
 const getStatusIcon = (status: TaskStatus) => {
   switch (status) {
     case "running":
-    case "completed":
-      return null;
+      return (
+        <Icon
+          name="loader-2"
+          size="sm"
+          className="animate-spin text-muted-foreground flex-shrink-0"
+        />
+      );
     case "queued":
     case "pending":
       return (
@@ -41,6 +46,14 @@ const getStatusIcon = (status: TaskStatus) => {
           name="clock"
           size="sm"
           className="text-muted-foreground/60 flex-shrink-0"
+        />
+      );
+    case "completed":
+      return (
+        <Icon
+          name="check"
+          size="sm"
+          className="text-emerald-500 flex-shrink-0"
         />
       );
     case "failed":
@@ -204,48 +217,18 @@ export const TaskQueue = React.memo<TaskQueueProps>(
                       </div>
 
                       <QueueItemActions>
-                        {task.status === "running" && (
-                          (task.showStop ?? showStop) && onStop ? (
-                            <QueueItemAction
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onStop(task.id);
-                              }}
-                              aria-label={`Stop ${task.title || task.command}`}
-                              title="Stop task"
-                              className="size-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 opacity-100 group-hover:opacity-100"
-                            >
-                              <Icon
-                                name="loader-2"
-                                size="sm"
-                                className="animate-spin text-muted-foreground"
-                              />
-                            </QueueItemAction>
-                          ) : (
-                            <span
-                              className="size-6 flex items-center justify-center text-muted-foreground"
-                              aria-label={`Running ${task.title || task.command}`}
-                            >
-                              <Icon
-                                name="loader-2"
-                                size="sm"
-                                className="animate-spin text-muted-foreground"
-                              />
-                            </span>
-                          )
-                        )}
-
-                        {task.status === "completed" && (
-                          <span
-                            className="size-6 flex items-center justify-center text-emerald-500"
-                            aria-label={`Completed ${task.title || task.command}`}
+                        {task.status === "running" && onStop && (task.showStop ?? showStop) && (
+                          <QueueItemAction
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onStop(task.id);
+                            }}
+                            aria-label={`Stop ${task.title || task.command}`}
+                            title="Stop task"
+                            className="size-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 opacity-100 group-hover:opacity-100"
                           >
-                            <Icon
-                              name="check"
-                              size="sm"
-                              className="text-emerald-500"
-                            />
-                          </span>
+                            <Icon name="circle-stop" size="sm" />
+                          </QueueItemAction>
                         )}
 
                         {(task.status === "queued" || task.status === "pending") && onCancel && (
