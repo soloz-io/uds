@@ -65,10 +65,10 @@ export interface SideSheetProps {
 }
 
 const SIDE_SHEET_SIZES: Record<"sm" | "md" | "lg" | "xl", string> = {
-  sm: "sm:max-w-sm",
-  md: "sm:max-w-md",
-  lg: "sm:max-w-lg",
-  xl: "sm:max-w-xl",
+  sm: "data-[vaul-drawer-direction=right]:sm:max-w-sm data-[vaul-drawer-direction=left]:sm:max-w-sm sm:max-w-sm",
+  md: "data-[vaul-drawer-direction=right]:sm:max-w-md data-[vaul-drawer-direction=left]:sm:max-w-md sm:max-w-md",
+  lg: "data-[vaul-drawer-direction=right]:sm:max-w-lg data-[vaul-drawer-direction=left]:sm:max-w-lg sm:max-w-lg",
+  xl: "data-[vaul-drawer-direction=right]:sm:max-w-xl data-[vaul-drawer-direction=left]:sm:max-w-xl sm:max-w-xl",
 };
 
 /**

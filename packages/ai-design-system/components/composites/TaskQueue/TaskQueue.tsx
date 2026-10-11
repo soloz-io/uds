@@ -32,13 +32,7 @@ import type { TaskQueueProps, TaskStatus } from "./interfaces";
 const getStatusIcon = (status: TaskStatus) => {
   switch (status) {
     case "running":
-      return (
-        <Icon
-          name="loader-2"
-          size="sm"
-          className="animate-spin text-muted-foreground flex-shrink-0"
-        />
-      );
+      return null;
     case "queued":
     case "pending":
       return (
@@ -217,18 +211,35 @@ export const TaskQueue = React.memo<TaskQueueProps>(
                       </div>
 
                       <QueueItemActions>
-                        {task.status === "running" && onStop && (task.showStop ?? showStop) && (
-                          <QueueItemAction
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onStop(task.id);
-                            }}
-                            aria-label={`Stop ${task.title || task.command}`}
-                            title="Stop task"
-                            className="size-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 opacity-100 group-hover:opacity-100"
-                          >
-                            <Icon name="circle-stop" size="sm" />
-                          </QueueItemAction>
+                        {task.status === "running" && (
+                          (task.showStop ?? showStop) && onStop ? (
+                            <QueueItemAction
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onStop(task.id);
+                              }}
+                              aria-label={`Stop ${task.title || task.command}`}
+                              title="Stop task"
+                              className="size-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 opacity-100 group-hover:opacity-100"
+                            >
+                              <Icon
+                                name="loader-2"
+                                size="sm"
+                                className="animate-spin text-muted-foreground"
+                              />
+                            </QueueItemAction>
+                          ) : (
+                            <span
+                              className="size-6 flex items-center justify-center text-muted-foreground"
+                              aria-label={`Running ${task.title || task.command}`}
+                            >
+                              <Icon
+                                name="loader-2"
+                                size="sm"
+                                className="animate-spin text-muted-foreground"
+                              />
+                            </span>
+                          )
                         )}
 
                         {(task.status === "queued" || task.status === "pending") && onCancel && (
