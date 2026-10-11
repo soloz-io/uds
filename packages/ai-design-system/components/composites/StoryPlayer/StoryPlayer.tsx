@@ -10,7 +10,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/primitives/DropdownMenu";
 import { Icon } from "@/components/primitives/Icon";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/primitives/Tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/primitives/Tooltip";
 import {
   Select,
   SelectContent,
@@ -71,6 +76,9 @@ export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   publishPlaceholder?: string;
   onStoryChange?: (storyIndex: number, story: StorySegment) => void;
   onSceneChange?: (sceneIndex: number, scene: StorySegment) => void;
+  /** Called when a story/scene segment bar is clicked. Defaults to navigating to that segment via goToStory(idx). */
+  onSegmentClick?: (segmentIndex: number, segment: StorySegment) => void;
+  onSceneClick?: (sceneIndex: number, scene: StorySegment) => void;
   commentCount?: number;
   onCommentClick?: () => void;
   isCommentsOpen?: boolean;
@@ -153,6 +161,8 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       publishPlaceholder = "Ask a question or provide instructions...",
       onStoryChange,
       onSceneChange,
+      onSegmentClick,
+      onSceneClick,
       commentCount,
       onCommentClick,
       isCommentsOpen,
@@ -304,6 +314,7 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
           currentIndexRef.current = clampedIdx;
           setCurrentStoryIndex(clampedIdx);
           setSegmentProgress(0);
+          setSceneProgress(0);
           onStoryChange?.(clampedIdx, items[clampedIdx]);
           onSceneChange?.(clampedIdx, items[clampedIdx]);
           return;
@@ -311,6 +322,7 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
         onStoryChange?.(clampedIdx, items[clampedIdx]);
         onSceneChange?.(clampedIdx, items[clampedIdx]);
         setCurrentStoryIndex(clampedIdx);
+        setSceneProgress(0);
         isTransitioningRef.current = false;
 
         if (items.length <= 1) {
@@ -335,6 +347,14 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
         const nextVideo = nextActiveSlot === 0 ? videoRef0.current : videoRef1.current;
         const currentVideo = activeSlot === 0 ? videoRef0.current : videoRef1.current;
         const segmentAfterTarget = (clampedIdx + 1) % items.length;
+
+        // Ensure next video has the target clip url when jumping non-consecutively
+        const isImmediateNext = (currentStoryIndex + 1) % items.length === clampedIdx;
+        const targetUrl = getClipUrl(items[clampedIdx]);
+        if (!isImmediateNext && nextVideo && targetUrl && nextVideo.src !== targetUrl) {
+          nextVideo.src = targetUrl;
+          nextVideo.load();
+        }
 
         // 1. Immediately start next video synchronously (0ms transition gap)
         if (nextVideo) {
@@ -366,7 +386,16 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
 
         setActiveSlot(nextActiveSlot);
       },
-      [items, activeSlot, isPlaying, isMuted, onStoryChange, onSceneChange, effectiveMode, spans]
+      [items, activeSlot, isPlaying, isMuted, onStoryChange, onSceneChange, effectiveMode, spans, currentStoryIndex]
+    );
+
+    const handleSegmentClick = React.useCallback(
+      (idx: number) => {
+        goToStory(idx);
+        onSegmentClick?.(idx, items[idx]);
+        onSceneClick?.(idx, items[idx]);
+      },
+      [goToStory, onSegmentClick, onSceneClick, items]
     );
 
     /** The segment the playhead is in: the last one starting at or before it. */
@@ -678,60 +707,91 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
         {...props}
       >
         {/* Top Segmented Progress Bar */}
-        <div className="flex items-center gap-[3px] px-2 pt-3 pb-1.5 z-20 shrink-0">
-          {items.map((item, idx) => {
-            const isCompleted = idx < currentStoryIndex;
-            const isCurrent = idx === currentStoryIndex;
-            // Video mode fills the current segment with the playhead; scenes mode
-            // marks the segments reached or tracks sceneProgress when custom renderScene is provided.
-            const fill =
-              effectiveMode === "video"
-                ? isCompleted ? 1 : isCurrent ? segmentProgress : 0
-                : isCompleted ? 1 : isCurrent ? (renderScene ? sceneProgress : 1) : 0;
-            return (
-              <div
-                key={item.id || `story-segment-${idx}`}
-                className="flex-1 h-[2.5px] rounded-[2px] bg-white/35 overflow-hidden"
-                data-testid={`story-progress-${idx}`}
-              >
-                <div className="h-full bg-white" style={{ width: `${fill * 100}%` }} />
-              </div>
-            );
-          })}
-          {/* The playback mode, switched from the story line itself */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={isModeDisabled ? undefined : switchMode}
-                disabled={isModeDisabled}
-                aria-label={
-                  isModeDisabled
-                    ? (playbackModeTooltips?.disabled ?? "Full render video pending")
-                    : effectiveMode === "video"
-                      ? (playbackModeTooltips?.video ?? "Switch to live preview")
-                      : (playbackModeTooltips?.scenes ?? "Switch to full render video")
-                }
-                className={cn(
-                  "ml-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white/80 transition-opacity",
-                  isModeDisabled
-                    ? "opacity-35 cursor-not-allowed"
-                    : "hover:bg-white/20 hover:text-white cursor-pointer"
-                )}
-                data-testid="btn-playback-mode"
-              >
-                <Icon name={effectiveMode === "video" ? "layers" : "film"} className="h-3.5 w-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {isModeDisabled
-                ? (playbackModeTooltips?.disabled ?? "Full render video pending")
-                : effectiveMode === "video"
-                  ? (playbackModeTooltips?.video ?? "Switch to live preview")
-                  : (playbackModeTooltips?.scenes ?? "Switch to full render video")}
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        <TooltipProvider delayDuration={150}>
+          <div className="flex items-center gap-[3px] px-2 pt-3 pb-1.5 z-20 shrink-0">
+            {items.map((item, idx) => {
+              const isCompleted = idx < currentStoryIndex;
+              const isCurrent = idx === currentStoryIndex;
+              // Video mode fills the current segment with the playhead; scenes mode
+              // marks the segments reached or tracks sceneProgress when custom renderScene is provided.
+              const fill =
+                effectiveMode === "video"
+                  ? isCompleted ? 1 : isCurrent ? segmentProgress : 0
+                  : isCompleted ? 1 : isCurrent ? (renderScene ? sceneProgress : 1) : 0;
+              const label =
+                item.sceneNumber ??
+                item.storyNumber ??
+                item.segmentNumber ??
+                idx + 1;
+              const itemTitle = item.caption || item.title;
+              const segmentLabel = `${itemLabel || "Scene"} ${label}`;
+              const tooltipText = itemTitle ? `${segmentLabel}: ${itemTitle}` : segmentLabel;
+
+              return (
+                <Tooltip key={item.id || `story-segment-${idx}`}>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => handleSegmentClick(idx)}
+                      aria-label={`Go to ${segmentLabel}`}
+                      aria-current={isCurrent ? "true" : undefined}
+                      data-testid={`story-progress-${idx}`}
+                      className="group relative flex-1 py-2 -my-2 flex items-center cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-white/80 rounded-sm"
+                    >
+                      <div
+                        className={cn(
+                          "w-full h-[2.5px] rounded-[2px] bg-white/35 group-hover:bg-white/60 group-hover:h-[4px] overflow-hidden transition-all duration-150",
+                          isCurrent && "bg-white/45"
+                        )}
+                      >
+                        <div
+                          className="h-full bg-white transition-[width] duration-75"
+                          style={{ width: `${fill * 100}%` }}
+                        />
+                      </div>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" sideOffset={8}>
+                    <p className="text-xs font-medium max-w-[240px] truncate">{tooltipText}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+            {/* The playback mode, switched from the story line itself */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={isModeDisabled ? undefined : switchMode}
+                  disabled={isModeDisabled}
+                  aria-label={
+                    isModeDisabled
+                      ? (playbackModeTooltips?.disabled ?? "Full render video pending")
+                      : effectiveMode === "video"
+                        ? (playbackModeTooltips?.video ?? "Switch to live preview")
+                        : (playbackModeTooltips?.scenes ?? "Switch to full render video")
+                  }
+                  className={cn(
+                    "ml-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white/80 transition-opacity",
+                    isModeDisabled
+                      ? "opacity-35 cursor-not-allowed"
+                      : "hover:bg-white/20 hover:text-white cursor-pointer"
+                  )}
+                  data-testid="btn-playback-mode"
+                >
+                  <Icon name={effectiveMode === "video" ? "layers" : "film"} className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {isModeDisabled
+                  ? (playbackModeTooltips?.disabled ?? "Full render video pending")
+                  : effectiveMode === "video"
+                    ? (playbackModeTooltips?.video ?? "Switch to live preview")
+                    : (playbackModeTooltips?.scenes ?? "Switch to full render video")}
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
 
         {/* Story Header Overlay */}
         <div className="flex items-center justify-between px-3 py-2.5 z-20 shrink-0">

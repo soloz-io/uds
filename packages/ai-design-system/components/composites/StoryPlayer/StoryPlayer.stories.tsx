@@ -20,6 +20,8 @@ const meta = {
     onPublish: fn(),
     onStoryChange: fn(),
     onSceneChange: fn(),
+    onSegmentClick: fn(),
+    onSceneClick: fn(),
     onPlayingChange: fn(),
     onDownload: fn(),
     onCommentClick: fn(),
