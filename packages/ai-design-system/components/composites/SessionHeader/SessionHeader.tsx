@@ -111,74 +111,79 @@ export const SessionHeader = React.forwardRef<HTMLDivElement, SessionHeaderProps
             {displayTitle}
           </span>
         </div>
-        {showActions && (
-          <div className="flex items-center space-x-1 flex-none">
-            {Boolean(onOverview && showOverview !== false) && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onOverview}
-                className="h-8 w-8 md:hidden"
-                aria-label="Overview"
-              >
-                <Icon name="overview" className="h-4 w-4" />
-              </Button>
-            )}
-            {Boolean(onShare && showShare !== false) && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onShare}
-                className="h-8 w-8"
-                title="Share session"
-                aria-label="Share session"
-                data-testid="session-share-btn"
-              >
-                <Icon name="share" className="h-4 w-4" />
-              </Button>
-            )}
-            {Boolean(onDownloadSession && showDownloadSession) && (
-              <Button variant="ghost" size="icon" onClick={handleDownloadClick} className="h-8 w-8" title="Download Chat History">
-                <Icon name="download" className="h-4 w-4" />
-              </Button>
-            )}
-            {Boolean(onNewSession && showNewSession) && (
-              <Button variant="ghost" size="icon" onClick={onNewSession} className="h-8 w-8" title="New Session">
-                <Icon name="plus" className="h-4 w-4" />
-              </Button>
-            )}
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Icon name="clock" className="h-4 w-4" />
+        <div className="flex items-center space-x-1 flex-none">
+          {/* Sharing is the session's own, not a session-switching action: it
+              shows wherever the caller wires it, whether or not the header
+              offers new-session and history. */}
+          {Boolean(onShare && showShare !== false) && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onShare}
+              className="h-8 w-8"
+              title="Share session"
+              aria-label="Share session"
+              data-testid="session-share-btn"
+            >
+              <Icon name="share" className="h-4 w-4" />
+            </Button>
+          )}
+          {showActions && (
+            <div className="flex items-center space-x-1">
+              {Boolean(onOverview && showOverview !== false) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onOverview}
+                  className="h-8 w-8 md:hidden"
+                  aria-label="Overview"
+                >
+                  <Icon name="overview" className="h-4 w-4" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 max-h-80 overflow-y-auto">
-                <DropdownMenuLabel>Chat History</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {sessions && sessions.length > 0 ? (
-                  sessions.map((session) => (
-                    <DropdownMenuItem 
-                      key={session.id}
-                      onClick={() => onSelectSession?.(session.id)}
-                      className="flex flex-col items-start py-2 cursor-pointer"
-                    >
-                      <span className="text-sm font-medium truncate w-full">{sessionLabel(session)}</span>
-                      {/* The date is the title in "date" mode; repeating it underneath says nothing. */}
-                      {!byDate && (
-                        <span className="text-xs text-muted-foreground">{new Date(session.created_at).toLocaleString()}</span>
-                      )}
-                    </DropdownMenuItem>
-                  ))
-                ) : (
-                  <div className="p-4 text-sm text-center text-muted-foreground">No previous sessions</div>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <a ref={downloadRef} style={{ display: 'none' }} />
-          </div>
-        )}
+              )}
+              {Boolean(onDownloadSession && showDownloadSession) && (
+                <Button variant="ghost" size="icon" onClick={handleDownloadClick} className="h-8 w-8" title="Download Chat History">
+                  <Icon name="download" className="h-4 w-4" />
+                </Button>
+              )}
+              {Boolean(onNewSession && showNewSession) && (
+                <Button variant="ghost" size="icon" onClick={onNewSession} className="h-8 w-8" title="New Session">
+                  <Icon name="plus" className="h-4 w-4" />
+                </Button>
+              )}
+            
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Icon name="clock" className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 max-h-80 overflow-y-auto">
+                  <DropdownMenuLabel>Chat History</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {sessions && sessions.length > 0 ? (
+                    sessions.map((session) => (
+                      <DropdownMenuItem 
+                        key={session.id}
+                        onClick={() => onSelectSession?.(session.id)}
+                        className="flex flex-col items-start py-2 cursor-pointer"
+                      >
+                        <span className="text-sm font-medium truncate w-full">{sessionLabel(session)}</span>
+                        {/* The date is the title in "date" mode; repeating it underneath says nothing. */}
+                        {!byDate && (
+                          <span className="text-xs text-muted-foreground">{new Date(session.created_at).toLocaleString()}</span>
+                        )}
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <div className="p-4 text-sm text-center text-muted-foreground">No previous sessions</div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <a ref={downloadRef} style={{ display: 'none' }} />
+            </div>
+          )}
+        </div>
       </div>
     );
   }
