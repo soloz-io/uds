@@ -7,7 +7,6 @@ import { ShareDialog } from "./ShareDialog";
 const sampleShares: ShareItem[] = [
 	{
 		id: "share-active-1",
-		token: "AbC123xYz456Def789Gh01",
 		url: "https://oranger.dev.nutgraf.in/share/AbC123xYz456Def789Gh01",
 		createdAt: "2026-10-01T10:00:00Z",
 		expiresAt: "2026-10-31T10:00:00Z",
@@ -15,19 +14,20 @@ const sampleShares: ShareItem[] = [
 	},
 	{
 		id: "share-expired-1",
+		url: null,
 		createdAt: "2026-08-01T10:00:00Z",
 		expiresAt: "2026-08-31T10:00:00Z",
 		revokedAt: null,
 	},
 	{
 		id: "share-revoked-1",
+		url: null,
 		createdAt: "2026-09-01T10:00:00Z",
 		expiresAt: "2026-10-01T10:00:00Z",
 		revokedAt: "2026-09-15T12:00:00Z",
 	},
 	{
 		id: "share-never-expire",
-		token: "NeverExpToken123456789",
 		url: "https://oranger.dev.nutgraf.in/share/NeverExpToken123456789",
 		createdAt: "2026-09-10T10:00:00Z",
 		expiresAt: null,

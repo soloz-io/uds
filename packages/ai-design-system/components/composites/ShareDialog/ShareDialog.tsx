@@ -39,8 +39,8 @@ export interface ShareItem {
 	createdAt: string;
 	expiresAt: string | null;
 	revokedAt: string | null;
-	token?: string;
-	url?: string;
+	/** The share's public link; null when it can no longer be shown (revoke and share again). */
+	url: string | null;
 }
 
 export interface ShareDialogProps {
@@ -156,15 +156,8 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 	};
 
 	const handleCopyShare = async (share: ShareItem) => {
-		const origin =
-			typeof window !== "undefined" && window.location?.origin
-				? window.location.origin
-				: "";
-		const shareUrl =
-			share.url ||
-			(share.token
-				? `${origin}/share/${share.token}`
-				: `${origin}/share/${share.id}`);
+		const shareUrl = share.url;
+		if (!shareUrl) return;
 		try {
 			if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
 				await navigator.clipboard.writeText(shareUrl);
@@ -372,22 +365,32 @@ export const ShareDialog: React.FC<ShareDialogProps> = ({
 
 											{status === "active" && (
 												<div className="flex items-center gap-1 shrink-0">
-													<Button
-														type="button"
-														variant="ghost"
-														size="sm"
-														className="text-xs h-7 px-2 gap-1 text-muted-foreground hover:text-foreground"
-														onClick={() => void handleCopyShare(share)}
-														data-testid={`share-copy-btn-${share.id}`}
-														title="Copy share link"
-														aria-label="Copy share link"
-													>
-														<Icon
-															name={copiedShareId === share.id ? "check" : "copy"}
-															className="h-3.5 w-3.5"
-														/>
-														<span>{copiedShareId === share.id ? "Copied" : "Copy"}</span>
-													</Button>
+													{share.url ? (
+														<Button
+															type="button"
+															variant="ghost"
+															size="sm"
+															className="text-xs h-7 px-2 gap-1 text-muted-foreground hover:text-foreground"
+															onClick={() => void handleCopyShare(share)}
+															data-testid={`share-copy-btn-${share.id}`}
+															title="Copy share link"
+															aria-label="Copy share link"
+														>
+															<Icon
+																name={copiedShareId === share.id ? "check" : "copy"}
+																className="h-3.5 w-3.5"
+															/>
+															<span>{copiedShareId === share.id ? "Copied" : "Copy"}</span>
+														</Button>
+													) : (
+														<span
+															className="text-xs text-muted-foreground px-2"
+															data-testid={`share-link-unavailable-${share.id}`}
+															title="This link can't be shown again. Revoke it and share again."
+														>
+															Link unavailable
+														</span>
+													)}
 													<Button
 														type="button"
 														variant="ghost"
