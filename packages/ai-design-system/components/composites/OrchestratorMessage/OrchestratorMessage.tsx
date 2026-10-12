@@ -11,6 +11,7 @@ import {
   MessageTypingIndicator,
 } from "@/components/ai-elements/message"
 import { Response } from "@/components/composites/response"
+import { MessageMedia, extractMessageMedia } from "@/components/composites/MessageMedia"
 import { cn } from "@/lib/utils"
 
 /**
@@ -97,10 +98,9 @@ export interface OrchestratorMessageProps {
 export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
   ({ message, showAvatar = true, question: questionProp, children, onSave, isSaved, isSaving }) => {
     const question = questionProp ?? message.question
-    const hasContent = React.useMemo(
-      () => message.content && message.content.trim() !== "",
-      [message.content]
-    )
+    // Media the message links to plays after its text, never in the middle of it.
+    const { text, media } = React.useMemo(() => extractMessageMedia(message.content ?? ""), [message.content])
+    const hasContent = text.trim() !== ""
 
     return (
       <Message from="assistant" className="group">
@@ -122,9 +122,12 @@ export const OrchestratorMessage = React.memo<OrchestratorMessageProps>(
             <MessageContent variant="contained" className="w-fit pr-6">
               <MessageTypingIndicator />
             </MessageContent>
-          ) : hasContent && (
+          ) : (hasContent || media.length > 0) && (
             <MessageContent variant="contained">
-              <Response mode={message.isLoading ? "streaming" : "static"} isAnimating={!!message.isLoading}>{message.content}</Response>
+              {hasContent && (
+                <Response mode={message.isLoading ? "streaming" : "static"} isAnimating={!!message.isLoading}>{text}</Response>
+              )}
+              <MessageMedia media={media} className={cn(hasContent && "mt-3")} />
             </MessageContent>
           )}
 

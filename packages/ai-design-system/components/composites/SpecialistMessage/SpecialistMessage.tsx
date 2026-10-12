@@ -8,6 +8,7 @@ import {
 import { ToolCallDisplay, type ToolCall } from "@/components/composites/ToolCallDisplay"
 import { cn } from "@/lib/utils"
 import { Response } from "@/components/composites/response"
+import { MessageMedia, extractMessageMedia } from "@/components/composites/MessageMedia"
 
 /**
  * SpecialistMessage Block
@@ -68,10 +69,9 @@ export const SpecialistMessage = React.memo<SpecialistMessageProps>(
   ({ message, isNested = false, defaultOpen = false, collapsible = true }) => {
     const [isOpen, setIsOpen] = React.useState(collapsible ? defaultOpen : true)
 
-    const hasContent = React.useMemo(
-      () => message.content && message.content.trim() !== "",
-      [message.content]
-    )
+    // Media the message links to plays after its text, never in the middle of it.
+    const { text, media } = React.useMemo(() => extractMessageMedia(message.content ?? ""), [message.content])
+    const hasContent = text.trim() !== ""
     const hasToolCalls = React.useMemo(
       () => message.toolCalls !== undefined && message.toolCalls.length > 0,
       [message.toolCalls]
@@ -124,8 +124,12 @@ export const SpecialistMessage = React.memo<SpecialistMessageProps>(
                 mode={message.status === "active" ? "streaming" : "static"}
                 isAnimating={message.status === "active"}
               >
-                {message.content}
+                {text}
               </Response>
+            )}
+            {/* Played once the message is complete: a url still streaming in is not yet a file. */}
+            {message.status !== "active" && (
+              <MessageMedia media={media} className={cn(hasContent && "mt-3")} />
             )}
 
             {/* Leaf tool calls (read_file, write_file, etc.) */}

@@ -25,12 +25,30 @@ export interface MediaPreviewProps {
   className?: string
 }
 
+/**
+ * The media type a url names by its file extension (query string ignored), or
+ * undefined when it names none of the playable kinds. The one list of media
+ * extensions read from a url: the is*File checks below and the chat's media
+ * links (MessageMedia) both go through it.
+ */
+const MEDIA_TYPE_BY_EXTENSION: Record<string, string> = {
+  mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', mkv: 'video/x-matroska',
+  wav: 'audio/wav', mp3: 'audio/mpeg', ogg: 'audio/ogg', m4a: 'audio/mp4', flac: 'audio/flac', aac: 'audio/aac',
+  png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml',
+}
+
+export function mediaTypeFromUrl(url: string): string | undefined {
+  const path = url.split(/[?#]/)[0]
+  const ext = path.slice(path.lastIndexOf('.') + 1).toLowerCase()
+  return path.includes('.') ? MEDIA_TYPE_BY_EXTENSION[ext] : undefined
+}
+
 export function isVideoFile(file: MediaFileLike): boolean {
   const format = file.format?.toLowerCase() || ''
   const ext = file.name?.split('.').pop()?.toLowerCase() || ''
   if (['mp4', 'webm', 'mov', 'mkv', 'avi'].includes(format) || ['mp4', 'webm', 'mov', 'mkv', 'avi'].includes(ext)) return true
   if (file.mediaType?.startsWith('video/')) return true
-  if (file.url && /\.(mp4|webm|mov|mkv)(\?.*)?$/i.test(file.url)) return true
+  if (file.url && mediaTypeFromUrl(file.url)?.startsWith('video/')) return true
   return false
 }
 
@@ -39,7 +57,7 @@ export function isAudioFile(file: MediaFileLike): boolean {
   const ext = file.name?.split('.').pop()?.toLowerCase() || ''
   if (['wav', 'mp3', 'ogg', 'm4a', 'flac', 'aac', 'wma'].includes(format) || ['wav', 'mp3', 'ogg', 'm4a', 'flac', 'aac', 'wma'].includes(ext)) return true
   if (file.mediaType?.startsWith('audio/')) return true
-  if (file.url && /\.(wav|mp3|ogg|m4a|flac|aac)(\?.*)?$/i.test(file.url)) return true
+  if (file.url && mediaTypeFromUrl(file.url)?.startsWith('audio/')) return true
   return false
 }
 
@@ -48,7 +66,7 @@ export function isImageFile(file: MediaFileLike): boolean {
   const ext = file.name?.split('.').pop()?.toLowerCase() || ''
   if (['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'ico', 'bmp'].includes(format) || ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'ico', 'bmp'].includes(ext)) return true
   if (file.mediaType?.startsWith('image/')) return true
-  if (file.url && /\.(png|jpg|jpeg|webp|gif|svg)(\?.*)?$/i.test(file.url)) return true
+  if (file.url && mediaTypeFromUrl(file.url)?.startsWith('image/')) return true
   return false
 }
 

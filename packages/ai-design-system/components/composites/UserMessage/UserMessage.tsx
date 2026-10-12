@@ -10,6 +10,7 @@ import {
   MessageAvatar,
 } from "@/components/ai-elements/message"
 import { renderMediaOutput } from "@/components/composites/SystemMessage"
+import { MessageMedia, extractMessageMedia } from "@/components/composites/MessageMedia"
 import { cn } from "@/lib/utils"
 
 import {
@@ -89,6 +90,18 @@ export interface UserMessageData {
    * Answered question selection card display (e.g. from an ask_user / question response)
    */
   selection?: UserMessageSelection
+}
+
+/** The user's text, with media it links to played after it (as attachments are). */
+function UserMessageText({ content }: { content: string }) {
+  const { text, media } = React.useMemo(() => extractMessageMedia(content ?? ""), [content])
+  if (!text && media.length === 0) return null
+  return (
+    <>
+      {text && <MessageContent variant="contained" className="max-w-full">{text}</MessageContent>}
+      <MessageMedia media={media} className="mt-2 items-end" />
+    </>
+  )
 }
 
 function UserMessageAttachments({ attachments }: { attachments: UserMessageAttachment[] }) {
@@ -309,9 +322,7 @@ export const UserMessage = React.memo<UserMessageProps>(
                 )}
               </div>
             ) : (
-              message.content && (
-                <MessageContent variant="contained" className="max-w-full">{message.content}</MessageContent>
-              )
+              <UserMessageText content={message.content} />
             )}
           </div>
         </div>

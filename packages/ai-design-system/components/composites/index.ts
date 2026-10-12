@@ -278,8 +278,12 @@ export { AuthCard } from './AuthCard'
 export type { AuthCardProps, AuthMode, SocialProvider } from './AuthCard'
 
 // MediaPreview Composite
-export { MediaPreview, isVideoFile, isAudioFile, isImageFile, isPdfFile, isMediaFile } from './MediaPreview'
+export { MediaPreview, isVideoFile, isAudioFile, isImageFile, isPdfFile, isMediaFile, mediaTypeFromUrl } from './MediaPreview'
 export type { MediaPreviewProps, MediaFileLike } from './MediaPreview'
+
+// MessageMedia Composite
+export { MessageMedia, extractMessageMedia } from './MessageMedia'
+export type { MessageMediaProps, MessageMediaLink, ExtractedMessageMedia } from './MessageMedia'
 
 // WorkspaceEmptyState Composite
 export { WorkspaceEmptyState, SandboxWakePane } from './WorkspaceEmptyState'
