@@ -15,6 +15,7 @@ import {
   ConfirmationAction,
 } from "@/components/ai-elements/confirmation";
 import { StreamingMarkdown } from "@/components/composites/StreamingMarkdown";
+import { CaptureAnswer, type QuestionCapture, type StoreCapture } from "./CaptureAnswer";
 import { MediaOptionCarousel, type MediaOption, type OptionMedia } from "./MediaOptionCarousel";
 
 export interface ActionRequest {
@@ -47,6 +48,11 @@ export interface ApprovalCardProps {
   onReject: (reason: string) => void | Promise<void>;
   onEdit: (editedArgs: Record<string, unknown>) => void | Promise<void>;
   isProcessing?: boolean;
+  /**
+   * Stores audio a capture question records or picks, answering with its
+   * address. Without it a capture question shows that it cannot be answered.
+   */
+  storeCapture?: StoreCapture;
   state?: ToolUIState;
   approval?: ToolApproval;
   className?: string;
@@ -96,6 +102,7 @@ interface Question {
   options?: (string | QuestionOption)[];
   layout?: QuestionLayout;
   is_multi_select?: boolean;
+  capture?: QuestionCapture | null;
 }
 
 /** A question with its options as labels (the answers) and as cards (what is shown). */
@@ -105,6 +112,7 @@ interface ShownQuestion {
   cards: QuestionOption[];
   layout: QuestionLayout;
   is_multi_select?: boolean;
+  capture?: QuestionCapture | null;
 }
 
 const asOption = (opt: unknown): QuestionOption =>
@@ -123,6 +131,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     onReject,
     onEdit,
     isProcessing = false,
+    storeCapture,
     state = "approval-requested",
     approval = {},
     className,
@@ -142,6 +151,8 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string | string[]>>({});
     const [otherTexts, setOtherTexts] = useState<Record<number, string>>({});
     const [selectedOptionIndices, setSelectedOptionIndices] = useState<Record<number, number | null>>({});
+    // A capture question's answer: the stored address of what was recorded or picked.
+    const [capturedAddresses, setCapturedAddresses] = useState<Record<number, string | null>>({});
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     if (actionRequest.args !== prevArgs) {
@@ -190,6 +201,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
         cards,
         layout,
         is_multi_select: q.is_multi_select,
+        capture: q.capture ?? null,
       };
     });
 
@@ -216,6 +228,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
       const isQuestionAnswered = (qIdx: number): boolean => {
         const q = questions[qIdx];
         if (!q) return false;
+        if (q.capture) return !!capturedAddresses[qIdx];
         const qOptions = q.options || [];
         const qIsMulti = q.is_multi_select || false;
         const selIdx = selectedOptionIndices[qIdx];
@@ -254,6 +267,8 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
         }
 
         const finalAnswers = questions.map((q, idx) => {
+          // The agent receives captured audio as it receives a chat attachment.
+          if (q.capture) return `[Attached audio: ${capturedAddresses[idx] ?? ""}]`;
           const qOptions = q.options || [];
           const selIdx = selectedOptionIndices[idx];
           const isOther = selIdx === qOptions.length;
@@ -347,7 +362,16 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
           </ConfirmationTitle>
 
           {/* Options */}
-          {isCarousel ? (
+          {currentQuestion.capture ? (
+            <CaptureAnswer
+              key={currentQuestionIndex}
+              capture={currentQuestion.capture}
+              store={storeCapture}
+              onAnswer={(address) =>
+                setCapturedAddresses((prev) => ({ ...prev, [currentQuestionIndex]: address }))
+              }
+            />
+          ) : isCarousel ? (
             carouselBroken ? (
               <p className="mb-2 text-sm text-destructive" data-testid="approval-card-carousel-error">
                 This question can&apos;t be shown: every carousel option needs a preview.

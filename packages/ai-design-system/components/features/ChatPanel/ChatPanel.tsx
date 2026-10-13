@@ -15,7 +15,7 @@ import type { ToolCall } from "@/components/composites/ToolCallDisplay";
 import type { SubAgent } from "@/components/composites/AgentIndicator";
 import type { FileChangeData } from "@/components/composites/FileQueue";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
-import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval, QuestionOption } from "@/components/composites/ApprovalCard";
+import type { ActionRequest, ReviewConfig, ToolUIState, ToolApproval, QuestionOption, StoreCapture } from "@/components/composites/ApprovalCard";
 import type { FormEvent } from "react";
 import type { UserMessageAttachment, UserMessageSelection } from "@/components/composites/UserMessage";
 import type { OrchestratorQuestionData } from "@/components/composites/OrchestratorMessage";
@@ -262,6 +262,12 @@ export interface ChatPanelProps {
   /**
    * Handler to share the active session
    */
+  /**
+   * Stores audio a question's card records or picks (a capture question),
+   * answering with its address. The app supplies it: it knows where its
+   * attachments go.
+   */
+  storeCapture?: StoreCapture;
   onShare?: () => void;
   /**
    * Whether to show the share button in the session header
@@ -366,6 +372,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     showDownloadSession = true,
     onShare,
     showShare = true,
+    storeCapture,
     onOverview,
     showOverview = true,
     variant = "default",
@@ -503,6 +510,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
             onReject={handleApprovalReject}
             onEdit={handleApprovalEdit}
             isProcessing={isApprovalProcessing}
+            storeCapture={storeCapture}
             state={approvalCardState}
             approval={approvalCardApproval}
           />

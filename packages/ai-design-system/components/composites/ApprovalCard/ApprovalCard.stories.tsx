@@ -230,3 +230,61 @@ export const CarouselMissingMedia: Story = {
     },
   },
 };
+
+// A capture question: the voice is recorded in the card, with the script to
+// read beside the controls, and stored as soon as it is made.
+const storeForStory = async (file: File) => {
+  await new Promise((resolve) => setTimeout(resolve, 600));
+  return `https://storage.example/voice/${file.name}`;
+};
+
+export const CaptureRecordWithScript: Story = {
+  args: {
+    actionRequest: {
+      name: "ask_user",
+      args: {
+        questions: [
+          {
+            question: "Record yourself reading this script out loud. Read it the way you would talk to your audience.",
+            capture: {
+              kind: "audio",
+              source: "record",
+              script:
+                "OH my gosh… I can HARDLY sit still right now.\n\nBecause I just discovered something that feels like a TOTAL game changer.\n\nFor YEARS, I've wanted to share what I know.",
+            },
+          },
+        ],
+        button_submit_text: "Use this take",
+        button_skip_text: "Back",
+      },
+    },
+    storeCapture: storeForStory,
+  },
+};
+
+export const CaptureUpload: Story = {
+  args: {
+    actionRequest: {
+      name: "ask_user",
+      args: {
+        questions: [
+          {
+            question: "Upload a clean recording of your voice: just you speaking, no music or background noise, about two minutes.",
+            capture: { kind: "audio", source: "upload" },
+          },
+        ],
+        button_submit_text: "Use this recording",
+      },
+    },
+    storeCapture: storeForStory,
+  },
+};
+
+export const CaptureWithoutStorage: Story = {
+  args: {
+    actionRequest: {
+      name: "ask_user",
+      args: { questions: [{ question: "Upload your voice", capture: { kind: "audio", source: "upload" } }] },
+    },
+  },
+};
