@@ -181,7 +181,7 @@ export function MediaOptionCarousel({ options, isSelected, onSelect, className }
                   "group cursor-pointer select-none rounded-xl border p-1.5 transition-all",
                   selected
                     ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                    : "border-border bg-muted/20 hover:bg-muted/40"
+                    : "border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40"
                 )}
               >
                 <div className="relative overflow-hidden rounded-lg" style={{ aspectRatio: shape.ratio }}>
@@ -194,11 +194,19 @@ export function MediaOptionCarousel({ options, isSelected, onSelect, className }
                   />
                   <div
                     className={cn(
-                      "absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded text-xs font-semibold shadow-sm transition-colors",
-                      selected ? "bg-primary text-primary-foreground" : "bg-background/90 text-muted-foreground"
+                      "absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full transition-all shadow-sm",
+                      selected
+                        ? "bg-primary text-primary-foreground border-2 border-primary ring-2 ring-background"
+                        : "border-2 border-white/70 bg-black/40 backdrop-blur-sm group-hover:border-white group-hover:bg-black/60 group-hover:scale-105"
                     )}
+                    aria-hidden="true"
+                    data-testid={`media-option-indicator-${index}`}
                   >
-                    {selected ? <Icon name="check" size="sm" /> : index + 1}
+                    {selected ? (
+                      <Icon name="check" size="xs" />
+                    ) : (
+                      <Icon name="check" size="xs" className="opacity-0 group-hover:opacity-40 text-white transition-opacity" />
+                    )}
                   </div>
                 </div>
                 <div className="px-1 pb-0.5 pt-2">
