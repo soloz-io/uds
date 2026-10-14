@@ -38,11 +38,13 @@ export interface MediaOptionCarouselProps {
   /** Whether each option is chosen, by index. */
   isSelected: (index: number) => boolean;
   onSelect: (index: number) => void;
+  /** A tile shown before the options (the upload tile of a capture question). */
+  leading?: React.ReactNode;
   className?: string;
 }
 
 // Each shape gets a card width; the preview takes its height from the aspect ratio.
-const SHAPE: Record<MediaAspect, { width: string; ratio: string }> = {
+export const MEDIA_SHAPE: Record<MediaAspect, { width: string; ratio: string }> = {
   square: { width: "w-40", ratio: "1 / 1" },
   portrait: { width: "w-36", ratio: "3 / 4" },
   landscape: { width: "w-64", ratio: "16 / 9" },
@@ -153,14 +155,15 @@ const PREVIEW: Record<MediaKind, React.FC<PreviewProps>> = {
  * Options shown as a row of preview cards — images, clips or audio the user can
  * see or play before choosing. Only one clip or track plays at a time.
  */
-export function MediaOptionCarousel({ options, isSelected, onSelect, className }: MediaOptionCarouselProps) {
+export function MediaOptionCarousel({ options, isSelected, onSelect, leading, className }: MediaOptionCarouselProps) {
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
 
   return (
     <Carousel opts={{ align: "start", dragFree: true }} className={cn("w-full", className)} data-testid="media-option-carousel">
       <CarouselContent className="-ml-3 py-1">
+        {leading}
         {options.map((option, index) => {
-          const shape = SHAPE[option.media.aspect ?? "square"];
+          const shape = MEDIA_SHAPE[option.media.aspect ?? "square"];
           const selected = isSelected(index);
           const Preview = PREVIEW[option.media.kind];
           return (

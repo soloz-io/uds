@@ -73,4 +73,19 @@ describe('UserMessage selection card', () => {
     expect(html).toContain('Option 1');
     expect(html).not.toContain('<audio');
   });
+
+  it('shows an uploaded image answer as the image, not as raw text', () => {
+    const IMAGE = 'https://store.example/app/app/chat-attachments/ref.jpeg';
+    const html = renderToStaticMarkup(
+      <UserMessage
+        message={{
+          id: 'u-sel-img',
+          content: `[Attached image: ${IMAGE}]`,
+          selection: { question: 'Pick a style for your character', answer: `[Attached image: ${IMAGE}]`, count: 1 },
+        }}
+      />,
+    );
+    expect(html).toContain(IMAGE);
+    expect(html).not.toContain('[Attached image:');
+  });
 });

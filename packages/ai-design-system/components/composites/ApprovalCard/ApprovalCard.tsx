@@ -17,6 +17,7 @@ import {
 import { StreamingMarkdown } from "@/components/composites/StreamingMarkdown";
 import { CaptureAnswer, type QuestionCapture, type StoreCapture } from "./CaptureAnswer";
 import { MediaOptionCarousel, type MediaOption, type OptionMedia } from "./MediaOptionCarousel";
+import { UploadTile } from "./UploadTile";
 
 export interface ActionRequest {
   name: string;
@@ -49,8 +50,9 @@ export interface ApprovalCardProps {
   onEdit: (editedArgs: Record<string, unknown>) => void | Promise<void>;
   isProcessing?: boolean;
   /**
-   * Stores audio a capture question records or picks, answering with its
-   * address. Without it a capture question shows that it cannot be answered.
+   * Stores what a capture question records or picks (audio, or an image),
+   * answering with its address. Without it a capture question shows that it
+   * cannot be answered.
    */
   storeCapture?: StoreCapture;
   state?: ToolUIState;
@@ -153,6 +155,8 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     const [selectedOptionIndices, setSelectedOptionIndices] = useState<Record<number, number | null>>({});
     // A capture question's answer: the stored address of what was recorded or picked.
     const [capturedAddresses, setCapturedAddresses] = useState<Record<number, string | null>>({});
+    // A carousel with an upload tile: whether the upload, rather than an option, is chosen.
+    const [uploadChosen, setUploadChosen] = useState<Record<number, boolean>>({});
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     if (actionRequest.args !== prevArgs) {
@@ -228,7 +232,9 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
       const isQuestionAnswered = (qIdx: number): boolean => {
         const q = questions[qIdx];
         if (!q) return false;
-        if (q.capture) return !!capturedAddresses[qIdx];
+        const uploadTile = !!q.capture && q.layout === "carousel";
+        if (q.capture && !uploadTile) return !!capturedAddresses[qIdx];
+        if (uploadTile && uploadChosen[qIdx]) return !!capturedAddresses[qIdx];
         const qOptions = q.options || [];
         const qIsMulti = q.is_multi_select || false;
         const selIdx = selectedOptionIndices[qIdx];
@@ -267,8 +273,10 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
         }
 
         const finalAnswers = questions.map((q, idx) => {
-          // The agent receives captured audio as it receives a chat attachment.
-          if (q.capture) return `[Attached audio: ${capturedAddresses[idx] ?? ""}]`;
+          // The agent receives a capture as it receives a chat attachment.
+          if (q.capture && (q.layout !== "carousel" || uploadChosen[idx])) {
+            return `[Attached ${q.capture.kind}: ${capturedAddresses[idx] ?? ""}]`;
+          }
           const qOptions = q.options || [];
           const selIdx = selectedOptionIndices[idx];
           const isOther = selIdx === qOptions.length;
@@ -311,6 +319,8 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
           } else {
             setSelectedOptionIndices((prev) => ({ ...prev, [currentQuestionIndex]: index }));
             setSelectedAnswers((prev) => ({ ...prev, [currentQuestionIndex]: option }));
+            // Picking an option sets aside the upload tile's file.
+            setUploadChosen((prev) => ({ ...prev, [currentQuestionIndex]: false }));
           }
         }
       };
@@ -362,7 +372,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
           </ConfirmationTitle>
 
           {/* Options */}
-          {currentQuestion.capture ? (
+          {currentQuestion.capture && !isCarousel ? (
             <CaptureAnswer
               key={currentQuestionIndex}
               capture={currentQuestion.capture}
@@ -387,6 +397,30 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
                     : selectedOptionIndices[currentQuestionIndex] === index
                 }
                 onSelect={(index) => handleOptionSelect(options[index], index, false)}
+                leading={
+                  currentQuestion.capture ? (
+                    <UploadTile
+                      capture={currentQuestion.capture}
+                      store={storeCapture}
+                      aspect={carouselCards[0]?.media.aspect ?? "square"}
+                      selected={!!uploadChosen[currentQuestionIndex]}
+                      onAnswer={(address) => {
+                        setCapturedAddresses((prev) => ({ ...prev, [currentQuestionIndex]: address }));
+                        // A stored file is chosen at once, setting aside any option picked before.
+                        setUploadChosen((prev) => ({ ...prev, [currentQuestionIndex]: !!address }));
+                        if (address) {
+                          setSelectedOptionIndices((prev) => ({ ...prev, [currentQuestionIndex]: null }));
+                          setSelectedAnswers((prev) => ({ ...prev, [currentQuestionIndex]: "" }));
+                        }
+                      }}
+                      onSelect={() => {
+                        setUploadChosen((prev) => ({ ...prev, [currentQuestionIndex]: true }));
+                        setSelectedOptionIndices((prev) => ({ ...prev, [currentQuestionIndex]: null }));
+                        setSelectedAnswers((prev) => ({ ...prev, [currentQuestionIndex]: "" }));
+                      }}
+                    />
+                  ) : undefined
+                }
               />
             )
           ) : (
