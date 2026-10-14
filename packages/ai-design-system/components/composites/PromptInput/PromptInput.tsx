@@ -165,9 +165,15 @@ const PromptInputInner = React.memo<PromptInputBlockProps>(
     const showAttachments = enableAttachments;
     const showSpeech = enableSpeech;
 
+    const controller = useOptionalPromptInputController();
     const attachments = usePromptInputAttachments();
     const hasAttachments = showAttachments && attachments.files.length > 0;
-    const isMultiline = Boolean(multiline || helperText || hasAttachments);
+    const hasNewlines = Boolean(
+      controller?.textInput?.value?.includes("\n") || value?.includes("\n")
+    );
+    const isMultiline = Boolean(
+      multiline || helperText || hasAttachments || hasNewlines
+    );
 
     const handleSubmit = React.useCallback(
       (message: PromptInputMessage, event: FormEvent<HTMLFormElement>) => {
