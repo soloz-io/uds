@@ -100,3 +100,20 @@ export const WithSelection: Story = {
     showAvatar: true,
   },
 }
+
+export const WithAudioSelection: Story = {
+  args: {
+    message: {
+      id: '7',
+      content: `[Attached audio: ${SILENT_WAV}]`,
+      avatarSrc: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face',
+      avatarName: 'User',
+      selection: {
+        question: 'Re-record your narration voice — read the script below.',
+        answer: `[Attached audio: ${SILENT_WAV}]`,
+        count: 1,
+      },
+    },
+    showAvatar: true,
+  },
+}
