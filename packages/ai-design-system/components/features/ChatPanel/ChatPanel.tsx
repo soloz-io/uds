@@ -569,6 +569,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
         {topSlot}
 
         <AIConversation
+          key={activeSessionId}
           messages={messages}
           showAvatars={true}
           onToolAction={onToolAction}

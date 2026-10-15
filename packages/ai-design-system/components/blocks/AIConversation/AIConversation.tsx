@@ -512,8 +512,26 @@ export const AIConversation = React.memo<AIConversationProps>(
       [groupedMessages, showAvatars, onToolAction, onRestoreCheckpoint, onSaveWorkspace, isCurrentVersionSaved, isSavingWorkspace, lastReplyIndex, renderSystemMessage, renderUserMessage]
     )
 
+    // Keep resize instant until messages have loaded for this session, so the
+    // initial population of history lands at the bottom immediately without
+    // rolling down from the top. Subsequent new messages/streaming can scroll smoothly.
+    const [initialLoaded, setInitialLoaded] = React.useState(false);
+
+    React.useEffect(() => {
+      if (messages.length > 0 && !initialLoaded) {
+        const timer = setTimeout(() => setInitialLoaded(true), 150);
+        return () => clearTimeout(timer);
+      }
+    }, [messages.length, initialLoaded]);
+
+    const resizeBehavior = initialLoaded ? "smooth" : "instant";
+
     return (
-      <Conversation {...conversationProps}>
+      <Conversation
+        initial="instant"
+        resize={conversationProps.resize ?? resizeBehavior}
+        {...conversationProps}
+      >
         <ConversationContent>
           {onLoadOlder && (
             <ConversationOlderMessages
