@@ -1,5 +1,8 @@
+import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryPlayer, type StorySegment } from "./StoryPlayer";
+import { SceneReviewSheet, type SceneReviewComment } from "../SceneReviewSheet";
+import { OverviewSheet } from "../OverviewSheet";
 import { fn } from "@storybook/test";
 
 /**
@@ -69,12 +72,73 @@ const mockStories: StorySegment[] = [
   },
 ];
 
+const mockNarration = {
+  frontmatter: {
+    status: "ready",
+    title: "Building iOS App on Devin",
+    description: "Voice-over script for 45s product breakdown",
+  },
+  dataBlock: {
+    content_style: "viral",
+    target_duration_seconds: 46.8,
+    word_count: 170,
+    speed: 1.1,
+  },
+  body: `iOS apps used to mean one thing: you needed a Mac. And nobody told the AI — every AI coding tool lived on Linux clouds. So native iOS was off the table.
+
+But Devin just fixed that. It got a real Mac in the cloud. Devin outposts on namespace dev boxes powered by Apple's M-series chips with Xcode and the iOS simulator.
+
+Here's the move. Type 1 prompt: "Build and play a flappy bird clone on iOS". Devin scaffolds the Swift project, builds it, boots the simulator, and then it gets scary good.
+
+Devin installs the app, plays it, and tests it like a human. Recording proof. An AI teammate that ships and self-tests its own iOS app. For indie founders, that's idea to App Store without chaining yourself to a Mac. The no-Mac era is over. Point your next prompt at Devin and watch.`,
+  isValid: true,
+};
+
+const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+
+const mockComments: SceneReviewComment[] = [
+  {
+    id: "c-1",
+    sceneLabel: "Scene 1",
+    authorName: "Arun Subramanian",
+    createdAt: ago(25),
+    content: "Make the opening hook faster and bolder.",
+    status: "completed",
+    resultVersion: "v2",
+    history: [
+      { status: "pending", at: ago(24), by: "User" },
+      { status: "completed", at: ago(15), by: "Agent", version: "v2", note: "Opening hook tightened." },
+    ],
+  },
+  {
+    id: "c-2",
+    sceneLabel: "Scene 2",
+    authorName: "Arun Subramanian",
+    createdAt: ago(5),
+    content: "Highlight the Xcode simulator window clearly.",
+    status: "draft",
+  },
+];
+
 export const Default: Story = {
   args: {
     stories: mockStories,
     videoUrl: VIDEO_URL,
     title: "Building iOS App on Devin",
     isPlaying: true,
+  },
+};
+
+export const WithOverviewBadge: Story = {
+  args: {
+    stories: mockStories,
+    videoUrl: VIDEO_URL,
+    title: "Building iOS App on Devin",
+    isPlaying: false,
+    overviewBadge: true,
+    isOverviewOpen: false,
+    commentCount: 2,
+    isCommentsOpen: false,
   },
 };
 
@@ -113,5 +177,69 @@ export const ScenesMode: Story = {
     videoUrl: VIDEO_URL,
     title: "Building iOS App on Devin",
     playbackMode: "scenes",
+  },
+};
+
+/**
+ * Interactive story with both Overview (Narration) and Comments sidesheets wired up.
+ * Clicking the Overview icon toggles the Narration sidesheet with narration content.
+ * Clicking the Comment icon toggles the Scene Review sidesheet with comments.
+ */
+export const InteractiveWithSidesheets: Story = {
+  render: () => {
+    const [isOverviewOpen, setIsOverviewOpen] = React.useState(false);
+    const [isCommentsOpen, setIsCommentsOpen] = React.useState(false);
+    const [isPlaying, setIsPlaying] = React.useState(false);
+
+    return (
+      <div className="relative w-full h-screen overflow-hidden bg-black">
+        <StoryPlayer
+          stories={mockStories}
+          videoUrl={VIDEO_URL}
+          title="Building iOS App on Devin"
+          isPlaying={isOverviewOpen || isCommentsOpen ? false : isPlaying}
+          onPlayingChange={setIsPlaying}
+          overviewBadge={true}
+          isOverviewOpen={isOverviewOpen}
+          onOverviewClick={() => {
+            setIsOverviewOpen((prev) => !prev);
+            setIsCommentsOpen(false);
+            setIsPlaying(false);
+          }}
+          commentCount={mockComments.length}
+          isCommentsOpen={isCommentsOpen}
+          onCommentClick={() => {
+            setIsCommentsOpen((prev) => !prev);
+            setIsOverviewOpen(false);
+            setIsPlaying(false);
+          }}
+          onSubmit={(message) => {
+            console.log("Submit message:", message);
+          }}
+        />
+
+        <OverviewSheet
+          open={isOverviewOpen}
+          onOpenChange={(open) => {
+            setIsOverviewOpen(open);
+            if (open) setIsPlaying(false);
+          }}
+          narration={mockNarration}
+          className="sm:max-w-sm"
+        />
+
+        <SceneReviewSheet
+          open={isCommentsOpen}
+          onOpenChange={(open) => {
+            setIsCommentsOpen(open);
+            if (open) setIsPlaying(false);
+          }}
+          comments={mockComments}
+          draftCount={1}
+          description="2 comments across 2 scenes"
+          className="sm:max-w-sm"
+        />
+      </div>
+    );
   },
 };

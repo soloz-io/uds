@@ -891,8 +891,8 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
                     className={cn(
                       "absolute rounded-full bg-primary shadow-sm",
                       typeof overviewBadge === "string" || typeof overviewBadge === "number"
-                        ? "-top-1 -right-1 h-4 min-w-4 px-1 text-[10px] font-bold flex items-center justify-center text-primary-foreground leading-none"
-                        : "-top-0.5 -right-0.5 h-2 w-2"
+                        ? "-top-1 -right-1 h-4 min-w-4 px-1 text-[10px] font-bold flex items-center justify-center text-primary-foreground leading-none ring-1 ring-black"
+                        : "-top-0.5 -right-0.5 h-2.5 w-2.5 ring-2 ring-black"
                     )}
                     data-testid="badge-overview"
                   >

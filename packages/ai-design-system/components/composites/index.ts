@@ -342,6 +342,16 @@ export type {
   SceneCommentHistoryStep,
 } from './SceneReviewSheet'
 
+// OverviewSheet Composite
+export { OverviewSheet, NarrationOverviewSheet } from './OverviewSheet'
+export type {
+  OverviewSheetProps,
+  NarrationOverviewSheetProps,
+  OverviewBadge,
+  OverviewMetadataItem,
+  NarrationData,
+} from './OverviewSheet'
+
 // ShareDialog Composite
 export { ShareDialog } from './ShareDialog'
 export type { ShareDialogProps, ShareItem, ExpiryDuration } from './ShareDialog'
