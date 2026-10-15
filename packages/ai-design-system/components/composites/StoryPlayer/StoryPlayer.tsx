@@ -79,6 +79,9 @@ export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   /** Called when a story/scene segment bar is clicked. Defaults to navigating to that segment via goToStory(idx). */
   onSegmentClick?: (segmentIndex: number, segment: StorySegment) => void;
   onSceneClick?: (sceneIndex: number, scene: StorySegment) => void;
+  onOverviewClick?: () => void;
+  isOverviewOpen?: boolean;
+  overviewBadge?: boolean | number | string;
   commentCount?: number;
   onCommentClick?: () => void;
   isCommentsOpen?: boolean;
@@ -163,6 +166,9 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       onSceneChange,
       onSegmentClick,
       onSceneClick,
+      onOverviewClick,
+      isOverviewOpen,
+      overviewBadge,
       commentCount,
       onCommentClick,
       isCommentsOpen,
@@ -863,6 +869,36 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
                 className="h-8 rounded-full bg-white/90 px-3 text-xs font-semibold text-black hover:bg-white"
               >
                 Use {currentVersion}
+              </Button>
+            )}
+
+            {/* Overview Toggle Button */}
+            {onOverviewClick && (
+              <Button
+                variant="ghost"
+                size="icon"
+                data-testid="btn-toggle-overview"
+                aria-label="View overview"
+                onClick={onOverviewClick}
+                className={cn(
+                  "h-8 w-8 rounded-full bg-black/40 hover:bg-white/20 text-white p-0 cursor-pointer relative",
+                  isOverviewOpen && "bg-white/25 text-white ring-1 ring-white/40"
+                )}
+              >
+                <Icon name="overview" className="w-4 h-4" />
+                {overviewBadge && (
+                  <span
+                    className={cn(
+                      "absolute rounded-full bg-primary shadow-sm",
+                      typeof overviewBadge === "string" || typeof overviewBadge === "number"
+                        ? "-top-1 -right-1 h-4 min-w-4 px-1 text-[10px] font-bold flex items-center justify-center text-primary-foreground leading-none"
+                        : "-top-0.5 -right-0.5 h-2 w-2"
+                    )}
+                    data-testid="badge-overview"
+                  >
+                    {typeof overviewBadge === "string" || typeof overviewBadge === "number" ? overviewBadge : null}
+                  </span>
+                )}
               </Button>
             )}
 

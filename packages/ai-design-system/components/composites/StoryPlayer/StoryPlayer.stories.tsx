@@ -24,6 +24,7 @@ const meta = {
     onSceneClick: fn(),
     onPlayingChange: fn(),
     onDownload: fn(),
+    onOverviewClick: fn(),
     onCommentClick: fn(),
   },
 } satisfies Meta<typeof StoryPlayer>;
