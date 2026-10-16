@@ -62,6 +62,17 @@ export interface StoryPlayerProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   videoUrl?: string;
   downloadUrl?: string;
   onDownload?: () => void;
+  /**
+   * Render the full video on request. Offered in the download button's place
+   * while there is nothing to download (no `downloadUrl` or `videoUrl`); once
+   * there is, the button downloads it.
+   */
+  onExport?: () => void;
+  /** The export cannot start now; `exportDisabledReason` says why. */
+  exportDisabled?: boolean;
+  exportDisabledReason?: string;
+  /** An export is running: the button shows progress and refuses another. */
+  isExporting?: boolean;
   onBack?: () => void;
   onClose?: () => void;
   placeholder?: string;
@@ -150,6 +161,10 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       videoUrl,
       downloadUrl,
       onDownload,
+      onExport,
+      exportDisabled = false,
+      exportDisabledReason,
+      isExporting = false,
       onBack,
       onClose,
       placeholder,
@@ -504,6 +519,14 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
     );
 
     const canDownload = Boolean(downloadUrl || videoUrl);
+    // With nothing to download yet, the same place offers the export.
+    const offersExport = !canDownload && Boolean(onExport);
+    const canExport = offersExport && !exportDisabled && !isExporting;
+    const exportTooltip = isExporting
+      ? "Rendering the full video…"
+      : exportDisabled
+        ? exportDisabledReason
+        : "Export the full video";
 
     const handleDownload = React.useCallback(async () => {
       if (onDownload) {
@@ -940,29 +963,56 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
                 <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
               </Button>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    data-testid="btn-download"
-                    aria-label="Download video"
-                    disabled={!canDownload}
-                    onClick={canDownload ? handleDownload : undefined}
-                    className={cn(
-                      "h-8 w-8 rounded-full bg-black/40 text-white p-0 transition-opacity",
-                      canDownload
-                        ? "hover:bg-white/20 cursor-pointer"
-                        : "opacity-35 cursor-not-allowed hover:bg-black/40"
-                    )}
-                  >
-                    <Icon name="download" className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                {!canDownload && (
-                  <TooltipContent>Full render video pending</TooltipContent>
-                )}
-              </Tooltip>
+              {offersExport ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      data-testid="btn-export"
+                      aria-label="Export video"
+                      disabled={!canExport}
+                      onClick={canExport ? onExport : undefined}
+                      className={cn(
+                        "h-8 w-8 rounded-full bg-black/40 text-white p-0 transition-opacity",
+                        canExport
+                          ? "hover:bg-white/20 cursor-pointer"
+                          : "opacity-35 cursor-not-allowed hover:bg-black/40"
+                      )}
+                    >
+                      <Icon
+                        name={isExporting ? "loader-2" : "film"}
+                        className={cn("w-4 h-4", isExporting && "animate-spin")}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  {exportTooltip && <TooltipContent>{exportTooltip}</TooltipContent>}
+                </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      data-testid="btn-download"
+                      aria-label="Download video"
+                      disabled={!canDownload}
+                      onClick={canDownload ? handleDownload : undefined}
+                      className={cn(
+                        "h-8 w-8 rounded-full bg-black/40 text-white p-0 transition-opacity",
+                        canDownload
+                          ? "hover:bg-white/20 cursor-pointer"
+                          : "opacity-35 cursor-not-allowed hover:bg-black/40"
+                      )}
+                    >
+                      <Icon name="download" className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  {!canDownload && (
+                    <TooltipContent>Full render video pending</TooltipContent>
+                  )}
+                </Tooltip>
+              )}
             </div>
 
             <DropdownMenu>
@@ -982,14 +1032,28 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
                   <Icon name={isMuted ? "volume-x" : "volume-2"} className="w-4 h-4" />
                   {isMuted ? "Unmute" : "Mute"}
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  data-testid="menu-download"
-                  disabled={!canDownload}
-                  onSelect={canDownload ? handleDownload : undefined}
-                >
-                  <Icon name="download" className="w-4 h-4" />
-                  Download
-                </DropdownMenuItem>
+                {offersExport ? (
+                  <DropdownMenuItem
+                    data-testid="menu-export"
+                    disabled={!canExport}
+                    onSelect={canExport ? onExport : undefined}
+                  >
+                    <Icon
+                      name={isExporting ? "loader-2" : "film"}
+                      className={cn("w-4 h-4", isExporting && "animate-spin")}
+                    />
+                    {isExporting ? "Exporting…" : "Export"}
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem
+                    data-testid="menu-download"
+                    disabled={!canDownload}
+                    onSelect={canDownload ? handleDownload : undefined}
+                  >
+                    <Icon name="download" className="w-4 h-4" />
+                    Download
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

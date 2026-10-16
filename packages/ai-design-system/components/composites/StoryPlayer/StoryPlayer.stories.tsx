@@ -27,6 +27,7 @@ const meta = {
     onSceneClick: fn(),
     onPlayingChange: fn(),
     onDownload: fn(),
+    onExport: fn(),
     onOverviewClick: fn(),
     onCommentClick: fn(),
   },
@@ -126,6 +127,34 @@ export const Default: Story = {
     videoUrl: VIDEO_URL,
     title: "Building iOS App on Devin",
     isPlaying: true,
+  },
+};
+
+// Nothing rendered yet: the download button's place offers the export.
+export const Exportable: Story = {
+  args: {
+    stories: mockStories,
+    title: "Building iOS App on Devin",
+    isPlaying: false,
+  },
+};
+
+export const ExportUnavailable: Story = {
+  args: {
+    stories: mockStories,
+    title: "Building iOS App on Devin",
+    isPlaying: false,
+    exportDisabled: true,
+    exportDisabledReason: "Every scene must be ready before the video can be exported.",
+  },
+};
+
+export const Exporting: Story = {
+  args: {
+    stories: mockStories,
+    title: "Building iOS App on Devin",
+    isPlaying: false,
+    isExporting: true,
   },
 };
 
