@@ -44,6 +44,8 @@ export interface StorySegment {
   scene_clip_url?: string;
   video_url?: string;
   scene_audio_clip_url?: string;
+  /** Drawn in the primary colour in the segment bar, so the user can find and open it directly. */
+  highlighted?: boolean;
   [key: string]: unknown;
 }
 
@@ -770,11 +772,12 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
                       <div
                         className={cn(
                           "w-full h-[2.5px] rounded-[2px] bg-white/35 group-hover:bg-white/60 group-hover:h-[4px] overflow-hidden transition-all duration-150",
-                          isCurrent && "bg-white/45"
+                          isCurrent && "bg-white/45",
+                          item.highlighted && "bg-primary/60 group-hover:bg-primary"
                         )}
                       >
                         <div
-                          className="h-full bg-white transition-[width] duration-75"
+                          className={cn("h-full transition-[width] duration-75", item.highlighted ? "bg-primary" : "bg-white")}
                           style={{ width: `${fill * 100}%` }}
                         />
                       </div>

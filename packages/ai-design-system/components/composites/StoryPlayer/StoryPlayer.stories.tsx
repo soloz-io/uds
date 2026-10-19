@@ -209,6 +209,22 @@ export const ScenesMode: Story = {
   },
 };
 
+export const HighlightedSegment: Story = {
+  args: {
+    stories: [
+      mockStories[0],
+      {
+        ...mockStories[1],
+        highlighted: true,
+      },
+      mockStories[2],
+    ],
+    videoUrl: VIDEO_URL,
+    title: "Building iOS App on Devin",
+    isPlaying: false,
+  },
+};
+
 /**
  * Interactive story with both Overview (Narration) and Comments sidesheets wired up.
  * Clicking the Overview icon toggles the Narration sidesheet with narration content.
