@@ -9,4 +9,5 @@ export type {
   DevicePreviewNodeData,
   DevicePreviewNode as DevicePreviewNodeType,
   DeviceScreenshotRequest,
+  DevicePreviewHotspot,
 } from "./interfaces"

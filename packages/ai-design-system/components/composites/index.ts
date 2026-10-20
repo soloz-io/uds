@@ -162,7 +162,7 @@ export type { SpatialContainerNodeData, SpatialContainerColorTheme, SpatialConta
 
 // DevicePreviewNode Composite
 export { DevicePreviewNode, DEVICE_PRESETS, DEFAULT_PRESET_ID, getPreset } from './DevicePreviewNode'
-export type { DevicePreset, DevicePreviewNodeData, DevicePreviewNodeType, DeviceScreenshotRequest } from './DevicePreviewNode'
+export type { DevicePreset, DevicePreviewNodeData, DevicePreviewNodeType, DeviceScreenshotRequest, DevicePreviewHotspot } from './DevicePreviewNode'
 
 // DevicePreviewToolbar Composite
 export { DevicePreviewToolbar } from './DevicePreviewToolbar'

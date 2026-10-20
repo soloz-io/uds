@@ -76,6 +76,10 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
   };
 
   const handleTakeScreenshot = () => {
+    if (data.captureSrc) {
+      data.onTakeScreenshot?.({ route: data.route });
+      return;
+    }
     const iframe = registeredRef.current;
     if (!iframe) return;
     data.onTakeScreenshot?.({ route: data.route, iframe });
@@ -89,6 +93,8 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
   const screenHeight = Math.round(baseHeight * scale);
   const outerWidth = screenWidth + (data.hideControls ? 12 : 32);
   const outerHeight = screenHeight + (data.hideControls ? 12 : 88);
+  // Capture pixels to device pixels: the capture is drawn at the device's base width.
+  const captureScale = data.captureWidth ? baseWidth / data.captureWidth : 1;
 
   return (
     <div
@@ -158,7 +164,7 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
       <div
         className={cn(
           "relative overflow-hidden rounded-[1.25rem] border border-border/40 bg-background",
-          data.interactive !== true && "pointer-events-none",
+          data.interactive !== true && !data.captureSrc && "pointer-events-none",
         )}
         style={{ width: screenWidth, height: screenHeight }}
       >
@@ -170,18 +176,49 @@ export const DevicePreviewNode = memo(({ data, id }: DevicePreviewNodeProps) => 
             transformOrigin: "top left",
           }}
         >
-          <ExpoAppPreview
-            key={reloadKey}
-            src={effectiveSrc}
-            title={data.label ? `${data.label} preview` : "App preview"}
-            loading={data.loading}
-            isEmpty={data.isEmpty}
-            error={data.error}
-            registerIframe={(el) => {
-              registeredRef.current = el;
-              data.registerIframe?.(el);
-            }}
-          />
+          {data.captureSrc ? (
+            <div className="relative h-full w-full">
+              <img
+                src={data.captureSrc}
+                alt={data.label ? `${data.label} screen` : "App screen"}
+                className="block h-full w-full object-cover object-top"
+                draggable={false}
+              />
+              {data.hotspots?.map((h) => (
+                <button
+                  key={h.id}
+                  type="button"
+                  aria-label={h.label ?? h.id}
+                  title={h.label ?? h.id}
+                  data-testid={`device-preview-hotspot-${h.id}`}
+                  className="pointer-events-auto absolute rounded-md transition-shadow hover:ring-2 hover:ring-primary/60 focus-visible:ring-2 focus-visible:ring-primary"
+                  style={{
+                    left: h.box.x * captureScale,
+                    top: h.box.y * captureScale,
+                    width: h.box.w * captureScale,
+                    height: h.box.h * captureScale,
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    data.onHotspot?.(h.id);
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <ExpoAppPreview
+              key={reloadKey}
+              src={effectiveSrc}
+              title={data.label ? `${data.label} preview` : "App preview"}
+              loading={data.loading}
+              isEmpty={data.isEmpty}
+              error={data.error}
+              registerIframe={(el) => {
+                registeredRef.current = el;
+                data.registerIframe?.(el);
+              }}
+            />
+          )}
         </div>
 
         {data.showRouteBadge && data.route && (

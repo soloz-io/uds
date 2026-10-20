@@ -39,8 +39,15 @@ export const getPreset = (presetId?: string): DevicePreset =>
 export interface DeviceScreenshotRequest {
   /** Active route, when the node renders a specific screen. */
   route?: string
-  /** The live iframe element to rasterize (html-to-image on the consumer side). */
-  iframe: HTMLIFrameElement
+  /** The live iframe element, when the node shows one; absent for a capture. */
+  iframe?: HTMLIFrameElement
+}
+
+/** A pressable area on a capture: a link the renderer measured, in capture pixels. */
+export interface DevicePreviewHotspot {
+  id: string
+  box: { x: number; y: number; w: number; h: number }
+  label?: string
 }
 
 export interface DevicePreviewActionPort {
@@ -134,6 +141,15 @@ export interface DevicePreviewNodeData {
    * the buttons and forwards the click, the consumer decides what it does.
    */
   transitions?: Array<{ id: string; label: string; onTrigger: () => void }>
+  /**
+   * A stored capture of the screen, shown instead of a live frame. Nothing runs
+   * in the node: presses land on `hotspots` and are reported by `onHotspot`.
+   */
+  captureSrc?: string
+  /** The capture's viewport width in CSS pixels (hotspot coordinates are in it). */
+  captureWidth?: number
+  hotspots?: DevicePreviewHotspot[]
+  onHotspot?: (hotspotId: string) => void
   [key: string]: unknown
 }
 
