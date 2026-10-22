@@ -53,6 +53,19 @@ describe('StoriesBar', () => {
     expect(activeHtml).toContain('data-testid="story-badge-video-ready"');
   });
 
+  it('applies border-primary to the outer button container when active, not the inner icon', () => {
+    const html = renderToStaticMarkup(
+      <StoriesBar stories={stories} activeStoryId="channel" onStoryClick={() => {}} />
+    );
+
+    // Outer button contains border-primary
+    expect(html).toContain('border-primary');
+    expect(html).toMatch(/class="[^"]*border-primary[^"]*"[^>]*data-testid="btn-story-channel"/);
+
+    // Inner icon does NOT have ring-primary or border-primary
+    expect(html).not.toContain('ring-2 ring-primary');
+  });
+
   it('renders every bubble as a story without separate homeItem', () => {
     const html = renderToStaticMarkup(
       <StoriesBar stories={stories} onStoryClick={() => {}} />

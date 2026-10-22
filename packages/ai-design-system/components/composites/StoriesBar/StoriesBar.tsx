@@ -236,8 +236,10 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
                 variant="ghost"
                 onClick={() => onStoryClick(story)}
                 className={cn(
-                  "flex flex-col items-center gap-1.5 h-auto px-2.5 py-2 rounded-xl cursor-pointer group shrink-0 transition-all duration-200 hover:bg-accent/60 dark:hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  isActive && "bg-accent/30 dark:bg-accent/20"
+                  "flex flex-col items-center gap-1.5 h-auto px-2.5 py-2 rounded-xl border cursor-pointer group shrink-0 transition-all duration-200 hover:bg-accent/60 dark:hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  isActive
+                    ? "border-primary bg-accent/30 dark:bg-accent/20"
+                    : "border-transparent"
                 )}
                 data-testid={`btn-story-${story.id}`}
                 aria-label={`Open story: ${story.title}`}
@@ -245,10 +247,8 @@ export const StoriesBar = React.forwardRef<HTMLDivElement, StoriesBarProps>(
                 <div className="relative w-9 h-9 shrink-0 aspect-square rounded-full transition-transform group-hover:scale-105">
                   <div
                     className={cn(
-                      "w-full h-full rounded-full flex items-center justify-center border transition-all overflow-hidden select-none",
-                      isActive
-                        ? "border-primary bg-muted/60 ring-2 ring-primary ring-offset-2 ring-offset-background"
-                        : "border-border/50 bg-muted/40"
+                      "w-full h-full rounded-full flex items-center justify-center border border-border/50 transition-all overflow-hidden select-none",
+                      isActive ? "bg-muted/60" : "bg-muted/40"
                     )}
                   >
                     {story.thumbnailUrl ? (
