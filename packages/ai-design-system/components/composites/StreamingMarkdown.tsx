@@ -104,12 +104,14 @@ export const StreamingMarkdown = memo(
     return (
       <div className="flex w-full flex-col">
         {hasHeader && (
-          <div className="mb-6 flex w-full flex-col border-b border-border pb-4">
+          // Laid out by its own width: in a narrow space the badges wrap under
+          // the title and the title is smaller (a side sheet, a split pane).
+          <div className="@container/md-header mb-6 flex w-full flex-col border-b border-border pb-4">
             <div className="flex w-full items-start justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-3">
+              <div className="flex min-w-0 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                   {title && (
-                    <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                    <h1 className="text-xl font-semibold tracking-tight text-foreground break-words @lg/md-header:text-3xl">
                       {title}
                     </h1>
                   )}

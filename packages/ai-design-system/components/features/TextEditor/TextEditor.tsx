@@ -102,8 +102,11 @@ export interface TextEditorWorkspaceProps {
 export interface TextEditorMultiTabProps {
   /** Array of open documents with their content and annotations */
   documents: DocumentWithAnnotations[]
-  /** ID of currently active document */
-  activeDocumentId?: string
+  /**
+   * ID of currently active document. Omitted: the first document opens.
+   * `null`: none is open until the user selects one.
+   */
+  activeDocumentId?: string | null
   /** Content prop (not provided in multi-tab mode) */
   content?: never
   /** Format prop (not provided in multi-tab mode) */
@@ -246,6 +249,8 @@ export const TextEditor = React.memo<TextEditorProps>(
      */
     const currentDocument = useMemo(() => {
       if (isMultiTab && props.documents) {
+        // null: nothing is open until a document is selected.
+        if (props.activeDocumentId === null) return null
         return (
           props.documents.find(
             (doc) => doc.file.id === (props.activeDocumentId || props.documents[0]?.file.id)
@@ -499,7 +504,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             <DocumentTabBar
               className="w-full"
               tabs={props.documents?.map((doc) => doc.file) || []}
-              activeTabId={props.activeDocumentId}
+              activeTabId={props.activeDocumentId ?? undefined}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
               onToggleExplorer={() => handleOpenChange(true)}
@@ -557,7 +562,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             <DocumentTabBar
               className="w-full"
               tabs={props.documents?.map((doc) => doc.file) || []}
-              activeTabId={props.activeDocumentId}
+              activeTabId={props.activeDocumentId ?? undefined}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
               onToggleExplorer={() => handleOpenChange(true)}
@@ -597,7 +602,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             <DocumentTabBar
               className="w-full"
               tabs={props.documents?.map((doc) => doc.file) || []}
-              activeTabId={props.activeDocumentId}
+              activeTabId={props.activeDocumentId ?? undefined}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
               onToggleExplorer={() => handleOpenChange(true)}
@@ -654,7 +659,7 @@ export const TextEditor = React.memo<TextEditorProps>(
         open={isDrawerOpen}
         onOpenChange={handleOpenChange}
         tree={fileTreeNodes}
-        selectedPath={props.activeDocumentId}
+        selectedPath={props.activeDocumentId ?? undefined}
         onSelect={handleFileSelect}
         onDownload={onDownloadAllFiles}
       />
@@ -689,7 +694,7 @@ export const TextEditor = React.memo<TextEditorProps>(
                 className="h-full w-full rounded-none border-0"
                 headerClassName="border-b"
                 tree={fileTreeNodes}
-                selectedPath={props.activeDocumentId}
+                selectedPath={props.activeDocumentId ?? undefined}
                 onSelect={handleFileSelect}
                 onDownload={onDownloadAllFiles}
               />
