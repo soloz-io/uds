@@ -15,6 +15,12 @@ export interface FileTreeDrawerProps extends FileTreeExplorerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   title?: string
+  /**
+   * The element the drawer opens inside, instead of the whole page: its overlay
+   * and panel are placed against it. That element must be a containing block
+   * for fixed children (e.g. a CSS container).
+   */
+  container?: HTMLElement | null
 }
 
 export const FileTreeDrawer = React.memo<FileTreeDrawerProps>(
@@ -27,10 +33,11 @@ export const FileTreeDrawer = React.memo<FileTreeDrawerProps>(
     onSelect,
     onDownload,
     className,
+    container,
     ...props
   }) => {
     return (
-      <Drawer direction="left" open={open} onOpenChange={onOpenChange}>
+      <Drawer direction="left" open={open} onOpenChange={onOpenChange} container={container}>
         <DrawerContent className={cn("w-[85vw] max-w-[320px] h-full flex flex-col p-0 focus:outline-none", className)}>
           <DrawerHeader className="p-3 border-b flex items-center justify-between shrink-0">
             <DrawerTitle className="text-sm font-semibold flex items-center gap-2">

@@ -200,20 +200,19 @@ const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayou
  * classes follow the same container (`@container/text-editor`).
  */
 function useCompactContainer() {
-  const ref = React.useRef<HTMLDivElement>(null)
+  const [element, setElement] = React.useState<HTMLDivElement | null>(null)
   const [isCompact, setIsCompact] = React.useState(false)
 
   useIsomorphicLayoutEffect(() => {
-    const el = ref.current
-    if (!el || typeof ResizeObserver === 'undefined') return
+    if (!element || typeof ResizeObserver === 'undefined') return
     const measure = (width: number) => setIsCompact(width < COMPACT_WIDTH)
-    measure(el.getBoundingClientRect().width)
+    measure(element.getBoundingClientRect().width)
     const observer = new ResizeObserver(([entry]) => measure(entry.contentRect.width))
-    observer.observe(el)
+    observer.observe(element)
     return () => observer.disconnect()
-  }, [])
+  }, [element])
 
-  return [ref, isCompact] as const
+  return [setElement, isCompact, element] as const
 }
 
 /**
@@ -328,11 +327,12 @@ export const TextEditor = React.memo<TextEditorProps>(
 
     const handleTabSelect = isMultiTab ? (props as TextEditorMultiTabProps).onTabSelect : undefined
 
-    const [rootRef, isMobile] = useCompactContainer()
-    // Every layout sits in one root the editor measures, and which its
-    // breakpoint classes query.
+    const [rootRef, isMobile, rootElement] = useCompactContainer()
+    // Every layout sits in one root the editor measures, which its breakpoint
+    // classes query, and inside which its file drawer opens (a CSS container is
+    // the containing block for the drawer's fixed panel and overlay).
     const inRoot = (node: React.ReactNode) => (
-      <div ref={rootRef} className="@container/text-editor flex flex-col flex-1 h-full min-h-0 w-full">
+      <div ref={rootRef} className="@container/text-editor relative overflow-hidden flex flex-col flex-1 h-full min-h-0 w-full">
         {node}
       </div>
     )
@@ -478,6 +478,11 @@ export const TextEditor = React.memo<TextEditorProps>(
      * Multi-tab mode
      */
     const { hideTabBar, onDownloadAllFiles, workspace } = props as TextEditorMultiTabProps
+    const hideFileTree = isMultiTab && Boolean((props as TextEditorMultiTabProps).hideFileTree)
+    // The file tree opens from a button only where it lives in the drawer: the
+    // narrow layout, with the tree not hidden. Elsewhere there is no button —
+    // the tree is beside the document, or there is none.
+    const openFileDrawer = isMobile && !hideFileTree ? () => handleOpenChange(true) : undefined
 
     let editorPane: React.ReactNode
 
@@ -507,21 +512,21 @@ export const TextEditor = React.memo<TextEditorProps>(
               activeTabId={props.activeDocumentId ?? undefined}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
-              onToggleExplorer={() => handleOpenChange(true)}
+              onToggleExplorer={openFileDrawer}
               onNewTab={(props as TextEditorMultiTabProps).onNewTab}
             />
           )}
           {hideTabBar && (
             <DocumentTabBar
               tabs={[]}
-              onToggleExplorer={() => handleOpenChange(true)}
+              onToggleExplorer={openFileDrawer}
               className="@min-[48rem]/text-editor:hidden"
             />
           )}
           <WorkspaceEmptyState
             label="No documents selected"
             actionLabel="Browse files"
-            onAction={() => handleOpenChange(true)}
+            onAction={openFileDrawer}
             actionClassName="@min-[48rem]/text-editor:hidden"
           />
         </div>
@@ -539,14 +544,14 @@ export const TextEditor = React.memo<TextEditorProps>(
               activeTabId={props.activeDocumentId || props.documents?.[0]?.file.id}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
-              onToggleExplorer={() => handleOpenChange(true)}
+              onToggleExplorer={openFileDrawer}
               onNewTab={(props as TextEditorMultiTabProps).onNewTab}
             />
           )}
           {hideTabBar && (
             <DocumentTabBar
               tabs={[]}
-              onToggleExplorer={() => handleOpenChange(true)}
+              onToggleExplorer={openFileDrawer}
               className="@min-[48rem]/text-editor:hidden"
             />
           )}
@@ -565,14 +570,14 @@ export const TextEditor = React.memo<TextEditorProps>(
               activeTabId={props.activeDocumentId ?? undefined}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
-              onToggleExplorer={() => handleOpenChange(true)}
+              onToggleExplorer={openFileDrawer}
               onNewTab={(props as TextEditorMultiTabProps).onNewTab}
             />
           )}
           {hideTabBar && (
             <DocumentTabBar
               tabs={[]}
-              onToggleExplorer={() => handleOpenChange(true)}
+              onToggleExplorer={openFileDrawer}
               className="@min-[48rem]/text-editor:hidden"
             />
           )}
@@ -605,14 +610,14 @@ export const TextEditor = React.memo<TextEditorProps>(
               activeTabId={props.activeDocumentId ?? undefined}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
-              onToggleExplorer={() => handleOpenChange(true)}
+              onToggleExplorer={openFileDrawer}
               onNewTab={(props as TextEditorMultiTabProps).onNewTab}
             />
           )}
           {hideTabBar && (
             <DocumentTabBar
               tabs={[]}
-              onToggleExplorer={() => handleOpenChange(true)}
+              onToggleExplorer={openFileDrawer}
               className="@min-[48rem]/text-editor:hidden"
             />
           )}
@@ -662,10 +667,9 @@ export const TextEditor = React.memo<TextEditorProps>(
         selectedPath={props.activeDocumentId ?? undefined}
         onSelect={handleFileSelect}
         onDownload={onDownloadAllFiles}
+        container={rootElement}
       />
     )
-
-    const hideFileTree = isMultiTab && Boolean((props as TextEditorMultiTabProps).hideFileTree)
 
     if (isMobile || hideFileTree) {
       return inRoot(
