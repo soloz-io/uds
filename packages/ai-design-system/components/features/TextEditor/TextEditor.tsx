@@ -184,21 +184,33 @@ function formatJson(text: string): string {
   }
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 768
-    }
-    return false
-  })
+/** Below this width the editor lays out for a narrow space: one pane, its file tree in a drawer. */
+const COMPACT_WIDTH = 768
 
-  React.useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768)
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect
+
+/**
+ * Whether the editor's own space is narrow, measured on its root element.
+ *
+ * The space the editor is given, not the window: in a side sheet, a split pane
+ * or an iframe the window can be wide while the editor is not. Its breakpoint
+ * classes follow the same container (`@container/text-editor`).
+ */
+function useCompactContainer() {
+  const ref = React.useRef<HTMLDivElement>(null)
+  const [isCompact, setIsCompact] = React.useState(false)
+
+  useIsomorphicLayoutEffect(() => {
+    const el = ref.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const measure = (width: number) => setIsCompact(width < COMPACT_WIDTH)
+    measure(el.getBoundingClientRect().width)
+    const observer = new ResizeObserver(([entry]) => measure(entry.contentRect.width))
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [])
 
-  return isMobile
+  return [ref, isCompact] as const
 }
 
 /**
@@ -311,7 +323,14 @@ export const TextEditor = React.memo<TextEditorProps>(
 
     const handleTabSelect = isMultiTab ? (props as TextEditorMultiTabProps).onTabSelect : undefined
 
-    const isMobile = useIsMobile()
+    const [rootRef, isMobile] = useCompactContainer()
+    // Every layout sits in one root the editor measures, and which its
+    // breakpoint classes query.
+    const inRoot = (node: React.ReactNode) => (
+      <div ref={rootRef} className="@container/text-editor flex flex-col flex-1 h-full min-h-0 w-full">
+        {node}
+      </div>
+    )
     const [isDrawerOpenState, setIsDrawerOpenState] = React.useState(false)
 
     const isDrawerOpen =
@@ -423,15 +442,15 @@ export const TextEditor = React.memo<TextEditorProps>(
         const content = isCode
           ? `\`\`\`${format}\n${format === 'json' ? formatJson(contentStr) : contentStr}\n\`\`\``
           : contentStr
-        return (
-          <div className={cn('text-editor p-3 sm:p-6 flex flex-col h-full min-h-0 w-full flex-1 overflow-auto', className)}>
+        return inRoot(
+          <div className={cn('text-editor p-3 @min-[40rem]/text-editor:p-6 flex flex-col h-full min-h-0 w-full flex-1 overflow-auto', className)}>
             <StreamingMarkdown mode="static" isAnimating={false} components={markdownComponents}>
               {content}
             </StreamingMarkdown>
           </div>
         )
       }
-      return (
+      return inRoot(
         <div className={cn('text-editor flex flex-col h-full min-h-0 w-full flex-1', className)}>
           <DocumentEditorWithComments
             content={props.content}
@@ -444,7 +463,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             onContentUpdate={onContentUpdate}
             onAnnotationAdd={handleAnnotationAdd}
             onAnnotationUpdate={handleAnnotationUpdate}
-            className={cn('text-editor p-3 sm:p-6 h-full flex flex-col', className)}
+            className={cn('text-editor p-3 @min-[40rem]/text-editor:p-6 h-full flex flex-col', className)}
           />
         </div>
       )
@@ -491,14 +510,14 @@ export const TextEditor = React.memo<TextEditorProps>(
             <DocumentTabBar
               tabs={[]}
               onToggleExplorer={() => handleOpenChange(true)}
-              className="md:hidden"
+              className="@min-[48rem]/text-editor:hidden"
             />
           )}
           <WorkspaceEmptyState
             label="No documents selected"
             actionLabel="Browse files"
             onAction={() => handleOpenChange(true)}
-            actionClassName="md:hidden"
+            actionClassName="@min-[48rem]/text-editor:hidden"
           />
         </div>
       )
@@ -523,7 +542,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             <DocumentTabBar
               tabs={[]}
               onToggleExplorer={() => handleOpenChange(true)}
-              className="md:hidden"
+              className="@min-[48rem]/text-editor:hidden"
             />
           )}
           <div className="flex-1 min-h-0 relative overflow-hidden">
@@ -549,7 +568,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             <DocumentTabBar
               tabs={[]}
               onToggleExplorer={() => handleOpenChange(true)}
-              className="md:hidden"
+              className="@min-[48rem]/text-editor:hidden"
             />
           )}
           <div className="flex-1 overflow-auto">
@@ -589,7 +608,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             <DocumentTabBar
               tabs={[]}
               onToggleExplorer={() => handleOpenChange(true)}
-              className="md:hidden"
+              className="@min-[48rem]/text-editor:hidden"
             />
           )}
           <div className="flex-1 overflow-auto">
@@ -598,7 +617,7 @@ export const TextEditor = React.memo<TextEditorProps>(
                 Loading document content...
               </div>
             ) : renderAsStreamdown ? (
-              <div className="p-3 sm:p-6">
+              <div className="p-3 @min-[40rem]/text-editor:p-6">
                 <StreamingMarkdown
                   mode="static"
                   isAnimating={false}
@@ -622,7 +641,7 @@ export const TextEditor = React.memo<TextEditorProps>(
                 onContentUpdate={onContentUpdate}
                 onAnnotationAdd={handleAnnotationAdd}
                 onAnnotationUpdate={handleAnnotationUpdate}
-                className="text-editor p-3 sm:p-6 min-h-full"
+                className="text-editor p-3 @min-[40rem]/text-editor:p-6 min-h-full"
               />
             )}
           </div>
@@ -644,7 +663,7 @@ export const TextEditor = React.memo<TextEditorProps>(
     const hideFileTree = isMultiTab && Boolean((props as TextEditorMultiTabProps).hideFileTree)
 
     if (isMobile || hideFileTree) {
-      return (
+      return inRoot(
         <div className={cn("text-editor flex-1 h-full min-h-0 w-full bg-background flex flex-col relative", className)}>
           {editorPane}
           {!hideFileTree && fileTreeDrawer}
@@ -652,7 +671,7 @@ export const TextEditor = React.memo<TextEditorProps>(
       )
     }
 
-    return (
+    return inRoot(
       <AdjustableLayout
         className={cn("flex-1 h-full min-h-0 w-full bg-background", className)}
         orientation="horizontal"

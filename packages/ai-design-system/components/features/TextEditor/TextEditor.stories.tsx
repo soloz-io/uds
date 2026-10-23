@@ -73,7 +73,7 @@ export const WithStateManagement: Story = {
     docs: {
       description: {
         story:
-          'Multi-tab interactive mode with full state management. On desktop (>= 768px), displays a split view with the file explorer and document editor. On mobile (< 768px), the editor pane takes 100% width, and the file explorer is opened via a mobile Drawer triggered from the tab bar or files button.',
+          'Multi-tab interactive mode with full state management. When the editor itself is at least 768px wide, it displays a split view with the file explorer and document editor. In a narrower space (a side sheet, a split pane or a phone), the editor pane takes 100% width, and the file explorer is opened via a mobile Drawer triggered from the tab bar or files button.',
       },
     },
   },

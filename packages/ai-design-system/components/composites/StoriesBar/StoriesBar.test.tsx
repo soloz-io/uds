@@ -66,6 +66,19 @@ describe('StoriesBar', () => {
     expect(html).not.toContain('ring-2 ring-primary');
   });
 
+  it('wraps each story button in a DS Tooltip and removes native title attribute', () => {
+    const html = renderToStaticMarkup(
+      <StoriesBar stories={stories} onStoryClick={() => {}} />
+    );
+
+    // No unstyled browser title attribute on story spans
+    expect(html).not.toMatch(/title="Channel"/);
+    expect(html).not.toMatch(/title="Ready Video"/);
+
+    // Story buttons are tooltip triggers
+    expect(html).toContain('data-slot="tooltip-trigger"');
+  });
+
   it('renders every bubble as a story without separate homeItem', () => {
     const html = renderToStaticMarkup(
       <StoriesBar stories={stories} onStoryClick={() => {}} />
