@@ -216,6 +216,23 @@ function useCompactContainer() {
 }
 
 /**
+ * Whether the window itself is phone-width: there the editor fills the screen,
+ * and its file drawer opens over the whole page, as it always has. Only a
+ * narrow editor in a wider window keeps its drawer inside itself.
+ */
+function usePhoneWindow() {
+  const [isPhone, setIsPhone] = React.useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth < COMPACT_WIDTH : false
+  )
+  React.useEffect(() => {
+    const onResize = () => setIsPhone(window.innerWidth < COMPACT_WIDTH)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+  return isPhone
+}
+
+/**
  * TextEditor - Document editor with inline comment annotations
  * 
  * This feature component provides a complete document review experience with:
@@ -328,11 +345,22 @@ export const TextEditor = React.memo<TextEditorProps>(
     const handleTabSelect = isMultiTab ? (props as TextEditorMultiTabProps).onTabSelect : undefined
 
     const [rootRef, isMobile, rootElement] = useCompactContainer()
-    // Every layout sits in one root the editor measures, which its breakpoint
-    // classes query, and inside which its file drawer opens (a CSS container is
-    // the containing block for the drawer's fixed panel and overlay).
+    // A narrow editor in a wider window (a side sheet, a split pane) keeps its
+    // file drawer inside itself; on a phone-width window it opens over the page.
+    const isPhoneWindow = usePhoneWindow()
+    const drawerInEditor = isMobile && !isPhoneWindow
+    // Every layout sits in one root the editor measures and its breakpoint
+    // classes query. When the drawer stays inside, the root contains it: layout
+    // containment makes it the box the drawer's fixed panel and overlay are
+    // placed against, and the slide stays within it.
     const inRoot = (node: React.ReactNode) => (
-      <div ref={rootRef} className="@container/text-editor relative overflow-hidden flex flex-col flex-1 h-full min-h-0 w-full">
+      <div
+        ref={rootRef}
+        className={cn(
+          '@container/text-editor flex flex-col flex-1 h-full min-h-0 w-full',
+          drawerInEditor && 'relative overflow-hidden [contain:layout]'
+        )}
+      >
         {node}
       </div>
     )
@@ -667,7 +695,8 @@ export const TextEditor = React.memo<TextEditorProps>(
         selectedPath={props.activeDocumentId ?? undefined}
         onSelect={handleFileSelect}
         onDownload={onDownloadAllFiles}
-        container={rootElement}
+        container={drawerInEditor ? rootElement : undefined}
+        className={drawerInEditor ? 'w-[85%]' : undefined}
       />
     )
 
