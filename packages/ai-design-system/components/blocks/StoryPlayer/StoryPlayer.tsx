@@ -86,6 +86,8 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
       onOverviewClick,
       isOverviewOpen,
       overviewBadge,
+      comments,
+      commentBadge,
       commentCount,
       onCommentClick,
       isCommentsOpen,
@@ -233,6 +235,33 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
         return next;
       });
     }, []);
+
+    const effectiveCommentBadge = React.useMemo(() => {
+      if (commentBadge !== undefined) {
+        return commentBadge;
+      }
+      if (comments !== undefined) {
+        const pendingCount = comments.filter(
+          (c) =>
+            c.status === "pending" ||
+            c.status === "in-progress" ||
+            (c.status as string) === "in_progress" ||
+            c.status === "draft"
+        ).length;
+        if (pendingCount > 0) {
+          return pendingCount;
+        }
+        const hasCompleted = comments.some((c) => c.status === "completed");
+        if (hasCompleted) {
+          return true;
+        }
+        return undefined;
+      }
+      if (commentCount !== undefined && commentCount > 0) {
+        return commentCount;
+      }
+      return undefined;
+    }, [commentBadge, comments, commentCount]);
 
     const activeStory = items[currentStoryIndex] || items[0];
 
@@ -856,12 +885,19 @@ export const StoryPlayer = React.forwardRef<HTMLDivElement, StoryPlayerProps>(
                 )}
               >
                 <Icon name="message-square" className="w-4 h-4" />
-                {commentCount !== undefined && commentCount > 0 && (
+                {effectiveCommentBadge && (
                   <span
-                    className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center bg-primary text-primary-foreground leading-none shadow-sm"
+                    className={cn(
+                      "absolute rounded-full bg-primary shadow-sm",
+                      typeof effectiveCommentBadge === "string" || typeof effectiveCommentBadge === "number"
+                        ? "-top-1 -right-1 h-4 min-w-4 px-1 text-[10px] font-bold flex items-center justify-center text-primary-foreground leading-none ring-1 ring-black"
+                        : "-top-0.5 -right-0.5 h-2.5 w-2.5 ring-2 ring-black"
+                    )}
                     data-testid="badge-comment-count"
                   >
-                    {commentCount}
+                    {typeof effectiveCommentBadge === "string" || typeof effectiveCommentBadge === "number"
+                      ? effectiveCommentBadge
+                      : null}
                   </span>
                 )}
               </Button>

@@ -1,5 +1,6 @@
 import type { FormEvent, HTMLAttributes, ReactNode } from "react";
 import type { TaskItem, TaskQueueProps } from "@/components/composites/TaskQueue";
+import type { SceneReviewComment } from "@/components/composites/SceneReviewSheet";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 
 export interface StorySegment {
@@ -72,6 +73,21 @@ export interface StoryPlayerProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   onOverviewClick?: () => void;
   isOverviewOpen?: boolean;
   overviewBadge?: boolean | number | string;
+  /**
+   * Comments on the video. When provided, the comment badge is computed automatically:
+   * - Shows a numbered count if there are pending, in-progress, or draft comments.
+   * - Shows a small dot badge (similar to overview) if only completed comments exist.
+   * - Shows no badge if there are no comments.
+   */
+  comments?: SceneReviewComment[];
+  /**
+   * Direct control of the comment badge:
+   * - number or string: shows a pill/circle badge with that value.
+   * - true: shows a small dot badge (identical to overview dot).
+   * - false / undefined: no badge.
+   */
+  commentBadge?: boolean | number | string;
+  /** Legacy explicit count badge. */
   commentCount?: number;
   onCommentClick?: () => void;
   isCommentsOpen?: boolean;

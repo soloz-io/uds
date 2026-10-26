@@ -251,7 +251,7 @@ export const InteractiveWithSidesheets: Story = {
             setIsCommentsOpen(false);
             setIsPlaying(false);
           }}
-          commentCount={mockComments.length}
+          comments={mockComments}
           isCommentsOpen={isCommentsOpen}
           onCommentClick={() => {
             setIsCommentsOpen((prev) => !prev);
