@@ -124,7 +124,11 @@ class LayerValidator {
         // Extract the components part
         const parts = importPath.split('components/');
         if (parts.length > 1) {
-          return ['components/' + parts[1], false];
+          const targetPart = parts[1].replace(/^\//, '');
+          const targetLayer = targetPart.split('/')[0];
+          const currentLayer = this.getLayerFromPath(currentFile);
+          const isSameLayer = Boolean(currentLayer && targetLayer && currentLayer === targetLayer);
+          return ['components/' + targetPart, isSameLayer];
         }
       }
     }

@@ -50,5 +50,15 @@ export type { HeroSectionProps } from './HeroSection'
 export { FeatureSection } from './FeatureSection'
 export type { FeatureSectionProps } from './FeatureSection'
 
+// PromptTaskQueue Block
+export { PromptTaskQueue, PromptInputWithQueue } from './PromptTaskQueue'
+export type { PromptTaskQueueProps, PromptInputWithQueueProps } from './PromptTaskQueue'
+
+// StoryPlayer Block
+export { StoryPlayer, ScenePlayer } from './StoryPlayer'
+export type { StoryPlayerProps, ScenePlayerProps, StorySegment, SceneItem } from './StoryPlayer'
+
+
+
 
 

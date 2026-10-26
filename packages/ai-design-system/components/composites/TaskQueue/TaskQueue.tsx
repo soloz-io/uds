@@ -81,6 +81,7 @@ export const TaskQueue = React.memo<TaskQueueProps>(
   ({
     tasks,
     title,
+    action,
     open,
     defaultOpen = true,
     onOpenChange,
@@ -151,7 +152,7 @@ export const TaskQueue = React.memo<TaskQueueProps>(
           <div className="flex items-center justify-between w-full">
             <QueueSectionTrigger
               className={cn(
-                "w-full px-3 py-2 bg-transparent hover:bg-muted/40 text-foreground transition-colors",
+                "flex-1 min-w-0 px-3 py-2 bg-transparent hover:bg-muted/40 text-foreground transition-colors",
                 isDocked ? "rounded-t-xl" : "rounded-lg"
               )}
             >
@@ -161,19 +162,28 @@ export const TaskQueue = React.memo<TaskQueueProps>(
               />
             </QueueSectionTrigger>
 
-            {runningTasks.length > 1 && onStopAll && showStop && (
-              <Button
-                variant="ghost"
-                size="sm"
-                type="button"
-                className="h-6 px-2 text-xs text-muted-foreground hover:text-destructive flex-shrink-0 mr-2"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onStopAll();
-                }}
-              >
-                Stop all
-              </Button>
+            {(action || (runningTasks.length > 1 && onStopAll && showStop)) && (
+              <div className="flex items-center gap-2 flex-shrink-0 mr-2 z-10">
+                {action && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    {action}
+                  </div>
+                )}
+                {runningTasks.length > 1 && onStopAll && showStop && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
+                    className="h-6 px-2 text-xs text-muted-foreground hover:text-destructive flex-shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onStopAll();
+                    }}
+                  >
+                    Stop all
+                  </Button>
+                )}
+              </div>
             )}
           </div>
 

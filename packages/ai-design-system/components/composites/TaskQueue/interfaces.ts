@@ -1,3 +1,5 @@
+import type * as React from "react";
+
 export type TaskStatus =
   | "running"
   | "queued"
@@ -57,6 +59,10 @@ export interface TaskQueueProps {
    * e.g. "1 task running", "2 tasks running", "1 task running, 2 queued"
    */
   title?: string;
+  /**
+   * Custom action slot rendered on the right side of the TaskQueue header (e.g. Apply button).
+   */
+  action?: React.ReactNode;
   /**
    * Whether the queue is expanded/open (controlled)
    */

@@ -1,18 +1,18 @@
 import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryPlayer, type StorySegment } from "./StoryPlayer";
-import { SceneReviewSheet, type SceneReviewComment } from "../SceneReviewSheet";
-import { OverviewSheet } from "../OverviewSheet";
+import { SceneReviewSheet, type SceneReviewComment } from "@/components/composites/SceneReviewSheet";
+import { OverviewSheet } from "@/components/composites/OverviewSheet";
 import { fn } from "@storybook/test";
 
 /**
- * StoryPlayer Composite Stories
+ * StoryPlayer Block Stories
  *
  * Full-screen segmented video player for story-by-story review with progress tracks,
  * mute toggle, step zones, and prompt action.
  */
 const meta = {
-  title: "Composites/StoryPlayer",
+  title: "Blocks/StoryPlayer",
   component: StoryPlayer,
   tags: ["autodocs"],
   parameters: { layout: "fullscreen" },

@@ -294,10 +294,6 @@ export type { WorkspaceEmptyStateProps, SandboxWakePaneProps, WorkspaceWakeStatu
 export { StoriesBar } from './StoriesBar'
 export type { StoriesBarProps, StoryItem } from './StoriesBar'
 
-// StoryPlayer Composite
-export { StoryPlayer, ScenePlayer } from './StoryPlayer'
-export type { StoryPlayerProps, ScenePlayerProps, StorySegment, SceneItem } from './StoryPlayer'
-
 // AccountDialog Composite
 export { AccountDialog, AccountButton } from './AccountDialog'
 export type { AccountDialogProps, AccountButtonProps, AccountUser } from './AccountDialog'

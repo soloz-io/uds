@@ -34,8 +34,6 @@ export {
   TaskQueue,
   SpeechInput,
   StoriesBar,
-  StoryPlayer,
-  ScenePlayer,
   AccountDialog,
   AccountButton,
   SiteHeader,
@@ -85,10 +83,6 @@ export type {
   AccountUser,
   StoriesBarProps,
   StoryItem,
-  StoryPlayerProps,
-  StorySegment,
-  ScenePlayerProps,
-  SceneItem,
   SpeechInputProps,
   ApprovalCardProps,
   ActionRequest,
@@ -158,12 +152,22 @@ export {
   ExpoAppPreview,
   HeroSection,
   FeatureSection,
+  PromptTaskQueue,
+  PromptInputWithQueue,
+  StoryPlayer,
+  ScenePlayer,
 } from './blocks';
 export type {
   SectionLayoutSection,
   ExpoAppPreviewProps,
   HeroSectionProps,
   FeatureSectionProps,
+  PromptTaskQueueProps,
+  PromptInputWithQueueProps,
+  StoryPlayerProps,
+  ScenePlayerProps,
+  StorySegment,
+  SceneItem,
 } from './blocks';
 
 // NavigationMenu and Primitives

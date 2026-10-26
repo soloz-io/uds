@@ -370,6 +370,10 @@ export declare const FeatureSection: React.FC<FeatureSectionProps>;
 export declare const SiteHeader: React.FC<SiteHeaderProps>;
 export declare const AnnouncementBanner: React.FC<AnnouncementBannerProps>;
 export declare const SolutionsLayout: React.FC<SolutionsLayoutProps>;
+export declare const PromptTaskQueue: React.FC<PromptTaskQueueProps>;
+export declare const PromptInputWithQueue: React.FC<PromptInputWithQueueProps>;
+export declare const StoryPlayer: React.FC<StoryPlayerProps>;
+export declare const ScenePlayer: React.FC<ScenePlayerProps>;
 
 export type WorkspaceWakeStatus = 'idle' | 'waking' | 'starting' | 'error';
 

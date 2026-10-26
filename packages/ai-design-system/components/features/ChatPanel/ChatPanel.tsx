@@ -3,12 +3,12 @@
 import * as React from "react";
 import { AIConversation } from "@/components/blocks/AIConversation";
 import { FileChangeQueue } from "@/components/blocks/FileChangeQueue";
-import {
-  PromptInput,
-  type PromptInputContextProps,
-  type AttachmentAction,
+import { PromptTaskQueue } from "@/components/blocks/PromptTaskQueue";
+import type {
+  PromptInputContextProps,
+  AttachmentAction,
 } from "@/components/composites/PromptInput";
-import { TaskQueue, type TaskItem } from "@/components/composites/TaskQueue";
+import type { TaskItem } from "@/components/composites/TaskQueue";
 import { ApprovalCard } from "@/components/composites/ApprovalCard";
 import { cn } from "@/lib/utils";
 import type { ToolCall } from "@/components/composites/ToolCallDisplay";
@@ -585,21 +585,10 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           className="flex-1 min-h-0"
         />
         <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-card via-card to-transparent pt-6 flex flex-col">
-          {tasks.length > 0 && !dialog && (
-            <TaskQueue
-              tasks={tasks}
-              variant="docked"
-              onStop={onTaskStop}
-              onCancel={onTaskCancel}
-              onRetry={onTaskRetry}
-              onStopAll={onTaskStopAll}
-              onTaskClick={onTaskClick}
-            />
-          )}
           {bottomSlot ? (
             bottomSlot
           ) : showPromptInput ? (
-            <PromptInput
+            <PromptTaskQueue
               dialog={dialog}
               placeholder={effectivePlaceholder}
               value={promptValue}
@@ -612,7 +601,12 @@ export const ChatPanel = React.memo<ChatPanelProps>(
               enableSpeech={readOnly ? false : enableSpeech}
               enableAttachments={readOnly ? false : enableAttachments}
               attachmentActions={readOnly ? undefined : attachmentActions}
-              className={tasks.length > 0 && !dialog ? "rounded-t-none border-t-0" : undefined}
+              tasks={dialog ? undefined : tasks}
+              onTaskStop={onTaskStop}
+              onTaskCancel={onTaskCancel}
+              onTaskRetry={onTaskRetry}
+              onTaskStopAll={onTaskStopAll}
+              onTaskClick={onTaskClick}
             />
           ) : null}
         </div>
