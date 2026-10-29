@@ -422,6 +422,19 @@ export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, "viewBox"
 }
 export declare const Icon: React.FC<IconProps>;
 
+export declare const Dialog: React.FC<any>;
+export declare const DialogTrigger: React.FC<any>;
+export declare const DialogContent: React.FC<any>;
+export declare const DialogHeader: React.FC<any>;
+export declare const DialogFooter: React.FC<any>;
+export declare const DialogTitle: React.FC<any>;
+export declare const DialogDescription: React.FC<any>;
+export declare const DialogClose: React.FC<any>;
+export declare const Tabs: React.FC<any>;
+export declare const TabsList: React.FC<any>;
+export declare const TabsTrigger: React.FC<any>;
+export declare const TabsContent: React.FC<any>;
+
 export declare const THEMES: readonly ["light", "dark-neutral", "dark-green", "dark-violet"];
 export type Theme = (typeof THEMES)[number];
 export interface ThemeRoot {

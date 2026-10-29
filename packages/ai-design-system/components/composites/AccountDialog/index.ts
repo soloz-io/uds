@@ -3,4 +3,5 @@ export type {
   AccountDialogProps,
   AccountButtonProps,
   AccountUser,
+  AccountItem,
 } from "./AccountDialog";

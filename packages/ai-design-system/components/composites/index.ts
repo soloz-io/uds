@@ -296,7 +296,7 @@ export type { StoriesBarProps, StoryItem } from './StoriesBar'
 
 // AccountDialog Composite
 export { AccountDialog, AccountButton } from './AccountDialog'
-export type { AccountDialogProps, AccountButtonProps, AccountUser } from './AccountDialog'
+export type { AccountDialogProps, AccountButtonProps, AccountUser, AccountItem } from './AccountDialog'
 
 // FileTreeExplorer Composite
 export { FileTreeExplorer, FileTreeDrawer } from './FileTreeExplorer'
@@ -375,6 +375,31 @@ export type { CtaBannerProps, CtaBannerAction } from './CtaBanner'
 // FaqSection Composite
 export { FaqSection } from './FaqSection'
 export type { FaqSectionProps, FaqItem } from './FaqSection'
+
+// PlanPicker Composite
+export { PlanPicker } from './PlanPicker'
+export type { PlanPickerProps, PlanItem } from './PlanPicker'
+
+// CreditsSummary Composite
+export { CreditsSummary } from './CreditsSummary'
+export type { CreditsSummaryProps, IncludedCredits, AddOnCredits } from './CreditsSummary'
+
+// CreditsHistory Composite
+export { CreditsHistory } from './CreditsHistory'
+export type { CreditsHistoryProps, CreditHistoryItem } from './CreditsHistory'
+
+// BillingPanel Composite
+export { BillingPanel } from './BillingPanel'
+export type { BillingPanelProps, BillingInvoice, PaymentMethodInfo } from './BillingPanel'
+
+// OutcomeList Composite
+export { OutcomeList } from './OutcomeList'
+export type { OutcomeListProps, ComputerOutcome } from './OutcomeList'
+
+// OrganisationMembers Composite
+export { OrganisationMembers } from './OrganisationMembers'
+export type { OrganisationMembersProps, OrganisationMember, OrganisationRole } from './OrganisationMembers'
+
 
 
 
