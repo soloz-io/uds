@@ -584,7 +584,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           isSavingWorkspace={isSavingWorkspace}
           className="flex-1 min-h-0"
         />
-        <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-card via-card to-transparent pt-6 flex flex-col">
+        <div className="sticky bottom-0 z-10 p-4 bg-gradient-to-t from-background via-background to-transparent pt-6 flex flex-col">
           {bottomSlot ? (
             bottomSlot
           ) : showPromptInput ? (
