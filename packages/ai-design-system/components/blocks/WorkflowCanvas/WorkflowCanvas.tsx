@@ -16,6 +16,9 @@ import { Panel } from "@/components/ai-elements/panel";
 import { StateNode } from "@/components/composites/StateNode";
 import { TransitionNode } from "@/components/composites/TransitionNode";
 import { TriggerNode } from "@/components/composites/TriggerNode";
+import { SystemNode } from "@/components/composites/SystemNode";
+import { OrchestratorNode } from "@/components/composites/OrchestratorNode";
+import { SpecialistNode } from "@/components/composites/SpecialistNode";
 import { SpatialContainerNode } from "@/components/composites/SpatialContainerNode";
 import { DevicePreviewNode } from "@/components/composites/DevicePreviewNode";
 import { AgentAnnotation } from "@/components/composites/AgentAnnotation";
@@ -32,6 +35,9 @@ const nodeTypes = {
   state: StateNode,
   transition: TransitionNode,
   trigger: TriggerNode,
+  system: SystemNode,
+  orchestrator: OrchestratorNode,
+  specialist: SpecialistNode,
   spatialContainer: SpatialContainerNode,
   devicePreview: DevicePreviewNode,
   agentAnnotation: AgentAnnotation,

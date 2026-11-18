@@ -149,12 +149,33 @@ export { StateNode } from './StateNode'
 export type { StateNodeData } from './StateNode'
 
 // TransitionNode Composite
-export { TransitionNode } from './TransitionNode'
-export type { TransitionNodeData } from './TransitionNode'
+export {
+  TransitionNode,
+  resolveTransitionIcon,
+  isAgentExecutingTransition,
+} from './TransitionNode'
+export type {
+  TransitionNodeData,
+  TransitionNodeConfig,
+  TransitionActionStepMeta,
+  TransitionActionPhases,
+} from './TransitionNode'
 
 // TriggerNode Composite
 export { TriggerNode } from './TriggerNode'
-export type { TriggerNodeData } from './TriggerNode'
+export type { TriggerNodeData, TriggerSubtype } from './TriggerNode'
+
+// SystemNode Composite (MAS System Boundary)
+export { SystemNode } from './SystemNode'
+export type { SystemNodeData } from './SystemNode'
+
+// OrchestratorNode Composite (Agent Pack Orchestrator)
+export { OrchestratorNode } from './OrchestratorNode'
+export type { OrchestratorNodeData } from './OrchestratorNode'
+
+// SpecialistNode Composite (Agent Pack Specialist)
+export { SpecialistNode } from './SpecialistNode'
+export type { SpecialistNodeData } from './SpecialistNode'
 
 // SpatialContainerNode Composite
 export { SpatialContainerNode } from './SpatialContainerNode'

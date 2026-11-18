@@ -39,6 +39,10 @@ export interface SpecNavigatorFile {
   name: string;
   /** File path prefix (shown as secondary info) */
   path?: string;
+  /** Optional icon name from the DS icon registry */
+  icon?: string;
+  /** Optional icon color utility class */
+  iconColor?: string;
 }
 
 export interface SpecNavigatorGroup {

@@ -67,6 +67,8 @@ export {
   BillingPanel,
   OutcomeList,
   OrganisationMembers,
+  resolveTransitionIcon,
+  isAgentExecutingTransition,
 } from './composites';
 export {
   Icon,

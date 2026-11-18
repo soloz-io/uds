@@ -598,6 +598,10 @@ export function formatDayLabel(value: Date | string | number, options?: DayOptio
 export function dayKey(value: Date | string | number, options?: DayOptions): string;
 /** Whether two instants fall on the same calendar day for the reader. */
 export function isSameDay(a: Date | string | number, b: Date | string | number, options?: DayOptions): boolean;
+/** Derives the single canonical DS icon name for a TransitionNode from its metadata. */
+export function resolveTransitionIcon(data: TransitionNodeData): string;
+/** True when a TransitionNode executes an underlying agent/pack action. */
+export function isAgentExecutingTransition(data: TransitionNodeData): boolean;
 `;
 
   // Write the declaration file

@@ -11,10 +11,16 @@ import {
 } from "@/components/ai-elements/node";
 import { cn } from "@/lib/utils";
 
+export type TriggerSubtype = "webhook" | "schedule" | "manual";
+
 export type TriggerNodeData = {
   label: string;
   description?: string;
   type: "trigger";
+  /** Semantic trigger subtype used to derive the default icon */
+  triggerType?: TriggerSubtype;
+  /** Optional presentation icon override from the DS icon registry */
+  icon?: string;
   status?: "idle" | "running" | "success" | "error";
   highlightStatus?: "active" | "pending" | "done" | "error";
   enabled?: boolean;
@@ -25,6 +31,20 @@ type TriggerNodeProps = NodeProps & {
   id: string;
 };
 
+function resolveTriggerIcon(data: TriggerNodeData): string {
+  if (data.icon) return data.icon;
+  switch (data.triggerType) {
+    case "webhook":
+      return "globe";
+    case "schedule":
+      return "clock";
+    case "manual":
+      return "play";
+    default:
+      return "play";
+  }
+}
+
 export const TriggerNode = memo(({ data, selected, id }: TriggerNodeProps) => {
   if (!data) {
     return null;
@@ -33,6 +53,7 @@ export const TriggerNode = memo(({ data, selected, id }: TriggerNodeProps) => {
   const displayTitle = data.label || "Trigger";
   const displayDescription = data.description;
   const status = data.status;
+  const iconName = resolveTriggerIcon(data);
 
   return (
     <Node
@@ -44,14 +65,14 @@ export const TriggerNode = memo(({ data, selected, id }: TriggerNodeProps) => {
       handles={{ target: false, source: true }}
       status={status}
     >
-      <div className="flex h-full w-full items-center justify-center gap-1.5 px-3 py-2">
-        <Icon name="play" size="xs" className={cn("shrink-0", getHighlightIconColor(status, data.highlightStatus, "text-purple-600 dark:text-purple-400"))} strokeWidth={1.5} />
+      <div className="flex h-full w-full items-center justify-center gap-2 px-4 py-3">
+        <Icon name={iconName} size="xs" className={cn("shrink-0", getHighlightIconColor(status, data.highlightStatus, "text-purple-600 dark:text-purple-400"))} strokeWidth={1.5} />
         <div className="min-w-0 flex-1 text-center">
           <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
             {displayTitle}
           </NodeTitle>
           {displayDescription && (
-            <NodeDescription className="mt-0.5 line-clamp-2 text-center text-[10px] leading-tight" title={displayDescription}>
+            <NodeDescription className="mt-1 line-clamp-2 text-center text-[10px] leading-tight" title={displayDescription}>
               {displayDescription}
             </NodeDescription>
           )}

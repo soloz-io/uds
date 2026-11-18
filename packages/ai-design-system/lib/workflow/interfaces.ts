@@ -3,6 +3,9 @@ import type React from "react";
 import type { StateNodeData } from "@/components/composites/StateNode";
 import type { TransitionNodeData } from "@/components/composites/TransitionNode";
 import type { TriggerNodeData } from "@/components/composites/TriggerNode";
+import type { SystemNodeData } from "@/components/composites/SystemNode";
+import type { OrchestratorNodeData } from "@/components/composites/OrchestratorNode";
+import type { SpecialistNodeData } from "@/components/composites/SpecialistNode";
 import type { SpatialContainerNodeData } from "@/components/composites/SpatialContainerNode";
 import type { DevicePreviewNodeData } from "@/components/composites/DevicePreviewNode";
 import type { AgentAnnotationNodeData } from "@/components/composites/AgentAnnotation";
@@ -11,6 +14,9 @@ export type WorkflowNodeData =
   | StateNodeData
   | TransitionNodeData
   | TriggerNodeData
+  | SystemNodeData
+  | OrchestratorNodeData
+  | SpecialistNodeData
   | SpatialContainerNodeData
   | DevicePreviewNodeData
   | AgentAnnotationNodeData;

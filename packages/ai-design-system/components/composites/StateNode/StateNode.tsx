@@ -21,6 +21,8 @@ export type StateNodeData = {
   type: "state";
   /** True for terminal states — marks workflow completion, no outgoing transitions */
   isTerminal?: boolean;
+  /** Optional presentation icon override from the DS icon registry */
+  icon?: string;
   status?: "idle" | "running" | "success" | "error";
   highlightStatus?: "active" | "pending" | "done" | "error";
   enabled?: boolean;
@@ -70,6 +72,7 @@ export const StateNode = memo(({ data, selected, id }: StateNodeProps) => {
   const displayDescription = data.description;
   const status = data.status;
   const isDisabled = data.enabled === false;
+  const iconName = data.icon ?? (data.isTerminal ? "circle-check" : "circle");
 
   return (
       <Node
@@ -92,14 +95,14 @@ export const StateNode = memo(({ data, selected, id }: StateNodeProps) => {
       {/* Status indicator badge in top right */}
       <StatusBadge status={status} />
 
-      <div className="flex h-full w-full items-center justify-center gap-1.5 px-3 py-2">
-        <Icon name="zap" size="xs" className={cn("shrink-0", getHighlightIconColor(status, data.highlightStatus, "text-primary"))} strokeWidth={1.5} />
+      <div className="flex h-full w-full items-center justify-center gap-2 px-4 py-3">
+        <Icon name={iconName} size="xs" className={cn("shrink-0", getHighlightIconColor(status, data.highlightStatus, data.isTerminal ? "text-green-600 dark:text-green-400" : "text-primary"))} strokeWidth={1.5} />
         <div className="min-w-0 flex-1 text-center">
           <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
             {displayTitle}
           </NodeTitle>
           {displayDescription && (
-            <NodeDescription className="mt-0.5 line-clamp-2 text-center text-[10px] leading-tight" title={displayDescription}>
+            <NodeDescription className="mt-1 line-clamp-2 text-center text-[10px] leading-tight" title={displayDescription}>
               {displayDescription}
             </NodeDescription>
           )}

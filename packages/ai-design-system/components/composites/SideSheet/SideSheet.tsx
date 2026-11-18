@@ -44,6 +44,8 @@ export interface SideSheetProps {
   onOpenChange: (open: boolean) => void;
   /** Title displayed in the header */
   title?: React.ReactNode;
+  /** Optional semantic icon name from the DS icon registry shown alongside the title */
+  icon?: string;
   /** Optional subtitle/description displayed below the title */
   description?: React.ReactNode;
   /** Main sheet content */
@@ -56,6 +58,11 @@ export interface SideSheetProps {
   responsive?: boolean;
   /** Whether to display a close 'x' button in the header */
   showCloseButton?: boolean;
+  /**
+   * Render as a non-modal floating sheet docked inside a relative parent container
+   * (e.g., workflow canvas inspector) instead of a viewport-blocking modal drawer.
+   */
+  inline?: boolean;
   /** Class name for the outer drawer container */
   className?: string;
   /** Class name for the inner scrollable content area */
@@ -71,6 +78,13 @@ const SIDE_SHEET_SIZES: Record<"sm" | "md" | "lg" | "xl", string> = {
   xl: "data-[vaul-drawer-direction=right]:sm:max-w-xl data-[vaul-drawer-direction=left]:sm:max-w-xl sm:max-w-xl",
 };
 
+const INLINE_SHEET_SIZES: Record<"sm" | "md" | "lg" | "xl", string> = {
+  sm: "w-[384px] min-w-[360px] max-w-[calc(100%-1.5rem)]",
+  md: "w-[400px] min-w-[384px] max-w-[calc(100%-1.5rem)]",
+  lg: "w-[440px] min-w-[400px] max-w-[calc(100%-1.5rem)]",
+  xl: "w-[512px] min-w-[420px] max-w-[calc(100%-1.5rem)]",
+};
+
 /**
  * Reusable SideSheet composite component.
  * Provides a slide-out panel from the side (desktop) or bottom (mobile).
@@ -80,12 +94,14 @@ export const SideSheet = React.memo<SideSheetProps>(
     open,
     onOpenChange,
     title,
+    icon,
     description,
     children,
     footer,
     side = "right",
     responsive = true,
     showCloseButton = false,
+    inline = false,
     className,
     contentClassName,
     size = "sm",
@@ -97,6 +113,77 @@ export const SideSheet = React.memo<SideSheetProps>(
     const isRight = effectiveDirection === "right";
     const isLeft = effectiveDirection === "left";
     const sizeClass = SIDE_SHEET_SIZES[size] || SIDE_SHEET_SIZES.sm;
+    const inlineSizeClass = INLINE_SHEET_SIZES[size] || INLINE_SHEET_SIZES.md;
+
+    if (inline) {
+      if (!open) return null;
+      return (
+        <aside
+          aria-label={typeof title === "string" ? title : "Inspector"}
+          data-testid="sidesheet-inline"
+          className={cn(
+            "absolute top-3 bottom-3 z-30 flex flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-2xl",
+            side === "left" ? "left-3" : "right-3",
+            inlineSizeClass,
+            className
+          )}
+        >
+          {(title !== undefined || description !== undefined || showCloseButton) && (
+            <div className="flex items-start justify-between gap-2 border-b border-border p-4 shrink-0 text-left">
+              <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                {icon && (
+                  <Icon
+                    name={icon}
+                    size="sm"
+                    className="mt-0.5 shrink-0 text-muted-foreground"
+                    strokeWidth={1.5}
+                  />
+                )}
+                <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                  {title && (
+                    <h3 className="text-sm font-semibold leading-snug truncate text-foreground">
+                      {title}
+                    </h3>
+                  )}
+                  {description && (
+                    <p className="text-xs text-muted-foreground break-words">
+                      {description}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {showCloseButton && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onOpenChange(false)}
+                  className="h-7 w-7 rounded-full shrink-0 -mr-1 -mt-0.5 text-muted-foreground hover:text-foreground cursor-pointer"
+                  aria-label="Close sheet"
+                  data-testid="btn-sidesheet-close"
+                >
+                  <Icon name="x" className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          )}
+
+          <div
+            className={cn(
+              "flex-1 min-h-0 overflow-y-auto p-4 flex flex-col",
+              contentClassName
+            )}
+          >
+            {children}
+          </div>
+
+          {footer && (
+            <div className="p-3 border-t border-border shrink-0">
+              {footer}
+            </div>
+          )}
+        </aside>
+      );
+    }
 
     return (
       <Drawer
@@ -122,17 +209,22 @@ export const SideSheet = React.memo<SideSheetProps>(
         >
           {(title !== undefined || description !== undefined || showCloseButton) && (
             <DrawerHeader className="p-4 border-b border-border flex items-center justify-between shrink-0 text-left">
-              <div className="flex flex-col gap-1 min-w-0 flex-1">
-                {title && (
-                  <DrawerTitle className="text-base font-semibold truncate text-foreground">
-                    {title}
-                  </DrawerTitle>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                {icon && (
+                  <Icon name={icon} size="sm" className="shrink-0 text-muted-foreground" strokeWidth={1.5} />
                 )}
-                {description && (
-                  <DrawerDescription className="text-xs text-muted-foreground">
-                    {description}
-                  </DrawerDescription>
-                )}
+                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                  {title && (
+                    <DrawerTitle className="text-base font-semibold truncate text-foreground">
+                      {title}
+                    </DrawerTitle>
+                  )}
+                  {description && (
+                    <DrawerDescription className="text-xs text-muted-foreground">
+                      {description}
+                    </DrawerDescription>
+                  )}
+                </div>
               </div>
               {showCloseButton && (
                 <DrawerClose asChild>

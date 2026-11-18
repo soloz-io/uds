@@ -21,8 +21,9 @@ interface ElkGraph {
   }>;
 }
 
-const DEFAULT_NODE_WIDTH = 180;
-const DEFAULT_NODE_HEIGHT = 52;
+const DEFAULT_NODE_WIDTH = 220;
+const DEFAULT_NODE_HEIGHT = 56;
+const DEFAULT_NODE_WITH_DESC_HEIGHT = 80;
 
 /** Resolve the ELK layout dimensions for a single node. Return null to use defaults. */
 export type NodeSizeResolver = (node: WorkflowNode) => { width: number; height: number } | null;
@@ -43,7 +44,7 @@ export async function getLayoutedElements(
   const {
     direction = 'DOWN',
     nodeSpacingX = 60,
-    nodeSpacingY = 40,
+    nodeSpacingY = 48,
     nodeSizeResolver,
     elkOptions = {},
   } = options ?? {};
@@ -65,10 +66,17 @@ export async function getLayoutedElements(
     },
     children: nodes.map((n) => {
       const resolved = nodeSizeResolver?.(n);
+      const data = (n.data ?? {}) as Record<string, unknown>;
+      const hasDescription = Boolean(data.description);
+      const isAgentNode = n.type === 'orchestrator' || n.type === 'specialist';
+      const hasSkills = isAgentNode && Array.isArray(data.skills) && data.skills.length > 0;
+      const hasTools = isAgentNode && Array.isArray(data.tools) && data.tools.length > 0;
+      const baseHeight = hasDescription ? DEFAULT_NODE_WITH_DESC_HEIGHT : DEFAULT_NODE_HEIGHT;
+      const capabilityExtra = (hasSkills ? 34 : 0) + (hasTools ? 34 : 0) + (hasSkills || hasTools ? 12 : 0);
       return {
         id: n.id,
         width: resolved?.width ?? DEFAULT_NODE_WIDTH,
-        height: resolved?.height ?? DEFAULT_NODE_HEIGHT,
+        height: resolved?.height ?? (baseHeight + capabilityExtra),
       };
     }),
     edges: edges.map((e) => {

@@ -1,2 +1,11 @@
-export { TransitionNode } from "./TransitionNode";
-export type { TransitionNodeData } from "./TransitionNode";
+export {
+  TransitionNode,
+  resolveTransitionIcon,
+  isAgentExecutingTransition,
+} from "./TransitionNode";
+export type {
+  TransitionNodeData,
+  TransitionNodeConfig,
+  TransitionActionStepMeta,
+  TransitionActionPhases,
+} from "./TransitionNode";
