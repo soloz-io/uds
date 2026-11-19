@@ -837,6 +837,74 @@ export const defaultIcons: Record<string, IconDefinition> = {
     viewBox: '0 0 24 24',
     path: 'M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07',
   },
+  'terminal': {
+    name: 'terminal',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M12 19h8' } },
+      { type: 'path', attrs: { d: 'm4 17 6-6-6-6' } },
+    ],
+  },
+  'plug': {
+    name: 'plug',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M12 22v-5' } },
+      { type: 'path', attrs: { d: 'M9 8V2' } },
+      { type: 'path', attrs: { d: 'M15 8V2' } },
+      { type: 'path', attrs: { d: 'M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z' } },
+    ],
+  },
+  'file-code': {
+    name: 'file-code',
+    viewBox: '0 0 24 24',
+    elements: [
+      {
+        type: 'path',
+        attrs: {
+          d: 'M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z',
+        },
+      },
+      { type: 'path', attrs: { d: 'M14 2v5a1 1 0 0 0 1 1h5' } },
+      { type: 'path', attrs: { d: 'M10 12.5 8 15l2 2.5' } },
+      { type: 'path', attrs: { d: 'm14 12.5 2 2.5-2 2.5' } },
+    ],
+  },
+  'file-diff': {
+    name: 'file-diff',
+    viewBox: '0 0 24 24',
+    elements: [
+      {
+        type: 'path',
+        attrs: {
+          d: 'M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z',
+        },
+      },
+      { type: 'path', attrs: { d: 'M9 10h6' } },
+      { type: 'path', attrs: { d: 'M12 13V7' } },
+      { type: 'path', attrs: { d: 'M9 17h6' } },
+    ],
+  },
+  'link': {
+    name: 'link',
+    viewBox: '0 0 24 24',
+    elements: [
+      { type: 'path', attrs: { d: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71' } },
+      { type: 'path', attrs: { d: 'M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71' } },
+    ],
+  },
+  'hexagon': {
+    name: 'hexagon',
+    viewBox: '0 0 24 24',
+    elements: [
+      {
+        type: 'path',
+        attrs: {
+          d: 'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z',
+        },
+      },
+    ],
+  },
 };
 
 /**

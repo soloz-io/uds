@@ -1,17 +1,20 @@
 import type { FileStatus } from "./FileStatusBadge";
+import type { IconName } from "@/registry/icons";
 
 export interface FileItem {
   id: string;
   name: string;
   path?: string;
-  icon?: string;
+  icon?: IconName;
   iconColor?: string;
+  /** Set false to render as a non-interactive display row (disables click, keyboard select, and hover highlight) */
+  clickable?: boolean;
 }
 
 export interface FileGroup {
   id: string;
   title: string;
-  icon?: string;
+  icon?: IconName;
   iconColor?: string;
   files: FileItem[];
   defaultOpen?: boolean;

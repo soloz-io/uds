@@ -85,20 +85,20 @@ export const FileQueue = React.memo<FileQueueProps>(
                     </div>
                   ) : (
                     group.files.map((file) => {
-                      const isSelected = selectedFileId === file.id;
-                      const isClickable = !!onFileSelect;
+                      const isClickable = !!onFileSelect && file.clickable !== false;
+                      const isSelected = isClickable && selectedFileId === file.id;
 
                       return (
                         <QueueItem
                           key={file.id}
                           className={cn(
-                            isClickable && "cursor-pointer",
+                            isClickable ? "cursor-pointer" : "cursor-default hover:bg-transparent",
                             isSelected && "bg-accent"
                           )}
-                          onClick={() => isClickable && handleFileClick(file.id)}
+                          onClick={isClickable ? () => handleFileClick(file.id) : undefined}
                           role={isClickable ? "button" : undefined}
                           tabIndex={isClickable ? 0 : undefined}
-                          onKeyDown={(e) => handleKeyDown(e, file.id)}
+                          onKeyDown={isClickable ? (e) => handleKeyDown(e, file.id) : undefined}
                           aria-selected={isClickable ? isSelected : undefined}
                         >
                           <div className="flex items-start gap-2">

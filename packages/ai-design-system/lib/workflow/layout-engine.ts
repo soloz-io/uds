@@ -43,7 +43,7 @@ export async function getLayoutedElements(
 ): Promise<{ nodes: WorkflowNode[]; edges: WorkflowEdge[] }> {
   const {
     direction = 'DOWN',
-    nodeSpacingX = 60,
+    nodeSpacingX = 80,
     nodeSpacingY = 48,
     nodeSizeResolver,
     elkOptions = {},
@@ -69,14 +69,33 @@ export async function getLayoutedElements(
       const data = (n.data ?? {}) as Record<string, unknown>;
       const hasDescription = Boolean(data.description);
       const isAgentNode = n.type === 'orchestrator' || n.type === 'specialist';
-      const hasSkills = isAgentNode && Array.isArray(data.skills) && data.skills.length > 0;
-      const hasTools = isAgentNode && Array.isArray(data.tools) && data.tools.length > 0;
-      const baseHeight = hasDescription ? DEFAULT_NODE_WITH_DESC_HEIGHT : DEFAULT_NODE_HEIGHT;
-      const capabilityExtra = (hasSkills ? 34 : 0) + (hasTools ? 34 : 0) + (hasSkills || hasTools ? 12 : 0);
+      const skillsCount = Array.isArray(data.skills) ? data.skills.length : 0;
+      const toolsCount = Array.isArray(data.functionTools)
+        ? data.functionTools.length
+        : Array.isArray(data.tools)
+          ? data.tools.length
+          : 0;
+      const hasSkills = isAgentNode && skillsCount > 0;
+      const hasTools = isAgentNode && toolsCount > 0;
+
+      // Realistic rendered heights for w-[220px] agent cards
+      const headerHeight = 38;
+      const descHeight = hasDescription ? 44 : 0;
+      const skillsHeight = hasSkills ? (skillsCount > 1 ? 52 : 32) : 0;
+      const toolsHeight = hasTools ? (toolsCount > 1 ? 52 : 32) : 0;
+      const capPadding = hasSkills || hasTools ? 16 : 0;
+      const calculatedAgentHeight = headerHeight + descHeight + skillsHeight + toolsHeight + capPadding;
+
       return {
         id: n.id,
         width: resolved?.width ?? DEFAULT_NODE_WIDTH,
-        height: resolved?.height ?? (baseHeight + capabilityExtra),
+        height:
+          resolved?.height ??
+          (isAgentNode
+            ? Math.max(calculatedAgentHeight, 80)
+            : hasDescription
+              ? DEFAULT_NODE_WITH_DESC_HEIGHT
+              : DEFAULT_NODE_HEIGHT),
       };
     }),
     edges: edges.map((e) => {

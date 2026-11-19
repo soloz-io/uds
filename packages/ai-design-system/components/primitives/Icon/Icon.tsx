@@ -53,7 +53,7 @@ export interface IconProps
  */
 export const Icon = React.memo<IconProps>(
   ({ name, size, className, "aria-label": ariaLabel, ...props }) => {
-    const icon = iconRegistry.get(name);
+    let icon = iconRegistry.get(name);
 
     if (!icon) {
       if (process.env.NODE_ENV === "development") {
@@ -62,7 +62,8 @@ export const Icon = React.memo<IconProps>(
           iconRegistry.getNames().join(", ")
         );
       }
-      return null;
+      icon = iconRegistry.get("file");
+      if (!icon) return null;
     }
 
     return (

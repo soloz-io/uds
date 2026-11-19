@@ -1,30 +1,7 @@
 import * as React from "react";
 import { FilePreviewDialog, FileQueue } from "@/components/composites";
 import { cn } from "@/lib/utils";
-
-interface FileItem {
-  id: string;
-  name: string;
-  path?: string;
-  icon?: string;
-  iconColor?: string;
-}
-
-interface FileGroup {
-  id: string;
-  title: string;
-  icon?: string;
-  iconColor?: string;
-  files: FileItem[];
-  defaultOpen?: boolean;
-}
-
-/**
- * SpecNavigator Feature
- *
- * Domain-specific navigation for browsing specification files.
- * Uses FileQueue block for rendering grouped file lists.
- */
+import type { IconName } from "@/registry/icons";
 
 export interface SpecNavigatorFile {
   /** Optional dialog title override */
@@ -40,15 +17,17 @@ export interface SpecNavigatorFile {
   /** File path prefix (shown as secondary info) */
   path?: string;
   /** Optional icon name from the DS icon registry */
-  icon?: string;
+  icon?: IconName;
   /** Optional icon color utility class */
   iconColor?: string;
+  /** Set false to disable click events and hover/selection highlight on this item */
+  clickable?: boolean;
 }
 
 export interface SpecNavigatorGroup {
   id: string;
   title: string;
-  icon?: string;
+  icon?: IconName;
   iconColor?: string;
   files: SpecNavigatorFile[];
   defaultOpen?: boolean;
@@ -64,6 +43,8 @@ export interface SpecNavigatorProps {
   selectedFileId?: string;
   /** Callback when a file is selected */
   onFileSelect?: (fileId: string) => void;
+  /** Disable click events, selection highlights, and preview dialogs across all items */
+  disableItemClick?: boolean;
   /** Additional CSS classes */
   className?: string;
 }
@@ -72,7 +53,7 @@ export interface SpecNavigatorProps {
  * SpecNavigator component - domain-specific spec file navigation
  */
 export const SpecNavigator = React.memo<SpecNavigatorProps>(
-  ({ groups, selectedFileId, onFileSelect, className }) => {
+  ({ groups, selectedFileId, onFileSelect, disableItemClick = false, className }) => {
     const [previewFileId, setPreviewFileId] = React.useState<string | null>(null);
 
     const fileById = React.useMemo(() => {
@@ -83,14 +64,17 @@ export const SpecNavigator = React.memo<SpecNavigatorProps>(
       return new Map(entries);
     }, [groups]);
 
-    const previewFile = previewFileId ? fileById.get(previewFileId) : undefined;
+    const previewFile = !disableItemClick && previewFileId ? fileById.get(previewFileId) : undefined;
 
     const handleFileSelect = React.useCallback(
       (fileId: string) => {
+        if (disableItemClick) return;
+        const file = fileById.get(fileId);
+        if (file?.clickable === false) return;
         setPreviewFileId(fileId);
         onFileSelect?.(fileId);
       },
-      [onFileSelect]
+      [disableItemClick, fileById, onFileSelect]
     );
 
     const handleOpenChange = React.useCallback((open: boolean) => {
@@ -103,18 +87,20 @@ export const SpecNavigator = React.memo<SpecNavigatorProps>(
       <div className={cn("flex h-full flex-col", className)}>
         <FileQueue
           groups={groups}
-          selectedFileId={selectedFileId}
-          onFileSelect={handleFileSelect}
+          selectedFileId={disableItemClick ? undefined : selectedFileId}
+          onFileSelect={disableItemClick ? undefined : handleFileSelect}
         />
 
-        <FilePreviewDialog
-          open={!!previewFile}
-          onOpenChange={handleOpenChange}
-          title={previewFile?.previewTitle ?? previewFile?.name}
-          description={previewFile?.previewDescription ?? previewFile?.path}
-          content={previewFile?.previewContent}
-          emptyMessage="No preview content is available for this spec yet."
-        />
+        {!disableItemClick && (
+          <FilePreviewDialog
+            open={!!previewFile}
+            onOpenChange={handleOpenChange}
+            title={previewFile?.previewTitle ?? previewFile?.name}
+            description={previewFile?.previewDescription ?? previewFile?.path}
+            content={previewFile?.previewContent}
+            emptyMessage="No preview content is available for this spec yet."
+          />
+        )}
       </div>
     );
   }
