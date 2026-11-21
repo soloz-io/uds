@@ -234,7 +234,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                     {tabs.map((tab) => (
                       <div
                         key={tab.id}
-                        className="flex items-center shrink-0 border-r border-border/50 last:border-r-0"
+                        className="group relative flex items-center shrink-0 border-r border-border/50 last:border-r-0"
                       >
                         <TabsTrigger
                           value={tab.id}
@@ -268,7 +268,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                           </div>
                         </TabsTrigger>
 
-                        {/* Close button */}
+                        {/* Close button - overlayed on top of the tab title right end on hover only */}
                         {onTabClose && tab.canClose !== false && (
                           <Button
                             variant="ghost"
@@ -278,10 +278,12 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                               onTabClose(tab.id)
                             }}
                             className={cn(
-                              'h-8 w-8 mr-0.5',
-                              'hover:bg-destructive/10 hover:text-destructive',
-                              'focus-visible:ring-2 focus-visible:ring-ring',
-                              'transition-colors'
+                              'absolute right-1 top-1/2 -translate-y-1/2 z-10',
+                              'size-5 h-5 w-5 p-0 rounded-sm',
+                              'opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto',
+                              'group-focus-within:opacity-100 group-focus-within:pointer-events-auto focus-visible:opacity-100',
+                              'bg-background/90 hover:bg-destructive/20 text-muted-foreground hover:text-destructive',
+                              'transition-all duration-150'
                             )}
                             aria-label={`Close ${tab.name}`}
                           >
