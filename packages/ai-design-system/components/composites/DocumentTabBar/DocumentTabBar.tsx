@@ -6,7 +6,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Tabs, TabsList, TabsTrigger, Button, ScrollArea } from '@/components/primitives'
+import { Tabs, TabsList, TabsTrigger, Button } from '@/components/primitives'
 import { Icon } from '@/components/primitives/Icon'
 import { cn } from '@/lib/utils'
 
@@ -111,9 +111,13 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
       const viewport = getViewport()
       if (!viewport) return
       const { scrollLeft, scrollWidth, clientWidth } = viewport
-      setCanScrollLeft(scrollLeft > 2)
-      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 2)
+      const nextLeft = scrollLeft > 2
+      const nextRight = scrollLeft + clientWidth < scrollWidth - 2
+      setCanScrollLeft((prev) => (prev !== nextLeft ? nextLeft : prev))
+      setCanScrollRight((prev) => (prev !== nextRight ? nextRight : prev))
     }, [getViewport])
+
+    const tabsKey = tabs.map((t) => t.id).join(',')
 
     useEffect(() => {
       const viewport = getViewport()
@@ -131,7 +135,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
         viewport.removeEventListener('scroll', updateScrollState)
         resizeObserver.disconnect()
       }
-    }, [getViewport, updateScrollState, tabs])
+    }, [getViewport, updateScrollState, tabsKey])
 
     // Convert mouse wheel vertical scroll to horizontal scroll
     const handleWheel = useCallback(
@@ -158,7 +162,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
           inline: 'nearest',
         })
       }
-    }, [activeTabId, tabs])
+    }, [activeTabId, tabsKey])
 
     const handleScrollLeft = useCallback(() => {
       const viewport = getViewport()
@@ -224,7 +228,10 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                 />
               )}
 
-              <ScrollArea orientation="horizontal" className="w-full h-10">
+              <div
+                data-slot="scroll-area-viewport"
+                className="w-full h-10 overflow-x-auto overflow-y-hidden scrollbar-none"
+              >
                 <Tabs
                   value={activeTabId || tabs[0]?.id}
                   onValueChange={onTabSelect}
@@ -315,7 +322,7 @@ export const DocumentTabBar = React.memo<DocumentTabBarProps>(
                     )}
                   </TabsList>
                 </Tabs>
-              </ScrollArea>
+              </div>
 
               {canScrollRight && (
                 <div

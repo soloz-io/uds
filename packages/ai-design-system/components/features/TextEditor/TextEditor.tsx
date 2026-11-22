@@ -297,6 +297,7 @@ export const TextEditor = React.memo<TextEditorProps>(
     )
     const multiTabDocs = isMultiTab ? (props as TextEditorMultiTabProps).documents : undefined
     const multiTabFileTree = isMultiTab ? (props as TextEditorMultiTabProps).fileTree : undefined
+    const multiTabTabs = useMemo(() => multiTabDocs?.map((doc) => doc.file) || [], [multiTabDocs])
 
     const fileTreeNodes = useMemo(() => {
       if (multiTabFileTree) {
@@ -521,6 +522,11 @@ export const TextEditor = React.memo<TextEditorProps>(
       (props as TextEditorMultiTabProps).documents?.length === 0 &&
       workspace?.status === 'not-running'
 
+    const customDocContent =
+      currentDocument && (props as TextEditorMultiTabProps).renderDocument
+        ? (props as TextEditorMultiTabProps).renderDocument!(currentDocument)
+        : null
+
     if (showWorkspaceEmptyState) {
       editorPane = (
         <WorkspaceEmptyState
@@ -536,7 +542,7 @@ export const TextEditor = React.memo<TextEditorProps>(
           {!hideTabBar && (
             <DocumentTabBar
               className="w-full"
-              tabs={props.documents?.map((doc) => doc.file) || []}
+              tabs={multiTabTabs}
               activeTabId={props.activeDocumentId ?? undefined}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
@@ -559,16 +565,13 @@ export const TextEditor = React.memo<TextEditorProps>(
           />
         </div>
       )
-    } else if (
-      (props as TextEditorMultiTabProps).renderDocument &&
-      (props as TextEditorMultiTabProps).renderDocument!(currentDocument)
-    ) {
+    } else if (customDocContent) {
       editorPane = (
         <div className="text-editor flex flex-col h-full w-full">
           {!hideTabBar && (
             <DocumentTabBar
               className="w-full"
-              tabs={props.documents?.map((doc) => doc.file) || []}
+              tabs={multiTabTabs}
               activeTabId={props.activeDocumentId || props.documents?.[0]?.file.id}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
@@ -584,7 +587,7 @@ export const TextEditor = React.memo<TextEditorProps>(
             />
           )}
           <div className="flex-1 min-h-0 relative overflow-hidden">
-            {(props as TextEditorMultiTabProps).renderDocument!(currentDocument)}
+            {customDocContent}
           </div>
         </div>
       )
@@ -594,7 +597,7 @@ export const TextEditor = React.memo<TextEditorProps>(
           {!hideTabBar && (
             <DocumentTabBar
               className="w-full"
-              tabs={props.documents?.map((doc) => doc.file) || []}
+              tabs={multiTabTabs}
               activeTabId={props.activeDocumentId ?? undefined}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
@@ -634,7 +637,7 @@ export const TextEditor = React.memo<TextEditorProps>(
           {!hideTabBar && (
             <DocumentTabBar
               className="w-full"
-              tabs={props.documents?.map((doc) => doc.file) || []}
+              tabs={multiTabTabs}
               activeTabId={props.activeDocumentId ?? undefined}
               onTabSelect={props.onTabSelect}
               onTabClose={props.onTabClose}
