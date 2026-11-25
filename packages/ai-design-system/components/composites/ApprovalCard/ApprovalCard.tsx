@@ -139,10 +139,17 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     className,
   }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [prevArgs, setPrevArgs] = useState(actionRequest.args);
+    const prevArgsRef = useRef(actionRequest.args);
     const [editedArgs, setEditedArgs] = useState<Record<string, unknown>>(() => actionRequest.args);
     const [rejectReason, setRejectReason] = useState("");
     const [showRejectInput, setShowRejectInput] = useState(false);
+
+    useEffect(() => {
+      if (JSON.stringify(actionRequest.args) !== JSON.stringify(prevArgsRef.current)) {
+        prevArgsRef.current = actionRequest.args;
+        setEditedArgs(actionRequest.args);
+      }
+    }, [actionRequest.args]);
 
     const hideSkipButton = (actionRequest.args?.hide_skip_button as boolean) ?? false;
     const submitButtonText = (actionRequest.args?.button_submit_text as string) || 'Continue';
@@ -159,10 +166,7 @@ export const ApprovalCard = React.memo<ApprovalCardProps>(
     const [uploadChosen, setUploadChosen] = useState<Record<number, boolean>>({});
     const inputRef = useRef<HTMLInputElement | null>(null);
 
-    if (actionRequest.args !== prevArgs) {
-      setPrevArgs(actionRequest.args);
-      setEditedArgs(actionRequest.args);
-    }
+
 
     const allowed = reviewConfig?.allowedDecisions ?? ["approve", "reject"];
     const canEdit = allowed.includes("edit");
