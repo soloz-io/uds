@@ -15,6 +15,8 @@ export interface GraphCanvasNode {
   /** Secondary line, e.g. the node's kind */
   caption?: string;
   groupId: string;
+  /** The node leads to another view the viewer can open (see onNodeOpen) */
+  openable?: boolean;
 }
 
 export interface GraphCanvasEdge {
@@ -44,6 +46,12 @@ export interface GraphCanvasDetails {
   fields?: Array<{ label: string; value: string }>;
 }
 
+/** One level of a graph hierarchy shown in the breadcrumb. */
+export interface GraphCanvasBreadcrumb {
+  id: string;
+  label: string;
+}
+
 export interface GraphCanvasProps {
   nodes: GraphCanvasNode[];
   edges: GraphCanvasEdge[];
@@ -61,6 +69,16 @@ export interface GraphCanvasProps {
   selectedNodeId?: string | null;
   onNodeSelect?: (nodeId: string | null) => void;
   onEdgeSelect?: (edgeId: string) => void;
+  /**
+   * Opens an openable node: an explicit action (double-click, or the Open
+   * button in the details panel), never a side effect of selecting it.
+   */
+  onNodeOpen?: (nodeId: string) => void;
+  /** Label of the details panel's open button (default "Open") */
+  openLabel?: string;
+  /** Where the viewer is in a hierarchy of graphs, outermost first */
+  breadcrumbs?: GraphCanvasBreadcrumb[];
+  onBreadcrumbSelect?: (index: number) => void;
   status?: GraphCanvasStatus;
   /** Details of the selected node, shown beside the graph */
   details?: GraphCanvasDetails;

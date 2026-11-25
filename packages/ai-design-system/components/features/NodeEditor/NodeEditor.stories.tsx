@@ -5,7 +5,7 @@ import { DevicePreviewToolbar, type DevicePreviewViewMode } from "@/components/c
 import type { DeviceScreenshotRequest } from "@/components/composites/DevicePreviewNode";
 import { NodeEditor } from "./NodeEditor";
 import { useNodeEditorMock } from "./useNodeEditor.mock";
-import { mockVersions, mockNodes, mockEdges, mockSpatialNodes, mockSpatialEdges } from "./NodeEditor.mocks";
+import { mockVersions, mockNodes, mockEdges, mockSpatialNodes, mockSpatialEdges, mockBreadcrumbs } from "./NodeEditor.mocks";
 import type { WorkflowNode, WorkflowEdge } from "@/components/blocks/WorkflowCanvas";
 import type { ToolbarAction } from "@/components/composites/WorkflowToolbar";
 
@@ -480,6 +480,16 @@ export const Default: Story = {
 /**
  * WithStateManagement — full interactive mock hook wired up
  */
+/** A breadcrumb of the levels above this graph, in place of the workflow name */
+export const WithBreadcrumbs: Story = {
+  args: {
+    workflowName: "Order workflow",
+    nodes: mockNodes,
+    edges: mockEdges,
+    breadcrumbs: mockBreadcrumbs,
+  },
+};
+
 export const WithStateManagement: Story = {
   render: () => <NodeEditorStateManagementStory />,
 };

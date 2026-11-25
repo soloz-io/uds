@@ -11,8 +11,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@/components/ai-elements/canvas";
 import { Edge } from "@/components/ai-elements/edge";
 import { Panel } from "@/components/ai-elements/panel";
+import { AppBreadcrumb } from "@/components/composites/AppBreadcrumb";
 import { GraphNodeCard } from "@/components/composites/GraphNodeCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/primitives/Alert";
+import { Button } from "@/components/primitives/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/primitives/Card";
 import { Icon } from "@/components/primitives/Icon";
 import { ToggleGroup, ToggleGroupItem } from "@/components/primitives/ToggleGroup";
@@ -42,6 +44,10 @@ function GraphCanvasInner({
   selectedNodeId,
   onNodeSelect,
   onEdgeSelect,
+  onNodeOpen,
+  openLabel = "Open",
+  breadcrumbs,
+  onBreadcrumbSelect,
   status,
   details,
   className,
@@ -73,11 +79,13 @@ function GraphCanvasInner({
           type: "graphNode",
           position: placed[n.id]!,
           selected: selectedNodeId !== undefined ? selectedNodeId === n.id : wasSelected.has(n.id),
-          data: { label: n.label, caption: n.caption, tone: tone.get(n.groupId) },
+          data: { label: n.label, caption: n.caption, tone: tone.get(n.groupId), openable: Boolean(n.openable && onNodeOpen) },
         }));
     });
     if (nodes.some((n) => !known[n.id])) emitPositions.current?.({ ...placed });
-  }, [nodes, groups, positions, hidden, selectedNodeId, tone]);
+  }, [nodes, groups, positions, hidden, selectedNodeId, tone, onNodeOpen]);
+
+  const openable = useMemo(() => new Set(nodes.filter((n) => n.openable).map((n) => n.id)), [nodes]);
 
   const flowEdges: FlowEdge[] = useMemo(() => {
     const shown = new Set(flowNodes.map((n) => n.id));
@@ -120,8 +128,25 @@ function GraphCanvasInner({
         onNodeClick={(_event, node) => onNodeSelect?.(node.id)}
         onPaneClick={() => onNodeSelect?.(null)}
         onEdgeClick={(_event, edge) => onEdgeSelect?.(edge.id)}
+        onNodeDoubleClick={(_event, node) => {
+          if (openable.has(node.id)) onNodeOpen?.(node.id);
+        }}
+        zoomOnDoubleClick={false}
       >
-        <Panel className="pointer-events-auto border-none bg-transparent p-0" position="top-left">
+        <Panel className="pointer-events-auto flex flex-col items-start gap-2 border-none bg-transparent p-0" position="top-left">
+          {breadcrumbs && breadcrumbs.length > 0 && (
+            <AppBreadcrumb
+              data-testid="graph-canvas-breadcrumb"
+              className="rounded-md border border-border bg-card px-3 py-1.5 text-xs"
+              items={breadcrumbs.map((crumb, index) => ({
+                label: crumb.label,
+                onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
+                  event.preventDefault();
+                  onBreadcrumbSelect?.(index);
+                },
+              }))}
+            />
+          )}
           <ToggleGroup
             type="multiple"
             variant="outline"
@@ -175,6 +200,11 @@ function GraphCanvasInner({
                     ))}
                   </dl>
                 )}
+                {selectedNodeId && openable.has(selectedNodeId) && onNodeOpen && (
+                  <Button size="sm" className="w-full" onClick={() => onNodeOpen(selectedNodeId)} data-testid="graph-canvas-open">
+                    {openLabel}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </Panel>
@@ -195,7 +225,20 @@ function GraphCanvasInner({
 export function GraphCanvas(props: GraphCanvasProps) {
   if (props.nodes.length === 0) {
     return (
-      <div className={cn("flex h-full w-full items-center justify-center p-4", props.className)} data-testid="graph-canvas-empty">
+      <div className={cn("relative flex h-full w-full items-center justify-center p-4", props.className)} data-testid="graph-canvas-empty">
+        {props.breadcrumbs && props.breadcrumbs.length > 0 && (
+          <AppBreadcrumb
+            data-testid="graph-canvas-breadcrumb"
+            className="absolute top-4 left-4 rounded-md border border-border bg-card px-3 py-1.5 text-xs"
+            items={props.breadcrumbs.map((crumb, index) => ({
+              label: crumb.label,
+              onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
+                event.preventDefault();
+                props.onBreadcrumbSelect?.(index);
+              },
+            }))}
+          />
+        )}
         <Card className="max-w-md text-center">
           <CardHeader>
             <CardTitle className="text-sm">{props.emptyState?.title ?? "Nothing to show yet"}</CardTitle>

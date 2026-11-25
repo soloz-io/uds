@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { GraphView } from "./GraphView";
 import { useGraphViewMock } from "./useGraphView.mock";
-import { laterEdges, laterNodes, sampleEdges, sampleGroups, sampleNodes } from "./GraphView.mocks";
+import { laterEdges, laterNodes, sampleBreadcrumbs, sampleEdges, sampleGroups, sampleNodes } from "./GraphView.mocks";
 
 const meta = {
   title: "Features/GraphView",
@@ -32,6 +32,18 @@ export const Default: Story = {
   args: { nodes: sampleNodes, edges: sampleEdges, groups: sampleGroups },
 };
 
+/** A breadcrumb of the levels above, and an openable node */
+export const WithBreadcrumbsAndOpenableNode: Story = {
+  args: {
+    nodes: sampleNodes,
+    edges: sampleEdges,
+    groups: sampleGroups,
+    breadcrumbs: sampleBreadcrumbs,
+    selectedNodeId: "validate",
+    details: { title: "Validate order", subtitle: "validate" },
+  },
+};
+
 /** The data behind the graph failed to update; the last valid graph stays visible */
 export const WithErrorStatus: Story = {
   args: {
@@ -58,6 +70,7 @@ function GraphViewStateManagementStory() {
     initialEdges: sampleEdges,
     groups: sampleGroups,
     status: { tone: "neutral", title: "Graph current" },
+    root: { id: "root", label: "Order system" },
   });
   return (
     <div className="flex h-screen w-full flex-col">
@@ -70,7 +83,7 @@ function GraphViewStateManagementStory() {
           Add outputs
         </button>
         <span className="ml-3 text-muted-foreground">
-          Drag a node, select one, hide a group, then add outputs: existing nodes keep their places.
+          Drag a node, select one, hide a group, then add outputs: existing nodes keep their places. Open "Validate order" to descend; use the breadcrumb to return.
         </span>
       </div>
       <GraphView
@@ -86,6 +99,9 @@ function GraphViewStateManagementStory() {
         onNodeSelect={graph.handleNodeSelect}
         status={graph.status}
         details={graph.details}
+        breadcrumbs={graph.breadcrumbs}
+        onBreadcrumbSelect={graph.handleBreadcrumbSelect}
+        onNodeOpen={graph.handleNodeOpen}
       />
     </div>
   );

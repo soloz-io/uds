@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { WorkflowToolbar, WorkflowToolbarActions } from "@/components/composites/WorkflowToolbar";
 import { WorkflowCanvas } from "@/components/blocks/WorkflowCanvas";
+import { AppBreadcrumb } from "@/components/composites/AppBreadcrumb";
 import type { WorkflowNode, WorkflowEdge } from "@/components/blocks/WorkflowCanvas";
 import type { ToolbarAction, WorkflowVersion } from "@/components/composites/WorkflowToolbar";
 import type { Connection, NodeChange, EdgeChange } from "@xyflow/react";
@@ -22,6 +23,12 @@ export interface NodeStatusEntry {
   status: string;
 }
 
+/** One level of a graph hierarchy shown in the breadcrumb. */
+export interface NodeEditorBreadcrumb {
+  id: string;
+  label: string;
+}
+
 export interface NodeEditorProps {
   // Toolbar — left
   workflowName?: string;
@@ -36,7 +43,16 @@ export interface NodeEditorProps {
   onEdgesChange?: (changes: EdgeChange[]) => void;
   onConnect?: (connection: Connection) => void;
   onNodeClick?: (event: React.MouseEvent, node: WorkflowNode) => void;
+  /** An explicit open action on a node (double-click), distinct from selecting it */
+  onNodeDoubleClick?: (event: React.MouseEvent, node: WorkflowNode) => void;
   onEdgeClick?: (event: React.MouseEvent, edge: WorkflowEdge) => void;
+
+  /**
+   * Where the viewer is in a hierarchy of graphs, outermost first. The last
+   * entry is the current graph; selecting an earlier one returns to it.
+   */
+  breadcrumbs?: NodeEditorBreadcrumb[];
+  onBreadcrumbSelect?: (index: number) => void;
 
   // Toolbar — right actions
   isSaving?: boolean;
@@ -93,7 +109,10 @@ export function NodeEditor({
   onEdgesChange,
   onConnect,
   onNodeClick,
+  onNodeDoubleClick,
   onEdgeClick,
+  breadcrumbs,
+  onBreadcrumbSelect,
   isSaving = false,
   hasUnsavedChanges = false,
   canUndo = false,
@@ -157,6 +176,7 @@ export function NodeEditor({
   if (!hideDefaultActions) allActionGroups = [...allActionGroups, ...defaultActionGroups];
 
   const showTopLeftToolbar = (!hideWorkflowName && workflowName) || (versions && versions.length > 0);
+  const hasBreadcrumbs = Boolean(breadcrumbs && breadcrumbs.length > 0);
 
   return (
     <div
@@ -173,14 +193,31 @@ export function NodeEditor({
         showMinimap={showMinimap}
         fitViewSignal={fitViewSignal}
         topLeft={
-          showTopLeftToolbar ? (
-            <WorkflowToolbar
-              currentVersionId={currentVersionId}
-              versions={versions}
-              workflowName={workflowName}
-              hideWorkflowName={hideWorkflowName}
-              onVersionSelect={onVersionSelect}
-            />
+          showTopLeftToolbar || hasBreadcrumbs ? (
+            <div className="flex flex-col items-start gap-2">
+              {hasBreadcrumbs && (
+                <AppBreadcrumb
+                  data-testid="node-editor-breadcrumb"
+                  className="rounded-md border border-border bg-card px-3 py-1.5 text-xs"
+                  items={breadcrumbs!.map((crumb, index) => ({
+                    label: crumb.label,
+                    onClick: (event: React.MouseEvent<HTMLAnchorElement>) => {
+                      event.preventDefault();
+                      onBreadcrumbSelect?.(index);
+                    },
+                  }))}
+                />
+              )}
+              {showTopLeftToolbar && (
+                <WorkflowToolbar
+                  currentVersionId={currentVersionId}
+                  versions={versions}
+                  workflowName={workflowName}
+                  hideWorkflowName={hideWorkflowName || hasBreadcrumbs}
+                  onVersionSelect={onVersionSelect}
+                />
+              )}
+            </div>
           ) : undefined
         }
         topRight={
@@ -191,6 +228,7 @@ export function NodeEditor({
         onEdgesChange={onEdgesChange}
         onNodesChange={onNodesChange}
         onNodeClick={onNodeClick}
+        onNodeDoubleClick={onNodeDoubleClick}
         onEdgeClick={onEdgeClick}
       />
     </div>

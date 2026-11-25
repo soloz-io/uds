@@ -2,6 +2,7 @@
 
 import { GraphCanvas } from "@/components/blocks/GraphCanvas";
 import type {
+  GraphCanvasBreadcrumb,
   GraphCanvasDetails,
   GraphCanvasEdge,
   GraphCanvasGroup,
@@ -19,6 +20,7 @@ export type GraphViewStatus = GraphCanvasStatus;
 export type GraphViewDetails = GraphCanvasDetails;
 export type GraphViewPosition = GraphPosition;
 export type GraphViewTone = GraphTone;
+export type GraphViewBreadcrumb = GraphCanvasBreadcrumb;
 export type GraphViewProps = GraphCanvasProps;
 
 /**

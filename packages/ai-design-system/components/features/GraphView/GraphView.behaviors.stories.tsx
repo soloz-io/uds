@@ -7,7 +7,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import { GraphView } from "./GraphView";
-import { sampleEdges, sampleGroups, sampleNodes } from "./GraphView.mocks";
+import { sampleBreadcrumbs, sampleEdges, sampleGroups, sampleNodes } from "./GraphView.mocks";
 
 const meta: Meta<typeof GraphView> = {
   title: "Features/GraphView/Behaviors",
@@ -84,5 +84,41 @@ export const ErrorStatusIsAnnounced: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(await canvas.findByRole("alert")).toHaveTextContent("Latest data has errors");
+  },
+};
+
+/** Selecting an openable node does not open it; the Open button does */
+export const OpenIsExplicit: Story = {
+  args: {
+    nodes: sampleNodes,
+    edges: sampleEdges,
+    groups: sampleGroups,
+    selectedNodeId: "validate",
+    details: { title: "Validate order" },
+    onNodeSelect: fn(),
+    onNodeOpen: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId("graph-node-validate"));
+    await expect(args.onNodeOpen).not.toHaveBeenCalled();
+    await userEvent.click(await canvas.findByTestId("graph-canvas-open"));
+    await waitFor(() => expect(args.onNodeOpen).toHaveBeenCalledWith("validate"));
+  },
+};
+
+/** Selecting an earlier breadcrumb reports its index */
+export const BreadcrumbReturns: Story = {
+  args: {
+    nodes: sampleNodes,
+    edges: sampleEdges,
+    groups: sampleGroups,
+    breadcrumbs: sampleBreadcrumbs,
+    onBreadcrumbSelect: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByText("Order system"));
+    await waitFor(() => expect(args.onBreadcrumbSelect).toHaveBeenCalledWith(0));
   },
 };

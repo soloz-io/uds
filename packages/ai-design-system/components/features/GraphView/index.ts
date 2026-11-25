@@ -8,4 +8,5 @@ export type {
   GraphViewDetails,
   GraphViewPosition,
   GraphViewTone,
+  GraphViewBreadcrumb,
 } from "./GraphView";

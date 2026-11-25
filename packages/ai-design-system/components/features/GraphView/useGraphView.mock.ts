@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import type {
+  GraphViewBreadcrumb,
   GraphViewDetails,
   GraphViewEdge,
   GraphViewGroup,
@@ -28,6 +29,12 @@ export interface UseGraphViewReturn {
   handlePositionsChange: (positions: Record<string, GraphViewPosition>) => void;
   handleHiddenGroupIdsChange: (hiddenGroupIds: string[]) => void;
   handleNodeSelect: (nodeId: string | null) => void;
+  /** Where the viewer is in the hierarchy of graphs, outermost first */
+  breadcrumbs: GraphViewBreadcrumb[];
+  /** Returns to an earlier level */
+  handleBreadcrumbSelect: (index: number) => void;
+  /** Opens an openable node: an explicit action, never a side effect of selection */
+  handleNodeOpen: (nodeId: string) => void;
   /** Mock only: adds nodes and edges, as new data would */
   grow: (nodes: GraphViewNode[], edges: GraphViewEdge[]) => void;
 }
@@ -37,15 +44,31 @@ export interface UseGraphViewOptions {
   initialEdges?: GraphViewEdge[];
   groups?: GraphViewGroup[];
   status?: GraphViewStatus;
+  root?: GraphViewBreadcrumb;
 }
 
 export function useGraphViewMock(options: UseGraphViewOptions = {}): UseGraphViewReturn {
-  const { initialNodes = [], initialEdges = [], groups = [], status } = options;
+  const { initialNodes = [], initialEdges = [], groups = [], status, root = { id: "root", label: "Graph" } } = options;
   const [nodes, setNodes] = useState<GraphViewNode[]>(initialNodes);
   const [edges, setEdges] = useState<GraphViewEdge[]>(initialEdges);
   const [positions, setPositions] = useState<Record<string, GraphViewPosition>>({});
   const [hiddenGroupIds, setHiddenGroupIds] = useState<string[]>([]);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [breadcrumbs, setBreadcrumbs] = useState<GraphViewBreadcrumb[]>([root]);
+
+  // Opening a node descends one level; a real application shows that level's graph.
+  const handleNodeOpen = useCallback(
+    (nodeId: string) => {
+      const node = nodes.find((n) => n.id === nodeId);
+      if (!node) return;
+      setBreadcrumbs((prev) => [...prev, { id: node.id, label: node.label }]);
+      setSelectedNodeId(null);
+    },
+    [nodes]
+  );
+  const handleBreadcrumbSelect = useCallback((index: number) => {
+    setBreadcrumbs((prev) => prev.slice(0, index + 1));
+  }, []);
 
   const details = useMemo<GraphViewDetails | undefined>(() => {
     const node = nodes.find((n) => n.id === selectedNodeId);
@@ -81,6 +104,9 @@ export function useGraphViewMock(options: UseGraphViewOptions = {}): UseGraphVie
     handlePositionsChange: setPositions,
     handleHiddenGroupIdsChange: setHiddenGroupIds,
     handleNodeSelect: setSelectedNodeId,
+    breadcrumbs,
+    handleBreadcrumbSelect,
+    handleNodeOpen,
     grow,
   };
 }

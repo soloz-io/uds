@@ -7,6 +7,7 @@ export type {
   GraphCanvasGroup,
   GraphCanvasStatus,
   GraphCanvasDetails,
+  GraphCanvasBreadcrumb,
   GraphPosition,
   GraphTone,
 } from "./interfaces";

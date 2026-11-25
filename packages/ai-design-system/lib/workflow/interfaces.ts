@@ -41,6 +41,8 @@ export interface WorkflowCanvasProps {
   onConnectEnd?: (event: MouseEvent | TouchEvent) => void;
   onPaneClick?: () => void;
   onNodeClick?: (event: React.MouseEvent, node: WorkflowNode) => void;
+  /** An explicit open action on a node (double-click), distinct from selecting it */
+  onNodeDoubleClick?: (event: React.MouseEvent, node: WorkflowNode) => void;
   onEdgeClick?: (event: React.MouseEvent, edge: WorkflowEdge) => void;
   showMinimap?: boolean;
   interactive?: boolean;

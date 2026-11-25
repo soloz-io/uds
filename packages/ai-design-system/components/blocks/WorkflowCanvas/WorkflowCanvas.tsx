@@ -53,6 +53,7 @@ function WorkflowCanvasInner({
   onConnectEnd,
   onPaneClick,
   onNodeClick,
+  onNodeDoubleClick,
   onEdgeClick,
   interactive = false,
   panOnDrag = false,
@@ -166,6 +167,8 @@ function WorkflowCanvasInner({
         onNodesChange={onNodesChange}
         onPaneClick={onPaneClick}
         onNodeClick={onNodeClick as (event: React.MouseEvent, node: Node) => void}
+        onNodeDoubleClick={onNodeDoubleClick as ((event: React.MouseEvent, node: Node) => void) | undefined}
+        zoomOnDoubleClick={false}
         onEdgeClick={onEdgeClick}
       >
         {topLeft && (

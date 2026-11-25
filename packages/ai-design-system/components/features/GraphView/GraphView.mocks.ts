@@ -2,7 +2,7 @@
  * Mock data for GraphView stories and tests
  */
 
-import type { GraphViewEdge, GraphViewGroup, GraphViewNode } from "./GraphView";
+import type { GraphViewBreadcrumb, GraphViewEdge, GraphViewGroup, GraphViewNode } from "./GraphView";
 
 export const sampleGroups: GraphViewGroup[] = [
   { id: "sources", label: "Sources", tone: "chart-1" },
@@ -13,7 +13,7 @@ export const sampleGroups: GraphViewGroup[] = [
 export const sampleNodes: GraphViewNode[] = [
   { id: "orders", label: "Orders", caption: "Source", groupId: "sources" },
   { id: "customers", label: "Customers", caption: "Source", groupId: "sources" },
-  { id: "validate", label: "Validate order", caption: "Step", groupId: "steps" },
+  { id: "validate", label: "Validate order", caption: "Step", groupId: "steps", openable: true },
   { id: "ship", label: "Ship order", caption: "Step", groupId: "steps" },
 ];
 
@@ -21,6 +21,12 @@ export const sampleEdges: GraphViewEdge[] = [
   { id: "e1", source: "orders", target: "validate", label: "feeds" },
   { id: "e2", source: "customers", target: "validate", label: "feeds" },
   { id: "e3", source: "validate", target: "ship", label: "then" },
+];
+
+/** Where the viewer is: the outermost view first */
+export const sampleBreadcrumbs: GraphViewBreadcrumb[] = [
+  { id: "root", label: "Order system" },
+  { id: "orders", label: "Orders" },
 ];
 
 /** Nodes and edges that arrive later, to show the graph growing in place */

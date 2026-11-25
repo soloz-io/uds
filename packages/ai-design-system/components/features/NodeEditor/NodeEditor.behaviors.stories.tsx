@@ -7,7 +7,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import { NodeEditor } from "./NodeEditor";
-import { mockVersions, mockNodes, mockEdges } from "./NodeEditor.mocks";
+import { mockVersions, mockNodes, mockEdges, mockBreadcrumbs } from "./NodeEditor.mocks";
 
 const meta = {
   title: "Features/NodeEditor/Behaviors",
@@ -134,3 +134,19 @@ export const CancelButtonTriggersCallback: Story = {
     });
   },
 };
+
+/** Selecting an earlier breadcrumb reports its index */
+export const BreadcrumbReturns: Story = {
+  args: {
+    nodes: mockNodes,
+    edges: mockEdges,
+    breadcrumbs: mockBreadcrumbs,
+    onBreadcrumbSelect: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByText("Order system"));
+    await waitFor(() => expect(args.onBreadcrumbSelect).toHaveBeenCalledWith(0));
+  },
+};
+

@@ -230,3 +230,9 @@ export const mockSpatialEdges: WorkflowEdge[] = [
   { id: "e-ch-cs", source: "ch", target: "cs", type: "animated" },
 ];
 
+/** Where the viewer is in a hierarchy of graphs, outermost first */
+export const mockBreadcrumbs = [
+  { id: "app", label: "Order system" },
+  { id: "order-workflow", label: "Order workflow" },
+];
+

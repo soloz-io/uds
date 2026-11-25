@@ -59,4 +59,4 @@ export { StoryPlayer, ScenePlayer } from './StoryPlayer'
 export type { StoryPlayerProps, ScenePlayerProps, StorySegment, SceneItem } from './StoryPlayer'
 
 export { GraphCanvas, placeGraphNodes } from './GraphCanvas'
-export type { GraphCanvasProps, GraphCanvasNode, GraphCanvasEdge, GraphCanvasGroup, GraphCanvasStatus, GraphCanvasDetails, GraphPosition, GraphTone } from './GraphCanvas'
+export type { GraphCanvasProps, GraphCanvasNode, GraphCanvasEdge, GraphCanvasGroup, GraphCanvasStatus, GraphCanvasDetails, GraphCanvasBreadcrumb, GraphPosition, GraphTone } from './GraphCanvas'

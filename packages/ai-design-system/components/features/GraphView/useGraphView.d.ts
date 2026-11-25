@@ -29,6 +29,7 @@
  */
 
 import type {
+  GraphViewBreadcrumb,
   GraphViewDetails,
   GraphViewEdge,
   GraphViewGroup,
@@ -55,6 +56,12 @@ export interface UseGraphViewReturn {
   handlePositionsChange: (positions: Record<string, GraphViewPosition>) => void;
   handleHiddenGroupIdsChange: (hiddenGroupIds: string[]) => void;
   handleNodeSelect: (nodeId: string | null) => void;
+  /** Where the viewer is in the hierarchy of graphs, outermost first */
+  breadcrumbs: GraphViewBreadcrumb[];
+  /** Returns to an earlier level */
+  handleBreadcrumbSelect: (index: number) => void;
+  /** Opens an openable node: an explicit action, never a side effect of selection */
+  handleNodeOpen: (nodeId: string) => void;
 }
 
 export function useGraphView(): UseGraphViewReturn;
