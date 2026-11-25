@@ -13,25 +13,18 @@ import { Edge } from "@/components/ai-elements/edge";
 import { Panel } from "@/components/ai-elements/panel";
 import { AppBreadcrumb } from "@/components/composites/AppBreadcrumb";
 import { GraphNodeCard } from "@/components/composites/GraphNodeCard";
-import { Alert, AlertDescription, AlertTitle } from "@/components/primitives/Alert";
+import { GraphStatusBanner } from "@/components/composites/GraphStatusBanner";
 import { Button } from "@/components/primitives/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/primitives/Card";
-import { Icon } from "@/components/primitives/Icon";
 import { ToggleGroup, ToggleGroupItem } from "@/components/primitives/ToggleGroup";
 import { cn } from "@/lib/utils";
 import { placeGraphNodes } from "./graph-placement";
-import type { GraphCanvasProps, GraphCanvasStatus, GraphPosition } from "./interfaces";
+import type { GraphCanvasProps, GraphPosition } from "./interfaces";
 import "@xyflow/react/dist/style.css";
 
 const nodeTypes = { graphNode: GraphNodeCard };
 const edgeTypes = { straight: Edge.Strict };
 
-const STATUS_ICON: Record<GraphCanvasStatus["tone"], string> = {
-  neutral: "circle-check",
-  info: "refresh-cw",
-  warning: "alert-circle",
-  error: "circle-x",
-};
 
 function GraphCanvasInner({
   nodes,
@@ -165,19 +158,7 @@ function GraphCanvasInner({
 
         {status && (
           <Panel className="pointer-events-auto border-none bg-transparent p-0" position="top-right">
-            <Alert variant={status.tone === "error" ? "destructive" : "default"} className="max-w-sm">
-              <Icon name={STATUS_ICON[status.tone]} size="sm" />
-              <AlertTitle>{status.title}</AlertTitle>
-              {status.details && status.details.length > 0 && (
-                <AlertDescription>
-                  <ul className="max-h-40 overflow-auto font-mono text-xs">
-                    {status.details.map((d) => (
-                      <li key={d}>{d}</li>
-                    ))}
-                  </ul>
-                </AlertDescription>
-              )}
-            </Alert>
+            <GraphStatusBanner tone={status.tone} title={status.title} details={status.details} />
           </Panel>
         )}
 
@@ -239,24 +220,14 @@ export function GraphCanvas(props: GraphCanvasProps) {
             }))}
           />
         )}
-        <Card className="max-w-md text-center">
+        <Card className="w-full max-w-md text-center">
           <CardHeader>
             <CardTitle className="text-sm">{props.emptyState?.title ?? "Nothing to show yet"}</CardTitle>
             {props.emptyState?.description && <CardDescription>{props.emptyState.description}</CardDescription>}
           </CardHeader>
           {props.status && props.status.details && props.status.details.length > 0 && (
             <CardContent>
-              <Alert variant={props.status.tone === "error" ? "destructive" : "default"}>
-                <Icon name={STATUS_ICON[props.status.tone]} size="sm" />
-                <AlertTitle>{props.status.title}</AlertTitle>
-                <AlertDescription>
-                  <ul className="font-mono text-xs">
-                    {props.status.details.map((d) => (
-                      <li key={d}>{d}</li>
-                    ))}
-                  </ul>
-                </AlertDescription>
-              </Alert>
+              <GraphStatusBanner tone={props.status.tone} title={props.status.title} details={props.status.details} className="max-w-none text-left" />
             </CardContent>
           )}
         </Card>

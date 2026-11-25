@@ -19,7 +19,7 @@ export type { SpecNavigatorProps } from "./SpecNavigator";
 
 // NodeEditor Feature
 export { NodeEditor } from "./NodeEditor";
-export type { NodeEditorProps, NodeEditorBreadcrumb } from "./NodeEditor";
+export type { NodeEditorProps, NodeEditorBreadcrumb, NodeEditorStatus } from "./NodeEditor";
 
 // TextEditor Feature
 export { TextEditor } from "./TextEditor";

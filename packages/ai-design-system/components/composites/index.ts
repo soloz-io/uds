@@ -424,3 +424,7 @@ export type { OrganisationMembersProps, OrganisationMember, OrganisationRole } f
 // GraphNodeCard Composite
 export { GraphNodeCard } from './GraphNodeCard'
 export type { GraphNodeCardData, GraphNodeTone } from './GraphNodeCard'
+
+// GraphStatusBanner Composite
+export { GraphStatusBanner } from './GraphStatusBanner'
+export type { GraphStatusBannerProps } from './GraphStatusBanner'

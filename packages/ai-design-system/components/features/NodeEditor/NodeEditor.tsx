@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { WorkflowToolbar, WorkflowToolbarActions } from "@/components/composites/WorkflowToolbar";
 import { WorkflowCanvas } from "@/components/blocks/WorkflowCanvas";
 import { AppBreadcrumb } from "@/components/composites/AppBreadcrumb";
+import { GraphStatusBanner, type GraphStatusBannerProps } from "@/components/composites/GraphStatusBanner";
 import type { WorkflowNode, WorkflowEdge } from "@/components/blocks/WorkflowCanvas";
 import type { ToolbarAction, WorkflowVersion } from "@/components/composites/WorkflowToolbar";
 import type { Connection, NodeChange, EdgeChange } from "@xyflow/react";
@@ -22,6 +23,9 @@ export interface NodeStatusEntry {
   nodeId: string;
   status: string;
 }
+
+/** The state of the data the editor shows. */
+export type NodeEditorStatus = Omit<GraphStatusBannerProps, "className">;
 
 /** One level of a graph hierarchy shown in the breadcrumb. */
 export interface NodeEditorBreadcrumb {
@@ -53,6 +57,9 @@ export interface NodeEditorProps {
    */
   breadcrumbs?: NodeEditorBreadcrumb[];
   onBreadcrumbSelect?: (index: number) => void;
+
+  /** The state of the data the graph shows (current, updating, failed with details), shown top-right */
+  status?: NodeEditorStatus;
 
   // Toolbar — right actions
   isSaving?: boolean;
@@ -113,6 +120,7 @@ export function NodeEditor({
   onEdgeClick,
   breadcrumbs,
   onBreadcrumbSelect,
+  status,
   isSaving = false,
   hasUnsavedChanges = false,
   canUndo = false,
@@ -221,7 +229,10 @@ export function NodeEditor({
           ) : undefined
         }
         topRight={
-          <WorkflowToolbarActions actionGroups={allActionGroups} />
+          <div className="flex flex-col items-end gap-2">
+            <WorkflowToolbarActions actionGroups={allActionGroups} />
+            {status && <GraphStatusBanner tone={status.tone} title={status.title} details={status.details} />}
+          </div>
         }
         topCenter={topCenter}
         onConnect={onConnect}

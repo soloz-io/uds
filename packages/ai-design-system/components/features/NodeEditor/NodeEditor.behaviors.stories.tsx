@@ -150,3 +150,16 @@ export const BreadcrumbReturns: Story = {
   },
 };
 
+/** A status is announced */
+export const StatusIsAnnounced: Story = {
+  args: {
+    nodes: mockNodes,
+    edges: mockEdges,
+    status: { tone: "error", title: "Latest data has errors", details: ["bad reference"] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByRole("alert")).toHaveTextContent("Latest data has errors");
+  },
+};
+

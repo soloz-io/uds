@@ -490,6 +490,16 @@ export const WithBreadcrumbs: Story = {
   },
 };
 
+/** A status banner: the graph shows its last valid version, and why the latest one failed */
+export const WithErrorStatus: Story = {
+  args: {
+    nodes: mockNodes,
+    edges: mockEdges,
+    breadcrumbs: mockBreadcrumbs,
+    status: { tone: "error", title: "Latest data has errors — showing last valid graph", details: ["approve: unknown target state"] },
+  },
+};
+
 export const WithStateManagement: Story = {
   render: () => <NodeEditorStateManagementStory />,
 };
