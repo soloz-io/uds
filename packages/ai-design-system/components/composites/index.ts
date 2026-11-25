@@ -421,7 +421,6 @@ export type { OutcomeListProps, ComputerOutcome } from './OutcomeList'
 export { OrganisationMembers } from './OrganisationMembers'
 export type { OrganisationMembersProps, OrganisationMember, OrganisationRole } from './OrganisationMembers'
 
-
-
-
-
+// GraphNodeCard Composite
+export { GraphNodeCard } from './GraphNodeCard'
+export type { GraphNodeCardData, GraphNodeTone } from './GraphNodeCard'
