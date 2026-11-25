@@ -373,6 +373,10 @@ export function EnhancedDataTable({
             className="flex size-8 cursor-pointer text-muted-foreground hover:text-foreground"
             onClick={(e) => {
               e.stopPropagation()
+              // A lone "edit" action enters edit mode, as it does from the menu.
+              if (singleAction.key === "edit") {
+                setEditingRowId(String(toRowId(row.original, tableSchema)))
+              }
               emitRowAction(singleAction.key, row.original)
             }}
             title={singleAction.label}

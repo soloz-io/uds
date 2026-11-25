@@ -89,8 +89,11 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
       date: selectedSession.date,
       goldenEvals: (data?.goldenEvals || []) as DashboardRow[],
       recommendations: (data?.recommendations ?? []).map((r, i) => ({ id: i, ...r })),
+      evalRecommendations: (data?.evalRecommendations ?? []).map((r, i) => ({ id: i, ...r })),
       systemPrompt: data?.systemPrompt,
-      outputTranscript: data?.outputTranscript
+      outputTranscript: data?.outputTranscript,
+      transcriptAgents: data?.transcriptAgents,
+      criteriaNotice: data?.criteriaNotice
     } : null
 
     return (

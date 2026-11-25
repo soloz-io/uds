@@ -2,8 +2,17 @@ export interface GoldenEvalResult {
   id: number;
   category: string;
   metric: string;
-  pass: 0 | 1;
+  /** 1 pass, 0 fail, "N/A" the criterion did not apply, "-" not graded yet. */
+  pass: 0 | 1 | 'N/A' | '-';
   reasoning: string;
+  /** The agent graded; absent for platform-wide criteria. */
+  agent?: string | null;
+  /** "code" for a declared tool-call check, "judge" for the judge model. */
+  evaluator?: 'code' | 'judge';
+  suite?: 'guardrail' | 'north-star';
+  /** A person's verdict on this row, if labelled. */
+  humanVerdict?: 'PASS' | 'FAIL' | 'N/A' | null;
+  humanExplanation?: string | null;
   [k: string]: unknown;
 }
 
@@ -31,9 +40,27 @@ export interface EvalRecommendation {
   expected_metrics?: number[];
 }
 
+/** A recommended change to the eval criteria themselves. */
+export interface EvalCriteriaRecommendation {
+  kind: string;
+  agent?: string;
+  criterion_id?: number;
+  change: string;
+  rationale: string;
+}
+
 export interface EvalDashboardFeatureData {
   goldenEvals: GoldenEvalResult[];
   recommendations: EvalRecommendation[];
+  evalRecommendations?: EvalCriteriaRecommendation[];
+  /** The eval run the verdicts belong to; labels attach to it. */
+  evalRunId?: string | null;
+  /** Agents that wrote lines in the transcript, for the Outputs filter. */
+  transcriptAgents?: string[];
+  /** The session's pack, whose criteria the rows are (null when unknown). */
+  criteriaPack?: string | null;
+  /** Set when the rows are the platform's fallback criteria, saying why. */
+  criteriaNotice?: string | null;
   systemPrompt: string;
   outputTranscript: string;
   runsHistory?: Array<{
@@ -53,6 +80,8 @@ export interface EvalDashboardFeatureActionHandlers {
   isTriggering?: boolean;
   timeRange?: string;
   onTimeRangeChange?: (range: string) => void;
+  /** Records a person's verdict on one graded row; absent hides labelling. */
+  onLabelVerdict?: (row: Record<string, unknown>, verdict: 'PASS' | 'FAIL' | 'N/A', explanation: string) => void;
 }
 
 export interface UseEvalDashboardFeatureReturn {
