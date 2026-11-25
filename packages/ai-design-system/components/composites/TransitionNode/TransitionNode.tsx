@@ -44,6 +44,8 @@ export type TransitionActionPhases = {
 export type TransitionNodeData = {
   label: string;
   description?: string;
+  /** Drawn as a pill on the path between two states; the description shows on hover. */
+  compact?: boolean;
   type: "transition";
   /** Transition execution type (canonical STS lifecycle types) */
   transitionType?: "human" | "conditional" | "scheduled" | "plugin" | "system";
@@ -122,7 +124,8 @@ export const TransitionNode = memo(
     }
 
     const displayTitle = data.label || "Transition";
-    const displayDescription = data.description;
+    const compact = data.compact === true;
+    const displayDescription = compact ? undefined : data.description;
     const status = data.status;
     const iconName = resolveTransitionIcon(data);
     const toolbarActions = Array.isArray(data.actions) ? data.actions : undefined;
@@ -131,6 +134,7 @@ export const TransitionNode = memo(
       <Node
         className={cn(
           "flex flex-col items-center justify-center border border-border bg-secondary text-secondary-foreground shadow-none transition-all duration-150 ease-out",
+          compact && "rounded-full",
           selected && "border-primary border-2"
         )}
         data-testid={`transition-node-${id}`}
@@ -155,7 +159,10 @@ export const TransitionNode = memo(
           </div>
         )}
 
-        <div className="flex h-full w-full items-center justify-center gap-2 px-4 py-3">
+        <div
+          className={cn("flex h-full w-full items-center justify-center gap-2", compact ? "px-3 py-1.5" : "px-4 py-3")}
+          title={compact ? data.description : undefined}
+        >
           <Icon
             name={iconName}
             size="xs"
@@ -170,7 +177,7 @@ export const TransitionNode = memo(
             strokeWidth={1.5}
           />
           <div className="min-w-0 flex-1 text-center">
-            <NodeTitle className="line-clamp-2 text-center text-xs font-medium leading-tight" title={displayTitle}>
+            <NodeTitle className={cn("text-center text-xs font-medium leading-tight", compact ? "line-clamp-1" : "line-clamp-2")} title={displayTitle}>
               {displayTitle}
             </NodeTitle>
             {displayDescription && (

@@ -3,6 +3,7 @@ import type { WorkflowNode, WorkflowEdge } from './interfaces';
 
 interface ElkNode {
   id: string;
+  layoutOptions?: Record<string, string>;
   x?: number;
   y?: number;
   width?: number;
@@ -19,6 +20,20 @@ interface ElkGraph {
     sources: string[];
     targets: string[];
   }>;
+}
+
+/** Height of a compact transition: a pill on the edge between two states. */
+const COMPACT_TRANSITION = { width: 200, height: 40 };
+
+/**
+ * The row a node is held to: triggers start the flow, and the end of every path
+ * (a terminal state, a hand-off) is aligned at the bottom.
+ */
+function layerConstraint(n: WorkflowNode): string | undefined {
+  const data = (n.data ?? {}) as Record<string, unknown>;
+  if (n.type === 'trigger') return 'FIRST_SEPARATE';
+  if ((n.type === 'state' && data.isTerminal === true) || data.handOff === true) return 'LAST_SEPARATE';
+  return undefined;
 }
 
 const DEFAULT_NODE_WIDTH = 220;
@@ -62,6 +77,7 @@ export async function getLayoutedElements(
       'elk.layered.considerModelOrder': 'true',
       'elk.layered.cycleBreaking.strategy': 'GREEDY_MODEL_ORDER',
       'elk.hierarchyHandling': 'INCLUDE_CHILDREN',
+      'elk.edgeRouting': 'ORTHOGONAL',
       ...elkOptions,
     },
     children: nodes.map((n) => {
@@ -86,11 +102,15 @@ export async function getLayoutedElements(
       const capPadding = hasSkills || hasTools ? 16 : 0;
       const calculatedAgentHeight = headerHeight + descHeight + skillsHeight + toolsHeight + capPadding;
 
+      const compact = n.type === 'transition' && data.compact === true ? COMPACT_TRANSITION : null;
+      const constraint = layerConstraint(n);
       return {
         id: n.id,
-        width: resolved?.width ?? DEFAULT_NODE_WIDTH,
+        ...(constraint ? { layoutOptions: { 'elk.layered.layering.layerConstraint': constraint } } : {}),
+        width: resolved?.width ?? compact?.width ?? DEFAULT_NODE_WIDTH,
         height:
           resolved?.height ??
+          compact?.height ??
           (isAgentNode
             ? Math.max(calculatedAgentHeight, 80)
             : hasDescription
@@ -121,11 +141,22 @@ export async function getLayoutedElements(
   const defaultSource = direction === 'RIGHT' ? 'source-right' : direction === 'DOWN' ? 'source-bottom' : undefined;
   const defaultTarget = direction === 'RIGHT' ? 'target-left' : direction === 'DOWN' ? 'target-top' : undefined;
 
-  const layoutedEdges: WorkflowEdge[] = edges.map((e) => ({
-    ...e,
-    sourceHandle: e.sourceHandle !== undefined ? e.sourceHandle : defaultSource,
-    targetHandle: e.targetHandle !== undefined ? e.targetHandle : defaultTarget,
-  }));
+  // The route ELK computed for each edge: its bend points, drawn by the edge so
+  // parallel and returning edges keep apart instead of sharing one straight path.
+  const routes = new Map(
+    ((layout.edges ?? []) as Array<{ id: string; sections?: Array<{ bendPoints?: Array<{ x: number; y: number }> }> }>).map(
+      (e) => [e.id, (e.sections ?? []).flatMap((s) => s.bendPoints ?? [])],
+    ),
+  );
+  const layoutedEdges: WorkflowEdge[] = edges.map((e) => {
+    const route = routes.get(e.id);
+    return {
+      ...e,
+      sourceHandle: e.sourceHandle !== undefined ? e.sourceHandle : defaultSource,
+      targetHandle: e.targetHandle !== undefined ? e.targetHandle : defaultTarget,
+      ...(route && route.length > 0 ? { data: { ...(e.data ?? {}), route } } : {}),
+    };
+  });
 
   return { nodes: layoutedNodes, edges: layoutedEdges };
 }

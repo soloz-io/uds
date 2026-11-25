@@ -29,6 +29,8 @@ export interface WorkflowEdge {
   sourceHandle?: string | null;
   targetHandle?: string | null;
   type?: string;
+  /** Edge data; `route` holds the bend points the layout computed, in canvas coordinates. */
+  data?: { route?: Array<{ x: number; y: number }> } & Record<string, unknown>;
 }
 
 export interface WorkflowCanvasProps {

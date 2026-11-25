@@ -80,6 +80,14 @@ function GraphCanvasInner({
 
   const openable = useMemo(() => new Set(nodes.filter((n) => n.openable).map((n) => n.id)), [nodes]);
 
+  // Re-layout: place every node afresh, forgetting dragged and remembered positions.
+  const relayout = useCallback(() => {
+    const placed = placeGraphNodes(nodes, groups, {});
+    placedRef.current = placed;
+    setFlowNodes((prev) => prev.map((n) => (placed[n.id] ? { ...n, position: placed[n.id]! } : n)));
+    emitPositions.current?.({ ...placed });
+  }, [nodes, groups]);
+
   const flowEdges: FlowEdge[] = useMemo(() => {
     const shown = new Set(flowNodes.map((n) => n.id));
     return edges
@@ -154,6 +162,9 @@ function GraphCanvasInner({
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
+          <Button variant="outline" size="sm" className="text-xs" onClick={relayout} data-testid="graph-canvas-relayout">
+            Re-layout
+          </Button>
         </Panel>
 
         {status && (
