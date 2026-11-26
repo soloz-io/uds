@@ -16,11 +16,16 @@ export interface GoldenEvalResult {
   [k: string]: unknown;
 }
 
+/** An eval run's outcome. failed and cancelled carry their reason. */
+export type EvalRunStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+
 export interface EvalSessionInfo {
   id: string;
   date: string;
   score: number;
   total: number;
+  /** The newest evaluation attempt's outcome, null when never evaluated. */
+  status?: EvalRunStatus | null;
   latency?: string;
   tokens?: number;
 }
@@ -55,12 +60,12 @@ export interface EvalDashboardFeatureData {
   evalRecommendations?: EvalCriteriaRecommendation[];
   /** The eval run the verdicts belong to; labels attach to it. */
   evalRunId?: string | null;
+  /** The newest evaluation attempt, which may be newer than the verdicts shown. */
+  latestEvalRun?: { id: string; status: EvalRunStatus; error: string | null; at: string } | null;
   /** Agents that wrote lines in the transcript, for the Outputs filter. */
   transcriptAgents?: string[];
-  /** The session's pack, whose criteria the rows are (null when unknown). */
-  criteriaPack?: string | null;
-  /** Set when the rows are the platform's fallback criteria, saying why. */
-  criteriaNotice?: string | null;
+  /** The session's pack, whose criteria the rows are. */
+  criteriaPack?: string;
   systemPrompt: string;
   outputTranscript: string;
   runsHistory?: Array<{

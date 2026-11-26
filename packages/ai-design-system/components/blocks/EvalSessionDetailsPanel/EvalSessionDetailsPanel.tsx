@@ -59,8 +59,10 @@ export interface EvalSessionDetails {
   outputTranscript?: string
   /** Agents that wrote lines in the transcript, for the Outputs filter. */
   transcriptAgents?: string[]
-  /** Said above the criteria when they are not the session's pack's own. */
-  criteriaNotice?: string | null
+  /** The newest evaluation attempt; a failed or cancelled one is shown with its reason. */
+  latestEvalRun?: { id: string; status: string; error: string | null; at: string } | null
+  /** The eval run the verdicts below belong to. */
+  evalRunId?: string | null
 }
 
 export interface EvalSessionDetailsPanelProps {
@@ -174,11 +176,26 @@ export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
           <div className="flex-1 min-h-0 overflow-hidden relative">
             <TabsContent value="golden-evals" className="absolute inset-0 m-0 p-0 overflow-hidden flex flex-col">
               <div className="p-4 flex-1 min-h-0 flex flex-col gap-3">
-                {sessionDetails.criteriaNotice && (
-                  <div role="status" className="text-xs rounded border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-foreground">
-                    {sessionDetails.criteriaNotice}
-                  </div>
-                )}
+                {sessionDetails.latestEvalRun &&
+                  (sessionDetails.latestEvalRun.status === "failed" || sessionDetails.latestEvalRun.status === "cancelled") && (
+                    <div
+                      role="alert"
+                      className={`text-xs rounded border px-3 py-2 text-foreground ${
+                        sessionDetails.latestEvalRun.status === "failed"
+                          ? "border-destructive/50 bg-destructive/10"
+                          : "border-amber-500/40 bg-amber-500/10"
+                      }`}
+                    >
+                      <div className="font-medium">
+                        Evaluation {sessionDetails.latestEvalRun.status} ·{" "}
+                        {new Date(sessionDetails.latestEvalRun.at).toLocaleString()}
+                      </div>
+                      <div className="mt-1 whitespace-pre-wrap">{sessionDetails.latestEvalRun.error}</div>
+                      {sessionDetails.evalRunId && sessionDetails.evalRunId !== sessionDetails.latestEvalRun.id && (
+                        <div className="mt-1 text-muted-foreground">The verdicts below are from an earlier completed evaluation.</div>
+                      )}
+                    </div>
+                  )}
                 {sessionDetails.goldenEvals && sessionDetails.goldenEvals.length > 0 ? (
                   <EnhancedDataTable
                     data={sessionDetails.goldenEvals}

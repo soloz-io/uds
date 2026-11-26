@@ -64,7 +64,15 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
       return inbox.items.map(session => ({
         id: session.id,
         title: session.id,
-        subtitle: `Score: ${session.score}/${session.total}`,
+        // A failed or cancelled latest attempt is said, never shown as a score.
+        subtitle:
+          session.status === 'failed'
+            ? 'Evaluation failed'
+            : session.status === 'cancelled'
+              ? 'Evaluation cancelled'
+              : session.status === 'pending' || session.status === 'running'
+                ? 'Evaluating…'
+                : `Score: ${session.score}/${session.total}`,
         timestamp: new Date(session.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }))
     }, [inbox.items]);
@@ -93,7 +101,8 @@ export const EvalDashboardFeature = React.memo<EvalDashboardFeatureProps>(
       systemPrompt: data?.systemPrompt,
       outputTranscript: data?.outputTranscript,
       transcriptAgents: data?.transcriptAgents,
-      criteriaNotice: data?.criteriaNotice
+      latestEvalRun: data?.latestEvalRun,
+      evalRunId: data?.evalRunId
     } : null
 
     return (
