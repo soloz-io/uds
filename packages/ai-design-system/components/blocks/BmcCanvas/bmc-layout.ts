@@ -75,9 +75,10 @@ export function bmcToCanvas(bmc: CompiledBmc | null, message?: string): BmcCanva
       : '';
 
     const tooltipInfo = BMC_TOOLTIPS[blockId];
-    const description = tooltipInfo
+    const guide = tooltipInfo
       ? `${tooltipInfo.description}\n\nKey Question: "${tooltipInfo.question}"\n\nExamples: ${tooltipInfo.examples.join(', ')}`
       : block.name;
+    const description = block.gaps?.length ? `${guide}\n\nNot shown:\n${block.gaps.map((g) => `- ${g}`).join('\n')}` : guide;
 
     nodes.push({
       id: layout.id,

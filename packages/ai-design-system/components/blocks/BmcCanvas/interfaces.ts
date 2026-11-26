@@ -26,6 +26,8 @@ export interface BmcBlock {
   empty: boolean;
   derived: boolean;
   sourceRefs: string[];
+  /** What the block cannot show from the model; shown with it, never filled in */
+  gaps?: string[];
 }
 
 export interface CompiledBmc {
