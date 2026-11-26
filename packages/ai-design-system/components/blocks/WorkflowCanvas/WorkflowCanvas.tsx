@@ -29,6 +29,7 @@ const edgeTypes = {
   straight: Edge.Strict,
   animated: Edge.Animated,
   temporary: Edge.Temporary,
+  relationship: Edge.Relationship,
 };
 
 const nodeTypes = {

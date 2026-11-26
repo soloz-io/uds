@@ -24,8 +24,8 @@ export type { WorkspaceEmptyStateProps, SandboxWakePaneProps, WorkspaceWakeStatu
 export { WorkflowCanvas, getLayoutedElements } from './WorkflowCanvas'
 export type { WorkflowCanvasProps, WorkflowNode, WorkflowEdge, WorkflowNodeData } from './WorkflowCanvas'
 
-export { bmcToCanvas } from './BmcCanvas'
-export type { BmcBlockId, BmcItem, BmcBlock, CompiledBmc, BmcCanvasView } from './BmcCanvas'
+export { sectionsToCanvas } from './SectionCanvas'
+export type { CanvasSection, CanvasCell, SectionCanvasInput, SectionCanvasView } from './SectionCanvas'
 
 export { DashboardMetrics } from './DashboardMetrics'
 export type { DashboardMetricsProps } from './DashboardMetrics'

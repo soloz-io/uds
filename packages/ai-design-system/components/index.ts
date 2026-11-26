@@ -189,7 +189,7 @@ export type {
 export {
   WorkflowCanvas,
   getLayoutedElements,
-  bmcToCanvas,
+  sectionsToCanvas,
   SectionLayout,
   ExpoAppPreview,
   HeroSection,

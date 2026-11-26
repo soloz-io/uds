@@ -450,7 +450,7 @@ export declare function applyTheme(root: ThemeRoot, theme: Theme): () => void;
 export declare const ThemeProvider: React.FC<ThemeProviderProps>;
 
 export declare function getLayoutedElements(nodes: any[], edges: any[]): Promise<{ nodes: any[]; edges: any[] }>;
-export declare function bmcToCanvas(bmc: CompiledBmc | null, message?: string): BmcCanvasView;
+export declare function sectionsToCanvas(input: SectionCanvasInput): SectionCanvasView;
 export declare function addEdge(edgeParams: any, edges: any[]): any[];
 
 // ============================================================================
