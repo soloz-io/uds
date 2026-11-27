@@ -21,6 +21,12 @@ const validations = [
     script: 'validations/validate-layer-imports.js',
   },
   {
+    name: 'Primitive Re-export Validation',
+    emoji: '🚫',
+    description: 'Checking that composites do not re-export primitives...',
+    script: 'validations/validate-no-primitive-reexports.js',
+  },
+  {
     name: 'Architectural Patterns Validation',
     emoji: '🏗️',
     description: 'Checking for anti-patterns and architectural workarounds...',

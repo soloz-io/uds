@@ -29,6 +29,8 @@ export interface WorkflowEdge {
   sourceHandle?: string | null;
   targetHandle?: string | null;
   type?: string;
+  /** Shown on the edge: a branch outcome ("approve", "reject") when the workflow names one. */
+  label?: string;
   /** Edge data; `route` holds the bend points the layout computed, in canvas coordinates. */
   data?: { route?: Array<{ x: number; y: number }> } & Record<string, unknown>;
 }

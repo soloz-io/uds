@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Area, CartesianGrid, ComposedChart, Line, XAxis } from "recharts"
+import { Area, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts"
 
 import {
   ChartContainer,
@@ -28,6 +28,16 @@ export interface DashboardChartPoint {
   date: string
   desktop: number
   mobile: number
+  /** Optional point identity, passed back by `onPointClick`. */
+  id?: string
+  /** Optional colour of this point's dot on the main series (e.g. green for better, red for worse). */
+  color?: string
+  /** Optional emphasis: the dot is drawn larger, with a ring. */
+  emphasized?: boolean
+  /** Optional heading for this point's tooltip, in place of its date. */
+  label?: string
+  /** Optional x-axis tick, used when the axis is "sequence". */
+  tick?: string
 }
 
 export type DashboardChartTimeRange = string;
@@ -45,6 +55,18 @@ export interface DashboardChartProps {
   showMobile: boolean
   className?: string
   chartClassName?: string
+  /** Called when a point of the main series is clicked; makes points clickable. */
+  onPointClick?: (point: DashboardChartPoint) => void
+  /** The id of the point shown as selected. */
+  selectedPointId?: string | null
+  /** Optional value range of the y axis, e.g. ["dataMin - 2", "dataMax + 2"] to show small differences; default from 0. */
+  yDomain?: [number | string, number | string]
+  /** Whether the area under each line is filled. Defaults to true. */
+  filled?: boolean
+  /** Optional colour of the second series; defaults to the primary colour. */
+  mobileColor?: string
+  /** "time" (default) places points by date; "sequence" places them one after another, in order, labelled by `tick`. */
+  xAxis?: "time" | "sequence"
 }
 
 interface DashboardTooltipPayloadItem {
@@ -77,7 +99,8 @@ const DashboardTooltipContent = React.memo((props: {
       label={label as string}
       payload={uniquePayload}
       labelFormatter={(value, tooltipPayload) => {
-        const typedPayload = tooltipPayload as Array<{ payload: { timestamp?: number } }>;
+        const typedPayload = tooltipPayload as Array<{ payload: { timestamp?: number; label?: string } }>;
+        if (typedPayload?.[0]?.payload?.label) return typedPayload[0].payload.label;
         const timestamp = typedPayload?.[0]?.payload?.timestamp;
         if (!timestamp) return null;
         const date = new Date(timestamp);
@@ -122,18 +145,39 @@ const DashboardTooltipContent = React.memo((props: {
 });
 DashboardTooltipContent.displayName = "DashboardTooltipContent";
 
-const CustomDot = React.memo((props: { cx?: number; cy?: number; stroke?: string }): React.ReactElement => {
-  const { cx, cy, stroke } = props;
+const CustomDot = React.memo((props: {
+  cx?: number;
+  cy?: number;
+  stroke?: string;
+  payload?: DashboardChartPoint;
+  onPointClick?: (point: DashboardChartPoint) => void;
+  selectedPointId?: string | null;
+  /** Draws the point's own colour and emphasis; only the main series does. */
+  styled?: boolean;
+}): React.ReactElement => {
+  const { cx, cy, stroke, onPointClick, selectedPointId, styled } = props;
+  const payload = styled ? props.payload : undefined;
+  const color = payload?.color ?? stroke;
+  const selected = payload?.id != null && payload.id === selectedPointId;
+  const clickable = Boolean(onPointClick && payload);
   return (
-    <circle
-      cx={cx}
-      cy={cy}
-      r={4}
-      fill="var(--background)"
-      stroke={stroke}
-      strokeWidth={2}
-      pointerEvents="none"
-    />
+    <g
+      onClick={clickable ? () => onPointClick!(payload!) : undefined}
+      style={clickable ? { cursor: "pointer" } : undefined}
+      pointerEvents={clickable ? "all" : "none"}
+    >
+      {(payload?.emphasized || selected) && (
+        <circle cx={cx} cy={cy} r={9} fill="none" stroke={color} strokeWidth={selected ? 2 : 1} strokeOpacity={selected ? 1 : 0.6} />
+      )}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={payload?.emphasized ? 6 : 4}
+        fill={payload?.color ?? "var(--background)"}
+        stroke={color}
+        strokeWidth={2}
+      />
+    </g>
   );
 });
 CustomDot.displayName = "CustomDot";
@@ -150,7 +194,13 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
   mobileLabel,
   showMobile,
   className,
-  chartClassName
+  chartClassName,
+  onPointClick,
+  selectedPointId,
+  yDomain,
+  filled = true,
+  mobileColor,
+  xAxis = "time",
 }) => {
   const [localTimeRange, setLocalTimeRange] = React.useState<DashboardChartTimeRange>(timeRanges[0]?.value)
   const timeRange = propsTimeRange ?? localTimeRange
@@ -186,8 +236,14 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
       filtered = sortedSeries.filter(item => new Date(item.date) >= startDate)
     }
 
+    // In sequence, points keep the order given.
+    if (xAxis === "sequence") {
+      const limit = parseInt(timeRange, 10)
+      const kept = Number.isFinite(limit) ? series.slice(-limit) : series
+      return kept.map((item, i) => ({ ...item, index: i, timestamp: new Date(item.date).getTime() }))
+    }
     return filtered.map(item => ({ ...item, timestamp: new Date(item.date).getTime() }))
-  }, [series, timeRange])
+  }, [series, timeRange, xAxis])
 
   return (
     <section className={cn("px-4 lg:px-6 flex flex-col h-full", className)}>
@@ -235,7 +291,7 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
           <ChartContainer
             config={{
               desktop: { label: desktopLabel, color: "var(--primary)" },
-              ...(showMobile ? { mobile: { label: mobileLabel, color: "var(--primary)" } } : {}),
+              ...(showMobile ? { mobile: { label: mobileLabel, color: mobileColor ?? "var(--primary)" } } : {}),
             }}
             className={cn("aspect-auto w-full", chartClassName || "h-[250px]")}
           >
@@ -253,6 +309,17 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
                 )}
               </defs>
               <CartesianGrid vertical={false} />
+              {xAxis === "sequence" ? (
+                <XAxis
+                  dataKey="index"
+                  type="category"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  padding={{ left: 24, right: 24 }}
+                  tickFormatter={(i) => (filteredSeries[i as number] as DashboardChartPoint | undefined)?.tick ?? String(i)}
+                />
+              ) : (
               <XAxis
                 dataKey="timestamp"
                 type="number"
@@ -272,6 +339,8 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
                   })
                 }}
               />
+              )}
+              {yDomain && <YAxis hide domain={yDomain} />}
               <ChartTooltip
                 cursor={false}
                 content={
@@ -283,12 +352,14 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
               />
               {showMobile && (
                 <>
-                  <Area
-                    dataKey="mobile"
-                    type="monotone"
-                    fill="url(#fillMobile)"
-                    stroke="none"
-                  />
+                  {filled && (
+                    <Area
+                      dataKey="mobile"
+                      type="monotone"
+                      fill="url(#fillMobile)"
+                      stroke="none"
+                    />
+                  )}
                   <Line
                     dataKey="mobile"
                     type="monotone"
@@ -299,19 +370,21 @@ export const DashboardChart = React.memo<DashboardChartProps>(({
                   />
                 </>
               )}
-              <Area
-                dataKey="desktop"
-                type="monotone"
-                fill="url(#fillDesktop)"
-                stroke="none"
-              />
+              {filled && (
+                <Area
+                  dataKey="desktop"
+                  type="monotone"
+                  fill="url(#fillDesktop)"
+                  stroke="none"
+                />
+              )}
               <Line
                 dataKey="desktop"
                 type="monotone"
                 stroke="var(--color-desktop)"
                 strokeWidth={2}
-                dot={<CustomDot />}
-                activeDot={{ r: 6 }}
+                dot={<CustomDot styled onPointClick={onPointClick} selectedPointId={selectedPointId} />}
+                activeDot={onPointClick ? false : { r: 6 }}
               />
             </ComposedChart>
           </ChartContainer>

@@ -8,7 +8,7 @@ import {
   type ConversationProps,
 } from "@/components/ai-elements/conversation"
 import type { ToolCall, SubAgent } from "@/components/composites"
-import { UserMessage, type UserMessageAttachment, type UserMessageSelection } from "@/components/composites/UserMessage"
+import { UserMessage, UserMessageAttachments, type UserMessageAttachment, type UserMessageSelection } from "@/components/composites/UserMessage"
 import { SpecialistMessage } from "@/components/composites/SpecialistMessage"
 import { OrchestratorMessage, type OrchestratorQuestionData } from "@/components/composites/OrchestratorMessage"
 import { SystemMessage } from "@/components/composites/SystemMessage"
@@ -118,6 +118,11 @@ export interface AIConversationProps
   /**
    * Callback fired when user restores a conversation checkpoint
    */
+  /**
+   * Thumbs on a settled agent reply, from the session's own user. Shown only
+   * when given; a thumbs-down asks for details inline.
+   */
+  onMessageFeedback?: (messageId: string, rating: "positive" | "negative", details?: string) => void | Promise<void>
   onRestoreCheckpoint?: (messageId: string, checkpointId: string) => void
   /**
    * Save the workspace as it stands after an orchestrator reply.
@@ -149,6 +154,7 @@ export const AIConversation = React.memo<AIConversationProps>(
     loadingOlder = false,
     onLoadOlder,
     onRestoreCheckpoint,
+    onMessageFeedback,
     onSaveWorkspace,
     isCurrentVersionSaved,
     isSavingWorkspace,
@@ -348,7 +354,17 @@ export const AIConversation = React.memo<AIConversationProps>(
                 <SystemMessage
                   key={message.id}
                   message={{ id: message.id, content: contentStr, avatarName: message.avatarName }}
-                  renderContent={() => notice}
+                  // What the request is about (its attachments) stays with it.
+                  renderContent={() =>
+                    message.attachments?.length ? (
+                      <div className="flex flex-col items-start gap-2">
+                        {notice}
+                        <UserMessageAttachments attachments={message.attachments} />
+                      </div>
+                    ) : (
+                      notice
+                    )
+                  }
                   origin="user"
                 />
               )
@@ -489,6 +505,9 @@ export const AIConversation = React.memo<AIConversationProps>(
                     </ReasoningDisplay>
                   )}
                 </OrchestratorMessage>
+                {onMessageFeedback && hasDisplayContent && !isStreaming && (
+                  <MessageFeedbackBar messageId={message.id} onFeedback={onMessageFeedback} />
+                )}
               </React.Fragment>
             )
           }
@@ -509,7 +528,7 @@ export const AIConversation = React.memo<AIConversationProps>(
             </React.Fragment>
           )
         }),
-      [groupedMessages, showAvatars, onToolAction, onRestoreCheckpoint, onSaveWorkspace, isCurrentVersionSaved, isSavingWorkspace, lastReplyIndex, renderSystemMessage, renderUserMessage]
+      [groupedMessages, showAvatars, onToolAction, onRestoreCheckpoint, onMessageFeedback, onSaveWorkspace, isCurrentVersionSaved, isSavingWorkspace, lastReplyIndex, renderSystemMessage, renderUserMessage]
     )
 
     // Keep resize instant until messages have loaded for this session, so the
@@ -558,3 +577,60 @@ export const AIConversation = React.memo<AIConversationProps>(
 )
 
 AIConversation.displayName = "AIConversation"
+
+/** Thumbs up or down on one agent reply; a thumbs-down can say what went wrong. */
+function MessageFeedbackBar({
+  messageId,
+  onFeedback,
+}: {
+  messageId: string
+  onFeedback: (messageId: string, rating: "positive" | "negative", details?: string) => void | Promise<void>
+}) {
+  const [given, setGiven] = React.useState<"positive" | "negative" | null>(null)
+  const [asking, setAsking] = React.useState(false)
+  const [details, setDetails] = React.useState("")
+  const send = async (rating: "positive" | "negative", text?: string) => {
+    await onFeedback(messageId, rating, text)
+    setGiven(rating)
+    setAsking(false)
+  }
+  return (
+    <div className="ml-10 mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground" data-testid="message-feedback">
+      <button
+        type="button"
+        aria-label="Good reply"
+        aria-pressed={given === "positive"}
+        className={`rounded px-1.5 py-0.5 hover:bg-muted ${given === "positive" ? "text-emerald-600" : ""}`}
+        onClick={() => void send("positive")}
+      >
+        👍
+      </button>
+      <button
+        type="button"
+        aria-label="Bad reply"
+        aria-pressed={given === "negative"}
+        className={`rounded px-1.5 py-0.5 hover:bg-muted ${given === "negative" ? "text-red-600" : ""}`}
+        onClick={() => setAsking(true)}
+      >
+        👎
+      </button>
+      {asking && (
+        <span className="flex items-center gap-1">
+          <input
+            className="h-6 w-64 rounded border border-input bg-background px-1.5"
+            placeholder="What went wrong? (optional)"
+            value={details}
+            onChange={(e) => setDetails(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") void send("negative", details)
+            }}
+          />
+          <button type="button" className="rounded px-1.5 py-0.5 hover:bg-muted" onClick={() => void send("negative", details)}>
+            Send
+          </button>
+        </span>
+      )}
+      {given && !asking && <span>Thanks — feedback recorded</span>}
+    </div>
+  )
+}

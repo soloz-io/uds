@@ -4,6 +4,8 @@ import {
   ConnectionMode,
   ReactFlowProvider,
   type Connection,
+  type Edge as XYFlowEdge,
+  type IsValidConnection,
   type Node,
   useReactFlow,
 } from "@xyflow/react";
@@ -156,7 +158,7 @@ function WorkflowCanvasInner({
         edges={edges}
         edgeTypes={edgeTypes}
         elementsSelectable={true}
-        isValidConnection={isValidConnection}
+        isValidConnection={isValidConnection as IsValidConnection}
         nodes={nodes}
         nodeTypes={nodeTypes}
         nodesConnectable={interactive}
@@ -170,7 +172,7 @@ function WorkflowCanvasInner({
         onNodeClick={onNodeClick as (event: React.MouseEvent, node: Node) => void}
         onNodeDoubleClick={onNodeDoubleClick as ((event: React.MouseEvent, node: Node) => void) | undefined}
         zoomOnDoubleClick={false}
-        onEdgeClick={onEdgeClick}
+        onEdgeClick={onEdgeClick as (event: React.MouseEvent, edge: XYFlowEdge) => void}
       >
         {topLeft && (
           <Panel

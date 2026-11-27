@@ -40,7 +40,7 @@ export type { WorkflowObservabilityFeatureProps } from "./WorkflowObservabilityF
 
 // EvalDashboardFeature Feature
 export { EvalDashboardFeature } from "./EvalDashboardFeature";
-export type { EvalDashboardFeatureProps } from "./EvalDashboardFeature";
+export type { EvalDashboardFeatureProps, EvalDashboardViewContext } from "./EvalDashboardFeature";
 export type { UseEvalDashboardFeatureReturn, EvalDashboardFeatureInboxState, EvalDashboardFeatureData, GoldenEvalResult, EvalSessionInfo } from "./EvalDashboardFeature";
 
 // AuthFeature Feature
@@ -60,3 +60,18 @@ export type {
   GraphViewTone,
   GraphViewBreadcrumb,
 } from "./GraphView";
+
+// GitConnectionsFeature Feature
+export { GitConnectionsFeature } from "./GitConnectionsFeature";
+export type {
+  GitConnectionsFeatureProps,
+  UseGitConnectionsFeatureReturn,
+  GitConnectionsFeatureData,
+  GitConnectionsFeatureActionHandlers,
+  ConnectedOrganization,
+  BusinessRelease,
+  BusinessRepository,
+  BoxConnectionItem,
+  GitConnectionState,
+} from "./GitConnectionsFeature";
+

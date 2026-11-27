@@ -178,6 +178,8 @@ export interface ChatPanelProps {
    * Callback fired when user restores a conversation checkpoint
    */
   onRestoreCheckpoint?: (messageId: string, checkpointId: string) => void;
+  /** Thumbs on a settled agent reply (passed to AIConversation). */
+  onMessageFeedback?: (messageId: string, rating: "positive" | "negative", details?: string) => void | Promise<void>;
   /** Save the workspace from an orchestrator reply — paired with onRestoreCheckpoint. */
   onSaveWorkspace?: () => void;
   /** True when the current version is already kept. */
@@ -350,6 +352,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
     loadingOlderMessages,
     onLoadOlderMessages,
     onRestoreCheckpoint,
+    onMessageFeedback,
     onSaveWorkspace,
     isCurrentVersionSaved,
     isSavingWorkspace,
@@ -579,6 +582,7 @@ export const ChatPanel = React.memo<ChatPanelProps>(
           loadingOlder={loadingOlderMessages}
           onLoadOlder={onLoadOlderMessages}
           onRestoreCheckpoint={onRestoreCheckpoint}
+          onMessageFeedback={onMessageFeedback}
           onSaveWorkspace={onSaveWorkspace}
           isCurrentVersionSaved={isCurrentVersionSaved}
           isSavingWorkspace={isSavingWorkspace}

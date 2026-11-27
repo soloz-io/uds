@@ -1,10 +1,26 @@
 export { EvalDashboardFeature } from "./EvalDashboardFeature"
-export type { EvalDashboardFeatureProps } from "./EvalDashboardFeature"
+export type { EvalDashboardFeatureProps, EvalDashboardViewContext } from "./EvalDashboardFeature"
 export type {
   UseEvalDashboardFeatureReturn,
   EvalDashboardFeatureActionHandlers,
   EvalDashboardFeatureInboxState,
   EvalDashboardFeatureData,
   GoldenEvalResult,
-  EvalSessionInfo
+  EvalSessionInfo,
+  EvalConversationalFeedback,
+  EvalDatasetRun,
+  EvalImprovementCandidate,
+  EvalTurnReward,
+  EvalImprovement,
+  EvalImprovementStage,
+  EvalImprovementTargetKind,
+  EvalExperimentOutcome,
+  EvalScore,
+  EvalChangeDecision,
+  EvalChangeKind,
+  EvalExperiment,
+  EvalExperimentStep,
+  EvalImprovementTarget,
+  EvalProposedChange,
+  EvalGitConnection,
 } from "./useEvalDashboardFeature.d"

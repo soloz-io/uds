@@ -148,12 +148,20 @@ export async function getLayoutedElements(
       (e) => [e.id, (e.sections ?? []).flatMap((s) => s.bendPoints ?? [])],
     ),
   );
+  // A workflow names a branch's outcome as its edge's source handle
+  // ("approve", "reject"): the engine routes on it, but a node only has
+  // positional handles, and an edge naming one it lacks is not drawn. Such an
+  // edge leaves from the default side and shows its outcome as its label.
+  const positional = (handle: string | null | undefined, kind: 'source' | 'target') =>
+    handle === undefined || handle === null || handle.startsWith(`${kind}-`);
   const layoutedEdges: WorkflowEdge[] = edges.map((e) => {
     const route = routes.get(e.id);
+    const outcome = positional(e.sourceHandle, 'source') ? undefined : (e.sourceHandle as string);
     return {
       ...e,
-      sourceHandle: e.sourceHandle !== undefined ? e.sourceHandle : defaultSource,
-      targetHandle: e.targetHandle !== undefined ? e.targetHandle : defaultTarget,
+      sourceHandle: e.sourceHandle !== undefined && !outcome ? e.sourceHandle : defaultSource,
+      targetHandle: e.targetHandle !== undefined && positional(e.targetHandle, 'target') ? e.targetHandle : defaultTarget,
+      ...(outcome && !e.label ? { label: outcome } : {}),
       ...(route && route.length > 0 ? { data: { ...(e.data ?? {}), route } } : {}),
     };
   });

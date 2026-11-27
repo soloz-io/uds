@@ -62,6 +62,7 @@ if (needsValidation.layerImports) {
   console.log('📋 Checking layer imports...');
   try {
     execSync('node scripts/validations/validate-layer-imports.js', { stdio: 'inherit' });
+    execSync('node scripts/validations/validate-no-primitive-reexports.js', { stdio: 'inherit' });
   } catch {
     hasErrors = true;
   }

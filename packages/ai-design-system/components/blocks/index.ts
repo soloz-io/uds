@@ -60,3 +60,16 @@ export type { StoryPlayerProps, ScenePlayerProps, StorySegment, SceneItem } from
 
 export { GraphCanvas, placeGraphNodes } from './GraphCanvas'
 export type { GraphCanvasProps, GraphCanvasNode, GraphCanvasEdge, GraphCanvasGroup, GraphCanvasStatus, GraphCanvasDetails, GraphCanvasBreadcrumb, GraphPosition, GraphTone } from './GraphCanvas'
+
+// TurnTimeline Block
+export { TurnTimeline } from './TurnTimeline'
+export type { TurnTimelineProps, TimelineTurn, TimelineEvent, TimelineFeedback } from './TurnTimeline'
+
+// ComparisonReport Block
+export { ComparisonReport } from './ComparisonReport'
+export type { ComparisonReportProps, ComparisonCriterion, ComparisonSide } from './ComparisonReport'
+
+
+// EvalImprovementPanel Block
+export { EvalImprovementPanel, nextExperiment } from './EvalImprovementPanel'
+export type { EvalImprovementPanelProps, EvalImprovementTarget, EvalProposedChange, EvalExperiment, EvalExperimentStep } from './EvalImprovementPanel'

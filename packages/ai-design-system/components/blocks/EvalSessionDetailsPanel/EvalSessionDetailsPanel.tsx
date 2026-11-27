@@ -53,8 +53,9 @@ export interface EvalSessionDetails {
   id: string
   date: string
   goldenEvals: DashboardRow[]
-  recommendations: Array<{ id: number; change: string; rationale: string }>
-  evalRecommendations?: Array<EvalCriteriaRecommendation & { id: number }>
+  /** changeStatus: where the change made from it stands (draft … accepted), when one was made. */
+  recommendations: Array<{ id: number; change: string; rationale: string; changeStatus?: string }>
+  evalRecommendations?: Array<EvalCriteriaRecommendation & { id: number; changeStatus?: string }>
   systemPrompt?: string
   outputTranscript?: string
   /** Agents that wrote lines in the transcript, for the Outputs filter. */
@@ -73,8 +74,14 @@ export interface EvalSessionDetailsPanelProps {
     onDownloadPrompt?: () => Promise<import('@/components/composites/FileTreeExplorer').FileDownloadResult | undefined>
     /** Records a person's verdict on one graded criterion; absent hides labelling. */
     onLabelVerdict?: (row: DashboardRow, verdict: EvalVerdict, explanation: string) => void
+    /** Asks the eval agent why the judge graded one criterion as it did; absent hides the action. */
+    onAskAboutVerdict?: (row: DashboardRow) => void
   }
   workflowContent?: React.ReactNode
+  /** Selecting a recommendation: which table, and its id. */
+  onSelectRecommendation?: (kind: "agent" | "evals", id: number) => void
+  /** Shown under the recommendations: the selected recommendation's change and its evidence. */
+  recommendationDetail?: React.ReactNode
 }
 
 const VERDICTS: EvalVerdict[] = ["PASS", "FAIL", "N/A"]
@@ -85,31 +92,38 @@ export const EvalTriggerButton = ({ onClick, loading }: { onClick: () => void; l
   </Button>
 )
 
-const recommendationTableSchema = dynamicTableSchema.parse({
-  schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
-  rowKey: "change",
-  enableFiltering: true,
-  enablePagination: false,
-  enableRowSelection: false,
-  columns: [
-    { key: "change", label: "Recommendation", renderType: "text" },
-    { key: "rationale", label: "Rationale", renderType: "text" },
-  ],
-})
+/** The status of the change made from a recommendation, shown when any recommendation has one. */
+const CHANGE_STATUS_COLUMN = { key: "changeStatus", label: "Change", renderType: "status" as const, width: 130 }
 
-const evalRecommendationTableSchema = dynamicTableSchema.parse({
-  schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
-  rowKey: "id",
-  enableFiltering: true,
-  enablePagination: false,
-  enableRowSelection: false,
-  columns: [
-    { key: "kind", label: "Kind", renderType: "badge" },
-    { key: "agent", label: "Agent", renderType: "text" },
-    { key: "change", label: "Change to the evals", renderType: "text" },
-    { key: "rationale", label: "Rationale", renderType: "text" },
-  ],
-})
+const recommendationTableSchema = (withChanges: boolean) =>
+  dynamicTableSchema.parse({
+    schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
+    rowKey: "change",
+    enableFiltering: true,
+    enablePagination: false,
+    enableRowSelection: false,
+    columns: [
+      { key: "change", label: "Recommendation", renderType: "text" },
+      { key: "rationale", label: "Rationale", renderType: "text" },
+      ...(withChanges ? [CHANGE_STATUS_COLUMN] : []),
+    ],
+  })
+
+const evalRecommendationTableSchema = (withChanges: boolean) =>
+  dynamicTableSchema.parse({
+    schemaVersion: DYNAMIC_TABLE_SCHEMA_VERSION,
+    rowKey: "id",
+    enableFiltering: true,
+    enablePagination: false,
+    enableRowSelection: false,
+    columns: [
+      { key: "kind", label: "Kind", renderType: "badge" },
+      { key: "agent", label: "Agent", renderType: "text" },
+      { key: "change", label: "Change to the evals", renderType: "text" },
+      { key: "rationale", label: "Rationale", renderType: "text" },
+      ...(withChanges ? [CHANGE_STATUS_COLUMN] : []),
+    ],
+  })
 
 const goldenEvalTableSchema = (labelling: boolean) =>
   dynamicTableSchema.parse({
@@ -141,7 +155,8 @@ const goldenEvalTableSchema = (labelling: boolean) =>
     ],
   })
 
-const LABEL_ACTIONS = [{ key: "edit", label: "Label this verdict", icon: "tag" }]
+const LABEL_ACTION = { key: "edit", label: "Label this verdict", icon: "tag" }
+const ASK_ACTION = { key: "ask", label: "Ask why", icon: "message-circle" }
 
 /** Outputs filtered to the lines one agent wrote (`[agent] role: …`), or all. */
 function transcriptFor(transcript: string, agent: string | null): string {
@@ -153,22 +168,36 @@ function transcriptFor(transcript: string, agent: string | null): string {
 }
 
 export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
-  ({ sessionDetails, activeTab, workflowContent, actionHandlers }) => {
+  ({ sessionDetails, activeTab, workflowContent, actionHandlers, onSelectRecommendation, recommendationDetail }) => {
     const onLabelVerdict = actionHandlers?.onLabelVerdict
     const [outputAgent, setOutputAgent] = React.useState<string | null>(null)
+    const onAskAboutVerdict = actionHandlers?.onAskAboutVerdict
+    const verdictActions = [...(onLabelVerdict ? [LABEL_ACTION] : []), ...(onAskAboutVerdict ? [ASK_ACTION] : [])]
+    // A label is saved once, when its row's editing ends: the table reports
+    // every keystroke of "Why", and saving each would store partial reasons.
+    const pendingLabel = React.useRef<DashboardRow | null>(null)
     const labelHandlers = React.useMemo(
       () =>
-        onLabelVerdict
+        onLabelVerdict || onAskAboutVerdict
           ? {
               onInlineEditSave: (_rowId: number | string, field: string, _value: string, row: DashboardRow) => {
-                if (field !== "humanVerdict" && field !== "humanExplanation") return
+                if (field === "humanVerdict" || field === "humanExplanation") pendingLabel.current = row
+              },
+              onEditModeChange: (rowId: number | string | null) => {
+                if (rowId !== null) return
+                const row = pendingLabel.current
+                pendingLabel.current = null
+                if (!row || !onLabelVerdict) return
                 const verdict = row.humanVerdict as EvalVerdict | undefined
                 if (!verdict || !VERDICTS.includes(verdict)) return
                 onLabelVerdict(row, verdict, String(row.humanExplanation ?? ""))
               },
+              onRowAction: (action: string, row: DashboardRow) => {
+                if (action === "ask") onAskAboutVerdict?.(row)
+              },
             }
           : undefined,
-      [onLabelVerdict]
+      [onLabelVerdict, onAskAboutVerdict]
     )
     return (
       <div className="flex flex-col h-full bg-background">
@@ -201,7 +230,7 @@ export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
                     data={sessionDetails.goldenEvals}
                     tableSchema={goldenEvalTableSchema(!!onLabelVerdict)}
                     handlers={labelHandlers}
-                    rowActions={onLabelVerdict ? LABEL_ACTIONS : undefined}
+                    rowActions={verdictActions.length > 0 ? verdictActions : undefined}
                   />
                 ) : (
                   <div className="text-sm text-muted-foreground flex-1 flex items-center justify-center">No evaluation data available.</div>
@@ -214,7 +243,8 @@ export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
                 {sessionDetails.recommendations && sessionDetails.recommendations.length > 0 ? (
                   <EnhancedDataTable
                     data={sessionDetails.recommendations}
-                    tableSchema={recommendationTableSchema}
+                    tableSchema={recommendationTableSchema(sessionDetails.recommendations.some((r) => r.changeStatus))}
+                    handlers={onSelectRecommendation ? { onRowClick: (row) => onSelectRecommendation("agent", Number(row.id)) } : undefined}
                   />
                 ) : (
                   <div className="text-sm text-muted-foreground flex items-center justify-center py-6">No recommendations available.</div>
@@ -224,11 +254,13 @@ export const EvalSessionDetailsPanel = React.memo<EvalSessionDetailsPanelProps>(
                     <div className="text-sm font-medium">Improve the evals</div>
                     <EnhancedDataTable
                       data={sessionDetails.evalRecommendations as unknown as DashboardRow[]}
-                      tableSchema={evalRecommendationTableSchema}
+                      tableSchema={evalRecommendationTableSchema(sessionDetails.evalRecommendations.some((r) => r.changeStatus))}
                       rowActions={[]}
+                      handlers={onSelectRecommendation ? { onRowClick: (row) => onSelectRecommendation("evals", Number(row.id)) } : undefined}
                     />
                   </div>
                 )}
+                {recommendationDetail}
               </div>
             </TabsContent>
 

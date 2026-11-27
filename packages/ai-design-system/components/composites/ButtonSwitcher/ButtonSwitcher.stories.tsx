@@ -28,3 +28,19 @@ export const Empty: Story = {
     currentWorkflowId: undefined,
   },
 }
+
+/** Items in groups: the menu lists each group once and opens its items on demand; an ungrouped item is listed directly. */
+export const Grouped: Story = {
+  args: {
+    items: [
+      { id: "golden-evals", name: "Golden Evals", group: "Grading" },
+      { id: "recommendations", name: "Recommendations", group: "Grading" },
+      { id: "turns", name: "Turns", group: "Session" },
+      { id: "outputs", name: "Outputs", group: "Session" },
+      { id: "improvement", name: "Improvement" },
+      { id: "workflow", name: "Workflow", group: "Eval run" },
+    ],
+    activeId: "turns",
+    onSelect: () => {},
+  },
+}

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import * as React from "react"
-import { expect, within, userEvent, fn } from "@storybook/test"
+import { expect, within, fn } from "@storybook/test"
 import { EvalDashboardFeature } from "./EvalDashboardFeature"
 import { evalDashboardFeatureStateMock, workflowMockNodes, workflowMockEdges } from "./EvalDashboardFeature.mocks"
 import { NodeEditor } from "@/components/features/NodeEditor"
@@ -36,12 +36,9 @@ export const Interactive: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     
-    // 4 tabs: Golden Evals, System Prompts, Outputs, Workflow
-    const tabs = await canvas.findAllByRole("tab")
-    expect(tabs.length).toBe(4)
-    
-    // Switch to Workflow tab
-    const workflowTab = canvas.getByRole("tab", { name: /Workflow/i })
-    await userEvent.click(workflowTab)
+    // The existing "Select View" switcher stays; the new views are among its options.
+    expect(await canvas.findByText("Golden Evals")).toBeInTheDocument()
+
+
   },
 }

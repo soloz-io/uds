@@ -166,7 +166,8 @@ function UserSelectionAnswer({ answer }: { answer: string }) {
   )
 }
 
-function UserMessageAttachments({ attachments }: { attachments: UserMessageAttachment[] }) {
+/** A message's attachments as chips, images and audio; also shown under a request read as a notice. */
+export function UserMessageAttachments({ attachments }: { attachments: UserMessageAttachment[] }) {
   const images = attachments.filter((a) => a.mime.startsWith("image/"))
   const audio = attachments.filter((a) => a.mime.startsWith("audio/"))
   const items = attachments.filter(
